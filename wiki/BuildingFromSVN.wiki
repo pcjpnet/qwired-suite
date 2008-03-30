@@ -5,6 +5,8 @@
 
 The best way to stay up-to-date during heavy development phases is SVN. This can be done on Mac OS X, Windows and Linux.
 
+----
+
 ==Installing SVN and Checking out Qwired==
 In order to compile Qwired, you have to check out the latest source code from the Subversion/SVN tree. This might look rather complex at first but really is the most easy way to stay up to date.
 
@@ -55,6 +57,7 @@ There are plenty of graphical Subversion clients for Mac OS X (such as SmartSVN)
 
 Checking out the source code will take some time, get yourself a bowl of milk and continue reading.
 
+----
 
 ==Compiling==
 ===Linux/Ubuntu 7.10 (or later)===
@@ -80,6 +83,7 @@ Compilation on Mac OS X requires you to install the Developer Tools (Xcode).
 
 The compile_osx.sh script will execute the needed commands to compile the source code. If errors occour, check the contents of the file _make.log_.
 
+
 ===Windows===
 Installation on Windows is very similar to Mac OS X.
 
@@ -89,11 +93,11 @@ Installation on Windows is very similar to Mac OS X.
  # Right-click on "My Computer" and select Properties.
  # Click the "Advanced" tab, then the "Environment Variables" button.
  # In the "System Variables" list, find the "Path" variable and double-click it.
- # Add `C:\MinGW\bin;C:\Qt\4.3.4\bin` to the end of the value of the variable. Don't forget to separate any previous values by using the *;' character.
+ # Add `C:\MinGW\bin;C:\Qt\4.3.4\bin` to the end of the value of the variable. Don't forget to separate any previous values by using the *;* character.
  # Click OK and close the properties window.
  # Open a Shell/Terminal.
  # `cd Desktop\qwired-suite\`
  # `qmake`
  # `make`
 
-The compiler should now do its job and compile the latest Qwired source code. This will take some moments.
+The compiler should now do its job and compile the latest Qwired source code. This will take some moments. You will find a qwired.exe in the bin directory after the compilation finishes.
