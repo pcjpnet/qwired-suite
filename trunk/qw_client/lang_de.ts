@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="de">
+<defaultcodec></defaultcodec>
 <context>
     <name>ClassWiredSession</name>
     <message>
@@ -1078,7 +1079,8 @@ Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
         <location filename="gui/widgetnews.cpp" line="85"/>
         <source>From %1 (%2):
 </source>
-        <translation>Von %1 (%2):</translation>
+        <translation type="unfinished">Von %1 (%2):
+</translation>
     </message>
     <message>
         <location filename="gui/widgetnews.cpp" line="88"/>
