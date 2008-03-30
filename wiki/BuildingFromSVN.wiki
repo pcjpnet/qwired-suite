@@ -13,7 +13,7 @@ Open a Terminal and type the following commands:
 
  # `sudo apt-get install subversion`   _(you will be asked for your password)_
  # `cd ~`
- # `svn co https://qwired-client.svn.sourceforge.net/svnroot/qwired-client/trunk QwiredSVN`
+ # ~~`svn co `~~
 
 The directory ~/QwiredSVN now contains the current source code and some information about the SVN connection itself. The checkout only needs to be done once. After that you just update your copy of the source code by doing the following:
 
@@ -29,7 +29,7 @@ To check out the source under Windows, you have to install a small SVN client. T
  # Reboot (if you did not do that already).
  # On the Desktop, create a new folder called "QwiredSF".
  # Right click on the new folder and select "SVN Checkout..." from the context menu.
- # In the check out window enter the URL: `https://qwired-client.svn.sourceforge.net/svnroot/qwired-client/trunk`
+ # In the check out window enter the URL: ~~`https://qwired-client.svn.sourceforge.net/svnroot/qwired-client/trunk`~~
  # Click "OK"
  # If you do not have OpenSSL installed already (Microsoft thought it would be a good idea to NOT ship it with Windows), download and install it (around 1MB) from http://www.slproweb.com/download/Win32OpenSSL_Light-0_9_8g.exe
 
@@ -39,58 +39,51 @@ The checkout process might take a short while because it has to download all the
 ===Mac OS X===
 There are plenty of graphical Subversion clients for Mac OS X (such as SmartSVN). But for this, the command line client should do the job.
 
-   1. Download SVN from http://downloads.open.collab.net/binaries.html and install it. \\
-      Open a Terminal and execute the following commands:
-   2. cd ~/
-   3. svn co https://qwired-client.svn.sourceforge.net/svnroot/qwired-client/trunk QwiredSF
+ # Download SVN from http://downloads.open.collab.net/binaries.html and install it. Open a Terminal and execute the following commands:
+ # `cd ~/`
+ # svn co ~~https://qwired-client.svn.sourceforge.net/svnroot/qwired-client/trunk QwiredSF~~
 
 Checking out the source code will take some time, get yourself a bowl of milk and continue reading.
 
-
-Compiling
-Linux/Ubuntu 7.10 (or later)
+==Compiling==
+===Linux/Ubuntu 7.10 (or later)===
 Installation on Ubuntu is trivial, most tools required to build Qwired are provided by the package repositories.
 
-   1. Open a terminal (or package manager).
-   2. apt-get install libqt4-core libqt4-gui subversion
-   3. See Installing SVN and Checking out Qwired
-   4. cd ~/QwiredSF/
-   5. qmake
-   6. make (if you have 2 or more CPU cores, append '-j2')
+ # Open a terminal and execute:
+ # `apt-get install libqt4-core libqt4-gui subversion`
+ # See Installing SVN and Checking out Qwired
+ # `cd ~/QwiredSVN/`
+ # `qmake`
+ # `make` (if you have 2 or more CPU cores, append '-j2')
 
 
-
-Mac OS X
+===Mac OS X===
 Compilation on Mac OS X requires you to install the Developer Tools (Xcode).
 
-   1. Install Xcode/Developer tools on Mac OS X (can be optained for free from Apple's Developer Connection).
-   2. Download the Qt4-framework as precompiled package from Trolltech's FTP (the latest 4.3.x will do):
-      ftp://ftp.trolltech.com:21//qt/source/qt-mac-opensource-4.3.4.dmg
-   3. Install the package (default install should be fine).
-   4. See Installing SVN and Checking out Qwired
-   5. cd ~/QwiredSF/
-   6. sh compile_osx.sh
+ # Install Xcode/Developer tools on Mac OS X (can be optained for free from Apple's Developer Connection).
+ # Download the Qt4-framework as precompiled package from Trolltech's FTP (the latest 4.3.x will do): ftp://ftp.trolltech.com:21//qt/source/qt-mac-opensource-4.3.4.dmg
+ # Install the package (default install should be fine).
+ # See Installing SVN and Checking out Qwired
+ # `cd ~/QwiredSF/`
+ # `sh compile_osx.sh`
 
 The compile_osx.sh script will execute the needed commands to compile the source code.
 
 
-Windows
+===Windows===
 Installation on Windows is very similar to Mac OS X.
 
-   1. Download the Qt4-framework (compiler is included) from:
-      ftp://ftp.trolltech.com:21//qt/source/qt-win-opensource-4.3.4-mingw.exe
-      or, alternatively here: http://trolltech.com/developer/downloads/qt/windows
-   2. Install the framework and the compiler you just downloaded.
-   3. See Installing SVN and Checking out Qwired
-   4. Right-click on "My Computer" and select Properties.
-   5. Click the "Advanced" tab, then the "Environment Variables" button.
-   6. In the "System Variables" list, find the "Path" variable and double-click it.
-   7. Add ;C:\MinGW\bin;C:\Qt\4.3.4\bin to the end of the value of the variable.
-   8. Click OK and close the properties window.
-   9. Open a Shell/Terminal.
-  10. cd Desktop\QwiredSF\
-  11. qmake
-  12. make
-
+ # Download the Qt4-framework (compiler is included) from: ftp://ftp.trolltech.com:21//qt/source/qt-win-opensource-4.3.4-mingw.exe or, alternatively here: http://trolltech.com/developer/downloads/qt/windows
+ # Install the framework and the compiler you just downloaded.
+ # See Installing SVN and Checking out Qwired
+ # Right-click on "My Computer" and select Properties.
+ # Click the "Advanced" tab, then the "Environment Variables" button.
+ # In the "System Variables" list, find the "Path" variable and double-click it.
+ # Add ;C:\MinGW\bin;C:\Qt\4.3.4\bin to the end of the value of the variable.
+ # Click OK and close the properties window.
+ # Open a Shell/Terminal.
+ # cd Desktop\QwiredSF\
+ # `qmake`
+ # `make`
 
 The compiler should now do its job and compile the latest Qwired source code. This will take some moments.
