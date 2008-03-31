@@ -22,6 +22,7 @@
 #ifndef WIREDSOCKET_H
 #define WIREDSOCKET_H
 
+#include "classwireduser.h"
 #include <QtCore>
 #include <QtNetwork>
 
@@ -44,20 +45,34 @@ class WiredSocket : public QObject
 	public:
 		WiredSocket(QObject *parent = 0);
 		~WiredSocket();
+		void setWiredSocket(QSslSocket *socket);
 
 	private slots:
-		void on_socket_readyRead();
+		void readDataFromSocket();
 		void on_socket_sslErrors(const QList<QSslError> & errors);
-		void do_handle_wiredmessage(QByteArray theData);
+		void handleWiredMessage(QByteArray theData);
 		void on_socket_error();
+
+		// Protocol Stack
+		void qwSendServerInformation();
+		void qwSendLoginSuccessful(int userId);
+		void qwSendCommandNotImplemented();
+		void qwSendUserlist(int chatId);
 		
 	private:
+		// Session state parameters
+		//
+
+		ClassWiredUser pSessionUser;
+		bool pHandshakeOK;
+		
 		/// Our function that formats a Wired message and sends it to the server.
 		void sendWiredCommand(const QByteArray);
 
 		/// This is our TCP buffer. Could possibly be optimized, but works for now.
 		QByteArray pBuffer;
 		QPointer<QSslSocket> pSocket;
+		QList<QByteArray> splitMessageFields(QByteArray theData);
 		
 		
     

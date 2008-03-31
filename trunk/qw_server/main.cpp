@@ -20,14 +20,14 @@
 
 
 #include <QtCore>
-#include "general/qwiredservercontroller.h"
+#include "qwservercontroller.h"
 
 const QString QWSERVER_VERSION("1.0.0");
 
 int main (int argc, char *argv[]) {
 	QCoreApplication app(argc, argv);
 	
-	QwiredServerController *controller = new QwiredServerController();
+	QWServerController *controller = new QWServerController();
 	controller->reloadConfig();
 	controller->startServer();
 	

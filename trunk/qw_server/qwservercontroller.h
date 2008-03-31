@@ -17,24 +17,35 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef QWIREDCONNECTION_H
-#define QWIREDCONNECTION_H
 
-#include "wiredsocket.h"
+ 
+#ifndef QWIREDSERVERCONTROLLER_H
+#define QWIREDSERVERCONTROLLER_H
+
+#include <iostream>
 #include <QtCore>
+#include <QtNetwork>
+#include "ssltcpserver.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
 */
-class QwiredConnection : public QObject
+class QWServerController : public QObject
 {
 Q_OBJECT
 public:
-    QwiredConnection(QObject *parent = 0);
-    ~QwiredConnection();
+	static void qwLog(QString theMessage);
+    QWServerController(QObject *parent = 0);
+    ~QWServerController();
 
 private:
-	QPointer<WiredSocket> pSocket;
+	int pCfServerPort;
+	QPointer<SslTcpServer> pTcpServer;
+	
+public slots:
+	void reloadConfig();
+	void startServer();
+	void acceptSslConnection();
 
 };
 

@@ -17,43 +17,41 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "../general/qwiredservercontroller.h"
+#ifndef SSLTCPSERVER_H
+#define SSLTCPSERVER_H
 
-QwiredServerController::QwiredServerController(QObject *parent)
- : QObject(parent)
-{ }
 
-QwiredServerController::~QwiredServerController()
-{ }
-
-void QwiredServerController::reloadConfig() {
-	qwLog("Reloading configuration...");
-	pCfServerPort = 2000;
-}
-
-void QwiredServerController::startServer() {
-	qwLog("Starting server...");
-	pTcpServer = new QTcpServer(this);
-	connect(pTcpServer, SIGNAL(newConnection()), this, SLOT(acceptClient()));
-	if(!pTcpServer->listen(QHostAddress::Any, pCfServerPort)) {
-		qwLog(QString("Fatal: Unable to listen on TCP port %1. Terminating.").arg(pCfServerPort));
-		exit(1);
-	}
-}
+#include <QtCore>
+#include <QtNetwork>
 
 /**
- * Write a message to the log (and console)
- */
-void QwiredServerController::qwLog(QString theMessage) {
-	using namespace std;
-	cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(theMessage).toStdString() << endl;
-}
+	@author Bastian Bense <bb@bense.de>
+*/
+class SslTcpServer : public QTcpServer
+{
+Q_OBJECT
 
-/**
- * Accepts a new connection. Connected to the newConnect() signal of pTcpServer.
- */
-void QwiredServerController::acceptClient() {
-	qDebug() << "Accepting connection...";
-}
+public:
+    SslTcpServer(QObject *parent=0);
+    ~SslTcpServer();
+	bool hasPendingSslSocket();
+	QSslSocket* nextPendingSslSocket();
+
+	QSslKey pPrivateKey;
+	QSslCertificate pLocalCert;
+
+signals:
+	void newSslConnection();
+	
+private:
+	QList<QSslSocket*> pPendingSockets;
+	
+	
 
 
+protected:
+	void incomingConnection(int socketDescriptor);
+
+};
+
+#endif

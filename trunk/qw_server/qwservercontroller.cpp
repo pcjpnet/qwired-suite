@@ -17,16 +17,48 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "qwiredconnection.h"
+#include "qwservercontroller.h"
+#include "wiredsocket.h"
 
-QwiredConnection::QwiredConnection(QObject *parent)
+QWServerController::QWServerController(QObject *parent)
  : QObject(parent)
-{
+{ }
+
+QWServerController::~QWServerController()
+{ }
+
+void QWServerController::reloadConfig() {
+	qwLog("Reloading configuration...");
+	pCfServerPort = 2000;
 }
 
+void QWServerController::startServer() {
+	qwLog("Starting server...");
+	pTcpServer = new SslTcpServer(this);
+	connect(pTcpServer, SIGNAL(newSslConnection()), this, SLOT(acceptSslConnection()));
+	if(!pTcpServer->listen(QHostAddress::Any, pCfServerPort)) {
+		qwLog(QString("Fatal: Unable to listen on TCP port %1. Terminating.").arg(pCfServerPort));
+		exit(1);
+	}
+}
 
-QwiredConnection::~QwiredConnection()
-{
+/**
+ * Write a message to the log (and console)
+ */
+void QWServerController::qwLog(QString theMessage) {
+	using namespace std;
+	cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(theMessage).toStdString() << endl;
+}
+
+/**
+ * Accepts a new connection. Connected to the newConnect() signal of pTcpServer.
+ */
+void QWServerController::acceptSslConnection() {
+	qDebug() << "Accepting connection...";
+
+	WiredSocket *wsock = new WiredSocket(this);
+	wsock->setWiredSocket(pTcpServer->nextPendingSslSocket());
+
 }
 
 
