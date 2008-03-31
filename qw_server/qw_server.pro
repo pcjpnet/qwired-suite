@@ -1,7 +1,8 @@
 SOURCES += main.cpp \
- general/qwiredservercontroller.cpp \
- qwiredconnection.cpp \
- wiredsocket.cpp
+ qwservercontroller.cpp \
+ wiredsocket.cpp \
+ ssltcpserver.cpp \
+ classwireduser.cpp
 
 TEMPLATE = app
 
@@ -13,6 +14,7 @@ TARGET = qwired_server
 
 DESTDIR = ../bin/
 
-HEADERS += general/qwiredservercontroller.h \
-qwiredconnection.h \
-wiredsocket.h
+HEADERS += qwservercontroller.h \
+ wiredsocket.h \
+ ssltcpserver.h \
+ classwireduser.h
