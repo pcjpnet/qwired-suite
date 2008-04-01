@@ -46,6 +46,9 @@ private:
 	int pCfServerPort;
 	QPointer<SslTcpServer> pTcpServer;
 
+
+
+
 signals:
 	// Signals used to notify connected clients of events.
 	//

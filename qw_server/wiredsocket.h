@@ -49,17 +49,39 @@ class WiredSocket : public QObject
 
 		ClassWiredUser sessionUser() { return pSessionUser; };
 		int userId() { return pSessionUser.pUserID; }
-
+		bool isLoggedIn() { return pSessionUser.pUserID>0; };
+		
+		
 	signals:
-		void loginSuccessful(const int id);
+		/**
+		 * The client has sent the login and password and the server should now check if these are correct.
+		 * Call acceptLogin() or rejectLogin() to accept or reject the connection.
+		 * @param id The ID of the connection.
+		 * @param login The login name.
+		 * @param password The password.
+		 */
+		void clientDisconnected(const int id);
+		void loginReceived(const int id, QString login, QString password);
+		void receivedChat(const int id, const int chatId, const QString text);
 		void requestedUserlist(const int id, int chat);
+		void userStatusChanged(const ClassWiredUser user);
 		
 	public slots:
+		void disconnectClient();
+		void acceptLogin();
+		void rejectLogin();
+		
 		void setServerInformation(QString serverName, QString serverDesc);
 		void setUserId(int userId);
-		
-		void sendUserlistItem(const int chat, const ClassWiredUser item);
-		void sendUserlistDone(const int chat);
+
+		void sendClientJoin(const int chatId, const ClassWiredUser user);
+		void sendClientLeave(const int chatId, const int id);
+		void sendUserlistItem(const int chatId, const ClassWiredUser item);
+		void sendUserlistDone(const int chatId);
+		void sendUserStatusChanged(const ClassWiredUser user);
+		void sendChat(const int chatId, const int userId, const QString text);
+
+
 
 		
 	private slots:
