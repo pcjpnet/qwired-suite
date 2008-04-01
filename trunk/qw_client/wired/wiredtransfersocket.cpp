@@ -32,6 +32,7 @@ WiredTransferSocket::WiredTransferSocket(QObject *parent)
 	connect( pSocket, SIGNAL(readyRead()), this, SLOT(onSocketReady()) );
 	connect( pSocket, SIGNAL(disconnected()), this, SLOT(onSocketDisconnected()) );
 	connect( pSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(sendNextFileChunk(qint64)) );
+	connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)) );
 	qDebug() << "Create Transfer thread:"<<currentThreadId();
 }
 
@@ -211,6 +212,13 @@ void WiredTransferSocket::killTransfer() {
 	
 	qDebug() << "Thread finished, deleting:"<<currentThreadId();
 	this->deleteLater();
+}
+
+void WiredTransferSocket::onSocketError(QAbstractSocket::SocketError error) {
+	qDebug() << "Failed to connect to the transfer port.";
+	emit fileTransferSocketError(error);
+	killTransfer();
+	
 }
 
 
