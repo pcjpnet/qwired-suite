@@ -27,25 +27,23 @@ SslTcpServer::SslTcpServer(QObject *parent)
 		qDebug() << "Failed to open file.";
 	
 	QByteArray tmpCertData = tmpCertFile.readAll();
-
-	qDebug() << tmpCertData;
 	
 	pPrivateKey = QSslKey(tmpCertData, QSsl::Rsa);
 	if(!pPrivateKey.isNull())
-			qDebug() << "Loaded private key:"<<pPrivateKey.length();
+		qDebug() << "[ssltcpserver] Loaded private key:"<<pPrivateKey.length();
 	pLocalCert = QSslCertificate(tmpCertData);
 		if(!pLocalCert.isNull())
-			qDebug() << "Loaded cert:"<<pLocalCert.subjectInfo(QSslCertificate::CommonName);
+			qDebug() << "[ssltcpserver] Loaded cert:"<<pLocalCert.subjectInfo(QSslCertificate::CommonName);
 }
 
 SslTcpServer::~SslTcpServer()
 { }
 
 void SslTcpServer::incomingConnection(int socketDescriptor) {
-	qDebug() << "New connection:"<<socketDescriptor;
+	qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor;
 	QSslSocket *conn = new QSslSocket(this);
 	if(conn->setSocketDescriptor(socketDescriptor)) {
-		qDebug() << "Accepted connection, setting parameters and initing handshake.";
+		qDebug() << "[ssltcpserver] Accepted connection, setting parameters and initing handshake.";
 		conn->setProtocol(QSsl::TlsV1);
 		conn->setPrivateKey(pPrivateKey);
 		conn->setLocalCertificate(pLocalCert);
@@ -53,7 +51,7 @@ void SslTcpServer::incomingConnection(int socketDescriptor) {
 		pPendingSockets.append(conn);
 		emit newSslConnection();
 	} else {
-		qDebug() << "Failed to set socket descriptor. Dropping.";
+		qDebug() << "[ssltcpserver] Failed to set socket descriptor. Dropping.";
 		delete conn;
 	}
 }
@@ -69,9 +67,9 @@ bool SslTcpServer::hasPendingSslSocket() {
  * Returns the oldest pending SSL socket and removes it from the queue.
  */
 QSslSocket* SslTcpServer::nextPendingSslSocket() {
-	if(pPendingSockets.size()) {
-		return pPendingSockets.takeFirst();
-	}
+	if(!pPendingSockets.size())
+		return 0;
+	return pPendingSockets.takeFirst();
 }
 
 

@@ -28,8 +28,9 @@ WiredSocket::WiredSocket(QObject *parent)
 	pHandshakeOK = false;
 }
 
-WiredSocket::~WiredSocket()
-{ }
+WiredSocket::~WiredSocket() {
+	qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
+}
 
 // Called by the socket and indicates the an SSL error has occoured.
 void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
@@ -58,25 +59,40 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 	} else {
 		// Handshake exists, handle the command.
 		if(tmpCmd=="PASS") {
-			qDebug() << "Received password:"<<tmpParams.value(0);
+			qDebug() << "[qws] Received password:"<<tmpParams.value(0);
 			pSessionUser.pPassword = tmpParams.value(0);
+			emit loginReceived(pSessionUser.pUserID, pSessionUser.pLogin, pSessionUser.pPassword);
+			
 		} else if(tmpCmd=="PING") {
 			sendWiredCommand("202 Pong");
 			
 		} else if(tmpCmd=="USER") {
-			qDebug() << "Received login:"<<tmpParams.value(0);
+			qDebug() << "[qws] Received login:"<<tmpParams.value(0);
 			pSessionUser.pLogin = tmpParams.value(0);
+			
 		} else if(tmpCmd=="NICK") {
 			qDebug() << "Received nick:"<<tmpParams.value(0);
 			pSessionUser.pNick = tmpParams.value(0);
+			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
+		
+			
 		} else if(tmpCmd=="ICON") {
-			qDebug() << "Received icon:";
-			pSessionUser.pImage = tmpParams.value(0);
+			pSessionUser.pIcon = tmpParams.value(0).toInt();
+			pSessionUser.pImage = tmpParams.value(1);
+			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
+			
 		} else if(tmpCmd=="STATUS") {
-			qDebug() << "Received status:";
 			pSessionUser.pStatus = tmpParams.value(0);
+			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
+			
+		} else if(tmpCmd=="SAY") {
+			emit receivedChat(pSessionUser.pUserID,
+						tmpParams.value(0).toInt(),
+						QString::fromUtf8(tmpParams.value(1)) );
+			
 		} else if(tmpCmd=="WHO") {
 			emit requestedUserlist(pSessionUser.pUserID, tmpParams.value(0).toInt());
+			
 		} else {
 			
 // 			qwSendCommandNotImplemented();
@@ -90,8 +106,8 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
  * A socket error occoured.
  */
 void WiredSocket::on_socket_error() {
-	qDebug() << "SSL error:"<<pSocket->errorString()<<pSocket->error();
-	pSocket->disconnectFromHost();
+	qDebug() << "[qws] socket error:"<<pSocket->errorString()<<pSocket->error();
+	disconnectClient();
 }
 
 
@@ -198,4 +214,77 @@ void WiredSocket::sendUserlistDone(const int chat) {
 	ba += QByteArray::number(chat);
 	sendWiredCommand(ba);
 }
+
+/**
+ * The server accepted the sent login and password.
+ */
+void WiredSocket::acceptLogin() {
+	QByteArray ba("201 ");
+	ba += QByteArray::number(pSessionUser.pUserID);
+	sendWiredCommand(ba);
+}
+
+/**
+ * The login failed. Crashes Wired if we disconnect before.
+ */
+void WiredSocket::rejectLogin() {
+	sendWiredCommand("510 Login Failed");
+// 	pSocket->waitForBytesWritten(500);
+// 	disconnectClient();
+}
+
+void WiredSocket::disconnectClient() {
+	emit clientDisconnected(pSessionUser.pUserID);
+	pSocket->disconnectFromHost();
+	this->deleteLater();
+}
+
+/**
+ * Send a line of text chat to the connected client.
+ * @param chatId The ID of the chat this message was sent in.
+ * @param userId The ID of the user who originated the chat text.
+ * @param text The text of the chat.
+ */
+void WiredSocket::sendChat(const int chatId, const int userId, const QString text) {
+	QByteArray ba("300 ");
+	ba += QByteArray::number(chatId); ba += kFS;
+	ba += QByteArray::number(userId); ba += kFS;
+	ba += text.toUtf8();
+	sendWiredCommand(ba);
+}
+
+/**
+ * Notify that client that a user has joined the server (if chatId=1) or
+ * a private chat (if chatId>1).
+ * @param chat The chat ID (1 for server).
+ * @param user The user information to be sent.
+ */
+void WiredSocket::sendClientJoin(const int chatId, const ClassWiredUser user) {
+	if(user.pUserID==pSessionUser.pUserID) return;
+	QByteArray ba("302 ");
+	ba += QByteArray::number(chatId); ba += kFS;
+	ba += user.userListEntry();
+	sendWiredCommand(ba);
+}
+
+void WiredSocket::sendClientLeave(const int chatId, const int id) {
+	if(id==pSessionUser.pUserID) return;
+	QByteArray ba("303 ");
+	ba += QByteArray::number(chatId); ba += kFS;
+	ba += QByteArray::number(id);
+	sendWiredCommand(ba);
+}
+
+/**
+ * The user changed his/her nick, status, icon id or idle flags.
+ * @param user The user object with the new information.
+ */
+void WiredSocket::sendUserStatusChanged(const ClassWiredUser user) {
+	QByteArray ba("304 ");
+	ba += user.userStatusEntry();
+	sendWiredCommand(ba);
+}
+
+
+
 

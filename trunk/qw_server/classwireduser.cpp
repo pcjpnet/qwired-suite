@@ -224,4 +224,18 @@ QByteArray ClassWiredUser::userListEntry() const {
 	return ba;
 }
 
+/**
+ * Return a ByteArray specially formatted for the User Status Change messages.
+ */
+QByteArray ClassWiredUser::userStatusEntry() const {
+	QByteArray ba;
+	ba += QByteArray::number(pUserID); ba += 0x1C;
+	ba += QByteArray::number(pIdle); ba += 0x1C;
+	ba += QByteArray::number(pAdmin); ba += 0x1C;
+	ba += QByteArray::number(0); ba += 0x1C; // icon, unused since 1.1
+	ba += pNick.toUtf8(); ba += 0x1C;
+	ba += pStatus.toUtf8();
+	return ba;
+}
+
 

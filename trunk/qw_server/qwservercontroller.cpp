@@ -27,7 +27,9 @@ QWServerController::QWServerController(QObject *parent)
 }
 
 QWServerController::~QWServerController()
-{ }
+{
+	
+}
 
 void QWServerController::reloadConfig() {
 	qwLog("Reloading configuration...");

@@ -27,17 +27,24 @@
 /**
 	@author Bastian Bense <bb@bense.de>
 */
+
 class QWServerCore : public QObject
 {
 Q_OBJECT
 public:
     QWServerCore(QObject *parent = 0);
     ~QWServerCore();
-	QHash<int,WiredSocket*> pClients;
+	QHash<int,QPointer<WiredSocket> > pClients;
 	int getUniqueUserId();
 
-	void sendUserlist(const int id);
-
+	
+private slots:
+	void checkLogin(const int id, QString login, QString password);
+	void broadcastChat(const int id, const int chatId, const QString text);
+	void broadcastUserStatusChanged(const ClassWiredUser);
+	void removeClient(const int id);
+	void sendUserlist(const int id, const int chatId);
+	
 public slots:
 	void registerClient(WiredSocket* socket);
 
