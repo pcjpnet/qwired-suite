@@ -38,7 +38,7 @@ class ClassWiredUser
 		
 		void setFromPrivileges(QList<QByteArray> theParams);
 		QByteArray privilegesFlags();
-		QByteArray userListEntry();
+		QByteArray userListEntry() const;
 		
 		QString cryptedPassword();
 

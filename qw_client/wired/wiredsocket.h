@@ -311,6 +311,9 @@ class WiredSocket : public QObject
 		/// Emitted when the server sends the privileges of the current session.
 		void userPrivileges(const ClassWiredUser theSession);
 
+		/// Emitted when a file transfer socket fails to connect to the remote host.
+		void fileTransferSocketError(QAbstractSocket::SocketError);
+		
 		// TRACKER
 		//
 		void trackerServersReceived(QList<ClassTrackerServer>);

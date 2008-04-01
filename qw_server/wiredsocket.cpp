@@ -46,7 +46,6 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 	QList<QByteArray> tmpParams = splitMessageFields(theData);
 
 	qDebug() << ">> Incoming command:"<<tmpCmd;
-
 	if(!pHandshakeOK) { // No handshake received yet. The only thing we accept is a HELLO.
 		pHandshakeOK = tmpCmd=="HELLO";
 		if(!pHandshakeOK) {
@@ -61,8 +60,9 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 		if(tmpCmd=="PASS") {
 			qDebug() << "Received password:"<<tmpParams.value(0);
 			pSessionUser.pPassword = tmpParams.value(0);
-			qwSendLoginSuccessful(20);
-
+		} else if(tmpCmd=="PING") {
+			sendWiredCommand("202 Pong");
+			
 		} else if(tmpCmd=="USER") {
 			qDebug() << "Received login:"<<tmpParams.value(0);
 			pSessionUser.pLogin = tmpParams.value(0);
@@ -72,10 +72,14 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 		} else if(tmpCmd=="ICON") {
 			qDebug() << "Received icon:";
 			pSessionUser.pImage = tmpParams.value(0);
+		} else if(tmpCmd=="STATUS") {
+			qDebug() << "Received status:";
+			pSessionUser.pStatus = tmpParams.value(0);
 		} else if(tmpCmd=="WHO") {
-			qwSendUserlist(1);
+			emit requestedUserlist(pSessionUser.pUserID, tmpParams.value(0).toInt());
 		} else {
-			qwSendCommandNotImplemented();
+			
+// 			qwSendCommandNotImplemented();
 		}
 		
 	}
@@ -145,14 +149,18 @@ void WiredSocket::qwSendServerInformation() {
 	QByteArray ba("200 ");
 	ba += "Qwired Server/1.0.0"; ba += kFS;
 	ba += "1.1"; ba += kFS;
-	ba += "Qwired Test Server"; ba += kFS;
-	ba += "Just a test"; ba += kFS;
+	ba += pServerName.toUtf8(); ba += kFS;
+	ba += pServerDesc.toUtf8(); ba += kFS;
 	ba += QDateTime::currentDateTime().toString(Qt::ISODate); ba += kFS;
 	ba += "0"; ba += kFS;
 	ba += "0"; ba += kFS;
 	sendWiredCommand(ba);
 }
 
+/**
+ * The user login and password were checked and accepted.
+ * @param userId 
+ */
 void WiredSocket::qwSendLoginSuccessful(int userId) {
 	QByteArray ba("201 ");
 	ba += QByteArray::number(userId);
@@ -163,19 +171,31 @@ void WiredSocket::qwSendCommandNotImplemented() {
 	sendWiredCommand("502 Command Not Implemented");
 }
 
-/**
- * Send the user list in response to the WHO command.
- * @param chatId The chat ID.
- */
-void WiredSocket::qwSendUserlist(int chatId) {
-	QByteArray ba("310 ");
-	ba += QByteArray::number(chatId); ba += kFS;
-	ba += pSessionUser.userListEntry();
-	sendWiredCommand(ba);
 
-	ba.clear();
-	ba += "311 ";
-	ba += QByteArray::number(chatId);
+void WiredSocket::setUserId(int userId) {
+	pSessionUser.pUserID = userId;
+}
+
+void WiredSocket::setServerInformation(QString serverName, QString serverDesc) {
+	pServerName = serverName;
+	pServerDesc = serverDesc;
+	if(pSocket->isOpen())
+		qwSendServerInformation();
+}
+
+
+
+void WiredSocket::sendUserlistItem(const int chat, const ClassWiredUser item) {
+	QByteArray ba("310 ");
+	ba += QByteArray::number(chat);
+	ba += kFS;
+	ba += item.userListEntry();
+	sendWiredCommand(ba);
+}
+
+void WiredSocket::sendUserlistDone(const int chat) {
+	QByteArray ba("311 ");
+	ba += QByteArray::number(chat);
 	sendWiredCommand(ba);
 }
 

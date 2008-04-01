@@ -89,6 +89,7 @@ private slots:
 	void newsPosted(QString theNick, QString theTime, QString thePost);
 	void transferStarted(ClassWiredTransfer);
 	void transferDone(ClassWiredTransfer);
+	void transferSocketError(QAbstractSocket::SocketError);
 	
 public slots:
 	void triggerEvent(QString event, QStringList parameters);

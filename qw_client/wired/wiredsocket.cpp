@@ -949,6 +949,7 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		connect(tmpSock, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SIGNAL(fileTransferError(ClassWiredTransfer)));
 		connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));
 		connect(tmpSock, SIGNAL(fileTransferStarted(ClassWiredTransfer)), this, SIGNAL(fileTransferStarted(ClassWiredTransfer)));
+		connect(tmpSock, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)));
 		connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 		tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
 		tmpSock->pTransfer = tmpTrans;

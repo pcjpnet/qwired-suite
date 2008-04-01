@@ -134,6 +134,7 @@ void ClassWiredSession::doSetupConnections() {
 	connect(pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), this, SLOT(newsPosted(QString,QString,QString)) );
 	connect(pWiredSocket, SIGNAL(fileTransferDone(const ClassWiredTransfer)), this, SLOT(transferDone(ClassWiredTransfer)) );
 	connect(pWiredSocket, SIGNAL(fileTransferStarted(const ClassWiredTransfer)), this, SLOT(transferStarted(ClassWiredTransfer)) );
+	connect(pWiredSocket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
 	
 	// Main Window actions
 	//
@@ -774,4 +775,10 @@ void ClassWiredSession::transferDone(ClassWiredTransfer transfer) {
 	QStringList tmpParams;
 	tmpParams << transfer.fileName();
 	triggerEvent("TransferFinished", tmpParams);
+}
+
+void ClassWiredSession::transferSocketError(QAbstractSocket::SocketError error) {
+	QStringList tmpParams;
+	tmpParams << tr("The file transfer failed due to a connection error. Error ID is: %1").arg(error);
+	triggerEvent("ServerError",tmpParams);
 }

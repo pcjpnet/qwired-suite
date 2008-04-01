@@ -17,50 +17,43 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "qwservercontroller.h"
-#include "wiredsocket.h"
+#include "qwservercore.h"
 
-QWServerController::QWServerController(QObject *parent)
+
+QWServerCore::QWServerCore(QObject *parent)
  : QObject(parent)
 {
-	pCore = new QWServerCore(this);
 }
 
-QWServerController::~QWServerController()
-{ }
 
-void QWServerController::reloadConfig() {
-	qwLog("Reloading configuration...");
-	pCfServerPort = 2000;
+QWServerCore::~QWServerCore()
+{
 }
 
-void QWServerController::startServer() {
-	qwLog("Starting server...");
-	pTcpServer = new SslTcpServer(this);
-	connect(pTcpServer, SIGNAL(newSslConnection()), this, SLOT(acceptSslConnection()));
-	if(!pTcpServer->listen(QHostAddress::Any, pCfServerPort)) {
-		qwLog(QString("Fatal: Unable to listen on TCP port %1. Terminating.").arg(pCfServerPort));
-		exit(1);
+/**
+ * Return a unique user identification number used for user list management.
+ */
+int QWServerCore::getUniqueUserId() {
+	static int tmpUserId=0;
+	return ++tmpUserId;
+}
+
+void QWServerCore::registerClient(WiredSocket *socket) {
+	if(!socket) return;
+	socket->setUserId(getUniqueUserId());
+	qDebug() << "[core] registered client with id"<<socket->userId();
+}
+
+void QWServerCore::sendUserlist(const int id) {
+	if(!pClients.contains(id)) return;
+	WiredSocket *tmpSock = pClients[id];
+	QHashIterator<int,WiredSocket*> i(pClients);
+	while(i.hasNext()) {
+		i.next();
+		WiredSocket *item = i.value();
+		tmpSock->sendUserlistItem(id, item->sessionUser());
 	}
+	tmpSock->sendUserlistDone(id);
 }
-
-/**
- * Write a message to the log (and console)
- */
-void QWServerController::qwLog(QString theMessage) {
-	using namespace std;
-	cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(theMessage).toStdString() << endl;
-}
-
-/**
- * Accepts a new connection. Connected to the newConnect() signal of pTcpServer.
- */
-void QWServerController::acceptSslConnection() {
-	WiredSocket *wsock = new WiredSocket(this);
-	pCore->registerClient(wsock);
-	wsock->setWiredSocket(pTcpServer->nextPendingSslSocket());
-	wsock->setServerInformation("QWdev Server", "Just a small testing server.");
-}
-
 
 

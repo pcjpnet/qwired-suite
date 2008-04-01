@@ -2,7 +2,8 @@ SOURCES += main.cpp \
  qwservercontroller.cpp \
  wiredsocket.cpp \
  ssltcpserver.cpp \
- classwireduser.cpp
+ classwireduser.cpp \
+ qwservercore.cpp
 
 TEMPLATE = app
 
@@ -17,4 +18,5 @@ DESTDIR = ../bin/
 HEADERS += qwservercontroller.h \
  wiredsocket.h \
  ssltcpserver.h \
- classwireduser.h
+ classwireduser.h \
+ qwservercore.h

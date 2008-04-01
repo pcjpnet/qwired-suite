@@ -47,22 +47,41 @@ class WiredSocket : public QObject
 		~WiredSocket();
 		void setWiredSocket(QSslSocket *socket);
 
+		ClassWiredUser sessionUser() { return pSessionUser; };
+		int userId() { return pSessionUser.pUserID; }
+
+	signals:
+		void loginSuccessful(const int id);
+		void requestedUserlist(const int id, int chat);
+		
+	public slots:
+		void setServerInformation(QString serverName, QString serverDesc);
+		void setUserId(int userId);
+		
+		void sendUserlistItem(const int chat, const ClassWiredUser item);
+		void sendUserlistDone(const int chat);
+
+		
 	private slots:
 		void readDataFromSocket();
 		void on_socket_sslErrors(const QList<QSslError> & errors);
 		void handleWiredMessage(QByteArray theData);
 		void on_socket_error();
 
+
 		// Protocol Stack
 		void qwSendServerInformation();
 		void qwSendLoginSuccessful(int userId);
 		void qwSendCommandNotImplemented();
-		void qwSendUserlist(int chatId);
 		
 	private:
 		// Session state parameters
 		//
 
+
+		QString pServerName;
+		QString pServerDesc;
+		
 		ClassWiredUser pSessionUser;
 		bool pHandshakeOK;
 		

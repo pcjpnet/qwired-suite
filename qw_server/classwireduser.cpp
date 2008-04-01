@@ -208,7 +208,7 @@ QString ClassWiredUser::cryptedPassword() {
  * Return a ByteArray specially formatted for the user listing responses (310)
  * @return 
  */
-QByteArray ClassWiredUser::userListEntry() {
+QByteArray ClassWiredUser::userListEntry() const {
 	QByteArray ba;
 	ba += QByteArray::number(pUserID); ba += 0x1C;
 	ba += QByteArray::number(pIdle); ba += 0x1C;

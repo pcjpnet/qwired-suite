@@ -26,6 +26,7 @@
 #include <QtCore>
 #include <QtNetwork>
 #include "ssltcpserver.h"
+#include "qwservercore.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
@@ -34,13 +35,21 @@ class QWServerController : public QObject
 {
 Q_OBJECT
 public:
+	QPointer<QWServerCore> pCore;
+	
 	static void qwLog(QString theMessage);
+	
     QWServerController(QObject *parent = 0);
     ~QWServerController();
 
 private:
 	int pCfServerPort;
 	QPointer<SslTcpServer> pTcpServer;
+
+signals:
+	// Signals used to notify connected clients of events.
+	//
+	void qwBroadcastChat(int chatId, int userId, QString text, bool isEmote);
 	
 public slots:
 	void reloadConfig();

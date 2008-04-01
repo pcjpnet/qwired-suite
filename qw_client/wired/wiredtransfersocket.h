@@ -61,7 +61,8 @@ signals:
     void fileTransferDone(const ClassWiredTransfer);
     void fileTransferError(const ClassWiredTransfer);
     void fileTransferStatus(const ClassWiredTransfer);  
-    
+	void fileTransferSocketError(QAbstractSocket::SocketError);
+	
 public slots:
     void cancelTransfer();
 		    
@@ -72,6 +73,7 @@ private slots:
     void onSocketDisconnected();
     void on_socket_sslErrors(const QList<QSslError> &errors);
 	void sendNextFileChunk(qint64 theOffset);
+	void onSocketError(QAbstractSocket::SocketError);
 };
 
 #endif

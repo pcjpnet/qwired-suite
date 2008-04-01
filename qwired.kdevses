@@ -1,43 +1,31 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="12" >
-  <Doc0 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/wired/wiredsocket.h" >
-   <View0 Encoding="" line="216" Type="Source" />
+ <DocsAndViews NumberOfDocuments="8" >
+  <Doc0 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/qwservercontroller.h" >
+   <View0 Encoding="" line="28" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/general/classwiredsession.h" >
-   <View0 Encoding="" line="81" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/qwservercontroller.cpp" >
+   <View0 Encoding="" line="19" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/gui/widgetprefs.cpp" >
-   <View0 Encoding="" line="169" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/wiredsocket.h" >
+   <View0 Encoding="" line="69" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/gui/widgetprefs.h" >
-   <View0 Encoding="" line="91" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/wiredsocket.cpp" >
+   <View0 Encoding="" line="59" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/application.qrc" >
-   <View0 Encoding="" line="73" Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/qwservercore.cpp" >
+   <View0 Encoding="" line="42" Type="Source" />
   </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/general/wiredsingleton.h" >
-   <View0 Encoding="" line="50" Type="Source" />
+  <Doc5 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/qwservercore.h" >
+   <View0 Encoding="" line="38" Type="Source" />
   </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/gui/widgetforum.cpp" >
-   <View0 Encoding="" line="211" Type="Source" />
+  <Doc6 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/classwireduser.cpp" >
+   <View0 Encoding="" line="210" Type="Source" />
   </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/gui/widgetforum.h" >
-   <View0 Encoding="" line="51" Type="Source" />
+  <Doc7 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_server/classwireduser.h" >
+   <View0 Encoding="" line="40" Type="Source" />
   </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/general/main.cpp" >
-   <View0 Encoding="" line="53" Type="Source" />
-  </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/gui/connwindow.h" >
-   <View0 Encoding="" line="0" Type="Source" />
-  </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/gui/connwindow.cpp" >
-   <View0 Encoding="" line="86" Type="Source" />
-  </Doc10>
-  <Doc11 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSF/qwired-client/trunk/src/general/wiredcommon.h" >
-   <View0 Encoding="" line="32" Type="Source" />
-  </Doc11>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
