@@ -11,7 +11,8 @@ TEMPLATE = app
 QT -= gui
 
 QT += network \
-xml
+xml \
+ sql
 TARGET = qwired_server
 
 DESTDIR = ../bin/

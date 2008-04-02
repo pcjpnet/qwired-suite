@@ -51,19 +51,32 @@ void QWServerCore::registerClient(WiredSocket *socket) {
 	int tmpId = getUniqueUserId();
 	socket->setUserId(tmpId);
 	pClients[tmpId] = socket;
+	connect(socket, SIGNAL(clearedNews(int)), this, SLOT(clearNews(int)) );
+	connect(socket, SIGNAL(createdUser(int,ClassWiredUser)), this, SLOT(createUser(int,ClassWiredUser)) );
+	connect(socket, SIGNAL(createdGroup(int,ClassWiredUser)), this, SLOT(createGroup(int,ClassWiredUser)) );
+	connect(socket, SIGNAL(editedUser(int,ClassWiredUser)), this, SLOT(editUser(int,ClassWiredUser)) );
+	connect(socket, SIGNAL(editedGroup(int,ClassWiredUser)), this, SLOT(editGroup(int,ClassWiredUser)) );
+	connect(socket, SIGNAL(deletedUser(int,QString)), this, SLOT(deleteUser(int,QString)) );
+	connect(socket, SIGNAL(deletedGroup(int,QString)), this, SLOT(deleteGroup(int,QString)) );
 	connect(socket, SIGNAL(declinedPrivateChat(int,int)), this, SLOT(declinePrivateChat(int,int)) );
 	connect(socket, SIGNAL(handshakeComplete(int)), this, SLOT(sendServerInfo(int)) );
 	connect(socket, SIGNAL(invitedUserToChat(int,int,int)), this, SLOT(inviteUserToChat(int,int,int)) );
 	connect(socket, SIGNAL(joinedPrivateChat(int,int)), this, SLOT(joinPrivateChat(int,int)) );
 	connect(socket, SIGNAL(loginReceived(int, QString, QString)), this, SLOT(checkLogin(int, QString, QString)) );
+	connect(socket, SIGNAL(newsPosted(int,QString)), this, SLOT(postNews(int,QString)));
 	connect(socket, SIGNAL(privateChatLeft(int,int)), this, SLOT(removeFromPrivateChat(int,int)) );
 	connect(socket, SIGNAL(requestedUserInfo(int,int)), this, SLOT(sendUserInfo(int,int)) );
 	connect(socket, SIGNAL(requestedUserlist(int,int)), this, SLOT(sendUserlist(int,int)) );
 	connect(socket, SIGNAL(receivedClientInfo(int,QString)), this, SLOT(setClientInfo(int,QString)) );
 	connect(socket, SIGNAL(receivedBroadcastMessage(int,QString)), this, SLOT(broadcastBroadcast(int,QString)) );
 	connect(socket, SIGNAL(receivedChat(int,int,QString,bool)), this, SLOT(broadcastChat(int,int,QString,bool)) );
+	connect(socket, SIGNAL(requestedAccountsList(int)), this, SLOT(sendAccountsList(int)) );
+	connect(socket, SIGNAL(requestedGroupsList(int)), this, SLOT(sendGroupsList(int)) );
 	connect(socket, SIGNAL(requestedBanner(int)), this, SLOT(sendServerBanner(int)) );
+	connect(socket, SIGNAL(requestedNews(int)), this, SLOT(sendNews(int)) );
 	connect(socket, SIGNAL(requestedPrivateChat(int)), this, SLOT(createPrivateChat(int)) );
+	connect(socket, SIGNAL(requestedReadUser(int,QString)), this, SLOT(sendUserSpec(int,QString)));
+	connect(socket, SIGNAL(requestedReadGroup(int,QString)), this, SLOT(sendGroupSpec(int,QString)));
 	connect(socket, SIGNAL(topicChanged(ClassWiredUser,int,QString)), this, SLOT(broadcastChatTopic(ClassWiredUser,int,QString)) );
 	connect(socket, SIGNAL(clientDisconnected(int)), this, SLOT(removeClient(int)) );
 	connect(socket, SIGNAL(userImageChanged(ClassWiredUser)), this, SLOT(broadcastUserImageChanged(ClassWiredUser)) );
@@ -117,10 +130,33 @@ void QWServerCore::sendUserlist(const int id, const int chatId) {
  * @param login The login name of the user.
  * @param password The password of the user.
  */
-void QWServerCore::checkLogin(const int id, QString login, QString password) {
+void QWServerCore::checkLogin(const int id, const QString login, const QString password) {
 	WiredSocket *socket = pClients[id];
-	socket->sendLoginSuccessful();
-	socket->sendChatTopic(pPublicChat);
+
+	QSqlQuery query;
+	query.prepare("SELECT privileges, groupname FROM qw_accounts WHERE login=:login AND password=:password");
+	query.bindValue(":login", login);
+	query.bindValue(":password", password);
+	if(query.exec()) {
+		query.first();
+		if(query.isValid()) {
+			socket->pSessionUser.pLogin = login;
+			socket->pSessionUser.pPassword = password;
+			socket->pSessionUser.pGroupName = query.value(1).toString();
+			socket->pSessionUser.setPrivilegesFromAccount(query.value(0).toString());
+			socket->sendLoginSuccessful();
+			socket->sendChatTopic(pPublicChat);
+		} else { // Login failed
+			socket->sendErrorLoginFailed();
+			return;
+		}
+	} else {
+		qDebug() << "SQL error:"<<query.lastError().text();
+		socket->sendErrorLoginFailed();
+		return;
+	}
+
+	// Announce the user
 	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(i.key()!=id && i.value())
@@ -176,6 +212,12 @@ void QWServerCore::removeClient(const int id) {
  */
 void QWServerCore::kickUser(const int id, const int userId, const QString reason, const bool banned) {
 	qDebug() << "[core] kicking user"<<userId<<"by"<<id<<"banned:"<<banned<<", for reason:"<<reason;
+
+	// Check if the victim can be kicked at all.
+	if(pClients[userId]->sessionUser().privCannotBeKicked) {
+		pClients[id]->sendErrorCannotBeDisconnected();
+		return;
+	}
 	
 	// Check for private chats
 	QHashIterator<int,QWClassPrivateChat > j(pPrivateChats);
@@ -398,8 +440,267 @@ void QWServerCore::broadcastChatTopic(const ClassWiredUser user, const int chatI
 	}
 }
 
+/**
+ * A user has posted some news. Add the news to the database.
+ * @param id The ID of the user who posted the message.
+ * @param news The text of the news item.
+ */
+void QWServerCore::postNews(const int id, const QString news) {
+	qDebug() << "[core] broadcasting new news-post from user"<<id;
+	QString tmpNick = QString("%1 [%2]").arg(pClients[id]->sessionUser().pNick).arg(pClients[id]->sessionUser().pLogin);
+	QSqlQuery query;
+	query.prepare("INSERT INTO qw_news (message, date, user, deleted) VALUES (:message, :date, :user, 0);");
+	query.bindValue(":message", news);
+	query.bindValue(":date", QDateTime::currentDateTime().toUTC().toString(Qt::ISODate));
+	query.bindValue(":user", tmpNick);
+	if(query.exec()) {
+		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		while(i.hasNext()) { i.next();
+			if(i.value()) i.value()->sendNewsPosted(tmpNick, news);
+		}
+	} else {
+		qDebug() << "SQL Error:"<<query.lastError().text();
+	}
+}
+
+/**
+ * A client requested the latest news.query.
+ * @param id The ID of the user.
+ */
+void QWServerCore::sendNews(const int id) {
+	qDebug() << "[core] sending news to"<<id;
+	WiredSocket *socket = pClients[id];
+	QSqlQuery query("SELECT user,date,message FROM qw_news WHERE deleted=0 ORDER BY id DESC LIMIT 100");
+	//query.last();
+	while(query.next()) {
+		qDebug() << "[core] sending item";
+		socket->sendNews( query.value(0).toString(), query.value(1).toDateTime(), query.value(2).toString() );
+	}
+	socket->sendNewsDone();
+}
+
+/**
+ * Remove all items from the news.
+ * @param id The ID of the user who clears the news.
+ */
+void QWServerCore::clearNews(const int id) {
+	qDebug() << "[core] cleared all news by user"<<id;
+	QSqlQuery query("UPDATE qw_news SET deleted=1;");
+}
+
+/**
+ * Send the list of accounts to a user.
+ * @param id The ID of the user who requsted the list of accounts.
+ */
+void QWServerCore::sendAccountsList(const int id) {
+	WiredSocket *socket = pClients[id];
+	QSqlQuery query("SELECT login FROM qw_accounts;");
+	qDebug() << "[core] sending accounts list";
+	while(query.next()) {
+		qDebug() << "[core] sending accounts list item";
+		socket->sendAccountListing(query.value(0).toString());
+	}
+	qDebug() << "[core] sending accounts done";
+	socket->sendAccountListingDone();
+}
 
 
+/**
+ * Send the list of groups to a user.
+ * @param id The ID of the user who requsted the list of accounts.
+ */
+void QWServerCore::sendGroupsList(const int id) {
+	WiredSocket *socket = pClients[id];
+	QSqlQuery query("SELECT groupname FROM qw_groups;");
+	qDebug() << "[core] sending groups list";
+	while(query.next()) {
+		qDebug() << "[core] sending groups list item";
+		socket->sendGroupListing(query.value(0).toString());
+	}
+	qDebug() << "[core] sending groups list done";
+	socket->sendGroupListingDone();
+}
+
+/**
+ * The user requsted a user account specification.
+ * @param id The ID of the requesting user.
+ * @param name The name of the requsted account.
+ */
+void QWServerCore::sendUserSpec(const int id, const QString name) {
+	QSqlQuery query;
+	query.prepare("SELECT password,groupname,privileges FROM qw_accounts WHERE login=:login;");
+	query.bindValue(":login", name);
+	query.exec(); query.first();
+	if(query.isValid()) {
+		ClassWiredUser tmpUser;
+		tmpUser.pLogin = name;
+		tmpUser.pPassword = query.value(0).toString();
+		tmpUser.pGroupName = query.value(1).toString();
+		tmpUser.setPrivilegesFromAccount(query.value(2).toString());
+		pClients[id]->sendUserSpec(tmpUser);
+	} else {
+		pClients[id]->sendErrorAccountNotFound();
+	}
+}
+
+/**
+ * The user requsted a group specification.
+ * @param id The ID of the requesting user.
+ * @param name The name of the requsted group.
+ */
+void QWServerCore::sendGroupSpec(const int id, const QString name) {
+	QSqlQuery query;
+	query.prepare("SELECT privileges FROM qw_groups WHERE groupname=:name;");
+	query.bindValue(":name", name);
+	query.exec(); query.first();
+	if(query.isValid()) {
+		ClassWiredUser tmpUser;
+		tmpUser.pGroupName = name;
+		tmpUser.setPrivilegesFromAccount(query.value(0).toString());
+		pClients[id]->sendGroupSpec(tmpUser);
+	} else {
+		pClients[id]->sendErrorAccountNotFound();
+	}
+}
+
+/**
+ * Create a user account in the database.
+ * @param id The id of the creating user.
+ * @param user The object containing the account data.
+ */
+void QWServerCore::createUser(const int id, const ClassWiredUser user) {
+	QSqlQuery query;
+	query.prepare("SELECT * FROM qw_accounts WHERE login=:login;");
+	query.bindValue(":login", user.pLogin);
+	query.exec(); query.first();
+	if(query.isValid()) {
+		// Account already exists
+		pClients[id]->sendErrorAccountExists();
+		return;
+	} else {
+		query.prepare("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES (:login, :password, :groupname, :privileges);");
+		query.bindValue(":login", user.pLogin);
+		query.bindValue(":password", user.pPassword);
+		query.bindValue(":groupname", user.pGroupName);
+		query.bindValue(":privileges", user.privilegesFlags().replace(0x1C,":"));
+		if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
+	}
+}
+
+/**
+ * Create a group in the database.
+ * @param id The id of the creating user.
+ * @param user The object containing the account data.
+ */
+void QWServerCore::createGroup(const int id, const ClassWiredUser group) {
+	QSqlQuery query;
+	query.prepare("SELECT * FROM qw_groups WHERE groupname=:name;");
+	query.bindValue(":name", group.pGroupName);
+	query.exec(); query.first();
+	if(query.isValid()) {
+		// Group already exists
+		pClients[id]->sendErrorAccountExists();
+		return;
+	} else {
+		query.prepare("INSERT INTO qw_groups (groupname,privileges) VALUES (:groupname, :privileges);");
+		query.bindValue(":groupname", group.pGroupName);
+		query.bindValue(":privileges", group.privilegesFlags().replace(0x1C,":"));
+		if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
+	}
+}
+
+
+/**
+ * Create a user account in the database.
+ * @param id The id of the creating user.
+ * @param user The object containing the account data.
+ */
+void QWServerCore::editUser(const int id, const ClassWiredUser user) {
+	QSqlQuery query;
+	query.prepare("SELECT * FROM qw_accounts WHERE login=:login;");
+	query.bindValue(":login", user.pLogin);
+	query.exec(); query.first();
+	if(!query.isValid()) {
+		// Account does not exist
+		pClients[id]->sendErrorAccountNotFound();
+		return;
+	} else {
+		query.prepare("UPDATE qw_accounts SET password=:password,groupname=:groupname,privileges=:privileges WHERE login=:login;");
+		query.bindValue(":login", user.pLogin);
+		query.bindValue(":password", user.pPassword);
+		query.bindValue(":groupname", user.pGroupName);
+		query.bindValue(":privileges", user.privilegesFlags().replace(0x1C,":"));
+		if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
+
+		// Update connected users
+		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		while(i.hasNext()) { i.next();
+			WiredSocket *client = i.value();
+			if(client && client->sessionUser().pLogin==user.pLogin) {
+				client->pSessionUser.setPrivilegesFromAccount(user.privilegesFlags().replace(0x1C,":"));
+				broadcastUserStatusChanged(client->sessionUser());
+			}
+		}
+		
+	}
+}
+
+/**
+ * Create a group in the database.
+ * @param id The id of the creating user.
+ * @param user The object containing the account data.
+ */
+void QWServerCore::editGroup(const int id, const ClassWiredUser group) {
+	QSqlQuery query;
+	query.prepare("SELECT * FROM qw_groups WHERE groupname=:name;");
+	query.bindValue(":name", group.pGroupName);
+	query.exec(); query.first();
+	if(!query.isValid()) {
+		// Group already exists
+		pClients[id]->sendErrorAccountNotFound();
+		return;
+	} else {
+		query.prepare("UPDATE qw_groups SET privileges=:privileges WHERE groupname=:name;");
+		query.bindValue(":name", group.pGroupName);
+		query.bindValue(":privileges", group.privilegesFlags().replace(0x1C,":"));
+		if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
+
+		// Update connected users
+		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		while(i.hasNext()) { i.next();
+			WiredSocket *client = i.value();
+			if(client && client->sessionUser().pGroupName==group.pGroupName) {
+				client->pSessionUser.setPrivilegesFromAccount(group.privilegesFlags().replace(0x1C,":"));
+				broadcastUserStatusChanged(client->sessionUser());
+			}
+		}
+		
+	}
+}
+
+/**
+ * Delete a user account from the database.
+ * @param id The ID of the user who deleted the account.
+ * @param name The name of the account to be deleted.
+ */
+void QWServerCore::deleteUser(const int id, const QString name) {
+	QSqlQuery query;
+	query.prepare("DELETE FROM qw_accounts WHERE login=:login;");
+	query.bindValue(":login",name);
+	if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
+}
+
+/**
+ * Delete a group from the database.
+ * @param id The ID of the user who deleted the group.
+ * @param name The name of the group.
+ */
+void QWServerCore::deleteGroup(const int id, const QString name) {
+	QSqlQuery query;
+	query.prepare("DELETE FROM qw_groups WHERE groupname=:name;");
+	query.bindValue(":name",name);
+	if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
+}
 
 
 

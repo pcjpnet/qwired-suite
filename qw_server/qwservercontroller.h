@@ -55,6 +55,7 @@ signals:
 	void qwBroadcastChat(int chatId, int userId, QString text, bool isEmote);
 	
 public slots:
+	void reloadDatabase();
 	void reloadConfig();
 	void startServer();
 	void acceptSslConnection();

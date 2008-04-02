@@ -20,6 +20,8 @@
 #include "qwservercontroller.h"
 #include "wiredsocket.h"
 
+#include <QtSql>
+
 QWServerController::QWServerController(QObject *parent)
  : QObject(parent)
 {
@@ -63,5 +65,40 @@ void QWServerController::acceptSslConnection() {
 	wsock->setWiredSocket(pTcpServer->nextPendingSslSocket());
 }
 
+/**
+ * Load the database from the disk.
+ */
+void QWServerController::reloadDatabase() {
+	qwLog("Loading database...");
+	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+	db.setDatabaseName("accounts.db");
+	if(!db.open()) {
+		qwLog(QString("Fatal: Could not open accounts.db. Reason: %1").arg(QSqlError(db.lastError()).text()));
+		exit(1);
+	} else {
+		pCore->pDatabase = db;
 
+		QSqlQuery query;
+		QStringList tmpTables = db.tables();
+		if(!tmpTables.contains("qw_news")) {
+			qDebug() << "[controller] Creating missing qw_new table.";
+			query.exec("CREATE TABLE qw_news (id INTEGER PRIMARY KEY, message TEXT, date TEXT, user TEXT, deleted INTEGER DEFAULT 0);");
+		}
+
+		if(!tmpTables.contains("qw_accounts")) {
+			qDebug() << "[controller] Creating missing qw_accounts table.";
+			query.exec("CREATE TABLE qw_accounts (id INTEGER PRIMARY KEY, login TEXT, password TEXT, groupname TEXT, privileges TEXT);");
+			query.exec("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES ('admin', '', 'admins', '1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1');");
+			query.exec("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES ('guest', '', '', '0:0:0:0:1:1:0:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0');");
+		}
+
+		if(!tmpTables.contains("qw_groups")) {
+			qDebug() << "[controller] Creating missing qw_groups table.";
+			query.exec("CREATE TABLE qw_groups (id INTEGER PRIMARY KEY, groupname TEXT, privileges TEXT);");
+			query.exec("INSERT INTO qw_groups (groupname,privileges) VALUES ('admins', '1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1');");
+		}
+
+		qDebug() << "Tables:"<<db.tables();
+	}
+}
 

@@ -126,7 +126,7 @@ QByteArray ClassWiredUser::userInfoEntry() const {
 	return ba;
 }
 
-QByteArray ClassWiredUser::privilegesFlags() {
+QByteArray ClassWiredUser::privilegesFlags() const {
 	QByteArray tmpPrivs;
 	tmpPrivs += QByteArray::number(privGetUserInfo); tmpPrivs += 0x1C;
 	tmpPrivs += QByteArray::number(privBroadcast); tmpPrivs += 0x1C;
@@ -188,6 +188,7 @@ void ClassWiredUser::setFromPrivileges(const QList<QByteArray> theParams) {
 		return;
 	}
 	qDebug() << "ClassWiredUser: Failed to set privileges from privileges block!";
+	qDebug() << theParams;
 }
 
 /**
@@ -210,7 +211,7 @@ QByteArray ClassWiredUser::userListEntry() const {
 	QByteArray ba;
 	ba += QByteArray::number(pUserID); ba += 0x1C;
 	ba += QByteArray::number(pIdle); ba += 0x1C;
-	ba += QByteArray::number(pAdmin); ba += 0x1C;
+	ba += QByteArray::number(privKickUsers | privBanUsers); ba += 0x1C;
 	ba += QByteArray::number(0); ba += 0x1C; // icon, unused since 1.1
 	ba += pNick.toUtf8(); ba += 0x1C;
 	ba += pLogin.toUtf8(); ba += 0x1C;
@@ -229,11 +230,20 @@ QByteArray ClassWiredUser::userStatusEntry() const {
 	QByteArray ba;
 	ba += QByteArray::number(pUserID); ba += 0x1C;
 	ba += QByteArray::number(pIdle); ba += 0x1C;
-	ba += QByteArray::number(pAdmin); ba += 0x1C;
+	ba += QByteArray::number(privKickUsers | privBanUsers); ba += 0x1C;
 	ba += QByteArray::number(0); ba += 0x1C; // icon, unused since 1.1
 	ba += pNick.toUtf8(); ba += 0x1C;
 	ba += pStatus.toUtf8();
 	return ba;
+}
+
+/**
+ * Set the privileges flags from the database record.
+ * @param privileges The string of privilege flags.
+ */
+void ClassWiredUser::setPrivilegesFromAccount(const QString privileges) {
+	QByteArray tmpString(privileges.toAscii());
+	setFromPrivileges(tmpString.split(':'));
 }
 
 
