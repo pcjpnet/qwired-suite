@@ -52,6 +52,8 @@ class WiredSocket : public QObject
 		int userId() { return pSessionUser.pUserID; }
 		bool pLoggedIn;
 		bool isLoggedIn() { return pLoggedIn; };
+
+		QTimer* pIdleTimer;
 		
 		
 	signals:
@@ -106,12 +108,12 @@ class WiredSocket : public QObject
 		void sendPrivileges();
 		void sendUserlistItem(const int chatId, const ClassWiredUser item);
 		void sendUserlistDone(const int chatId);
-
 		
 		void sendUserImageChanged(const ClassWiredUser user);
 		void sendUserInfo(const ClassWiredUser user);
 		void sendUserStatusChanged(const ClassWiredUser user);
 		
+		void idleTimerTriggered();
 		
 		void sendErrorPermissionDenied();
 		void sendErrorClientNotFound();
@@ -137,6 +139,8 @@ class WiredSocket : public QObject
 
 		ClassWiredUser pSessionUser;
 		bool pHandshakeOK;
+		
+		void resetIdleTimer();
 		
 		/// Our function that formats a Wired message and sends it to the server.
 		void sendWiredCommand(const QByteArray);

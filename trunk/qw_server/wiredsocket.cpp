@@ -27,10 +27,38 @@ WiredSocket::WiredSocket(QObject *parent)
 {
 	pHandshakeOK = false;
 	pLoggedIn = false;
+	
+	pIdleTimer = new QTimer(this);
+	pIdleTimer->setInterval(5000);
+	pIdleTimer->setSingleShot(true);
+	connect(pIdleTimer, SIGNAL(timeout()), this, SLOT(idleTimerTriggered()));
 }
 
 WiredSocket::~WiredSocket() {
 	qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
+}
+
+
+/**
+ * The idle timer was triggered. Check if the user is not idle and mark him/her
+ * as idle. Afterwards a signal will be emitted so that other clients get updated.
+ */
+void WiredSocket::idleTimerTriggered() {
+	if(!pSessionUser.pIdle) {
+		pSessionUser.pIdle = true;
+		emit userStatusChanged(pSessionUser);
+	}
+}
+
+/**
+ * The user shows some activity. Check if he/she is idle and un-idle.
+ */
+void WiredSocket::resetIdleTimer() {
+	pIdleTimer->start();
+	if(pSessionUser.pIdle) {
+		pSessionUser.pIdle = false;
+		emit userStatusChanged(pSessionUser);
+	}
 }
 
 // Called by the socket and indicates the an SSL error has occoured.
@@ -65,11 +93,13 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit receivedBroadcastMessage(userId(), QString::fromUtf8(tmpParams.value(0)));
+			resetIdleTimer();
 
 		} else if(tmpCmd=="BAN") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
+			resetIdleTimer();
 			
 		} else if(tmpCmd=="BANNER") {
 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
@@ -93,40 +123,48 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit requestedUserInfo(userId(), tmpParams.value(0).toInt() );
+			resetIdleTimer();
 
 		} else if(tmpCmd=="INVITE") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit invitedUserToChat(userId(), tmpParams.value(0).toInt(), tmpParams.value(1).toInt() );
+			resetIdleTimer();
 			
 		} else if(tmpCmd=="JOIN") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit joinedPrivateChat(userId(), tmpParams.value(0).toInt() );
+			resetIdleTimer();
 
 		} else if(tmpCmd=="KICK") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
+			resetIdleTimer();
 			
 		} else if(tmpCmd=="LEAVE") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit privateChatLeft(userId(), tmpParams.value(0).toInt());
+			resetIdleTimer();
 			
 		} else if(tmpCmd=="NICK") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			pSessionUser.pNick = tmpParams.value(0);
 			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
+			resetIdleTimer();
 
 		} else if(tmpCmd=="ME") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
 			emit receivedChat(pSessionUser.pUserID, tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
+			resetIdleTimer();
 			
 		} else if(tmpCmd=="MSG") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit privateMessageReceived(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)));
+			resetIdleTimer();
 
 		} else if(tmpCmd=="ICON") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
@@ -135,6 +173,7 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			if(isLoggedIn()) {
 				emit userStatusChanged(pSessionUser);
 				emit userImageChanged(pSessionUser);
+				resetIdleTimer();
 			}
 			
 		} else if(tmpCmd=="PASS") {
@@ -146,6 +185,7 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 		} else if(tmpCmd=="PRIVCHAT") {
 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
 			if(isLoggedIn()) emit requestedPrivateChat(userId());
+			resetIdleTimer();
 
 		} else if(tmpCmd=="PRIVILEGES") {
 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
@@ -155,10 +195,12 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			pSessionUser.pStatus = tmpParams.value(0);
 			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
+			resetIdleTimer();
 
 		} else if(tmpCmd=="TOPIC") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
 			if(isLoggedIn()) emit topicChanged(sessionUser(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)) );
+			resetIdleTimer();
 			
 		} else if(tmpCmd=="USER") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
@@ -168,6 +210,7 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 		} else if(tmpCmd=="SAY") {
 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
 			emit receivedChat(pSessionUser.pUserID, tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
+			resetIdleTimer();
 
 		} else if(tmpCmd=="WHO") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
