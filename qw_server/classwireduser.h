@@ -40,6 +40,7 @@ class ClassWiredUser
 		QByteArray privilegesFlags();
 		QByteArray userListEntry() const;
 		QByteArray userStatusEntry() const;
+		QByteArray userInfoEntry() const;
 		
 		QString cryptedPassword();
 

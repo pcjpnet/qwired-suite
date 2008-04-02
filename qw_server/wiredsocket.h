@@ -49,38 +49,66 @@ class WiredSocket : public QObject
 
 		ClassWiredUser sessionUser() { return pSessionUser; };
 		int userId() { return pSessionUser.pUserID; }
-		bool isLoggedIn() { return pSessionUser.pUserID>0; };
+		bool pLoggedIn;
+		bool isLoggedIn() { return pLoggedIn; };
 		
 		
 	signals:
 		/**
 		 * The client has sent the login and password and the server should now check if these are correct.
-		 * Call acceptLogin() or rejectLogin() to accept or reject the connection.
+		 * Call sendLoginSuccessful() or sendErrorLoginFailed() to accept or reject the connection.
 		 * @param id The ID of the connection.
 		 * @param login The login name.
 		 * @param password The password.
 		 */
 		void clientDisconnected(const int id);
+		void declinedPrivateChat(const int id, const int chatId);
+		void handshakeComplete(const int id);
+		void invitedUserToChat(const int id, const int userId, const int chatId);
+		void joinedPrivateChat(const int id, const int chatId);
 		void loginReceived(const int id, QString login, QString password);
-		void receivedChat(const int id, const int chatId, const QString text);
-		void requestedUserlist(const int id, int chat);
+		void privateChatLeft(const int id, const int chatId);
+		void receivedChat(const int id, const int chatId, const QString text, const bool emote);
+		void receivedBroadcastMessage(const int id, const QString text);
+		void requestedBanner(const int id);
+		void requestedPrivateChat(const int id);
+		void requestedUserInfo(const int id, const int userId);
+		void requestedUserlist(const int id, const int chat);
+		void userImageChanged(const ClassWiredUser user);
 		void userStatusChanged(const ClassWiredUser user);
+		
+		void privateMessageReceived(const int id, const int targetId, const QString text);
 		
 	public slots:
 		void disconnectClient();
-		void acceptLogin();
-		void rejectLogin();
+		void sendLoginSuccessful();
+		void sendErrorLoginFailed();
 		
-		void setServerInformation(QString serverName, QString serverDesc);
+		void sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize);
 		void setUserId(int userId);
 
+		void sendBanner(const QByteArray banner);
+		void sendBroadcastMessage(const int userId, const QString text);
+		void sendChat(const int chatId, const int userId, const QString text, const bool emote);
+		void sendClientDeclinedChat(const int chatId, const int userId);
 		void sendClientJoin(const int chatId, const ClassWiredUser user);
 		void sendClientLeave(const int chatId, const int id);
+		void sendInviteToChat(const int chatId, const int id);
+		void sendPrivateMessage(const int userId, const QString text);
+		void sendPrivateChatCreated(const int chatId);
 		void sendUserlistItem(const int chatId, const ClassWiredUser item);
 		void sendUserlistDone(const int chatId);
-		void sendUserStatusChanged(const ClassWiredUser user);
-		void sendChat(const int chatId, const int userId, const QString text);
 
+		
+		void sendUserImageChanged(const ClassWiredUser user);
+		void sendUserInfo(const ClassWiredUser user);
+		void sendUserStatusChanged(const ClassWiredUser user);
+		
+		
+		void sendErrorPermissionDenied();
+		void sendErrorClientNotFound();
+		void sendErrorCommandFailed();
+		void sendErrorSyntaxError();
 
 
 		
@@ -92,9 +120,8 @@ class WiredSocket : public QObject
 
 
 		// Protocol Stack
-		void qwSendServerInformation();
-		void qwSendLoginSuccessful(int userId);
-		void qwSendCommandNotImplemented();
+		void sendErrorCommandNotImplemented();
+
 		
 	private:
 		// Session state parameters
