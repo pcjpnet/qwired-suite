@@ -1,0 +1,5 @@
+#summary A simple protocol extension draft to allow server networking.
+#labels Phase-Implementation
+
+= Introduction =
+This draft describes a protocol extension to the Wired protocol which allows linking of servers.
