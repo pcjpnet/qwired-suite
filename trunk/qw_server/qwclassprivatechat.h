@@ -17,51 +17,29 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "qwservercontroller.h"
-#include "wiredsocket.h"
+#ifndef QWCLASSPRIVATECHAT_H
+#define QWCLASSPRIVATECHAT_H
 
-QWServerController::QWServerController(QObject *parent)
- : QObject(parent)
-{
-	pCore = new QWServerCore(this);
-}
-
-QWServerController::~QWServerController()
-{
-	
-}
-
-void QWServerController::reloadConfig() {
-	qwLog("Reloading configuration...");
-	pCfServerPort = 2000;
-}
-
-void QWServerController::startServer() {
-	qwLog("Starting server...");
-	pTcpServer = new SslTcpServer(this);
-	connect(pTcpServer, SIGNAL(newSslConnection()), this, SLOT(acceptSslConnection()));
-	if(!pTcpServer->listen(QHostAddress::Any, pCfServerPort)) {
-		qwLog(QString("Fatal: Unable to listen on TCP port %1. Terminating.").arg(pCfServerPort));
-		exit(1);
-	}
-}
+#include <QList>
+#include <QString>
+#include <QDateTime>
+#include "classwireduser.h"
 
 /**
- * Write a message to the log (and console)
- */
-void QWServerController::qwLog(QString theMessage) {
-	using namespace std;
-	cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(theMessage).toStdString() << endl;
-}
+	@author Bastian Bense <bb@bense.de>
+*/
+class QWClassPrivateChat
+{
+public:
+    QWClassPrivateChat();
+    ~QWClassPrivateChat();
 
-/**
- * Accepts a new connection. Connected to the newConnect() signal of pTcpServer.
- */
-void QWServerController::acceptSslConnection() {
-	WiredSocket *wsock = new WiredSocket(this);
-	pCore->registerClient(wsock);
-	wsock->setWiredSocket(pTcpServer->nextPendingSslSocket());
-}
+	QList<int> pUsers;
+	QList<int> pInvitedUsers;
+	QString pTopic;
+	ClassWiredUser pTopicSetter;
+	QDateTime pTopicDate;
 
+};
 
-
+#endif

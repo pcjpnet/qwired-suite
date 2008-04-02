@@ -101,6 +101,31 @@ ClassWiredUser ClassWiredUser::fromUserInfo(QList<QByteArray> theParams) {
 	
 }
 
+QByteArray ClassWiredUser::userInfoEntry() const {
+	QByteArray ba;
+	ba += QByteArray::number(pUserID); ba += 0x1C;
+	ba += pIdle ? "1" : "0"; ba += 0x1C;
+	ba += pAdmin ? "1" : "0"; ba += 0x1C;
+	ba += QByteArray::number(pIcon); ba += 0x1C;
+	ba += pNick.toUtf8(); ba += 0x1C;
+	ba += pLogin.toUtf8(); ba += 0x1C;
+	ba += pIP.toUtf8(); ba += 0x1C;
+	ba += pHost.toUtf8(); ba += 0x1C;
+
+	ba += pClientVersion.toUtf8(); ba += 0x1C;
+	ba += pCipherName.toUtf8(); ba += 0x1C;
+	ba += QByteArray::number(pCipherBits); ba += 0x1C;
+	ba += pLoginTime.toString(Qt::ISODate); ba += "+00:00"; ba += 0x1C;
+	ba += pIdleTime.toString(Qt::ISODate); ba += "+00:00"; ba += 0x1C;
+	ba += 0x1C; // downloads
+	ba += 0x1C; // uploads
+	ba += pStatus.toUtf8(); ba += 0x1C;
+	ba += pImage; ba += 0x1C;
+	
+	
+	return ba;
+}
+
 QByteArray ClassWiredUser::privilegesFlags() {
 	QByteArray tmpPrivs;
 	if((pAccountType==0 && pGroupName.isEmpty()) || pAccountType==1) {
@@ -237,5 +262,7 @@ QByteArray ClassWiredUser::userStatusEntry() const {
 	ba += pStatus.toUtf8();
 	return ba;
 }
+
+
 
 

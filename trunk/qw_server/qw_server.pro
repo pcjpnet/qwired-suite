@@ -3,7 +3,8 @@ SOURCES += main.cpp \
  wiredsocket.cpp \
  ssltcpserver.cpp \
  classwireduser.cpp \
- qwservercore.cpp
+ qwservercore.cpp \
+ qwclassprivatechat.cpp
 
 TEMPLATE = app
 
@@ -19,4 +20,5 @@ HEADERS += qwservercontroller.h \
  wiredsocket.h \
  ssltcpserver.h \
  classwireduser.h \
- qwservercore.h
+ qwservercore.h \
+ qwclassprivatechat.h

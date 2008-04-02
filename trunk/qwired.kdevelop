@@ -157,8 +157,8 @@
       <envvars/>
       <runarguments>
         <qwired/>
-        <qw_server></qw_server>
-        <qwired_server></qwired_server>
+        <qw_server/>
+        <qwired_server/>
       </runarguments>
       <cwd>
         <qwired>/home/bbense/Desktop/Qwired</qwired>
@@ -167,8 +167,8 @@
       </cwd>
       <debugarguments>
         <qwired/>
-        <qw_server></qw_server>
-        <qwired_server></qwired_server>
+        <qw_server/>
+        <qwired_server/>
       </debugarguments>
     </run>
     <general>
