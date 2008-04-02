@@ -52,7 +52,7 @@ class WiredSocket : public QObject
 		int userId() { return pSessionUser.pUserID; }
 		bool pLoggedIn;
 		bool isLoggedIn() { return pLoggedIn; };
-
+		ClassWiredUser pSessionUser;
 		QTimer* pIdleTimer;
 		
 		
@@ -64,18 +64,31 @@ class WiredSocket : public QObject
 		 * @param login The login name.
 		 * @param password The password.
 		 */
+		void clearedNews(const int id);
 		void clientDisconnected(const int id);
+		void createdUser(const int id, const ClassWiredUser user);
+		void createdGroup(const int id, const ClassWiredUser group);
+		void editedUser(const int id, const ClassWiredUser user);
+		void editedGroup(const int id, const ClassWiredUser group);
+		void deletedUser(const int id, const QString name);
+		void deletedGroup(const int id, const QString name);
 		void declinedPrivateChat(const int id, const int chatId);
 		void handshakeComplete(const int id);
 		void invitedUserToChat(const int id, const int userId, const int chatId);
 		void joinedPrivateChat(const int id, const int chatId);
 		void loginReceived(const int id, QString login, QString password);
+		void newsPosted(const int id, const QString news);
 		void privateChatLeft(const int id, const int chatId);
 		void receivedClientInfo(const int id, const QString info);
 		void receivedChat(const int id, const int chatId, const QString text, const bool emote);
 		void receivedBroadcastMessage(const int id, const QString text);
+		void requestedAccountsList(const int id);
 		void requestedBanner(const int id);
+		void requestedGroupsList(const int id);
+		void requestedNews(const int id);
 		void requestedPrivateChat(const int id);
+		void requestedReadUser(const int id, const QString name);
+		void requestedReadGroup(const int id, const QString name);
 		void requestedUserInfo(const int id, const int userId);
 		void requestedUserlist(const int id, const int chat);
 		void topicChanged(const ClassWiredUser user, const int chatId, const QString topic);
@@ -94,6 +107,13 @@ class WiredSocket : public QObject
 		void setClientInfo(const QString info);
 		void setUserId(int userId);
 
+		void sendAccountListing(const QString name);
+		void sendAccountListingDone();
+		void sendGroupListing(const QString name);
+		void sendGroupListingDone();
+		void sendUserSpec(const ClassWiredUser account);
+		void sendGroupSpec(const ClassWiredUser group);
+		
 		void sendBanner(const QByteArray banner);
 		void sendBroadcastMessage(const int userId, const QString text);
 		void sendChat(const int chatId, const int userId, const QString text, const bool emote);
@@ -103,6 +123,9 @@ class WiredSocket : public QObject
 		void sendClientJoin(const int chatId, const ClassWiredUser user);
 		void sendClientLeave(const int chatId, const int id);
 		void sendInviteToChat(const int chatId, const int id);
+		void sendNews(const QString nickname, const QDateTime date, const QString news);
+		void sendNewsDone();
+		void sendNewsPosted(const QString nickname, const QString news);
 		void sendPrivateMessage(const int userId, const QString text);
 		void sendPrivateChatCreated(const int chatId);
 		void sendPrivileges();
@@ -114,11 +137,14 @@ class WiredSocket : public QObject
 		void sendUserStatusChanged(const ClassWiredUser user);
 		
 		void idleTimerTriggered();
-		
+
+		void sendErrorAccountNotFound();
+		void sendErrorAccountExists();
 		void sendErrorPermissionDenied();
 		void sendErrorClientNotFound();
 		void sendErrorCommandFailed();
 		void sendErrorSyntaxError();
+		void sendErrorCannotBeDisconnected();
 
 
 		
@@ -137,16 +163,22 @@ class WiredSocket : public QObject
 		// Session state parameters
 		//
 
-		ClassWiredUser pSessionUser;
+		
 		bool pHandshakeOK;
 		
 		void resetIdleTimer();
 		
 		/// Our function that formats a Wired message and sends it to the server.
 		void sendWiredCommand(const QByteArray);
-
+		void sendWiredCommandBuffer(const QByteArray);
+		
 		/// This is our TCP buffer. Could possibly be optimized, but works for now.
 		QByteArray pBuffer;
+
+		/// This is the send TCP buffer. It is used when sending lists and to prevent the event loop
+		/// from fireing command handling during list sending.
+		QByteArray pSendBuffer;
+		
 		QPointer<QSslSocket> pSocket;
 		QList<QByteArray> splitMessageFields(QByteArray theData);
 		

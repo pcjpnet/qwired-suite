@@ -29,6 +29,7 @@ int main (int argc, char *argv[]) {
 	
 	QWServerController *controller = new QWServerController();
 	controller->reloadConfig();
+	controller->reloadDatabase();
 	controller->startServer();
 	
 	return app.exec();

@@ -37,7 +37,9 @@ class ClassWiredUser
 		~ClassWiredUser();
 		
 		void setFromPrivileges(QList<QByteArray> theParams);
-		QByteArray privilegesFlags();
+		void setPrivilegesFromAccount(const QString privileges);
+		
+		QByteArray privilegesFlags() const;
 		QByteArray userListEntry() const;
 		QByteArray userStatusEntry() const;
 		QByteArray userInfoEntry() const;

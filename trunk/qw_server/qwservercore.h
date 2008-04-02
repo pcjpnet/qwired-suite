@@ -21,6 +21,7 @@
 #define QWSERVERCORE_H
 
 #include <QObject>
+#include <QtSql>
 #include <QHash>
 #include "wiredsocket.h"
 #include "qwclassprivatechat.h"
@@ -43,12 +44,20 @@ public:
 
 	QWClassPrivateChat pPublicChat;
 	QHash<int, QWClassPrivateChat > pPrivateChats;
+	QSqlDatabase pDatabase;
 	
 
 	
 private slots:
+	void clearNews(const int id);
 	void createPrivateChat(const int id);
-	void checkLogin(const int id, QString login, QString password);
+	void createUser(const int id, const ClassWiredUser user);
+	void createGroup(const int id, const ClassWiredUser group);
+	void editUser(const int id, const ClassWiredUser user);
+	void editGroup(const int id, const ClassWiredUser group);
+	void deleteUser(const int id, const QString name);
+	void deleteGroup(const int id, const QString name);
+	void checkLogin(const int id, const QString login, const QString password);
 	void declinePrivateChat(const int id, const int chatId);
 	void broadcastBroadcast(const int id, const QString text);
 	void broadcastChat(const int id, const int chatId, const QString text, const bool emote);
@@ -59,9 +68,15 @@ private slots:
 	void inviteUserToChat(const int id, const int userId, const int chatId);
 	void joinPrivateChat(const int id, const int chatId);
 	void kickUser(const int id, const int userId, const QString reason, const bool banned);
+	void postNews(const int id, const QString news);
+	void sendNews(const int id);
 	void removeClient(const int id);
 	void removeFromPrivateChat(const int userId, const int chatId);
 	void setClientInfo(const int id, const QString info);
+	void sendAccountsList(const int id);
+	void sendGroupsList(const int id);
+	void sendUserSpec(const int id, const QString name);
+	void sendGroupSpec(const int id, const QString name);
 	void sendUserInfo(const int id, const int userId);
 	void sendUserlist(const int id, const int chatId);
 	void sendServerBanner(const int id);
