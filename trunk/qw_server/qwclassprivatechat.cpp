@@ -20,7 +20,12 @@
 #include "qwclassprivatechat.h"
 
 QWClassPrivateChat::QWClassPrivateChat()
-{}
+{
+	pChatId = 0;
+	pTopic = "No topic.";
+	pTopicDate = QDateTime::currentDateTime();
+	pTopicSetter.pNick = "Qwired Server";
+}
 
 
 QWClassPrivateChat::~QWClassPrivateChat()

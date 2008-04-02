@@ -34,6 +34,7 @@ public:
     QWClassPrivateChat();
     ~QWClassPrivateChat();
 
+	int pChatId;
 	QList<int> pUsers;
 	QList<int> pInvitedUsers;
 	QString pTopic;

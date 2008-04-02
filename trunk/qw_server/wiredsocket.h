@@ -23,6 +23,7 @@
 #define WIREDSOCKET_H
 
 #include "classwireduser.h"
+#include "qwclassprivatechat.h"
 #include <QtCore>
 #include <QtNetwork>
 
@@ -68,13 +69,16 @@ class WiredSocket : public QObject
 		void joinedPrivateChat(const int id, const int chatId);
 		void loginReceived(const int id, QString login, QString password);
 		void privateChatLeft(const int id, const int chatId);
+		void receivedClientInfo(const int id, const QString info);
 		void receivedChat(const int id, const int chatId, const QString text, const bool emote);
 		void receivedBroadcastMessage(const int id, const QString text);
 		void requestedBanner(const int id);
 		void requestedPrivateChat(const int id);
 		void requestedUserInfo(const int id, const int userId);
 		void requestedUserlist(const int id, const int chat);
+		void topicChanged(const ClassWiredUser user, const int chatId, const QString topic);
 		void userImageChanged(const ClassWiredUser user);
+		void userKicked(const int id, const int userId, const QString reason, const bool banned);
 		void userStatusChanged(const ClassWiredUser user);
 		
 		void privateMessageReceived(const int id, const int targetId, const QString text);
@@ -85,17 +89,21 @@ class WiredSocket : public QObject
 		void sendErrorLoginFailed();
 		
 		void sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize);
+		void setClientInfo(const QString info);
 		void setUserId(int userId);
 
 		void sendBanner(const QByteArray banner);
 		void sendBroadcastMessage(const int userId, const QString text);
 		void sendChat(const int chatId, const int userId, const QString text, const bool emote);
+		void sendChatTopic(const QWClassPrivateChat chat);
+		void sendClientKicked(const int killerId, const int victimId, const QString reason, const bool banned);
 		void sendClientDeclinedChat(const int chatId, const int userId);
 		void sendClientJoin(const int chatId, const ClassWiredUser user);
 		void sendClientLeave(const int chatId, const int id);
 		void sendInviteToChat(const int chatId, const int id);
 		void sendPrivateMessage(const int userId, const QString text);
 		void sendPrivateChatCreated(const int chatId);
+		void sendPrivileges();
 		void sendUserlistItem(const int chatId, const ClassWiredUser item);
 		void sendUserlistDone(const int chatId);
 
@@ -127,10 +135,6 @@ class WiredSocket : public QObject
 		// Session state parameters
 		//
 
-
-		QString pServerName;
-		QString pServerDesc;
-		
 		ClassWiredUser pSessionUser;
 		bool pHandshakeOK;
 		

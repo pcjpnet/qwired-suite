@@ -41,6 +41,7 @@ public:
 	int getUniqueChatId();
 	QByteArray pServerBanner;
 
+	QWClassPrivateChat pPublicChat;
 	QHash<int, QWClassPrivateChat > pPrivateChats;
 	
 
@@ -51,13 +52,16 @@ private slots:
 	void declinePrivateChat(const int id, const int chatId);
 	void broadcastBroadcast(const int id, const QString text);
 	void broadcastChat(const int id, const int chatId, const QString text, const bool emote);
+	void broadcastChatTopic(const ClassWiredUser user, const int chatId, const QString topic);
 	void broadcastUserImageChanged(const ClassWiredUser);
 	void broadcastUserStatusChanged(const ClassWiredUser);
 	void deliverPrivateMessage(const int id, const int targetId, const QString text);
 	void inviteUserToChat(const int id, const int userId, const int chatId);
 	void joinPrivateChat(const int id, const int chatId);
+	void kickUser(const int id, const int userId, const QString reason, const bool banned);
 	void removeClient(const int id);
 	void removeFromPrivateChat(const int userId, const int chatId);
+	void setClientInfo(const int id, const QString info);
 	void sendUserInfo(const int id, const int userId);
 	void sendUserlist(const int id, const int chatId);
 	void sendServerBanner(const int id);

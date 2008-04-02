@@ -46,8 +46,8 @@ ClassWiredUser::ClassWiredUser()
 	privEditAccounts = false;
 	privDeleteAccounts = false;
 	privElevatePrivileges = false;
-	privKickUsers = false;
-	privBanUsers = false;
+	privKickUsers = true;
+	privBanUsers = true;
 	privCannotBeKicked = false;
 	privDownloadSpeed = 0;
 	privUploadSpeed = 0;
@@ -128,56 +128,29 @@ QByteArray ClassWiredUser::userInfoEntry() const {
 
 QByteArray ClassWiredUser::privilegesFlags() {
 	QByteArray tmpPrivs;
-	if((pAccountType==0 && pGroupName.isEmpty()) || pAccountType==1) {
-		tmpPrivs += QByteArray::number(privGetUserInfo); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privBroadcast); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privPostNews); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privClearNews); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privDownload); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privUpload); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privUploadAnywhere); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privCreateFolders); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privAlterFiles); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privDeleteFiles); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privViewDropboxes); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privCreateAccounts); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privEditAccounts); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privDeleteAccounts); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privElevatePrivileges); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privKickUsers); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privBanUsers); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privCannotBeKicked); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privDownloadSpeed); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privUploadSpeed); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privDownloadLimit); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privUploadLimit); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray::number(privChangeTopic);
-	} else {
-		// Empty flags if a group is specified for a user or this is a group.
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0"); tmpPrivs += 0x1C;
-		tmpPrivs += QByteArray("0");
-	}
+	tmpPrivs += QByteArray::number(privGetUserInfo); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privBroadcast); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privPostNews); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privClearNews); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privDownload); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privUpload); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privUploadAnywhere); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privCreateFolders); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privAlterFiles); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privDeleteFiles); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privViewDropboxes); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privCreateAccounts); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privEditAccounts); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privDeleteAccounts); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privElevatePrivileges); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privKickUsers); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privBanUsers); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privCannotBeKicked); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privDownloadSpeed); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privUploadSpeed); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privDownloadLimit); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privUploadLimit); tmpPrivs += 0x1C;
+	tmpPrivs += QByteArray::number(privChangeTopic);
 	return tmpPrivs;
 }
 

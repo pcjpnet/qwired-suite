@@ -65,11 +65,20 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit receivedBroadcastMessage(userId(), QString::fromUtf8(tmpParams.value(0)));
+
+		} else if(tmpCmd=="BAN") {
+			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
+			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
+			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
 			
 		} else if(tmpCmd=="BANNER") {
 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit requestedBanner(userId());
+
+		} else if(tmpCmd=="CLIENT") {
+			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
+			emit receivedClientInfo(userId(), QString::fromUtf8(tmpParams.value(0)) );
 			
 		} else if(tmpCmd=="DECLINE") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
@@ -94,6 +103,11 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit joinedPrivateChat(userId(), tmpParams.value(0).toInt() );
+
+		} else if(tmpCmd=="KICK") {
+			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
+			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
+			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
 			
 		} else if(tmpCmd=="LEAVE") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
@@ -132,11 +146,19 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 		} else if(tmpCmd=="PRIVCHAT") {
 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
 			if(isLoggedIn()) emit requestedPrivateChat(userId());
+
+		} else if(tmpCmd=="PRIVILEGES") {
+			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
+			if(isLoggedIn()) sendPrivileges();
 			
 		} else if(tmpCmd=="STATUS") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			pSessionUser.pStatus = tmpParams.value(0);
 			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
+
+		} else if(tmpCmd=="TOPIC") {
+			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
+			if(isLoggedIn()) emit topicChanged(sessionUser(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)) );
 			
 		} else if(tmpCmd=="USER") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
@@ -224,10 +246,10 @@ void WiredSocket::setWiredSocket(QSslSocket *socket) {
 
 void WiredSocket::sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize) {
 	QByteArray ba("200 ");
-	ba += "Qwired Server/1.0"; ba += kFS;
+	ba += "Qwired Server/1.0.0 (Unknown; Unknown; Unknown)"; ba += kFS;
 	ba += "1.1"; ba += kFS;
-	ba += pServerName.toUtf8(); ba += kFS;
-	ba += pServerDesc.toUtf8(); ba += kFS;
+	ba += serverName.toUtf8(); ba += kFS;
+	ba += serverDescr.toUtf8(); ba += kFS;
 	ba += startTime.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
 	ba += QByteArray::number(fileCount); ba += kFS;
 	ba += QByteArray::number(fileTotalSize); ba += kFS;
@@ -407,6 +429,21 @@ void WiredSocket::sendUserInfo(const ClassWiredUser user) {
 }
 
 /**
+ * The topic changed (or was requested) of a specific chat.
+ * @param chat The object containing the chat information.
+ */
+void WiredSocket::sendChatTopic(const QWClassPrivateChat chat) {
+	QByteArray ba("341 ");
+	ba += QByteArray::number(chat.pChatId); ba += kFS;
+	ba += chat.pTopicSetter.pNick.toUtf8(); ba += kFS;
+	ba += chat.pTopicSetter.pLogin.toUtf8(); ba += kFS;
+	ba += chat.pTopicSetter.pIP.toUtf8(); ba += kFS;
+	ba += chat.pTopicDate.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
+	ba += chat.pTopic.toUtf8();
+	sendWiredCommand(ba);
+}
+
+/**
  * A used declined a private chat invitation. Let the inviting users know of this.
  * @param chatId The ID of the chat.
  * @param userId The ID of the user who rejected the invitation.
@@ -418,12 +455,51 @@ void WiredSocket::sendClientDeclinedChat(const int chatId, const int userId) {
 	sendWiredCommand(ba);
 }
 
+/**
+ * Set the client-version string of this client to info. Also set some information about the used
+ * encryption, etc...
+ * @param info The client-version string.
+ */
+void WiredSocket::setClientInfo(const QString info) {
+	pSessionUser.pClientVersion = info;
+}
+
+/**
+ * Send a list of privileges to the client.
+ */
+void WiredSocket::sendPrivileges() {
+	QByteArray ba("602 ");
+	ba += pSessionUser.privilegesFlags();
+	sendWiredCommand(ba);
+}
+
+
+/**
+ * A administrator kicked or banned a user.
+ * @param killerId The ID of the administrator.
+ * @param victimId The ID of the kicked user.
+ * @param reason The reason (if any).
+ * @param banned If true, the user was temporarily banned.
+ */
+void WiredSocket::sendClientKicked(const int killerId, const int victimId, const QString reason, const bool banned) {
+	QByteArray ba( banned ? "307 " : "306 " );
+	ba += QByteArray::number(victimId); ba += kFS;
+	ba += QByteArray::number(killerId); ba += kFS;
+	ba += reason.toUtf8();
+	sendWiredCommand(ba);
+}
+
+
+
 void WiredSocket::sendErrorClientNotFound() { sendWiredCommand("512 Client Not Found"); }
 void WiredSocket::sendErrorPermissionDenied() { sendWiredCommand("516 Permission Denied"); }
 void WiredSocket::sendErrorSyntaxError() { sendWiredCommand("503 Syntax Error"); }
 void WiredSocket::sendErrorLoginFailed() { sendWiredCommand("510 Login Failed"); }
 void WiredSocket::sendErrorCommandNotImplemented() { sendWiredCommand("502 Command Not Implemented"); }
 void WiredSocket::sendErrorCommandFailed() { sendWiredCommand("500 Command Failed"); }
+
+
+
 
 
 

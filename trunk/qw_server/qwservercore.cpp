@@ -24,6 +24,7 @@ QWServerCore::QWServerCore(QObject *parent)
  : QObject(parent)
 {
 	pStartTime = QDateTime::currentDateTime().toUTC();
+	pPublicChat.pChatId = 1;
 }
 
 
@@ -58,12 +59,15 @@ void QWServerCore::registerClient(WiredSocket *socket) {
 	connect(socket, SIGNAL(privateChatLeft(int,int)), this, SLOT(removeFromPrivateChat(int,int)) );
 	connect(socket, SIGNAL(requestedUserInfo(int,int)), this, SLOT(sendUserInfo(int,int)) );
 	connect(socket, SIGNAL(requestedUserlist(int,int)), this, SLOT(sendUserlist(int,int)) );
+	connect(socket, SIGNAL(receivedClientInfo(int,QString)), this, SLOT(setClientInfo(int,QString)) );
 	connect(socket, SIGNAL(receivedBroadcastMessage(int,QString)), this, SLOT(broadcastBroadcast(int,QString)) );
 	connect(socket, SIGNAL(receivedChat(int,int,QString,bool)), this, SLOT(broadcastChat(int,int,QString,bool)) );
 	connect(socket, SIGNAL(requestedBanner(int)), this, SLOT(sendServerBanner(int)) );
 	connect(socket, SIGNAL(requestedPrivateChat(int)), this, SLOT(createPrivateChat(int)) );
+	connect(socket, SIGNAL(topicChanged(ClassWiredUser,int,QString)), this, SLOT(broadcastChatTopic(ClassWiredUser,int,QString)) );
 	connect(socket, SIGNAL(clientDisconnected(int)), this, SLOT(removeClient(int)) );
 	connect(socket, SIGNAL(userImageChanged(ClassWiredUser)), this, SLOT(broadcastUserImageChanged(ClassWiredUser)) );
+	connect(socket, SIGNAL(userKicked(int,int,QString,bool)), this, SLOT(kickUser(int,int,QString,bool)) );
 	connect(socket, SIGNAL(userStatusChanged(ClassWiredUser)), this, SLOT(broadcastUserStatusChanged(ClassWiredUser)) );
 	connect(socket, SIGNAL(privateMessageReceived(int,int,QString)), this, SLOT(deliverPrivateMessage(int,int,QString)) );
 	qDebug() << "[core] registered client with id"<<socket->userId();
@@ -116,7 +120,7 @@ void QWServerCore::sendUserlist(const int id, const int chatId) {
 void QWServerCore::checkLogin(const int id, QString login, QString password) {
 	WiredSocket *socket = pClients[id];
 	socket->sendLoginSuccessful();
-	
+	socket->sendChatTopic(pPublicChat);
 	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(i.key()!=id && i.value())
@@ -155,15 +159,43 @@ void QWServerCore::removeClient(const int id) {
 			removeFromPrivateChat(id, j.key());
 		}
 	}
-
+	
 	// Notify everyone else
 	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(i.value()) i.value()->sendClientLeave(1, id);
 	}
-
-	
 }
+
+/**
+ * A client needs to be disconnected from the server.
+ * @param id The ID of the killer.
+ * @param userId The ID of the victim.
+ * @param reason A reason. (if any)
+ * @param banned If true, the client was temporarily banned.
+ */
+void QWServerCore::kickUser(const int id, const int userId, const QString reason, const bool banned) {
+	qDebug() << "[core] kicking user"<<userId<<"by"<<id<<"banned:"<<banned<<", for reason:"<<reason;
+	
+	// Check for private chats
+	QHashIterator<int,QWClassPrivateChat > j(pPrivateChats);
+	while(j.hasNext()) { j.next();
+		if(j.value().pUsers.contains(id)) {
+			qDebug() << "[core] removed user"<<id<<"from private chat"<<j.key();
+			removeFromPrivateChat(userId, j.key());
+		}
+	}
+	
+	// Notify everyone else
+	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+	while(i.hasNext()) { i.next();
+		if(i.value()) i.value()->sendClientKicked(id, userId, reason, banned);
+	}
+
+	// FOR GREAT JUSTICE!
+	if(pClients.contains(userId)) pClients[userId]->disconnectClient();
+}
+
 
 void QWServerCore::broadcastUserImageChanged(const ClassWiredUser user) {
 	qDebug() << "[core] broadcasting user-image-changed from"<<user.pUserID;
@@ -219,6 +251,7 @@ void QWServerCore::createPrivateChat(const int id) {
 	int tmpId = getUniqueChatId();
 	qDebug() << "[core] creating new chat with id"<<tmpId<<"for user"<<id;
 	QWClassPrivateChat tmpChat;
+	tmpChat.pChatId = tmpId;
 	tmpChat.pUsers.append(id);
 	pPrivateChats[tmpId] = tmpChat;
 	pClients[id]->sendPrivateChatCreated(tmpId);
@@ -266,7 +299,7 @@ void QWServerCore::joinPrivateChat(const int id, const int chatId) {
 	if(!chat.pInvitedUsers.contains(id)) return;
 	chat.pInvitedUsers.removeAt(chat.pInvitedUsers.indexOf(id));
 	chat.pUsers.append(id);
-
+	pClients[id]->sendChatTopic(pPrivateChats[chatId]);
 	// Notify other users in the chat
 	QListIterator<int> i(chat.pUsers);
 	while(i.hasNext()) {
@@ -322,6 +355,51 @@ void QWServerCore::removeFromPrivateChat(const int userId, const int chatId) {
 		pPrivateChats.remove(chatId);
 	}
 }
+
+/**
+ * The client sent some information about itself.
+ * @param id The ID of the client.
+ * @param info The client-version string of the client.
+ */
+void QWServerCore::setClientInfo(const int id, const QString info) {
+	qDebug() << "[core] setting client info for client"<<id;
+	pClients[id]->setClientInfo(info);
+}
+
+/**
+ * A user has changed the topic of a chat.
+ * @param user The ID of the user.
+ * @param chatId The ID of the chat.
+ * @param topic The new chat topic.
+ */
+void QWServerCore::broadcastChatTopic(const ClassWiredUser user, const int chatId, const QString topic) {
+	qDebug() << "[core] setting chat topic of chat"<<chatId<<"by user"<<user.pUserID;
+	QWClassPrivateChat *chat = 0;
+	if(chatId==1) {
+		chat = &pPublicChat;
+	} else if(chatId>0 && pPrivateChats.contains(chatId)) {
+		chat = &pPrivateChats[chatId];
+	}
+	if(!chat) return;
+	chat->pTopic = topic;
+	chat->pTopicSetter = user;
+	chat->pTopicDate = QDateTime::currentDateTime();
+	if(chatId!=1) { // Private chat
+		QWClassPrivateChat &tmpUsers = pPrivateChats[chatId];
+		QListIterator<int> i(tmpUsers.pUsers);
+		while(i.hasNext()) {
+			pClients[i.next()]->sendChatTopic(*chat);
+		}
+	} else { // Public chat
+		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		while(i.hasNext()) { i.next();
+			if(i.value()) i.value()->sendChatTopic(*chat);
+		}
+	}
+}
+
+
+
 
 
 
