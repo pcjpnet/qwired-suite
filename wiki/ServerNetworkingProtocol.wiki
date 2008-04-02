@@ -2,4 +2,6 @@
 #labels Phase-Implementation
 
 = Introduction =
-This draft describes a protocol extension to the Wired protocol which allows linking of servers.
+This draft describes a protocol extension to the Wired protocol that allows networking of servers.
+Server networking allows servers to synchronize their user lists, chats, news and files; practically making multiple independent servers look like one big server to connected users.
+
