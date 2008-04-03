@@ -43,8 +43,8 @@ public:
     ~QWServerController();
 
 private:
-	int pCfServerPort;
 	QPointer<SslTcpServer> pTcpServer;
+	QHash<QString,QString> pConfigParams;
 
 
 

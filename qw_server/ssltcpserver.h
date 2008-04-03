@@ -35,8 +35,8 @@ public:
     SslTcpServer(QObject *parent=0);
     ~SslTcpServer();
 	bool hasPendingSslSocket();
+	void setCertificateFromFile(QString file);
 	QSslSocket* nextPendingSslSocket();
-
 	QSslKey pPrivateKey;
 	QSslCertificate pLocalCert;
 

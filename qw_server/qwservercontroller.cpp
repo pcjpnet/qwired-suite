@@ -33,17 +33,59 @@ QWServerController::~QWServerController()
 	
 }
 
+/**
+ * Read the configuration file from the disk and store it in our configuration hash for quick
+ * parameter access during runtime.
+ */
 void QWServerController::reloadConfig() {
-	qwLog("Reloading configuration...");
-	pCfServerPort = 2000;
+	QStringList tmpCmdArgs = QCoreApplication::arguments();
+
+	// Override config file
+	QString tmpCfgPath = "etc/wired.conf";
+	if(int index=tmpCmdArgs.indexOf("-c") > -1)
+		tmpCfgPath = tmpCmdArgs.value(index+1);
+	
+	qwLog(QString("Loading configuration from '%1'").arg(tmpCfgPath));
+	
+	QFile tmpConfigFile(tmpCfgPath);
+	pConfigParams.clear();
+	if(!tmpConfigFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		qwLog(QString("Fatal: Unable to open configuration file: %1. Terminating.").arg(tmpConfigFile.errorString()));
+		exit(1);
+	} else {
+		while(!tmpConfigFile.atEnd()) {
+			QString tmpLine = tmpConfigFile.readLine();
+			if(!tmpLine.startsWith("#") && !tmpLine.trimmed().isEmpty()) 
+				pConfigParams[tmpLine.section("=",0,0).trimmed()] = tmpLine.section("=",1,-1).trimmed();
+		}
+	}
+
+
+	// Banner
+	if(pConfigParams.contains("banner")) {
+		QFile banner(pConfigParams.value("banner"));
+		if(!banner.open(QIODevice::ReadOnly)) {
+			qwLog(QString("Warning: Unable to read server banner: %1").arg(banner.errorString()));
+		} else {
+			qwLog(QString("Loaded server banner from '%1'").arg(banner.fileName()));
+			pCore->pBannerData = banner.readAll();
+		}
+	}
+	
 }
 
+/**
+ * Start the TCP listener in order to accept connections.
+ */
 void QWServerController::startServer() {
-	qwLog("Starting server...");
+	int tmpPort = pConfigParams.value("port","2000").toInt();
+	QString tmpAddress = pConfigParams.value("address","0.0.0.0");
+	qwLog(QString("Starting server on  %2:%1...").arg(tmpPort).arg(tmpAddress));
 	pTcpServer = new SslTcpServer(this);
+	pTcpServer->setCertificateFromFile(pConfigParams.value("certificate","certificate"));
 	connect(pTcpServer, SIGNAL(newSslConnection()), this, SLOT(acceptSslConnection()));
-	if(!pTcpServer->listen(QHostAddress::Any, pCfServerPort)) {
-		qwLog(QString("Fatal: Unable to listen on TCP port %1. Terminating.").arg(pCfServerPort));
+	if(!pTcpServer->listen( QHostAddress(tmpAddress), tmpPort)) {
+		qwLog(QString("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(pTcpServer->errorString()));
 		exit(1);
 	}
 }
@@ -69,6 +111,7 @@ void QWServerController::acceptSslConnection() {
  * Load the database from the disk.
  */
 void QWServerController::reloadDatabase() {
+	QStringList tmpCmdArgs = QCoreApplication::arguments();
 	qwLog("Loading database...");
 	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
 	db.setDatabaseName("accounts.db");
@@ -92,12 +135,59 @@ void QWServerController::reloadDatabase() {
 			query.exec("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES ('guest', '', '', '0:0:0:0:1:1:0:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0');");
 		}
 
+		// Import accounts from older configuration file
+		if(int index=tmpCmdArgs.indexOf("-iu") > -1) {
+			QFile tmpFile(tmpCmdArgs.value(index+1));
+			if(tmpFile.open(QIODevice::ReadOnly)) {
+				qwLog("Importing users from old-world file...");
+				query.exec("DELETE FROM qw_accounts;");
+				while(!tmpFile.atEnd()) {
+					QString tmpLine = tmpFile.readLine();
+					if(tmpLine.startsWith("#") || tmpLine.trimmed().isEmpty()) continue;
+					QStringList tmpRec = tmpLine.split(":");
+					query.prepare("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES (:login, :password, :groupname, :privileges);");
+					query.bindValue(":login", tmpLine.section(":",0,0));
+					query.bindValue(":password", tmpLine.section(":",1,1));
+					query.bindValue(":groupname", tmpLine.section(":",2,2));
+					query.bindValue(":privileges", tmpLine.section(":",3,-1).trimmed());
+					if(!query.exec()) qwLog(QString("SQL error: %1").arg(query.lastError().text()));
+					qwLog(QString("  Imported user %1").arg(tmpLine.section(":",0,0).trimmed()));
+				}
+			} else {
+				qwLog(QString("Error: Could not open old-world users file: %1").arg(tmpFile.errorString()));
+			}
+			exit(0);
+		}
+		
+
 		if(!tmpTables.contains("qw_groups")) {
 			qDebug() << "[controller] Creating missing qw_groups table.";
 			query.exec("CREATE TABLE qw_groups (id INTEGER PRIMARY KEY, groupname TEXT, privileges TEXT);");
 			query.exec("INSERT INTO qw_groups (groupname,privileges) VALUES ('admins', '1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1');");
 		}
 
+		// Import accounts from older configuration file
+		if(int index=tmpCmdArgs.indexOf("-ig") > -1) {
+			QFile tmpFile(tmpCmdArgs.value(index+1));
+			if(tmpFile.open(QIODevice::ReadOnly)) {
+				qwLog("Importing groups from old-world file...");
+				query.exec("DELETE FROM qw_groups;");
+				while(!tmpFile.atEnd()) {
+					QString tmpLine = tmpFile.readLine();
+					if(tmpLine.startsWith("#") || tmpLine.trimmed().isEmpty()) continue;
+					QStringList tmpRec = tmpLine.split(":");
+					query.prepare("INSERT INTO qw_groups (groupname,privileges) VALUES (:groupname, :privileges);");
+					query.bindValue(":groupname", tmpLine.section(":",0,0));
+					query.bindValue(":privileges", tmpLine.section(":",1,-1).trimmed());
+					if(!query.exec()) qwLog(QString("SQL error: %1").arg(query.lastError().text()));
+					qwLog(QString("  Imported group %1").arg(tmpLine.section(":",0,0)));
+				}
+			} else {
+				qwLog(QString("Error: Could not open old-world group file: %1").arg(tmpFile.errorString()));
+			}
+			exit(0);
+		}
+		
 		qDebug() << "Tables:"<<db.tables();
 	}
 }
