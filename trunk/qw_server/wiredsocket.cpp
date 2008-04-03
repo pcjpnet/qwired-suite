@@ -235,7 +235,7 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			
 		} else if(tmpCmd=="NICK") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			pSessionUser.pNick = tmpParams.value(0);
+			pSessionUser.pNick = QString::fromUtf8(tmpParams.value(0));
 			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
 			resetIdleTimer();
 
@@ -263,7 +263,7 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 		} else if(tmpCmd=="PASS") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			if(isLoggedIn()) { sendErrorCommandFailed(); return; }
-			pSessionUser.pPassword = tmpParams.value(0);
+			pSessionUser.pPassword = QString::fromUtf8(tmpParams.value(0));
 			emit loginReceived(pSessionUser.pUserID, pSessionUser.pLogin, pSessionUser.pPassword);
 
 		} else if(tmpCmd=="POST") {
@@ -360,7 +360,7 @@ void WiredSocket::on_socket_error() {
  */
 void WiredSocket::sendWiredCommand(const QByteArray theData) {
 	if(!pSocket->isOpen()) return;
-	qDebug() << userId()<<"|"<<"Sending: "<<theData;
+// 	qDebug() << userId()<<"|"<<"Sending: "<<theData;
 	QByteArray tmpBuffer;
 	tmpBuffer += pSendBuffer;
 	tmpBuffer += theData;
@@ -526,7 +526,7 @@ void WiredSocket::sendClientLeave(const int chatId, const int id) {
  */
 void WiredSocket::sendBanner(const QByteArray banner) {
 	QByteArray ba("203 ");
-	ba += banner;
+	ba += banner.toBase64();
 	sendWiredCommand(ba);
 }
 

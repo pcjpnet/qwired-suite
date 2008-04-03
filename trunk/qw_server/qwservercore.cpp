@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "qwservercore.h"
-
+#include "qwservercontroller.h"
 
 QWServerCore::QWServerCore(QObject *parent)
  : QObject(parent)
@@ -278,7 +278,7 @@ void QWServerCore::deliverPrivateMessage(const int id, const int targetId, const
  */
 void QWServerCore::sendServerBanner(const int id) {
 	qDebug() << "[core] sending server banner to"<<id;
-	pClients[id]->sendBanner(pServerBanner);
+	pClients[id]->sendBanner(pBannerData);
 }
 
 void QWServerCore::broadcastBroadcast(const int id, const QString text) {

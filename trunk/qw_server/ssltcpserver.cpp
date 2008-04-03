@@ -18,26 +18,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "ssltcpserver.h"
+#include "qwservercontroller.h"
 
 SslTcpServer::SslTcpServer(QObject *parent)
  : QTcpServer(parent)
-{
-	QFile tmpCertFile("/home/bbense/Desktop/testct.pem");
-	if(!tmpCertFile.open(QIODevice::ReadOnly))
-		qDebug() << "Failed to open file.";
-	
-	QByteArray tmpCertData = tmpCertFile.readAll();
-	
-	pPrivateKey = QSslKey(tmpCertData, QSsl::Rsa);
-	if(!pPrivateKey.isNull())
-		qDebug() << "[ssltcpserver] Loaded private key:"<<pPrivateKey.length();
-	pLocalCert = QSslCertificate(tmpCertData);
-		if(!pLocalCert.isNull())
-			qDebug() << "[ssltcpserver] Loaded cert:"<<pLocalCert.subjectInfo(QSslCertificate::CommonName);
-}
+{ }
 
 SslTcpServer::~SslTcpServer()
 { }
+
+
+/**
+ * Set the certificate from a PEM fil.
+ * @param file The path to the file.
+ * @return True if this was successful.
+ */
+void SslTcpServer::setCertificateFromFile(QString file) {
+	QFile tmpPEMFile(file);
+	if(!tmpPEMFile.open(QIODevice::ReadOnly)) {
+		QWServerController::qwLog(QString("Fatal: Unable to read certificate file '%1'. %2.").arg(file).arg(tmpPEMFile.errorString()));
+		exit(1);
+	} else {
+		QByteArray tmpCertData = tmpPEMFile.readAll();
+		pPrivateKey = QSslKey(tmpCertData, QSsl::Rsa);
+		pLocalCert = QSslCertificate(tmpCertData);
+		if(pPrivateKey.isNull()) {
+			QWServerController::qwLog(QString("Fatal: Unable to read prviate key from file '%1'.").arg(file));
+			exit(1);
+		}
+		if(pLocalCert.isNull()) {
+			QWServerController::qwLog(QString("Fatal: Unable to read local certificate from file '%1'.").arg(file));
+			exit(1);
+		}
+		QWServerController::qwLog(QString("Loaded certificate and private key from '%1'.").arg(file));
+	}
+}
+
+
 
 void SslTcpServer::incomingConnection(int socketDescriptor) {
 	qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor;

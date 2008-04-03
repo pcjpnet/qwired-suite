@@ -40,12 +40,12 @@ public:
 	QHash<int,QPointer<WiredSocket> > pClients;
 	int getUniqueUserId();
 	int getUniqueChatId();
-	QByteArray pServerBanner;
 
 	QWClassPrivateChat pPublicChat;
 	QHash<int, QWClassPrivateChat > pPrivateChats;
 	QSqlDatabase pDatabase;
-	
+
+	QByteArray pBannerData;
 
 	
 private slots:
