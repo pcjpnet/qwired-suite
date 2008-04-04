@@ -86,6 +86,7 @@ class WiredSocket : public QObject
 		void requestedAccountsList(const int id);
 		void requestedBanner(const int id);
 		void requestedFileList(const int id, const QString path);
+		void requestedFileStat(const int id, const QString path);
 		void requestedGroupsList(const int id);
 		void requestedNews(const int id);
 		void requestedPrivateChat(const int id);
@@ -118,6 +119,7 @@ class WiredSocket : public QObject
 
 		void sendFileListing(const ClassWiredFile file);
 		void sendFileListingDone(const QString path, const int free);
+		void sendFileStat(const ClassWiredFile file);
 		
 		void sendBanner(const QByteArray banner);
 		void sendBroadcastMessage(const int userId, const QString text);

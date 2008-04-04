@@ -74,6 +74,7 @@ void QWServerCore::registerClient(WiredSocket *socket) {
 	connect(socket, SIGNAL(requestedGroupsList(int)), this, SLOT(sendGroupsList(int)) );
 	connect(socket, SIGNAL(requestedBanner(int)), this, SLOT(sendServerBanner(int)) );
 	connect(socket, SIGNAL(requestedFileList(int,QString)), this, SLOT(sendFileList(int,QString)));
+	connect(socket, SIGNAL(requestedFileStat(int,QString)), this, SLOT(sendFileStat(int,QString)));
 	connect(socket, SIGNAL(requestedNews(int)), this, SLOT(sendNews(int)) );
 	connect(socket, SIGNAL(requestedPrivateChat(int)), this, SLOT(createPrivateChat(int)) );
 	connect(socket, SIGNAL(requestedReadUser(int,QString)), this, SLOT(sendUserSpec(int,QString)));
@@ -704,32 +705,42 @@ void QWServerCore::deleteGroup(const int id, const QString name) {
 }
 
 /**
+ * Send a file info/stat to the client.
+ * @param id The ID of the requesting user.
+ * @param path The path of the requested file.
+ */
+void QWServerCore::sendFileStat(const int id, const QString path) {
+	
+}
+
+/**
  * Send a list of files to the requesting client.
  * @param id The ID of the requesting user.
  * @param path The path of the requested directory.
  */
 void QWServerCore::sendFileList(const int id, const QString path) {
-	qDebug() << "[core] requested path"<<path;
-	qDebug() << "[core] root is"<<pFilesRoot;
 	WiredSocket *socket = pClients[id];
 	QDir tmpDir(QString("%1/%2").arg(pFilesRoot).arg(path));
-	qDebug() << "[core] tmpDir:"<<tmpDir.canonicalPath();
-	qDebug() << "[core] root is"<<pFilesRoot;
 	if(tmpDir.canonicalPath().startsWith(pFilesRoot)) {
-		qDebug() << "iterating..";
 		QDirIterator it(tmpDir);
 		while(it.hasNext()) {
+			QString tmpPath = it.next();
 			ClassWiredFile file;
-			QFileInfo tmpFile = it.fileInfo();
-			qDebug() << tmpFile;
-			file.path = path+tmpFile.fileName();
-			file.size = tmpFile.size();
-			file.type = tmpFile.isDir() ? 0 : 1;
+			QFileInfo tmpFile(tmpPath);
+			file.path = QDir::cleanPath(QString("%1/%2").arg(path).arg(tmpFile.fileName()));
+			if(tmpFile.isDir()) {
+				QDir tmpDir(tmpPath);
+				file.size = tmpDir.count();
+				file.type = 1;
+			} else {
+				file.size = tmpFile.size();
+				file.type = 0;
+			}
 			file.created = tmpFile.created();
 			file.modified = tmpFile.lastModified();
 			file.checksum = "";
 			file.comment = "";
-			socket->sendFileListing(file);
+			if(!tmpFile.isHidden())	socket->sendFileListing(file);
 			it.next();
 		}
 		socket->sendFileListingDone(path,0);

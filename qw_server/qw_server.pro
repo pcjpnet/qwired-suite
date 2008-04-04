@@ -11,6 +11,8 @@ TEMPLATE = app
 
 QT -= gui
 
+CONFIG-=app_bundle
+
 QT += network \
 xml \
  sql
