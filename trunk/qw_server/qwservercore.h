@@ -25,6 +25,7 @@
 #include <QHash>
 #include "wiredsocket.h"
 #include "qwclassprivatechat.h"
+#include "classwiredfile.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
@@ -40,12 +41,14 @@ public:
 	QHash<int,QPointer<WiredSocket> > pClients;
 	int getUniqueUserId();
 	int getUniqueChatId();
+	
 
 	QWClassPrivateChat pPublicChat;
 	QHash<int, QWClassPrivateChat > pPrivateChats;
 	QSqlDatabase pDatabase;
 
 	QByteArray pBannerData;
+	QString pFilesRoot;
 
 	
 private slots:
@@ -76,6 +79,7 @@ private slots:
 	void sendAccountsList(const int id);
 	void sendGroupsList(const int id);
 	void sendUserSpec(const int id, const QString name);
+	void sendFileList(const int id, const QString path);
 	void sendGroupSpec(const int id, const QString name);
 	void sendUserInfo(const int id, const int userId);
 	void sendUserlist(const int id, const int chatId);

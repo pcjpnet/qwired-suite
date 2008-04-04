@@ -227,6 +227,12 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			emit privateChatLeft(userId(), tmpParams.value(0).toInt());
 			resetIdleTimer();
 
+		} else if(tmpCmd=="LIST") {
+			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
+			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
+			emit requestedFileList(userId(), QString::fromUtf8(tmpParams.value(0)));
+			resetIdleTimer();
+			
 		} else if(tmpCmd=="NEWS") {
 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
@@ -360,7 +366,7 @@ void WiredSocket::on_socket_error() {
  */
 void WiredSocket::sendWiredCommand(const QByteArray theData) {
 	if(!pSocket->isOpen()) return;
-// 	qDebug() << userId()<<"|"<<"Sending: "<<theData;
+ 	qDebug() << userId()<<"|"<<"Sending: "<<theData;
 	QByteArray tmpBuffer;
 	tmpBuffer += pSendBuffer;
 	tmpBuffer += theData;
@@ -750,6 +756,26 @@ void WiredSocket::sendGroupSpec(const ClassWiredUser group) {
 }
 
 
+void WiredSocket::sendFileListing(const ClassWiredFile file) {
+	QByteArray ba("410 ");
+	ba += file.path.toUtf8(); ba += kFS;
+	ba += QByteArray::number(file.type); ba += kFS;
+	ba += QByteArray::number(file.size); ba += kFS;
+	ba += file.created.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
+	ba += file.modified.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
+	ba += file.checksum.toUtf8(); ba += kFS;
+	ba += file.comment.toUtf8();
+	sendWiredCommandBuffer(ba);
+}
+
+void WiredSocket::sendFileListingDone(const QString path, const int free) {
+	QByteArray ba("411 ");
+	ba += path.toUtf8(); ba += kFS;
+	ba += QByteArray::number(free);
+	sendWiredCommand(ba);
+}
+
+
 
 void WiredSocket::sendErrorClientNotFound() { sendWiredCommand("512 Client Not Found"); }
 void WiredSocket::sendErrorPermissionDenied() { sendWiredCommand("516 Permission Denied"); }
@@ -758,9 +784,10 @@ void WiredSocket::sendErrorLoginFailed() { sendWiredCommand("510 Login Failed");
 void WiredSocket::sendErrorCommandNotImplemented() { sendWiredCommand("502 Command Not Implemented"); }
 void WiredSocket::sendErrorCommandFailed() { sendWiredCommand("500 Command Failed"); }
 void WiredSocket::sendErrorCannotBeDisconnected() { sendWiredCommand("515 Cannot Be Disconnected"); }
-
 void WiredSocket::sendErrorAccountNotFound() { sendWiredCommand("513 Account Not Found"); }
 void WiredSocket::sendErrorAccountExists() { sendWiredCommand("514 Account Exists"); }
+void WiredSocket::sendErrorFileNotFound() { sendWiredCommand("520 File or Directory Not Found"); }
+
 
 
 
