@@ -73,6 +73,7 @@ void QWServerCore::registerClient(WiredSocket *socket) {
 	connect(socket, SIGNAL(requestedAccountsList(int)), this, SLOT(sendAccountsList(int)) );
 	connect(socket, SIGNAL(requestedGroupsList(int)), this, SLOT(sendGroupsList(int)) );
 	connect(socket, SIGNAL(requestedBanner(int)), this, SLOT(sendServerBanner(int)) );
+	connect(socket, SIGNAL(requestedFileList(int,QString)), this, SLOT(sendFileList(int,QString)));
 	connect(socket, SIGNAL(requestedNews(int)), this, SLOT(sendNews(int)) );
 	connect(socket, SIGNAL(requestedPrivateChat(int)), this, SLOT(createPrivateChat(int)) );
 	connect(socket, SIGNAL(requestedReadUser(int,QString)), this, SLOT(sendUserSpec(int,QString)));
@@ -700,6 +701,44 @@ void QWServerCore::deleteGroup(const int id, const QString name) {
 	query.prepare("DELETE FROM qw_groups WHERE groupname=:name;");
 	query.bindValue(":name",name);
 	if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
+}
+
+/**
+ * Send a list of files to the requesting client.
+ * @param id The ID of the requesting user.
+ * @param path The path of the requested directory.
+ */
+void QWServerCore::sendFileList(const int id, const QString path) {
+	qDebug() << "[core] requested path"<<path;
+	qDebug() << "[core] root is"<<pFilesRoot;
+	WiredSocket *socket = pClients[id];
+	QDir tmpDir(QString("%1/%2").arg(pFilesRoot).arg(path));
+	qDebug() << "[core] tmpDir:"<<tmpDir.canonicalPath();
+	qDebug() << "[core] root is"<<pFilesRoot;
+	if(tmpDir.canonicalPath().startsWith(pFilesRoot)) {
+		qDebug() << "iterating..";
+		QDirIterator it(tmpDir);
+		while(it.hasNext()) {
+			ClassWiredFile file;
+			QFileInfo tmpFile = it.fileInfo();
+			qDebug() << tmpFile;
+			file.path = path+tmpFile.fileName();
+			file.size = tmpFile.size();
+			file.type = tmpFile.isDir() ? 0 : 1;
+			file.created = tmpFile.created();
+			file.modified = tmpFile.lastModified();
+			file.checksum = "";
+			file.comment = "";
+			socket->sendFileListing(file);
+			it.next();
+		}
+		socket->sendFileListingDone(path,0);
+		
+	} else {
+		// Attempt to get over the fence?
+		socket->sendErrorFileNotFound();
+		return;
+	}
 }
 
 

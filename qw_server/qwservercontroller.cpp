@@ -71,6 +71,17 @@ void QWServerController::reloadConfig() {
 			pCore->pBannerData = banner.readAll();
 		}
 	}
+
+	// Files directory
+	QDir tmpFilesRoot(pConfigParams.value("files","files"));
+	pCore->pFilesRoot = tmpFilesRoot.canonicalPath();
+	qwLog(QString("Setting files root directory to '%1'.").arg(pCore->pFilesRoot));
+	if(!tmpFilesRoot.exists()) {
+		qwLog(QString("Fatal: Unable to access files directory '%1'. Terminating.").arg(pCore->pFilesRoot));
+		exit(1);
+	}
+	
+	
 	
 }
 

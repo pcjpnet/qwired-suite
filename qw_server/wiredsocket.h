@@ -23,6 +23,7 @@
 #define WIREDSOCKET_H
 
 #include "classwireduser.h"
+#include "classwiredfile.h"
 #include "qwclassprivatechat.h"
 #include <QtCore>
 #include <QtNetwork>
@@ -84,6 +85,7 @@ class WiredSocket : public QObject
 		void receivedBroadcastMessage(const int id, const QString text);
 		void requestedAccountsList(const int id);
 		void requestedBanner(const int id);
+		void requestedFileList(const int id, const QString path);
 		void requestedGroupsList(const int id);
 		void requestedNews(const int id);
 		void requestedPrivateChat(const int id);
@@ -113,6 +115,9 @@ class WiredSocket : public QObject
 		void sendGroupListingDone();
 		void sendUserSpec(const ClassWiredUser account);
 		void sendGroupSpec(const ClassWiredUser group);
+
+		void sendFileListing(const ClassWiredFile file);
+		void sendFileListingDone(const QString path, const int free);
 		
 		void sendBanner(const QByteArray banner);
 		void sendBroadcastMessage(const int userId, const QString text);
@@ -145,6 +150,7 @@ class WiredSocket : public QObject
 		void sendErrorCommandFailed();
 		void sendErrorSyntaxError();
 		void sendErrorCannotBeDisconnected();
+		void sendErrorFileNotFound();
 
 
 		
