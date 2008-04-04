@@ -80,6 +80,7 @@ private slots:
 	void sendGroupsList(const int id);
 	void sendUserSpec(const int id, const QString name);
 	void sendFileList(const int id, const QString path);
+	void sendFileStat(const int id, const QString path);
 	void sendGroupSpec(const int id, const QString name);
 	void sendUserInfo(const int id, const int userId);
 	void sendUserlist(const int id, const int chatId);

@@ -290,6 +290,13 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
 			sendPrivileges();
 			
+		} else if(tmpCmd=="STAT") {
+			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
+			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
+			emit requestedFileStat(userId(), QString::fromUtf8(tmpParams.value(0)));
+			resetIdleTimer();
+			
+			
 		} else if(tmpCmd=="STATUS") {
 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
 			pSessionUser.pStatus = tmpParams.value(0);
@@ -758,6 +765,18 @@ void WiredSocket::sendGroupSpec(const ClassWiredUser group) {
 
 void WiredSocket::sendFileListing(const ClassWiredFile file) {
 	QByteArray ba("410 ");
+	ba += file.path.toUtf8(); ba += kFS;
+	ba += QByteArray::number(file.type); ba += kFS;
+	ba += QByteArray::number(file.size); ba += kFS;
+	ba += file.created.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
+	ba += file.modified.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
+	ba += file.checksum.toUtf8(); ba += kFS;
+	ba += file.comment.toUtf8();
+	sendWiredCommandBuffer(ba);
+}
+
+void WiredSocket::sendFileStat(const ClassWiredFile file) {
+	QByteArray ba("402 ");
 	ba += file.path.toUtf8(); ba += kFS;
 	ba += QByteArray::number(file.type); ba += kFS;
 	ba += QByteArray::number(file.size); ba += kFS;
