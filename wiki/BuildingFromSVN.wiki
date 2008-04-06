@@ -47,6 +47,8 @@ If you want to update to the latest source code, just right click on the QwiredS
 
 If you have problems compiling or translating, right-click on the folder and select "Check for Modifications...". You will be presented a list of modified items. Revert them and try again.
 
+*Note:* For Windows Vista users, there is a fix available for MinGW. Please [http://sourceforge.net/forum/forum.php?forum_id=782021 read this article] and download the updated version of gcc from there.
+
 
 ===Mac OS X===
 There are plenty of graphical Subversion clients for Mac OS X (such as SmartSVN). But for this, the command line client should do the job.
