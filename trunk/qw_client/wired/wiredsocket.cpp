@@ -574,7 +574,7 @@ void WiredSocket::createChatWithClient(int theUserID)
 {
 	// Initiate a new private chat with a specific user.
 	pInvitedUserID = theUserID;
-	sendWiredCommand(QByteArray("PRIVCHAT"));
+	sendWiredCommand("PRIVCHAT");
 }
 
 void WiredSocket::on_server_new_chat_created(QList<QByteArray> theParams)
@@ -602,7 +602,7 @@ void WiredSocket::inviteClientToChat(int theChatID, int theUserID) {
 
 // Request the server banner.
 void WiredSocket::getServerBanner() {
-	 sendWiredCommand(QByteArray("BANNER"));
+	 sendWiredCommand("BANNER");
 }
 
 void WiredSocket::on_server_banner(QList< QByteArray > theParams) {
@@ -624,14 +624,12 @@ void WiredSocket::on_server_broadcast(QList< QByteArray > theParams)
 
 // Request to clear the news from the server's database
 void WiredSocket::clearNews() {
-	sendWiredCommand(QByteArray("CLEARNEWS"));
+	sendWiredCommand("CLEARNEWS");
 }
 
-void WiredSocket::getFileList(QString thePath)
-{
+void WiredSocket::getFileList(QString thePath) {
 	// Request a file listing of all files at thePath.
 	// Results in a number of 410 and one 411 responses.
-	qDebug() << "[files] requesting path" << thePath;
 	QByteArray buf("LIST ");
 	buf += thePath.toUtf8();
 	sendWiredCommand(buf);
@@ -893,7 +891,7 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 				
 				// Request a file download from the server
 				QByteArray buf("GET ");
-				buf += tmpPath;
+				buf += tmpPath.toUtf8();
 				buf += kFS;
 				buf += QByteArray::number(tmpT->pTransfer.pOffset);
 				sendWiredCommand(buf);
@@ -958,12 +956,11 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		// Request upload slot
 		qDebug() << "WiredSocket: Upload requested, hash"<<tmpTrans.pChecksum;
 		QByteArray tmpBuf("PUT ");
-		tmpBuf += theRemotePath;
+		tmpBuf += theRemotePath.toUtf8();
 		tmpBuf += kFS;
 		tmpBuf += QByteArray::number(tmpFile.size());
 		tmpBuf += kFS;
 		tmpBuf += tmpTrans.pChecksum;
-		qDebug() << tmpBuf;
 		sendWiredCommand(tmpBuf);
 	}
 }
@@ -989,15 +986,15 @@ void WiredSocket::do_send_user_login() {
 	setUserStatus(sessionUser.pStatus);
 	
 	QByteArray tmpCmd;
-	tmpCmd += "USER "+sessionUser.pLogin; sendWiredCommand(tmpCmd); tmpCmd.clear();
-	tmpCmd += "PASS "+sessionUser.cryptedPassword(); sendWiredCommand(tmpCmd);
+	tmpCmd += "USER "+sessionUser.pLogin.toUtf8(); sendWiredCommand(tmpCmd); tmpCmd.clear();
+	tmpCmd += "PASS "+sessionUser.cryptedPassword().toUtf8(); sendWiredCommand(tmpCmd);
 }
 
 // Set the nickname of the current user session.
 void WiredSocket::setUserNick(QString theNick) {
 	sessionUser.pNick = theNick;
 	QByteArray tmpCmd("NICK ");
-	tmpCmd += theNick;
+	tmpCmd += theNick.toUtf8();
 	sendWiredCommand(tmpCmd);
 }
 
@@ -1005,7 +1002,7 @@ void WiredSocket::setUserNick(QString theNick) {
 void WiredSocket::setUserStatus(QString theStatus) {
 	sessionUser.pStatus = theStatus;
 	QByteArray buf("STATUS ");
-	buf += sessionUser.pStatus;
+	buf += sessionUser.pStatus.toUtf8();
 	sendWiredCommand(buf);
 }
 
@@ -1038,7 +1035,7 @@ void WiredSocket::banClient(int theUserID, QString theReason) {
 	QByteArray tmpBuf("BAN ");
 	tmpBuf += QByteArray::number(theUserID);
 	tmpBuf += kFS;
-	tmpBuf += theReason;
+	tmpBuf += theReason.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
@@ -1056,7 +1053,7 @@ void WiredSocket::getNews() {
 }
 
 // Request current privileges from the server
-void WiredSocket::getPrivileges() { sendWiredCommand(QByteArray("PRIVILEGES")); }
+void WiredSocket::getPrivileges() { sendWiredCommand("PRIVILEGES"); }
 
 // Post news to the news board
 void WiredSocket::postNews(QString thePost) {
@@ -1088,14 +1085,14 @@ void WiredSocket::sendChat(int theChatID, QString theText, bool theIsAction) {
 // Request some file information.
 void WiredSocket::statFile(const QString thePath) {
 	QByteArray buf("STAT ");
-	buf += thePath;
+	buf += thePath.toUtf8();
 	sendWiredCommand(buf);
 }
 
 // Request to create a folder at the specified path
 void WiredSocket::createFolder(const QString thePath) {
 	QByteArray tmpBuf("FOLDER ");
-	tmpBuf += thePath;
+	tmpBuf += thePath.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
@@ -1104,16 +1101,16 @@ void WiredSocket::kickClient(int theUserID, QString theReason) {
 	QByteArray tmpBuf("KICK ");
 	tmpBuf += QByteArray::number(theUserID);
 	tmpBuf += kFS;
-	tmpBuf += theReason;
+	tmpBuf += theReason.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 // Request to move a file on the server
 void WiredSocket::moveFile(const QString thePath, const QString theDestination) {
 	QByteArray tmpBuf("MOVE ");
-	tmpBuf += thePath;
+	tmpBuf += thePath.toUtf8();
 	tmpBuf += kFS;
-	tmpBuf += theDestination;
+	tmpBuf += theDestination.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
@@ -1121,52 +1118,50 @@ void WiredSocket::moveFile(const QString thePath, const QString theDestination) 
 void WiredSocket::deleteFile(const QString thePath) {
 	if(thePath=="/" || thePath.isEmpty()) return;
 	QByteArray tmpBuf("DELETE ");
-	tmpBuf += thePath;
+	tmpBuf += thePath.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 // Request a list of groups.
 void WiredSocket::getGroups() {
-	 sendWiredCommand(QByteArray("GROUPS"));
+	 sendWiredCommand("GROUPS");
 }
 
 // Request a list of users.
 void WiredSocket::getUsers() {
-	sendWiredCommand(QByteArray("USERS"));
+	sendWiredCommand("USERS");
 }
 
 // Create a user account on the server.
 void WiredSocket::createUser(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("CREATEUSER ");
-	tmpBuf += tmpUser.pLogin;
+	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
-	tmpBuf += tmpUser.pPassword;
+	tmpBuf += tmpUser.pPassword.toUtf8();
 	tmpBuf += kFS;
-	tmpBuf += tmpUser.pGroupName;
+	tmpBuf += tmpUser.pGroupName.toUtf8();
 	tmpBuf += kFS;
 	tmpBuf += tmpUser.privilegesFlags();
-	qDebug() << tmpBuf;
 	sendWiredCommand(tmpBuf);
 }
 
 // Modify a user account on the server.
 void WiredSocket::editUser(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("EDITUSER ");
-	tmpBuf += tmpUser.pLogin;
+	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
-	tmpBuf += tmpUser.pPassword;
+	tmpBuf += tmpUser.pPassword.toUtf8();
 	tmpBuf += kFS;
-	tmpBuf += tmpUser.pGroupName;
+	tmpBuf += tmpUser.pGroupName.toUtf8();
 	tmpBuf += kFS;
 	tmpBuf += tmpUser.privilegesFlags();
-	qDebug() << tmpBuf;
 	sendWiredCommand(tmpBuf);
 }
 
 // Create a group on the server.
 void WiredSocket::createGroup(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("CREATEGROUP ");
-	tmpBuf += tmpUser.pLogin;
+	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
 	tmpBuf += tmpUser.privilegesFlags();
 	sendWiredCommand(tmpBuf);
@@ -1175,7 +1170,7 @@ void WiredSocket::createGroup(ClassWiredUser tmpUser) {
 // Modify a user account on the server.
 void WiredSocket::editGroup(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("EDITGROUP ");
-	tmpBuf += tmpUser.pLogin;
+	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
 	tmpBuf += tmpUser.privilegesFlags();
 	sendWiredCommand(tmpBuf);
@@ -1183,31 +1178,31 @@ void WiredSocket::editGroup(ClassWiredUser tmpUser) {
 
 void WiredSocket::deleteGroup(QString theName) {
 	QByteArray tmpBuf("DELETEGROUP ");
-	tmpBuf += theName;
+	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 void WiredSocket::deleteUser(QString theName) {
 	QByteArray tmpBuf("DELETEUSER ");
-	tmpBuf += theName;
+	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 void WiredSocket::readUser(QString theName) {
 	QByteArray tmpBuf("READUSER ");
-	tmpBuf += theName;
+	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 void WiredSocket::readGroup(QString theName) {
 	QByteArray tmpBuf("READGROUP ");
-	tmpBuf += theName;
+	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 // Tracker - request servers
 void WiredSocket::tracker_request_servers() {
-	sendWiredCommand(QByteArray("SERVERS"));
+	sendWiredCommand("SERVERS");
 }
 
 
@@ -1220,7 +1215,7 @@ void WiredSocket::tracker_request_servers() {
  */
 void WiredSocket::searchFiles(const QString theSearch) {
 	QByteArray tmpBuf("SEARCH ");
-	tmpBuf += theSearch;
+	tmpBuf += theSearch.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
