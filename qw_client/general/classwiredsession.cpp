@@ -32,6 +32,7 @@
 
 
 
+
 /**
  * Constructor
  */
@@ -53,6 +54,12 @@ ClassWiredSession::ClassWiredSession(QObject *parent) : QObject(parent) {
 	pMainChat->setUserListModel(pUserListModel);
 	
 	doSetupConnections();
+	
+	// Phonon implementation
+	pEventMediaObject = new Phonon::MediaObject(this);
+	pEventAudioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+	Phonon::createPath(pEventMediaObject, pEventAudioOutput);
+	
 	
 	
 	QSettings settings;
@@ -713,6 +720,11 @@ void ClassWiredSession::triggerEvent(QString event, QStringList params) {
 	}
 	
 	if(conf.contains(QString("events/%1/sound").arg(event)) ) {
+		if(pEventMediaObject) {
+			pEventMediaObject->setCurrentSource(conf.value(QString("events/%1/sound").arg(event)).toString());
+			pEventMediaObject->play();
+		}
+		
 		//qDebug() << conf.value(QString("events/%1/sound").arg(event)).toString();
 		//QSound::play( conf.value(QString("events/%1/sound").arg(event)).toString() );
 	}

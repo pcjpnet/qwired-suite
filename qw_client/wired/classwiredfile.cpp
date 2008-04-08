@@ -158,6 +158,7 @@ QIcon ClassWiredFile::fileIcon() const {
 			break;
 	}
 	
+	return QIcon();
 }
 
 

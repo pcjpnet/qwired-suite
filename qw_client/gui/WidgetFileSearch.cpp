@@ -77,6 +77,7 @@ void WidgetFileSearch::on_fBtnDownload_clicked(bool)
 				messageBox.setIcon(QMessageBox::Warning);
 				messageBox.setText(tr("The file you are trying to download already exists in your download directory. Overwrite it?") );
 				QAbstractButton *rejectButton = messageBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
+				Q_UNUSED(rejectButton)
 				QAbstractButton *deleteButton = messageBox.addButton(tr("Overwrite"), QMessageBox::AcceptRole);
 				messageBox.exec();
 				if (messageBox.clickedButton()!=deleteButton)

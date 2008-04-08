@@ -550,7 +550,7 @@ void WidgetPrefs::on_fEventsSound_clicked() {
 	QString tmpPath = QFileDialog::getOpenFileName(this,
 			tr("Select WAV Sound File"),
 			   conf.value(QString("events/%1/sound").arg(tmpKey), QDir::homePath()).toString(),
-			   "WAV Sound (*.wav)" );
+			   "Sound files (*.*)" );
 	if(tmpPath.isEmpty()) {
 		conf.remove(QString("events/%1/sound").arg(tmpKey));
 		fEventsSound->setText(tr("(none)"));

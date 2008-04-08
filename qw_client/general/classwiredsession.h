@@ -23,6 +23,7 @@
 #define WSESSIONMANAGER_H
 
 #include <QObject>
+#include <phonon>
 #include "wired/wiredsocket.h"
 #include "gui/connwindow.h"
 #include "gui/widgetnews.h"
@@ -67,6 +68,9 @@ public:
 	QPointer<WidgetTracker> pWinTrackers;
 
 	QPointer<QMenu> pTrayMenuItem;
+	
+	QPointer<Phonon::MediaObject> pEventMediaObject;
+	QPointer<Phonon::AudioOutput> pEventAudioOutput;
 
 	QHash<int,QPointer<WidgetSendPrivMsg> > pMsgWindows;
 	

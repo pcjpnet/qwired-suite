@@ -55,7 +55,7 @@ FORMS += gui/WinMain.ui \
  gui/WidgetFileInfo.ui \
  gui/WidgetTracker.ui \
  gui/WidgetAboutQwired.ui
-QT += gui network
+QT += gui network phonon
 HEADERS += wired/classwireduser.h \
  gui/connwindow.h \
  gui/widgetforum.h \

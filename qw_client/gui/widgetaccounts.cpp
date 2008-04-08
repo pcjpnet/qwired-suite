@@ -67,7 +67,7 @@ void WidgetAccounts::appendGroupNames(QStringList theGroups) {
 
 void WidgetAccounts::on_fList_currentItemChanged(QListWidgetItem * current, QListWidgetItem * previous) {
 
-
+	Q_UNUSED(previous)
 	if(current) {
 		if( current->data(Qt::UserRole).toInt() == 0 ) {
 			emit userSpecRequested(current->text());
