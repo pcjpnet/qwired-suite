@@ -31,8 +31,10 @@ WidgetColorButton::WidgetColorButton(QWidget *parent)
 	updateIcon();
 }
 
-WidgetColorButton::WidgetColorButton(QColor theColor, QWidget * parent)
+WidgetColorButton::WidgetColorButton(QColor theColor, QWidget *parent)
+	
 {
+	Q_UNUSED(parent)
 	connect(this, SIGNAL(clicked(bool)), this, SLOT(requestColor()) );
 	pColor = theColor;
 	updateIcon();
