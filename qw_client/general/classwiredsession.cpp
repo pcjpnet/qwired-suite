@@ -55,13 +55,6 @@ ClassWiredSession::ClassWiredSession(QObject *parent) : QObject(parent) {
 	
 	doSetupConnections();
 	
-	// Phonon implementation
-	pEventMediaObject = new Phonon::MediaObject(this);
-	pEventAudioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
-	Phonon::createPath(pEventMediaObject, pEventAudioOutput);
-	
-	
-	
 	QSettings settings;
 	if( settings.contains("general/icon") ) { // Custom icon
 		QPixmap tmpIcon = settings.value("general/icon").value<QPixmap>();
