@@ -5,13 +5,14 @@ SOURCES += main.cpp \
  classwireduser.cpp \
  qwservercore.cpp \
  qwclassprivatechat.cpp \
- classwiredfile.cpp
+ classwiredfile.cpp \
+ ../common/qwtransaction.cpp
 
 TEMPLATE = app
 
 QT -= gui
 
-CONFIG-=app_bundle
+CONFIG -= app_bundle
 
 QT += network \
 xml \
@@ -26,4 +27,7 @@ HEADERS += qwservercontroller.h \
  classwireduser.h \
  qwservercore.h \
  qwclassprivatechat.h \
- classwiredfile.h
+ classwiredfile.h \
+ ../common/qwtransaction.h
+INCLUDEPATH += ../common/
+

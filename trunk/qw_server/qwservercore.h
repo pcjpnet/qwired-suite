@@ -27,6 +27,8 @@
 #include "qwclassprivatechat.h"
 #include "classwiredfile.h"
 
+#include "qwtransaction.h"
+
 /**
 	@author Bastian Bense <bb@bense.de>
 */
