@@ -28,6 +28,9 @@ QWTransaction::QWTransaction() {
 	flags = 0;
 }
 
+QWTransaction::~QWTransaction() {
+}
+
 /**
  * Parse a transaction from the serialized protocol stream.
  * @param data The data astream containing the flat transaction.
@@ -52,11 +55,14 @@ bool QWTransaction::parseFromData(const QByteArray data) {
 	while(1) {
 		QByteArray key_name;
 		QByteArray key_value;
-		
-		stream >> key_name;
+		quint8 keyLen;
+
+		stream >> keyLen;
+		key_name.resize(keyLen);
+		stream.readRawData(key_name.data(), keyLen);
 		stream >> key_value;
 		objects[key_name] = key_value;
-		qDebug() << "QWTransaction: Found: "<<key_name;
+		//qDebug() << "QWTransaction: Found: "<<key_name<<"data:"<<key_value.length()<<"value:"<<key_value;
 		if(stream.atEnd())
 			return true;
 	}
@@ -71,15 +77,17 @@ bool QWTransaction::parseFromData(const QByteArray data) {
  */
 QByteArray QWTransaction::toData() {
 	QByteArray buffer;
+	
 	QDataStream stream(&buffer, QIODevice::WriteOnly);
-
 	QHashIterator<QByteArray,QByteArray> i(objects);
 	while(i.hasNext()) { i.next();
-		stream << i.key();
+		stream << (quint8)i.key().length();
+		stream.writeRawData( i.key().data(), i.key().length());
 		stream << i.value();
+		
 	}
-
 	rawLength = buffer.length()+15;
+	
 	QByteArray header;
 	QDataStream headerStream(&header, QIODevice::WriteOnly);
 	headerStream << rawLength;
@@ -87,10 +95,30 @@ QByteArray QWTransaction::toData() {
 	headerStream << error;
 	headerStream << ttl;
 	headerStream << flags;
+
+	qDebug() << "Total length:"<<rawLength;
 	
 	buffer.prepend(header);
 	return buffer;
 	
+}
+
+/**
+ * Add an object to the transaction.
+ * @param key The ASCII formatted key.
+ * @param data The raw data.
+ */
+void QWTransaction::addObject(const QByteArray key, const QByteArray data) {
+	objects[key] = data;
+	//qDebug() << "QWTransaction: Adding"<<key;
+}
+
+QByteArray QWTransaction::getObject(const QByteArray key) const {
+	if(objects.contains(key)) {
+		return objects[key];
+	} else {
+		qDebug() << "QWTransaction: Warning: Unknown key: "<<key;
+	}
 }
 
 

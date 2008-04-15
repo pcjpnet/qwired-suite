@@ -21,12 +21,30 @@
 
 #include <QtCore>
 #include "qwservercontroller.h"
+#include "qwtransaction.h"
+
 
 const QString QWSERVER_VERSION("1.0.0");
 
 int main (int argc, char *argv[]) {
 	QCoreApplication app(argc, argv);
 	
+
+	QWTransaction t;
+	t.type = 1001;
+	t.error = 0x00;
+	t.ttl = 0x00;
+	t.flags = 0x0000;
+	t.addObject("uid", "wow this rocks, really totally awesome");
+	//t.addObject("text", "basdfasdfasfdsdf sda sad");
+	//t.addObject("value", "basdfasdf");
+	//t.addObject("bleh", "bfdasdfasdfasd :D");
+	qDebug() << t.toData().toHex();
+
+	QWTransaction c;
+	c.parseFromData(t.toData());
+	qDebug() << c.toData().toHex();
+
 	QWServerController *controller = new QWServerController();
 	controller->reloadConfig();
 	controller->reloadDatabase();
