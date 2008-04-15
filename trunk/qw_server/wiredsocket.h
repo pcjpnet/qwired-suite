@@ -22,6 +22,8 @@
 #ifndef WIREDSOCKET_H
 #define WIREDSOCKET_H
 
+
+
 #include "classwireduser.h"
 #include "classwiredfile.h"
 #include "qwclassprivatechat.h"

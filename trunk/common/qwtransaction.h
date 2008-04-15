@@ -23,8 +23,9 @@
 #include <QtCore>
 
 namespace Qwired {
-	enum Errors { ErrorOK=0, ErrorLoginFailed=100, ErrorBanned, ErrorPermissionDenied, ErrorObjectNotExists,
+	enum Errors { ErrorOK=0, ErrorLoginFailed=100, ErrorPermissionDenied, ErrorObjectNotExists,
 		ErrorObjectExists, ErrorObjectProtected, ErrorChecksumMismatch, ErrorAdminAborted };
+	enum Flags { FlagResponse=1, FlagListingComplete=2 };
 }
 
 /**
@@ -37,6 +38,7 @@ public:
 	bool parseFromData(const QByteArray data);
 	void addObject(const QByteArray key, const QByteArray data);
 	QByteArray getObject(const QByteArray key) const;
+	QString getObjectString(const QByteArray key) const;
 
 	QByteArray toData();
 	QHash<QByteArray,QByteArray> objects;

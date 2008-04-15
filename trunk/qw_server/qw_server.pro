@@ -19,7 +19,6 @@ xml \
  sql
 TARGET = qwired_server
 
-DESTDIR = ../bin/
 
 HEADERS += qwservercontroller.h \
  wiredsocket.h \
@@ -30,4 +29,6 @@ HEADERS += qwservercontroller.h \
  classwiredfile.h \
  ../common/qwtransaction.h
 INCLUDEPATH += ../common/
+
+DESTDIR = ../bin/
 
