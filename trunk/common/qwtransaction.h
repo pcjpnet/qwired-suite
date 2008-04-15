@@ -35,12 +35,15 @@ public:
     QWTransaction();
     ~QWTransaction();
 	bool parseFromData(const QByteArray data);
+	void addObject(const QByteArray key, const QByteArray data);
+	QByteArray getObject(const QByteArray key) const;
+
 	QByteArray toData();
 	QHash<QByteArray,QByteArray> objects;
 	quint32 rawLength;
-	quint32 type;
-	quint32 error;
-	quint8  ttl;
+	quint16 type;
+	quint8 error;
+	quint8 ttl;
 	quint16 flags;
 };
 
