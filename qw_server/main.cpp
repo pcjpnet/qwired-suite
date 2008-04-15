@@ -32,14 +32,11 @@ int main (int argc, char *argv[]) {
 
 	QWTransaction t;
 	t.type = 1001;
-	t.error = 0x00;
-	t.ttl = 0x00;
-	t.flags = 0x0000;
-	t.addObject("uid", "wow this rocks, really totally awesome");
 	//t.addObject("text", "basdfasdfasfdsdf sda sad");
 	//t.addObject("value", "basdfasdf");
 	//t.addObject("bleh", "bfdasdfasdfasd :D");
 	qDebug() << t.toData().toHex();
+	qDebug() << qCompress(t.toData()).toHex();
 
 	QWTransaction c;
 	c.parseFromData(t.toData());

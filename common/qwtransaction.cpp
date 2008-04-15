@@ -24,7 +24,7 @@ QWTransaction::QWTransaction() {
 	rawLength = 0;
 	type = 0;
 	error = 0;
-	ttl = 0;
+	ttl = 16;
 	flags = 0;
 }
 
@@ -46,7 +46,7 @@ bool QWTransaction::parseFromData(const QByteArray data) {
 	stream >> flags;
 	
 	// Check length
-	if(stream.atEnd()) {
+	if(rawLength != data.length()) {
 		qDebug() << "QWTransaction: Ignoring transaction with wrong size.";
 		return false;
 	}
@@ -113,12 +113,26 @@ void QWTransaction::addObject(const QByteArray key, const QByteArray data) {
 	//qDebug() << "QWTransaction: Adding"<<key;
 }
 
+/**
+ * Find an object in the transaction.
+ * @param key The key of the object.
+ * @return The raw data of the object.
+ */
 QByteArray QWTransaction::getObject(const QByteArray key) const {
 	if(objects.contains(key)) {
 		return objects[key];
 	} else {
 		qDebug() << "QWTransaction: Warning: Unknown key: "<<key;
 	}
+}
+
+/**
+ * Find an object in the transaction and convert it to utf-8.
+ * @param key The key of the object
+ * @return The UTF-8 version of the data.
+ */
+QString QWTransaction::getObjectString(const QByteArray key) const {
+	return QString::fromUtf8( getObject(key) );
 }
 
 
