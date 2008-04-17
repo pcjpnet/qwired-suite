@@ -77,6 +77,8 @@ private:
 
 
 private slots:
+	void displayMotd(const QString text);
+
 	void connectionWindowDestroyed(QObject *obj);
 	void reloadPrefs();
 	void onSocketPrivileges(ClassWiredUser);

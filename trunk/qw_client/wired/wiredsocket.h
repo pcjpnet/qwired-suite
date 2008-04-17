@@ -104,6 +104,9 @@ class WiredSocket : public QObject
 		
 	public slots:
 
+		void getServerBanner();
+		void getMotd();
+
 		// Wired Subsystem (not for Trackers)
 		//
 		void banClient(int theUserID, QString theReason);
@@ -125,7 +128,7 @@ class WiredSocket : public QObject
 		void getGroups();
 		void getNews();
 		void getPrivileges();
-		void getServerBanner();
+
 		void getUsers();
 		void inviteClientToChat(int theChatID, int theUserID);
 		void joinChat(int theChatID);
@@ -195,6 +198,9 @@ class WiredSocket : public QObject
 		void onServerBanner(const QPixmap);
 		/// This signal is emitted once of every registered user in the chat identified by theChatID.
 		/// After all users have been transmitted, a onServerUserlistDone() signal is emitted.
+		
+		void onMotdReceived(const QString text);
+		
 		void onServerUserlistItem(int theChatID, const ClassWiredUser);
 		/// This signal is emitted once all users of a chat have been transmitted.
 		void onServerUserlistDone(int theChatID);

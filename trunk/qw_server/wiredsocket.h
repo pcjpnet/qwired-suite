@@ -66,8 +66,8 @@ class WiredSocket : public QObject
 		
 		
 	signals:
+		void requestedMotd(const int id, const QWTransaction &t);
 		void transactionReceived(const int id, const QWTransaction &t);
-
 		void requestedBanner(const int id, const QWTransaction &t);
 		void requestedUserlist(const int id, const QWTransaction &t);
 		

@@ -50,6 +50,7 @@ public:
 	QSqlDatabase pDatabase;
 
 	QByteArray pBannerData;
+	QString pMotdData;
 	QString pFilesRoot;
 
 private:
@@ -61,7 +62,7 @@ private slots:
 	void checkLogin(const int id, const QWTransaction &t);
 	void sendServerBanner(const int id, const QWTransaction &t);
 	void sendUserlist(const int id, const QWTransaction &);
-	
+	void sendMotd(const int id, const QWTransaction &t);
 	
 	void clearNews(const int id);
 	void createPrivateChat(const int id);

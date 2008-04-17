@@ -110,6 +110,8 @@ void ClassWiredSession::doSetupConnections() {
 
 	// Socket connections
 	//
+	connect( pWiredSocket, SIGNAL(onMotdReceived(QString)), this, SLOT(displayMotd(QString)));
+	
 	connect( pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
 	connect( pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)), this, SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
 	connect( pWiredSocket, SIGNAL(onPrivateMessage(ClassWiredUser,QString)), this, SLOT(doHandlePrivMsg(ClassWiredUser,QString)) );
@@ -158,6 +160,13 @@ void ClassWiredSession::doSetupConnections() {
 	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPrefs()) );
 	
 }
+
+
+void ClassWiredSession::displayMotd(const QString text) {
+	QMessageBox::critical(pMainChat, tr("MOTD"), text);
+
+}
+
 
 
 /**
