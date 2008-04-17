@@ -1,5 +1,5 @@
-QMAKE_MACOSX_DEPLOYMENT_TARGET =10.3
-QMAKE_MAC_SDK =/Developer/SDKs/MacOSX10.4u.sdk
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
+QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
 !macx : DESTDIR =../bin/
 ICON = qwired.icns
 
@@ -33,7 +33,8 @@ SOURCES += general/main.cpp \
  gui/WidgetFileInfo.cpp \
  gui/WidgetTracker.cpp \
  wired/classtrackerserver.cpp \
- general/wiredsingleton.cpp
+ general/wiredsingleton.cpp \
+ ../common/qwtransaction.cpp
 TEMPLATE = app
 CONFIG += warn_on thread qt
 macx : CONFIG += x86 ppc
@@ -87,10 +88,13 @@ HEADERS += wired/classwireduser.h \
  gui/widgetaccounts.h \
  gui/WidgetFileInfo.h \
  gui/WidgetTracker.h \
- wired/classtrackerserver.h
+ wired/classtrackerserver.h \
+ ../common/qwtransaction.h
 TRANSLATIONS += lang_de.ts \
  lang_pt.ts \
  lang_it.ts \
  lang_fr.ts
 RC_FILE = qwired.rc
+
+INCLUDEPATH += ../common/
 

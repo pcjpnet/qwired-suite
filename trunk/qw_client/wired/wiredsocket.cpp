@@ -20,6 +20,7 @@
 
  
 #include "wiredsocket.h"
+
 #include "../general/wiredcommon.h"
 
 WiredSocket::WiredSocket(QObject *parent)
@@ -31,7 +32,7 @@ WiredSocket::WiredSocket(QObject *parent)
 	pClientName = "Qwired SVN";
 	pClientVersion = QWIRED_VERSION;
 	connect( pSocket, SIGNAL(encrypted()), this, SLOT(on_socket_encrypted()) );
-	connect( pSocket, SIGNAL(readyRead()), this, SLOT(on_socket_readyRead()) );
+	connect( pSocket, SIGNAL(readyRead()), this, SLOT(on_socket_readyRead()), Qt::QueuedConnection );
 	connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>))); 
 	connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_socket_error()) );
 	pInvitedUserID = 0;
@@ -104,13 +105,13 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 			break;
 
 		case 201: // Login successful
-			sessionUser.pUserID = tmpParams.value(0).toInt();
-			qDebug() << "WiredSocket: Login successful with ID"<<sessionUser.pUserID;
-			emit onServerLoginSuccessful();
-			do_request_user_list(1);
-			getServerBanner();
-			getPrivileges();
-			break;
+// 			sessionUser.pUserID = tmpParams.value(0).toInt();
+// 			qDebug() << "WiredSocket: Login successful with ID"<<sessionUser.pUserID;
+// 			emit onServerLoginSuccessful();
+// 			requestUserlistByID(1);
+// 			getServerBanner();
+// 			getPrivileges();
+// 			break;
 
 		case 203: on_server_banner(tmpParams); break;
 		case 300: emit onServerChat(tmpParams.value(0).toInt(), tmpParams.value(1).toInt(), QString::fromUtf8(tmpParams.value(2)), false); break;
@@ -303,19 +304,49 @@ void WiredSocket::connectToWiredServer(QString theHostName, int thePort) {
 // message after message from it before passing it to do_handle_wiredmessage().
 void WiredSocket::on_socket_readyRead() {
 	pBuffer += pSocket->readAll();
-	int tmpPos = pBuffer.indexOf("\x04");
-	while( tmpPos != -1 ) {
-		QByteArray tmpLine = pBuffer.left(tmpPos);
-		pBuffer = pBuffer.mid(tmpPos+1);
-		do_handle_wiredmessage(tmpLine);
-		tmpPos = pBuffer.indexOf("\x04");
+	//qDebug() << "Received data, buffer now"<<pBuffer.toHex();
+
+	quint32 tmpLen;
+	while(bufferHasMessage(pBuffer)) {
+		QDataStream stream(pBuffer);
+		stream >> tmpLen;
+		//Debug() << "= Got packet of size"<<tmpLen;
+		
+		QByteArray tmpMessage = pBuffer.left(tmpLen);
+		QWTransaction t;
+		if(t.parseFromData(tmpMessage)) {
+			handleTransaction(t);
+		} else {
+			qDebug() << "Dropping corrupted transaction.";
+		}
+		
+		pBuffer = pBuffer.mid(tmpLen);
 	}
+
 }
+
+bool WiredSocket::bufferHasMessage(QByteArray & buffer) {
+	if(buffer.length()<14)
+		return false;
+	QDataStream stream(buffer);
+	quint32 tmpLen;
+	stream >> tmpLen;
+	return (quint32)buffer.length()>=tmpLen;
+}
+
+
 
 // First off, let's send the HELLO command for the handshake.
 // We will get a 200 or 511 response to this.
 void WiredSocket::on_socket_encrypted() {
-	sendWiredCommand("HELLO");
+	QWTransaction t(1000);
+	t.addObject("client", QString("Qwired Client"));
+	t.addObject("version", QString("SVN Snapshot"));
+	t.addObject("client-arch", QString("unknown"));
+	t.addObject("client-os", QString("linux"));
+	t.addObject("client-type", 0);
+	sendTransaction(t);
+
 	qDebug() << "WiredSocket: SSL/TLS connection established.";
 }
 
@@ -378,7 +409,7 @@ void WiredSocket::on_server_userlist_changed(QList<QByteArray> theParams) {
 				j.setValue(tmpUsr);
 				
 				// Fire a signal, only for the main list!
-				if(i.key()==1)
+				if(i.key()==0)
 					emit onServerUserChanged(tmpUsrOld, tmpUsr);
 			}
 		}
@@ -405,7 +436,7 @@ void WiredSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
 				j.setValue(tmpUsr);
 				
 				// Fire a signal, only for the main list!
-				if(i.key()==1)
+				if(i.key()==0)
 					emit onServerUserChanged(tmpUsrOld, tmpUsr);
 			}
 		}
@@ -460,7 +491,7 @@ void WiredSocket::on_server_userlist_left(QList<QByteArray> theParams ) {
 	QMutableHashIterator<int,QList<ClassWiredUser> > i(pUsers);
 	while(i.hasNext()) { i.next();
 		// If tmpChatID==1, the user has disconnected completely. Remove him/her form all chats, respectively.
-		if( tmpChatID==1 || (tmpChatID==i.key()) ) {
+		if( tmpChatID==0 || (tmpChatID==i.key()) ) {
 			QList<ClassWiredUser> tmpList = i.value();
 			QMutableListIterator<ClassWiredUser> j(tmpList);
 			while(j.hasNext()) {
@@ -600,19 +631,9 @@ void WiredSocket::inviteClientToChat(int theChatID, int theUserID) {
 	sendWiredCommand(buf);
 }
 
-// Request the server banner.
-void WiredSocket::getServerBanner() {
-	 sendWiredCommand("BANNER");
-}
 
-void WiredSocket::on_server_banner(QList< QByteArray > theParams) {
-	QPixmap banner;
-	banner.loadFromData( QByteArray::fromBase64(theParams.value(0)) );
-	if( !banner.isNull() ) {
-		pServerBanner = banner;
-		emit onServerBanner(banner);
-	}
-}
+
+void WiredSocket::on_server_banner(QList< QByteArray > theParams) {}
 
 void WiredSocket::on_server_broadcast(QList< QByteArray > theParams)
 {
@@ -980,14 +1001,14 @@ void WiredSocket::on_server_privileges(QList< QByteArray > theParams) {
 
 // Send the login sequence to the server (reponses: 201 or 510)
 void WiredSocket::do_send_user_login() {
-	sendClientInfo();
-	setUserNick(sessionUser.pNick.toUtf8());
-	setUserIcon(sessionUser.iconAsPixmap());
-	setUserStatus(sessionUser.pStatus);
+// 	sendClientInfo();
+// 	setUserNick(sessionUser.pNick.toUtf8());
+// 	setUserIcon(sessionUser.iconAsPixmap());
+// 	setUserStatus(sessionUser.pStatus);
 	
-	QByteArray tmpCmd;
-	tmpCmd += "USER "+sessionUser.pLogin.toUtf8(); sendWiredCommand(tmpCmd); tmpCmd.clear();
-	tmpCmd += "PASS "+sessionUser.cryptedPassword().toUtf8(); sendWiredCommand(tmpCmd);
+// 	QByteArray tmpCmd;
+// 	tmpCmd += "USER "+sessionUser.pLogin.toUtf8(); sendWiredCommand(tmpCmd); tmpCmd.clear();
+// 	tmpCmd += "PASS "+sessionUser.cryptedPassword().toUtf8(); sendWiredCommand(tmpCmd);
 }
 
 // Set the nickname of the current user session.
@@ -1018,7 +1039,7 @@ void WiredSocket::joinChat(int theChatID) {
 	QByteArray buf("JOIN ");
 	buf += QByteArray::number(theChatID);
 	sendWiredCommand(buf);
-	do_request_user_list(theChatID);
+	requestUserlistByID(theChatID);
 }
 
 // Set a chat topic.
@@ -1040,12 +1061,7 @@ void WiredSocket::banClient(int theUserID, QString theReason) {
 }
 
 
-// Request the list of users for a specific channel.
-void WiredSocket::do_request_user_list(int theChannel) {	
-	QByteArray tmpCmd("WHO ");
-	tmpCmd += QByteArray::number(theChannel);
-	sendWiredCommand(tmpCmd);
-}
+
 
 // Request news from the server (reponse will be 320s and one 321)
 void WiredSocket::getNews() {
@@ -1294,11 +1310,11 @@ QString tmpOsArch("Unknown");
 
 // Send a Wired message
 void WiredSocket::sendWiredCommand(const QByteArray theData) {
-	if(!pSocket->isOpen()) return;
-	QByteArray tmpBuffer;
-	tmpBuffer += theData;
-	tmpBuffer += kEOF;
-	pSocket->write(tmpBuffer);
+// 	if(!pSocket->isOpen()) return;
+// 	QByteArray tmpBuffer;
+// 	tmpBuffer += theData;
+// 	tmpBuffer += kEOF;
+// 	pSocket->write(tmpBuffer);
 }
 
 // Return a list of parameters from the message, automatically skipping the command identifier.
@@ -1359,9 +1375,102 @@ QString WiredSocket::tranzlate(QString theText){
 	return tmpResult;
 }
 
+void WiredSocket::sendTransaction(const QWTransaction &t) {
+	qDebug() << "Sending transaction:"<<t.type;
+	pSocket->write( t.toData() );
+	
+}
 
 
 
+/**
+ * Handle an incoming transaction.
+ * @param t A reference to the transaction.
+ */
+void WiredSocket::handleTransaction(const QWTransaction & t) {
+	qDebug() << "Handling transaction"<<t.type<<"|"<<t.objects;
+	QWTransaction response;
+	if(t.type == 1000) {
+		// Handshake OK
 
+		response = QWTransaction(1002);
+		response.addObject("nick", sessionUser.pNick);
+		response.addObject("status", sessionUser.pStatus );
+		response.addObject("image", sessionUser.pImage );
+		sendTransaction(response);
+		
+		response = QWTransaction(1001);
+		response.addObject("login", sessionUser.pLogin.toUtf8());
+		response.addObject("password", sessionUser.cryptedPassword().toUtf8() );
+		sendTransaction(response);
+		
+	} else if(t.type == 1001) { // Login OK
+		sessionUser.pUserID = t.getObject("uid").toInt();
+		qDebug() << "WiredSocket: Login successful with ID"<<sessionUser.pUserID;
+		getServerBanner();
+		requestUserlistByID(0);
+		emit onServerLoginSuccessful();
 
+	} else if(t.type == 1011) { // Server banner response
+		if(!t.hasObject("data")) return;
+		QPixmap banner;
+		banner.loadFromData(t.getObject("data"));
+		if( !banner.isNull() ) {
+			pServerBanner = banner;
+			emit onServerBanner(banner);
+		}
+
+	} else if(t.type == 1020) { // User listing
+		QWTransaction &request = pTransactionStore[t.sequence];
+		int tmpChannel = request.objects["cid"].toInt();
+		
+		if(t.flags & Qwired::FlagListingComplete) {
+			qDebug() << "WiredSocket: Received user list DONE"<<tmpChannel;
+			emit onServerUserlistDone(tmpChannel);
+			pTransactionStore.remove(t.sequence);
+		} else {
+			qDebug() << "WiredSocket: Received user list entry"<<tmpChannel;
+			ClassWiredUser tmpUsr;
+			tmpUsr.pUserID = t.getObjectInt("uid");
+			tmpUsr.pNick = t.getObjectString("nick");
+			tmpUsr.pAdmin = t.getObjectInt("admin");
+			tmpUsr.pIdle = t.getObjectInt("idle");
+			tmpUsr.pStatus = t.getObjectString("status");
+			tmpUsr.pImage = t.getObject("image");
+// 			tmpUsr.pUserID = t.getObjectInt("via");
+			
+			pUsers[tmpChannel].append(tmpUsr);
+			emit onServerUserlistItem(tmpChannel, tmpUsr);
+		}
+
+		
+		
+	} else {
+		
+			
+	}
+}
+
+// Request the list of users for a specific channel.
+void WiredSocket::requestUserlistByID(int theChannel) {
+	qDebug() << "WiredSocket. Requesting user list...";
+	QWTransaction t(1020);
+	t.addObject("cid", theChannel);
+	registerTransaction(t);
+	sendTransaction(t);
+}
+
+// Request the server banner.
+void WiredSocket::getServerBanner() {
+	qDebug() << "WiredSocket: Requesting server banner";
+	sendTransaction(QWTransaction(1011));
+}
+
+/**
+ * Store a transaction (request) in the store for later referencing.
+ * @param t The transaction.
+ */
+void WiredSocket::registerTransaction(const QWTransaction & t) {
+	pTransactionStore[t.sequence] = t;
+}
 

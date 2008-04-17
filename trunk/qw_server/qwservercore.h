@@ -52,8 +52,17 @@ public:
 	QByteArray pBannerData;
 	QString pFilesRoot;
 
+private:
+	void addUserInfoToTransaction(const ClassWiredUser &u, QWTransaction &t);
 	
 private slots:
+	void handleTransaction(const int id, const QWTransaction &t);
+
+	bool checkLogin(const int id, const QWTransaction &t);
+	void sendServerBanner(const int id, const QWTransaction &t);
+	void sendUserlist(const int id, const QWTransaction &);
+	
+	
 	void clearNews(const int id);
 	void createPrivateChat(const int id);
 	void createUser(const int id, const ClassWiredUser user);
@@ -62,7 +71,7 @@ private slots:
 	void editGroup(const int id, const ClassWiredUser group);
 	void deleteUser(const int id, const QString name);
 	void deleteGroup(const int id, const QString name);
-	void checkLogin(const int id, const QString login, const QString password);
+	
 	void declinePrivateChat(const int id, const int chatId);
 	void broadcastBroadcast(const int id, const QString text);
 	void broadcastChat(const int id, const int chatId, const QString text, const bool emote);
@@ -85,8 +94,8 @@ private slots:
 	void sendFileStat(const int id, const QString path);
 	void sendGroupSpec(const int id, const QString name);
 	void sendUserInfo(const int id, const int userId);
-	void sendUserlist(const int id, const int chatId);
-	void sendServerBanner(const int id);
+
+	
 	void sendServerInfo(const int id);
 	
 public slots:

@@ -62,7 +62,7 @@ void ConnWindow::onTab_currentChanged(int index) {
 	// Icon removal for private chats
 	QWidget *tmpWid = pTabWidget->widget(index);
 	WidgetForum *tmpChat = qobject_cast<WidgetForum*>(tmpWid);
-	if(tmpChat && tmpChat->pChatID!=1) {
+	if(tmpChat && tmpChat->pChatID!=0) {
 		pTabWidget->setTabIcon(index, QIcon(":/icons/tab-idle.png"));
 	}
 }

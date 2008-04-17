@@ -38,6 +38,46 @@ WiredSocket::~WiredSocket() {
 	qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
 }
 
+/**
+ * Accept an established and handshaken SSL socket.
+ * @param socket The socket to be taken over.
+ */
+void WiredSocket::setWiredSocket(QSslSocket *socket) {
+	pSocket = socket;
+	pSocket->setParent(this);
+	connect(pSocket, SIGNAL(readyRead()), this, SLOT(readDataFromSocket()), Qt::QueuedConnection );
+	connect(pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>)));
+	connect(pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_socket_error()) );
+}
+
+/**
+ * Connected to the readyRead() signal of the SslSocket. Reads data from the
+ * TCP buffer and appends it to the local buffer for further processing.
+ */
+void WiredSocket::readDataFromSocket() {
+	pBuffer += pSocket->readAll();
+	qDebug() << "Received data, buffer now"<<pBuffer.length();
+
+	quint32 tmpLen;
+	while(bufferHasMessage(pBuffer)) {
+		QDataStream stream(pBuffer);
+		stream >> tmpLen;
+		QByteArray tmpMessage = pBuffer.left(tmpLen);
+		QWTransaction t;
+		if( t.parseFromData(tmpMessage) ) {
+			qDebug() << "= Got packet: S="<<tmpLen<<"/"<<t.sequence<<" T="<<t.type<<" O="<<t.objects.count();
+			handleTransaction(t);
+			//emit transactionReceived(userId(), t);
+		} else {
+			qDebug() << "Dropping corrupted transaction.";
+		}
+		
+		pBuffer = pBuffer.mid(tmpLen);
+	}
+
+}
+
+
 
 /**
  * The idle timer was triggered. Check if the user is not idle and mark him/her
@@ -66,6 +106,38 @@ void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
 	qDebug() << "WiredSocket.on_socket_sslErrors(): "<<errors;
 	pSocket->ignoreSslErrors();
 }
+
+
+void WiredSocket::handleTransaction(const QWTransaction & t) {
+	qDebug() << "WiredSocket: Incoming Transaction:"<<t.type;
+	
+	QWTransaction response = t.toResponse();
+	if(t.type == Qwired::T_HandshakeRequest) {
+		response.addObject("server", QString("Qwired Server"));
+		response.addObject("version", QString("SVN Snapshot"));
+		sendTransaction(response);
+
+	} else if(t.type == Qwired::T_SetUserInfo) {
+		if(t.hasObject("nick"))  pSessionUser.pNick = t.getObjectString("nick");
+		if(t.hasObject("status"))  pSessionUser.pStatus = t.getObjectString("status");
+		if(t.hasObject("image"))  pSessionUser.pImage = t.getObject("image");
+		qDebug() << "WiredSocket: Received credentials for"<<pSessionUser.pNick;
+		
+	} else if(t.type == Qwired::T_LoginRequest) {
+		emit loginReceived(userId(), t);
+
+	} else if(t.type == Qwired::T_ServerBannerRequest) {
+		emit requestedBanner(userId(), t);
+
+	} else if(t.type == Qwired::T_UserListRequest) {
+		emit requestedUserlist(userId(), t);
+	}
+
+
+	
+}
+
+
 
 // Called by readDataFromSocket() after splitting a message off the internal
 // buffer. We have to extract the command ID here and decide what to do with
@@ -374,14 +446,14 @@ void WiredSocket::on_socket_error() {
  * @param theData The payload of the message.
  */
 void WiredSocket::sendWiredCommand(const QByteArray theData) {
-	if(!pSocket->isOpen()) return;
- 	qDebug() << userId()<<"|"<<"Sending: "<<theData;
-	QByteArray tmpBuffer;
-	tmpBuffer += pSendBuffer;
-	tmpBuffer += theData;
-	tmpBuffer += kEOF;
-	pSendBuffer.clear();
-	pSocket->write(tmpBuffer);
+// 	if(!pSocket->isOpen()) return;
+//  	qDebug() << userId()<<"|"<<"Sending: "<<theData;
+// 	QByteArray tmpBuffer;
+// 	tmpBuffer += pSendBuffer;
+// 	tmpBuffer += theData;
+// 	tmpBuffer += kEOF;
+// 	pSendBuffer.clear();
+// 	pSocket->write(tmpBuffer);
 }
 
 void WiredSocket::sendWiredCommandBuffer(const QByteArray theData) {
@@ -390,32 +462,18 @@ void WiredSocket::sendWiredCommandBuffer(const QByteArray theData) {
 	pSendBuffer += kEOF;
 }
 
-/**
- * Connected to the readyRead() signal of the SslSocket. Reads data from the
- * TCP buffer and appends it to the local buffer for further processing.
- */
-void WiredSocket::readDataFromSocket() {
+
+
+
+bool WiredSocket::bufferHasMessage(QByteArray & buffer) {
+	if(buffer.length()<14)
+		return false;
+	QDataStream stream(buffer);
 	quint32 tmpLen;
-	pBuffer += pSocket->readAll();
-
-	// Check if a complete message arrived
-	QDataStream stream(pBuffer);
-
 	stream >> tmpLen;
-	qDebug() << "--- Got packet of size"<<tmpLen;
-
-	
-	
-
-	return;
-	int tmpPos = pBuffer.indexOf("\x04");
-	while( tmpPos != -1 ) {
-		QByteArray tmpLine = pBuffer.left(tmpPos);
-		pBuffer = pBuffer.mid(tmpPos+1);
-		handleWiredMessage(tmpLine);
-		tmpPos = pBuffer.indexOf("\x04");
-	}
+	return (quint32)buffer.length()>=tmpLen;
 }
+
 
 /**
  * Return a list of parameters from the message, automatically skipping the command identifier.
@@ -430,17 +488,7 @@ QList<QByteArray> WiredSocket::splitMessageFields(QByteArray theData) {
 	return QList<QByteArray>();
 }
 
-/**
- * Accept an established and handshaken SSL socket.
- * @param socket The socket to be taken over.
- */
-void WiredSocket::setWiredSocket(QSslSocket *socket) {
-	pSocket = socket;
-	pSocket->setParent(this);
-	connect(pSocket, SIGNAL(readyRead()), this, SLOT(readDataFromSocket()) );
-	connect(pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>)));
-	connect(pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_socket_error()) );
-}
+
 
 void WiredSocket::sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize) {
 	QByteArray ba("200 ");
@@ -820,6 +868,12 @@ void WiredSocket::sendErrorCannotBeDisconnected() { sendWiredCommand("515 Cannot
 void WiredSocket::sendErrorAccountNotFound() { sendWiredCommand("513 Account Not Found"); }
 void WiredSocket::sendErrorAccountExists() { sendWiredCommand("514 Account Exists"); }
 void WiredSocket::sendErrorFileNotFound() { sendWiredCommand("520 File or Directory Not Found"); }
+
+void WiredSocket::sendTransaction(const QWTransaction & t) {
+	qDebug() << "Sending transaction:"<<t.type;
+	pSocket->write(t.toData());
+}
+
 
 
 

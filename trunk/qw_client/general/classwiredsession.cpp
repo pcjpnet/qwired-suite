@@ -734,13 +734,13 @@ void ClassWiredSession::triggerEvent(QString event, QStringList params) {
 }
 
 void ClassWiredSession::userJoined(int theChat, ClassWiredUser theUser) {
-	if(theChat!=1) return;
+	if(theChat!=0) return;
 	QStringList tmpParams; tmpParams << theUser.pNick;
 	triggerEvent("UserJoined", tmpParams);
 }
 
 void ClassWiredSession::userLeft(int theChat, ClassWiredUser theUser) {
-	if(theChat!=1) return;
+	if(theChat!=0) return;
 	QStringList tmpParams; tmpParams << theUser.pNick;
 	triggerEvent("UserLeft", tmpParams);
 }

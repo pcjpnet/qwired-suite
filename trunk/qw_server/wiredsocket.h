@@ -30,6 +30,8 @@
 #include <QtCore>
 #include <QtNetwork>
 
+#include "qwtransaction.h"
+
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
@@ -57,9 +59,18 @@ class WiredSocket : public QObject
 		bool isLoggedIn() { return pLoggedIn; };
 		ClassWiredUser pSessionUser;
 		QTimer* pIdleTimer;
+
+		bool bufferHasMessage(QByteArray &buffer);
+		void handleTransaction(const QWTransaction & t);
+		void sendTransaction(const QWTransaction &t);
 		
 		
 	signals:
+		void transactionReceived(const int id, const QWTransaction &t);
+
+		void requestedBanner(const int id, const QWTransaction &t);
+		void requestedUserlist(const int id, const QWTransaction &t);
+		
 		/**
 		 * The client has sent the login and password and the server should now check if these are correct.
 		 * Call sendLoginSuccessful() or sendErrorLoginFailed() to accept or reject the connection.
@@ -79,14 +90,14 @@ class WiredSocket : public QObject
 		void handshakeComplete(const int id);
 		void invitedUserToChat(const int id, const int userId, const int chatId);
 		void joinedPrivateChat(const int id, const int chatId);
-		void loginReceived(const int id, QString login, QString password);
+		void loginReceived(const int id, const QWTransaction &t);
 		void newsPosted(const int id, const QString news);
 		void privateChatLeft(const int id, const int chatId);
 		void receivedClientInfo(const int id, const QString info);
 		void receivedChat(const int id, const int chatId, const QString text, const bool emote);
 		void receivedBroadcastMessage(const int id, const QString text);
 		void requestedAccountsList(const int id);
-		void requestedBanner(const int id);
+		
 		void requestedFileList(const int id, const QString path);
 		void requestedFileStat(const int id, const QString path);
 		void requestedGroupsList(const int id);
@@ -95,7 +106,7 @@ class WiredSocket : public QObject
 		void requestedReadUser(const int id, const QString name);
 		void requestedReadGroup(const int id, const QString name);
 		void requestedUserInfo(const int id, const int userId);
-		void requestedUserlist(const int id, const int chat);
+		
 		void topicChanged(const ClassWiredUser user, const int chatId, const QString topic);
 		void userImageChanged(const ClassWiredUser user);
 		void userKicked(const int id, const int userId, const QString reason, const bool banned);
@@ -181,6 +192,7 @@ class WiredSocket : public QObject
 		/// Our function that formats a Wired message and sends it to the server.
 		void sendWiredCommand(const QByteArray);
 		void sendWiredCommandBuffer(const QByteArray);
+		
 		
 		/// This is our TCP buffer. Could possibly be optimized, but works for now.
 		QByteArray pBuffer;
