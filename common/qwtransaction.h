@@ -60,7 +60,7 @@ public:
 	
 	QWTransaction toResponse() const;
 
-	QByteArray toData();
+	QByteArray toData() const;
 	QHash<QByteArray,QByteArray> objects;
 	quint32 rawLength;
 	quint16 type;
