@@ -62,7 +62,7 @@ bool QWTransaction::parseFromData(const QByteArray data) {
 	stream >> flags;
 	
 	// Check length
-	if(rawLength != data.length()) {
+	if(rawLength != (quint32)data.length()) {
 		qDebug() << "QWTransaction: Ignoring transaction with wrong size.";
 		return false;
 	}
@@ -91,7 +91,7 @@ bool QWTransaction::parseFromData(const QByteArray data) {
  * Serialize the transaction object for transmission.
  * @return The serialized transaction object.
  */
-QByteArray QWTransaction::toData() {
+QByteArray QWTransaction::toData() const {
 	QByteArray buffer;
 	QDataStream stream(&buffer, QIODevice::WriteOnly);
 	
@@ -112,12 +112,12 @@ QByteArray QWTransaction::toData() {
 		stream << i.value();
 		
 	}
-	rawLength = buffer.length();
+	int tmpLength = buffer.length();
 // 	qDebug() << "Len after data:"<<buffer.length();
 
 // 	qDebug() << "Data before:"<<buffer.toHex();
 	stream.device()->seek(0);
-	stream << rawLength;
+	stream << tmpLength;
 // 	qDebug() << "Len after seek:"<<buffer.length();
 // 	qDebug() << "Data after:"<<buffer.toHex();
 
@@ -147,11 +147,10 @@ void QWTransaction::addObject(const QByteArray key, const QByteArray data) {
  * @return The raw data of the object.
  */
 QByteArray QWTransaction::getObject(const QByteArray key) const {
-	if(objects.contains(key)) {
-		return objects[key];
-	} else {
+	if(!objects.contains(key))
 		qDebug() << "QWTransaction: Warning: Unknown key: "<<key;
-	}
+	return objects[key];
+
 }
 
 /**

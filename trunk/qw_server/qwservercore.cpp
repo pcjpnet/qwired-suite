@@ -162,7 +162,7 @@ void QWServerCore::sendUserlist(const int id, const QWTransaction &t) {
  * @param login The login name of the user.
  * @param password The password of the user.
  */
-bool QWServerCore::checkLogin(const int id, const QWTransaction &t) {
+void QWServerCore::checkLogin(const int id, const QWTransaction &t) {
 	WiredSocket *socket = pClients[id];
 	
 	QWTransaction response = t.toResponse();
@@ -195,7 +195,7 @@ bool QWServerCore::checkLogin(const int id, const QWTransaction &t) {
 		response.flags = response.flags | Qwired::ErrorLoginFailed;
 		socket->sendTransaction(response);
 // 		socket->sendErrorLoginFailed();
-		return false;
+		return;
 	}
 
 	// Announce the user
@@ -210,7 +210,7 @@ bool QWServerCore::checkLogin(const int id, const QWTransaction &t) {
 			i.value()->sendTransaction(event);
 	}
 
-	return true;
+	return;
 }
 
 /**

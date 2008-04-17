@@ -58,7 +58,7 @@ private:
 private slots:
 	void handleTransaction(const int id, const QWTransaction &t);
 
-	bool checkLogin(const int id, const QWTransaction &t);
+	void checkLogin(const int id, const QWTransaction &t);
 	void sendServerBanner(const int id, const QWTransaction &t);
 	void sendUserlist(const int id, const QWTransaction &);
 	
