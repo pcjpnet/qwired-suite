@@ -71,6 +71,17 @@ void QWServerController::reloadConfig() {
 			pCore->pBannerData = banner.readAll();
 		}
 	}
+	
+	// Banner
+	if(pConfigParams.contains("motd")) {
+		QFile banner(pConfigParams.value("motd"));
+		if(!banner.open(QIODevice::ReadOnly)) {
+			qwLog(QString("Warning: Unable to read MOTD file: %1").arg(banner.errorString()));
+		} else {
+			qwLog(QString("Loaded MOTD from '%1'").arg(banner.fileName()));
+			pCore->pMotdData = banner.readAll();
+		}
+	}
 
 	// Files directory
 	QDir tmpFilesRoot(pConfigParams.value("files","files"));

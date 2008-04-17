@@ -131,6 +131,10 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 
 	} else if(t.type == Qwired::T_UserListRequest) {
 		emit requestedUserlist(userId(), t);
+		
+	} else if(t.type == 1012) { // MOTD
+		emit requestedMotd(userId(), t);
+	
 	}
 
 

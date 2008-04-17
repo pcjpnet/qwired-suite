@@ -57,7 +57,7 @@ void QWServerCore::registerClient(WiredSocket *socket) {
 	connect(socket, SIGNAL(loginReceived(int, const QWTransaction &)), this, SLOT(checkLogin(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(requestedUserlist(const int, const QWTransaction &)), this, SLOT(sendUserlist(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(clientDisconnected(int)), this, SLOT(removeClient(int)) );
-
+	connect(socket, SIGNAL(requestedMotd(const int id, const QWTransaction &t)), this, SLOT(sendMotd(const int id, const QWTransaction &t)) );
 
 	// In progress
 	connect(socket, SIGNAL(userImageChanged(ClassWiredUser)), this, SLOT(broadcastUserImageChanged(ClassWiredUser)) );
@@ -823,6 +823,18 @@ void QWServerCore::sendServerBanner(const int id, const QWTransaction &t) {
 	response.addObject("data", pBannerData);
 	pClients[id]->sendTransaction(response);
 }
+
+/**
+ * Send current MOTD to the client.
+ * @param id The ID of the user.
+ */
+void QWServerCore::sendMotd(const int id, const QWTransaction &t) {
+	qDebug() << "[core] sending motd to"<<id;
+	QWTransaction response = t.toResponse();
+	response.addObject("text", pMotdData);
+	pClients[id]->sendTransaction(response);
+}
+
 
 /**
  * Add the default user info fields to a transaction object.

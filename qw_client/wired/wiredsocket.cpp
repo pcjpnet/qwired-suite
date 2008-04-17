@@ -1393,12 +1393,14 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 	if(t.type == 1000) {
 		// Handshake OK
 
+		// Send some user information first
 		response = QWTransaction(1002);
 		response.addObject("nick", sessionUser.pNick);
 		response.addObject("status", sessionUser.pStatus );
 		response.addObject("image", sessionUser.pImage );
 		sendTransaction(response);
 		
+		// Now request the login
 		response = QWTransaction(1001);
 		response.addObject("login", sessionUser.pLogin.toUtf8());
 		response.addObject("password", sessionUser.cryptedPassword().toUtf8() );
@@ -1408,6 +1410,7 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		sessionUser.pUserID = t.getObject("uid").toInt();
 		qDebug() << "WiredSocket: Login successful with ID"<<sessionUser.pUserID;
 		getServerBanner();
+		getMotd();
 		requestUserlistByID(0);
 		emit onServerLoginSuccessful();
 
@@ -1419,6 +1422,11 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 			pServerBanner = banner;
 			emit onServerBanner(banner);
 		}
+		
+	} else if(t.type == 1012) { // MOTD
+		if(!t.hasObject("text")) return;
+		qDebug() << "Received MOTD:"<<t.getObject("text").length();
+		emit onMotdReceived(t.getObjectString("text"));
 
 	} else if(t.type == 1020) { // User listing
 		QWTransaction &request = pTransactionStore[t.sequence];
@@ -1464,6 +1472,12 @@ void WiredSocket::requestUserlistByID(int theChannel) {
 void WiredSocket::getServerBanner() {
 	qDebug() << "WiredSocket: Requesting server banner";
 	sendTransaction(QWTransaction(1011));
+}
+
+// Request the MOTD
+void WiredSocket::getMotd() {
+	qDebug() << "WiredSocket: Requesting MOTD";
+	sendTransaction(QWTransaction(1012));
 }
 
 /**
