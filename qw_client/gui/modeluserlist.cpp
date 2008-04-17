@@ -28,7 +28,7 @@
 ModelUserList::ModelUserList(QObject *parent)
  : QAbstractListModel(parent)
 {
-	chatID = 1;
+	chatID = 0;
 	
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
@@ -95,9 +95,9 @@ QVariant ModelUserList::data(const QModelIndex & index, int role) const
 {
 	if( !index.isValid() )
 		return QVariant();
+	
 	if( index.row()>=wiredSocket->userCountByChat(chatID) )
 		return QVariant();
-	
 	
 	if(role == Qt::DisplayRole) {
 		ClassWiredUser wu = wiredSocket->userByIndex(chatID, index.row());
@@ -174,7 +174,7 @@ void ModelUserList::onServerUserJoined(int theChatID, const ClassWiredUser theUs
 
 // A user has left the chat
 void ModelUserList::onServerUserLeft(int theChatID, const ClassWiredUser) {
-	if(wiredSocket && (chatID==theChatID || chatID==1))
+	if(wiredSocket && (chatID==theChatID || chatID==0))
 		reset();
 }
 

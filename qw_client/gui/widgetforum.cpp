@@ -29,7 +29,7 @@ WidgetForum::WidgetForum ( QWidget *parent ) : QWidget ( parent ) {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 	fBtnInvite->setVisible(false);
-	pChatID = 1;
+	pChatID = 0;
 
 	fVSplitter->setStretchFactor(0,20);
 	fVSplitter->setStretchFactor(1,1);
@@ -42,7 +42,7 @@ WidgetForum::WidgetForum ( QWidget *parent ) : QWidget ( parent ) {
 
 WidgetForum::~WidgetForum() {
 	// Leave the chat, if it is private
-	if( pChatID!=1 ) {
+	if( pChatID!=0 ) {
 		pSession->pChats.remove(pChatID);
 		pSession->pWiredSocket->leaveChat(pChatID);
 	}
@@ -247,12 +247,12 @@ void WidgetForum::setUserListModel( ModelUserList * model ) {
 	fUsers->setDragEnabled(true);
 	fUsers->setDropIndicatorShown(true);
 	
-	if( pChatID!=1 ) {
+	if( pChatID!=0 ) {
 		fUsers->setAcceptDrops(true);
 	}
 
 	// Allow the user to use the "Invite" button if this is a private chat
-	if(pChatID!=1) {
+	if(pChatID!=0) {
 		fBtnInvite->setVisible(true);
 		updateInviteMenu();
 

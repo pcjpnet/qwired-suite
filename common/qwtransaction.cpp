@@ -26,7 +26,22 @@ QWTransaction::QWTransaction() {
 	error = 0;
 	ttl = 16;
 	flags = 0;
+	sequence = 0;
+	//QWTransaction::pSequence++;
+// 	sequence = QWTransaction::pSequence;
+	
 }
+
+QWTransaction::QWTransaction(const quint32 t) {
+	rawLength = 0;
+	type = t;
+	error = 0;
+	ttl = 16;
+	flags = 0;
+	sequence = getNextSequence();
+// 	sequence = QWTransaction::pSequence;
+}
+
 
 QWTransaction::~QWTransaction() {
 }
@@ -41,6 +56,7 @@ bool QWTransaction::parseFromData(const QByteArray data) {
 	
 	stream >> rawLength;
 	stream >> type;
+	stream >> sequence;
 	stream >> error;
 	stream >> ttl;
 	stream >> flags;
@@ -77,28 +93,40 @@ bool QWTransaction::parseFromData(const QByteArray data) {
  */
 QByteArray QWTransaction::toData() {
 	QByteArray buffer;
-	
 	QDataStream stream(&buffer, QIODevice::WriteOnly);
+	
+// 	QDataStream headerStream(&buffer, QIODevice::WriteOnly);
+	stream << (quint32)0;
+	stream << type;
+	stream << sequence;
+	stream << error;
+	stream << ttl;
+	stream << flags;
+// 	qDebug() << "Len after headers:"<<buffer.length();
+	
+	// add objects
 	QHashIterator<QByteArray,QByteArray> i(objects);
 	while(i.hasNext()) { i.next();
 		stream << (quint8)i.key().length();
-		stream.writeRawData( i.key().data(), i.key().length());
+		stream.writeRawData( i.key().data(), i.key().length() );
 		stream << i.value();
 		
 	}
-	rawLength = buffer.length()+15;
-	
-	QByteArray header;
-	QDataStream headerStream(&header, QIODevice::WriteOnly);
-	headerStream << rawLength;
-	headerStream << type;
-	headerStream << error;
-	headerStream << ttl;
-	headerStream << flags;
+	rawLength = buffer.length();
+// 	qDebug() << "Len after data:"<<buffer.length();
 
-	qDebug() << "Total length:"<<rawLength;
+// 	qDebug() << "Data before:"<<buffer.toHex();
+	stream.device()->seek(0);
+	stream << rawLength;
+// 	qDebug() << "Len after seek:"<<buffer.length();
+// 	qDebug() << "Data after:"<<buffer.toHex();
+
+
+// 	qDebug() << "Total length:"<<rawLength;
 	
-	buffer.prepend(header);
+// 	buffer = buffer.prepend(header);
+
+// 	qDebug() << "buffer is now"<<buffer.length();
 	return buffer;
 	
 }
@@ -134,6 +162,40 @@ QByteArray QWTransaction::getObject(const QByteArray key) const {
 QString QWTransaction::getObjectString(const QByteArray key) const {
 	return QString::fromUtf8( getObject(key) );
 }
+
+/**
+ * Create a new transaction with proper flags set and return it.
+ */
+QWTransaction QWTransaction::toResponse() const {
+	QWTransaction t;
+	t.type = type;
+	t.ttl = ttl;
+	t.flags = Qwired::FlagResponse;
+	t.sequence = sequence;
+	return t;
+}
+
+int QWTransaction::getNextSequence() {
+	static quint32 tmpSeq=0;
+	return ++tmpSeq;
+}
+
+bool QWTransaction::hasObject(const QByteArray key) const {
+	return objects.contains(key);
+}
+
+void QWTransaction::addObject(const QByteArray key, const QString data) {
+	objects[key] = data.toUtf8();
+}
+
+void QWTransaction::addObject(const QByteArray key, const int data) {
+	objects[key] = QByteArray::number(data);
+}
+
+int QWTransaction::getObjectInt(const QByteArray key) const {
+	return getObject(key).toInt();
+}
+
 
 
 

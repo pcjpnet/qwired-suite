@@ -25,28 +25,53 @@
 namespace Qwired {
 	enum Errors { ErrorOK=0, ErrorLoginFailed=100, ErrorPermissionDenied, ErrorObjectNotExists,
 		ErrorObjectExists, ErrorObjectProtected, ErrorChecksumMismatch, ErrorAdminAborted };
+
 	enum Flags { FlagResponse=1, FlagListingComplete=2 };
+
+	enum Transactions {
+		T_HandshakeRequest=1000, T_LoginRequest, T_SetUserInfo, T_PingRequest=1010, T_ServerBannerRequest, T_MotdRequest,
+  		T_UserListRequest=1020, T_UserInfoRequest
+	};
 }
 
 /**
 	@author Bastian Bense <bb@bense.de>
 */
 class QWTransaction {
+private:
+	static int getNextSequence();
+
 public:
+	
     QWTransaction();
+	QWTransaction(const quint32 t);
     ~QWTransaction();
 	bool parseFromData(const QByteArray data);
+	
+	bool hasObject(const QByteArray key) const;
+	
 	void addObject(const QByteArray key, const QByteArray data);
+	void addObject(const QByteArray key, const QString data);
+	void addObject(const QByteArray key, const int data);
+	
 	QByteArray getObject(const QByteArray key) const;
 	QString getObjectString(const QByteArray key) const;
+	int getObjectInt(const QByteArray key) const;
+	
+	QWTransaction toResponse() const;
 
 	QByteArray toData();
 	QHash<QByteArray,QByteArray> objects;
 	quint32 rawLength;
 	quint16 type;
+	quint32 sequence;
 	quint8 error;
 	quint8 ttl;
 	quint16 flags;
+
+	static quint32 pSequence;
+
+	
 };
 
 

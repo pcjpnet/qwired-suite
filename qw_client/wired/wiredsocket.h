@@ -32,6 +32,8 @@
 #include "classtrackerserver.h"
 #include "wiredtransfersocket.h"
 
+#include "qwtransaction.h"
+
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
@@ -63,6 +65,9 @@ class WiredSocket : public QObject
 		
 		Wired::SocketType pSocketType;
 
+		bool bufferHasMessage(QByteArray &buffer);
+		void handleTransaction(const QWTransaction &t);
+
 		/// The class that contains most of the user-specific information for this
 		/// session. We use this to keep the clutter of the class to a minimum.
 		ClassWiredUser sessionUser;
@@ -82,7 +87,7 @@ class WiredSocket : public QObject
 		QString tranzlate(QString);
 				
 		const int userCountByChat(const int theChatID);
-		const int userIndexByID(const int theID, const int theChat=1);
+		const int userIndexByID(const int theID, const int theChat=0);
 		const ClassWiredUser userByIndex(const int theChatID, const int theIndex);
 		
 		void connectToWiredServer(QString theHostName, int thePort=2000);
@@ -145,7 +150,7 @@ class WiredSocket : public QObject
 	private slots:
 		QList<QByteArray> GetFieldArray(QByteArray theData);
 		void do_handle_wiredmessage(QByteArray);
-		void do_request_user_list(int theChannel);
+		void requestUserlistByID(int theChannel);
 		void do_send_user_login();
 		void on_socket_encrypted();
 		void on_socket_readyRead();
@@ -323,6 +328,11 @@ class WiredSocket : public QObject
 		// Tracker subsystem
 		//
 		void tracker_request_servers();
+
+		// Transaction management
+		//
+		void registerTransaction(const QWTransaction &t);
+		QHash<int,QWTransaction> pTransactionStore;
 		
 		void sendClientInfo();
 
@@ -338,6 +348,7 @@ class WiredSocket : public QObject
 		
 		/// Our function that formats a Wired message and sends it to the server.
 		void sendWiredCommand(const QByteArray);
+		void sendTransaction(const QWTransaction &t);
 		
 		/// The temporary list of items for the search results.
 		QList<ClassWiredFile> pSearchResults;

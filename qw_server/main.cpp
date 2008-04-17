@@ -30,18 +30,6 @@ int main (int argc, char *argv[]) {
 	QCoreApplication app(argc, argv);
 	
 
-	QWTransaction t;
-	t.type = 1001;
-	//t.addObject("text", "basdfasdfasfdsdf sda sad");
-	//t.addObject("value", "basdfasdf");
-	//t.addObject("bleh", "bfdasdfasdfasd :D");
-	qDebug() << t.toData().toHex();
-	qDebug() << qCompress(t.toData()).toHex();
-
-	QWTransaction c;
-	c.parseFromData(t.toData());
-	qDebug() << c.toData().toHex();
-
 	QWServerController *controller = new QWServerController();
 	controller->reloadConfig();
 	controller->reloadDatabase();
