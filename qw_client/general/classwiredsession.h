@@ -36,6 +36,7 @@
 #include "gui/widgetaccounts.h"
 #include "gui/WidgetTracker.h"
 #include "gui/WidgetFileInfo.h"
+#include "gui/widgetmotd.h"
 
 namespace Qwired {
 	enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick, UserChangedStatus,
@@ -65,11 +66,13 @@ public:
 	QPointer<WidgetFileSearch> pFileSearch;
 	QPointer<WidgetAccounts> pWinAccounts;
 	QPointer<WidgetTracker> pWinTrackers;
-
+	QPointer<WidgetMotd> pWinMotd;
+	QPointer<WidgetSendPrivMsg> pWinMessages;
+	
 	QPointer<QMenu> pTrayMenuItem;
 	
 
-	QHash<int,QPointer<WidgetSendPrivMsg> > pMsgWindows;
+	//QHash<int,QPointer<WidgetSendPrivMsg> > pMsgWindows;
 	
 private:
 	void doSetupConnections();
@@ -78,6 +81,7 @@ private:
 
 private slots:
 	void displayMotd(const QString text);
+	void handleConferenceChanged(const int &cid, const QString &topic, const int &users, const bool &chat_protected, const int &type);
 
 	void connectionWindowDestroyed(QObject *obj);
 	void reloadPrefs();

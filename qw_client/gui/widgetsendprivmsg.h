@@ -24,7 +24,8 @@
 
 #include <QWidget>
 #include "ui_WidgetSendPrivMsg.h"
-#include "../wired/classwireduser.h"
+#include "../wired/wiredsocket.h"
+
 //#include "wsessionmanager.h"
 
 /**
@@ -32,28 +33,32 @@
  */
 class WidgetSendPrivMsg : public QWidget, public Ui::WidgetSendPrivMsg
 {
-		Q_OBJECT
+	Q_OBJECT
 	public:
-// 		void setTarget ( ClassWiredSession *theSession, int theUserID );
-// 		QPointer<ClassWiredSession> pSession;
 		WidgetSendPrivMsg ( QWidget *parent = 0 );
 		~WidgetSendPrivMsg();
-		int pTargetID;
-		void addText(QString theText, int theWho); // theWho: 0=me, 1=them
+		void handleNewMessage(const ClassWiredUser &user, const QString &text);
+		
+		void setSocket(WiredSocket *socket);
+		
+	public slots:
+		void showUserMessages(const ClassWiredUser &user);
 
 	signals:
-		void newMessage(int theUser, QString theText);
+		//void newMessageEntered(int theUser, QString theText);
 		
 	private slots:
 		void on_fInput_returnPressed();
-// 		void on_fBtnSend_clicked();
-// 		void on_fBtnCancel_clicked();
-		
-		
+		void on_fUsers_currentRowChanged(int currentRow);
+		void addMessage(const int uid, const QString &text, const int senderId);
+		void handleUserChanged(const ClassWiredUser oldUser, const ClassWiredUser newUser);
+		void handleUserLeft(int theChatID, const ClassWiredUser theUser);
+
 	private:
 		ClassWiredUser pUser;
-// 		bool eventFilter(QObject *obj, QEvent *event);
-
+		QHash<int,QPointer<QTextDocument> > pDocuments;
+		QPointer<WiredSocket> pSocket;
+		
 };
 
 #endif

@@ -204,11 +204,11 @@ void WidgetForum::on_fChatInput_returnPressed() {
 	if(msg.startsWith("/me ")) {
 		pSession->pWiredSocket->sendChat(pChatID, msg.mid(4), true);
 	} else if(msg.startsWith("/topic ")) {
-		pSession->pWiredSocket->setChatTopic(pChatID, msg.mid(7));
+		pSession->pWiredSocket->setConferenceOptions(pChatID, msg.mid(7), "");
 	} else if(msg.startsWith("/status ")) {
 		pSession->pWiredSocket->setUserStatus(msg.mid(8));
 	} else if(msg.startsWith("/nick ")) {
-		pSession->pWiredSocket->setUserNick(msg.mid(6));
+		pSession->pWiredSocket->setNickname(msg.mid(6));
 	} else if(msg.startsWith("/clear")) {
 		fChatLog->clear();
 	} else if(msg.startsWith("/exec ")) {
@@ -295,24 +295,44 @@ void WidgetForum::on_fUsers_doubleClicked (const QModelIndex &index) {
 	int tmpUserID = index.data( Qt::UserRole ).toInt();
 	ClassWiredUser tmpUsr = pSession->pWiredSocket->getUserByID(tmpUserID);
 	
-	WidgetSendPrivMsg *msg;
-	if(!pSession->pMsgWindows.contains(tmpUserID)) {
-		msg = new WidgetSendPrivMsg();
-		msg->setParent(this, Qt::Window);
-		msg->setWindowTitle(tmpUsr.pNick);
-		msg->setWindowIcon(tmpUsr.iconAsPixmap());
-		msg->pTargetID = tmpUserID;
-		connect( msg, SIGNAL(newMessage(int,QString)), pSession->pWiredSocket, SLOT(sendPrivateMessage(int,QString)) );
-		pSession->pMsgWindows[tmpUserID] = msg;
+	if(!pSession->pWinMessages) {
+		pSession->pWinMessages = new WidgetSendPrivMsg();
+		
+		pSession->pWinMessages->setParent(this, Qt::Window);
+		pSession->pWinMessages->setSocket(pSession->pWiredSocket);
+		int tmpIdx = pSession->pConnWindow->pTabWidget->addTab(pSession->pWinMessages, QIcon(), tr("Messages"));
+		pSession->pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		pSession->pWinMessages->showUserMessages(tmpUsr);
 	} else {
-		msg = pSession->pMsgWindows.value(tmpUserID);
-	}
-	if(msg) {
-		msg->move( fUsers->pos() );
-		msg->show();
-		msg->raise();
-		msg->fInput->setFocus();
-	}
+		int tmpIdx = pSession->pConnWindow->pTabWidget->indexOf(pSession->pWinMessages);
+ 		pSession->pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		pSession->pWinMessages->showUserMessages(tmpUsr);
+		pSession->pWinMessages->fInput->setFocus();
+ 	}
+
+
+
+	
+
+	
+// 	WidgetSendPrivMsg *msg;
+// 	if(!pSession->pMsgWindows.contains(tmpUserID)) {
+// 		msg = new WidgetSendPrivMsg();
+// 		msg->setParent(this, Qt::Window);
+// 		msg->setWindowTitle(tmpUsr.pNick);
+// 		msg->setWindowIcon(tmpUsr.iconAsPixmap());
+// 		msg->pTargetID = tmpUserID;
+// 		connect( msg, SIGNAL(newMessageEntered(int,QString)), pSession->pWiredSocket, SLOT(sendMessage(int,QString)) );
+// 		pSession->pMsgWindows[tmpUserID] = msg;
+// 	} else {
+// 		msg = pSession->pMsgWindows.value(tmpUserID);
+// 	}
+// 	if(msg) {
+// 		msg->move( fUsers->pos() );
+// 		msg->show();
+// 		msg->raise();
+// 		msg->fInput->setFocus();
+// 	}
 // 	
 // 	msg->setTarget ( pSession, tmpUserID );
 // 	msg->fTitle->setText(tr("Private Message To: %1").arg( index.data(Qt::DisplayRole).toString() ));
