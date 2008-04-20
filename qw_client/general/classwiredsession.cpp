@@ -356,8 +356,6 @@ void ClassWiredSession::doHandleBroadcast(ClassWiredUser theUser, QString theMes
 	WidgetSendPrivMsg *msg = new WidgetSendPrivMsg();
 	msg->setParent(pMainChat, Qt::Window);
 	msg->setWindowTitle(tr("Broadcast Message"));
-	msg->fMsg->setReadOnly(true);
-	msg->fMsg->setText(theMessage);
 	msg->setSocket(pWiredSocket);
 	msg->show();
 

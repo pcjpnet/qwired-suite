@@ -31,7 +31,7 @@
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class WidgetSendPrivMsg : public QWidget, public Ui::WidgetSendPrivMsg
+class WidgetSendPrivMsg : public QWidget, private Ui::WidgetSendPrivMsg
 {
 	Q_OBJECT
 	public:
@@ -43,6 +43,7 @@ class WidgetSendPrivMsg : public QWidget, public Ui::WidgetSendPrivMsg
 		
 	public slots:
 		void showUserMessages(const ClassWiredUser &user);
+		void setInputFocus();
 
 	signals:
 		//void newMessageEntered(int theUser, QString theText);
@@ -58,6 +59,10 @@ class WidgetSendPrivMsg : public QWidget, public Ui::WidgetSendPrivMsg
 		ClassWiredUser pUser;
 		QHash<int,QPointer<QTextDocument> > pDocuments;
 		QPointer<WiredSocket> pSocket;
+
+protected:
+		bool eventFilter(QObject *object, QEvent *event);
+			
 		
 };
 

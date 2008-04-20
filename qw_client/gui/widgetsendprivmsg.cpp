@@ -27,7 +27,7 @@ WidgetSendPrivMsg::WidgetSendPrivMsg ( QWidget *parent )
 		: QWidget ( parent )
 {
 	setupUi(this);
-	fMsg->installEventFilter(this);
+	fInput->installEventFilter(this);
 }
 
 
@@ -36,18 +36,34 @@ WidgetSendPrivMsg::~WidgetSendPrivMsg()
 }
 
 /**
+ * The event filter for the input field.
+ */
+bool WidgetSendPrivMsg::eventFilter(QObject * object, QEvent * event) {
+	if(object == fInput && QEvent::KeyPress) {
+		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+		if(keyEvent->key()==Qt::Key_Enter || keyEvent->key()==Qt::Key_Return){
+			on_fInput_returnPressed();
+			
+			keyEvent->accept();
+			return true;
+		}
+	}
+	return false;
+}
+				
+/**
  * The user has entered a new message and it should be sent to the target user.
  */
 void WidgetSendPrivMsg::on_fInput_returnPressed() {
 	if(!fUsers->currentRow() == -1) return;
-	if(fInput->text().isEmpty()) return;
+	if(fInput->toPlainText().isEmpty()) return;
 	int tmpId = fUsers->currentItem()->data(Qt::UserRole+1).toInt();
 
 	qDebug() << "Sending new message to"<<tmpId;
 	//emit newMessageEntered(tmpId, fInput->text());
 
-	if(pSocket) pSocket->sendMessage(tmpId, fInput->text());
-	addMessage(tmpId, fInput->text(), pSocket->sessionUser.pUserID);
+	if(pSocket) pSocket->sendMessage(tmpId, fInput->toPlainText());
+	addMessage(tmpId, fInput->toPlainText(), pSocket->sessionUser.pUserID);
 	fInput->clear();
 }
 
@@ -219,6 +235,10 @@ void WidgetSendPrivMsg::handleUserLeft(int theChatID, const ClassWiredUser theUs
 			return;
 		}
 	}
+}
+
+void WidgetSendPrivMsg::setInputFocus() {
+	fInput->setFocus();
 }
 
 
