@@ -303,11 +303,13 @@ void WidgetForum::on_fUsers_doubleClicked (const QModelIndex &index) {
 		int tmpIdx = pSession->pConnWindow->pTabWidget->addTab(pSession->pWinMessages, QIcon(), tr("Messages"));
 		pSession->pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
 		pSession->pWinMessages->showUserMessages(tmpUsr);
+		pSession->pWinMessages->setInputFocus();
 	} else {
 		int tmpIdx = pSession->pConnWindow->pTabWidget->indexOf(pSession->pWinMessages);
  		pSession->pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
 		pSession->pWinMessages->showUserMessages(tmpUsr);
-		pSession->pWinMessages->fInput->setFocus();
+		pSession->pWinMessages->setInputFocus();
+//		pSession->pWinMessages->fInput->setFocus();
  	}
 
 
@@ -433,6 +435,8 @@ void WidgetForum::reloadPrefs() {
 
 	
 }
+
+
 
 
 

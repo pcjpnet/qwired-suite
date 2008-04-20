@@ -75,6 +75,7 @@ private slots:
 	void inviteMenuTriggered(QAction *action);
 
 	void reloadPrefs();
+	
 
 };
 
