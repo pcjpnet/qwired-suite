@@ -63,6 +63,7 @@ private slots:
 	void sendServerBanner(const int id, const QWTransaction &t);
 	void sendUserlist(const int id, const QWTransaction &);
 	void sendMotd(const int id, const QWTransaction &t);
+	void broadcastUserStatusChanged(const ClassWiredUser, const int changeFlags);
 	
 	void clearNews(const int id);
 	void createPrivateChat(const int id);
@@ -75,11 +76,11 @@ private slots:
 	
 	void declinePrivateChat(const int id, const int chatId);
 	void broadcastBroadcast(const int id, const QString text);
-	void broadcastChat(const int id, const int chatId, const QString text, const bool emote);
-	void broadcastChatTopic(const ClassWiredUser user, const int chatId, const QString topic);
+	void broadcastChat(const int id, const QWTransaction &t);
+	void broadcastChatTopic(const int id, const QWTransaction &t);
 	void broadcastUserImageChanged(const ClassWiredUser);
-	void broadcastUserStatusChanged(const ClassWiredUser);
-	void deliverPrivateMessage(const int id, const int targetId, const QString text);
+	
+	void deliverPrivateMessage(const int id, const QWTransaction &t);
 	void inviteUserToChat(const int id, const int userId, const int chatId);
 	void joinPrivateChat(const int id, const int chatId);
 	void kickUser(const int id, const int userId, const QString reason, const bool banned);

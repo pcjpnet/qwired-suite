@@ -34,7 +34,8 @@ SOURCES += general/main.cpp \
  gui/WidgetTracker.cpp \
  wired/classtrackerserver.cpp \
  general/wiredsingleton.cpp \
- ../common/qwtransaction.cpp
+ ../common/qwtransaction.cpp \
+ gui/widgetmotd.cpp
 TEMPLATE = app
 CONFIG += warn_on thread qt
 macx : CONFIG += x86 ppc
@@ -55,7 +56,8 @@ FORMS += gui/WinMain.ui \
  gui/WidgetAccounts.ui \
  gui/WidgetFileInfo.ui \
  gui/WidgetTracker.ui \
- gui/WidgetAboutQwired.ui
+ gui/WidgetAboutQwired.ui \
+ gui/WidgetMotd.ui
 QT += gui network
 HEADERS += wired/classwireduser.h \
  gui/connwindow.h \
@@ -89,7 +91,8 @@ HEADERS += wired/classwireduser.h \
  gui/WidgetFileInfo.h \
  gui/WidgetTracker.h \
  wired/classtrackerserver.h \
- ../common/qwtransaction.h
+ ../common/qwtransaction.h \
+ gui/widgetmotd.h
 TRANSLATIONS += lang_de.ts \
  lang_pt.ts \
  lang_it.ts \

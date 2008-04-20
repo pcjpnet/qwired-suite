@@ -1,0 +1,30 @@
+<ui version="4.0" >
+ <class>WidgetMotd</class>
+ <widget class="QWidget" name="WidgetMotd" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>498</width>
+    <height>430</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Message Of The Day</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QTextBrowser" name="fMotd" >
+     <property name="openExternalLinks" >
+      <bool>true</bool>
+     </property>
+     <property name="openLinks" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

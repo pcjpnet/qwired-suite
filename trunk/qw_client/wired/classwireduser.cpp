@@ -215,4 +215,13 @@ QPixmap ClassWiredUser::iconAsPixmap()
 	return QPixmap();
 }
 
+void ClassWiredUser::setFromTransaction(const QWTransaction & t) {
+	if(t.hasObject("uid"))	pUserID = t.getObjectInt("uid");
+	if(t.hasObject("nick"))	pNick = t.getObjectString("nick");
+	if(t.hasObject("admin"))  pAdmin = t.getObjectInt("admin");
+	if(t.hasObject("idle"))  pIdle = t.getObjectInt("idle");
+	if(t.hasObject("status"))  pStatus = t.getObjectString("status");
+	if(t.hasObject("image"))  pImage = t.getObject("image");
+}
+
 

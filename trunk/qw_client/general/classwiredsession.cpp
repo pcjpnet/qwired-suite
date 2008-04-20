@@ -64,7 +64,7 @@ ClassWiredSession::ClassWiredSession(QObject *parent) : QObject(parent) {
 		pWiredSocket->setUserIcon(tmpIcon);
 	}
 	pWiredSocket->setUserStatus( settings.value("general/status","Qwired Newbie").toString() );
-	pWiredSocket->setUserNick(settings.value("general/nickname", "Unnamed").toString());
+	pWiredSocket->setNickname(settings.value("general/nickname", "Unnamed").toString());
 
 	reloadPrefs();
 	pConnWindow->show();
@@ -107,10 +107,14 @@ void ClassWiredSession::doSetupConnections() {
 	//
 	connect(pConnectWindow, SIGNAL(onConnnectReady(QString,QString,QString)), this, SLOT(onDoConnect(QString,QString,QString)) );
 	connect(pConnWindow, SIGNAL(destroyed(QObject*)), this, SLOT(connectionWindowDestroyed(QObject*)) );
-
+	
+	
 	// Socket connections
 	//
 	connect( pWiredSocket, SIGNAL(onMotdReceived(QString)), this, SLOT(displayMotd(QString)));
+	connect(pWiredSocket, SIGNAL(onConferenceChanged(const int &, const QString &, const int &, const bool &, const int &)),
+			this, SLOT(handleConferenceChanged(const int &, const QString &, const int &, const bool &, const int &)));;
+
 	
 	connect( pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
 	connect( pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)), this, SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
@@ -162,8 +166,21 @@ void ClassWiredSession::doSetupConnections() {
 }
 
 
+/**
+ * Display a message of the day.
+ * @param text 
+ */
 void ClassWiredSession::displayMotd(const QString text) {
-	QMessageBox::critical(pMainChat, tr("MOTD"), text);
+	if(!pWinMotd) {
+		pWinMotd = new WidgetMotd();
+		pWinMotd->setParent(pConnWindow, Qt::Window);
+		pWinMotd->setMotd(text);
+		int tmpIdx = pConnWindow->pTabWidget->addTab(pWinMotd, QIcon(), tr("MOTD"));
+		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+	} else {
+		int tmpIdx = pConnWindow->pTabWidget->indexOf(pWinMotd);
+		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+	}
 
 }
 
@@ -237,8 +254,8 @@ void ClassWiredSession::getNews() {
 void ClassWiredSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction) {
 	// A chat message arrived. Write it to the specific chat window.
 	ClassWiredUser tmpUsr = pWiredSocket->getUserByID(theUserID); // Find the user
-
-	if( theChat==1 ) { // Public chat
+	qDebug() << "from:"<<theUserID;
+	if( theChat==0 ) { // Public chat
 		pMainChat->writeToChat(tmpUsr.pNick, theText, theIsAction);
 		
 		QStringList tmpParams;
@@ -264,16 +281,7 @@ void ClassWiredSession::do_handle_chat_message(int theChat, int theUserID, QStri
 
 
 void ClassWiredSession::doHandleChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic) {
-	Q_UNUSED(theLogin);
-	Q_UNUSED(theIP);
-	if( theChatID==1 ) {
-		// Public chat
-		pMainChat->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
-	} else if( pChats.contains(theChatID) ) {
-		// Topic of private chat
-		WidgetForum *chat = pChats[theChatID];
-		chat->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
-	}
+
 }
 
 
@@ -283,32 +291,50 @@ void ClassWiredSession::doHandlePublicChatInput(QString theText, bool theIsActio
 }
 
 
+/**
+ * A new private message arrived. Handle the message.
+ */
 void ClassWiredSession::doHandlePrivMsg(ClassWiredUser theUser, QString theMessage) {
-	// Display a private message to the user.
-	WidgetSendPrivMsg *msg;
-	if(!pMsgWindows.contains(theUser.pUserID)) {
-		// Create a new message dialog
-		msg = new WidgetSendPrivMsg(pConnWindow);
-		msg->setParent(pMainChat, Qt::Window);
-		msg->pTargetID = theUser.pUserID;
-		msg->fMsg->setReadOnly(true);
-		msg->setWindowTitle( theUser.pNick);
-		msg->setWindowIcon( theUser.iconAsPixmap() );
-		connect( msg, SIGNAL(newMessage(int,QString)), pWiredSocket, SLOT(sendPrivateMessage(int,QString)) );
-		//msg->show();
-	} else {
-		// Recover the old window
-		msg = pMsgWindows.value(theUser.pUserID);
-		pMsgWindows[theUser.pUserID] = msg;
+	if(!pWinMessages) {
+		pWinMessages = new WidgetSendPrivMsg();
+		pWinMessages->setParent(pMainChat, Qt::Window);
+		pWinMessages->setSocket(pWiredSocket);
+		int tmpIdx = pConnWindow->pTabWidget->addTab(pWinMessages, QIcon(), tr("Messages"));
+		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
 	}
+// 	else {
+// 		int tmpIdx = pConnWindow->pTabWidget->indexOf(pWinMessages);
+// 		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+// 	}
 
-	// Write to the chat
-	if(msg) {
-		msg->addText(theMessage,1);
-		if(!msg->isVisible()) {
-			msg->show();
-		}
-	}
+	if(pWinMessages) {
+		pWinMessages->handleNewMessage(theUser, theMessage);
+	}	
+	
+// 	WidgetSendPrivMsg *msg;
+// 	if(!pMsgWindows.contains(theUser.pUserID)) {
+// 		// Create a new message dialog
+// 		msg = new WidgetSendPrivMsg(pConnWindow);
+// 		msg->setParent(pMainChat, Qt::Window);
+// 		msg->pTargetID = theUser.pUserID;
+// 		msg->fMsg->setReadOnly(true);
+// 		msg->setWindowTitle( theUser.pNick);
+// 		msg->setWindowIcon( theUser.iconAsPixmap() );
+// 		connect( msg, SIGNAL(newMessageEntered(int,QString)), pWiredSocket, SLOT(sendMessage(int,QString)) );
+// 		//msg->show();
+// 	} else {
+// 		// Recover the old window
+// 		msg = pMsgWindows.value(theUser.pUserID);
+// 		pMsgWindows[theUser.pUserID] = msg;
+// 	}
+// 
+// 	// Write to the chat
+// 	if(msg) {
+// 		msg->addText(theMessage,1);
+// 		if(!msg->isVisible()) {
+// 			msg->show();
+// 		}
+// 	}
 
 	QStringList tmpParams;
 	tmpParams << theUser.pNick;
@@ -332,6 +358,7 @@ void ClassWiredSession::doHandleBroadcast(ClassWiredUser theUser, QString theMes
 	msg->setWindowTitle(tr("Broadcast Message"));
 	msg->fMsg->setReadOnly(true);
 	msg->fMsg->setText(theMessage);
+	msg->setSocket(pWiredSocket);
 	msg->show();
 
 	QStringList tmpParms;
@@ -419,7 +446,9 @@ void ClassWiredSession::do_new_broadcastmsg() {
 	msg->setParent(pConnWindow, Qt::Window);
 // 	msg->setTarget ( this, 0 );
 // 	msg->fTitle->setText(tr("Broadcast Message"));
-	msg->move( pConnWindow->pos() );
+	//msg->pTargetID = 0;
+	msg->setSocket(pWiredSocket);
+	//msg->move( pConnWindow->pos() );
 	msg->show();
 }
 
@@ -619,7 +648,7 @@ void ClassWiredSession::reloadPrefs() {
 	
 	QSettings s;
 	if(pWiredSocket->sessionUser.pNick!=s.value("general/nickname", "Unnamed").toString())
-		pWiredSocket->setUserNick(s.value("general/nickname").toString());
+		pWiredSocket->setNickname(s.value("general/nickname").toString());
 
 	if(pWiredSocket->sessionUser.pStatus!=s.value("general/status", "Qwired Newbie").toString())
 		pWiredSocket->setUserStatus(s.value("general/status").toString());
@@ -795,4 +824,17 @@ void ClassWiredSession::transferSocketError(QAbstractSocket::SocketError error) 
 	QStringList tmpParams;
 	tmpParams << tr("The file transfer failed due to a connection error. Error ID is: %1").arg(error);
 	triggerEvent("ServerError",tmpParams);
+}
+
+/**
+ * A chat changed, reflect the changes to the user.
+ */
+void ClassWiredSession::handleConferenceChanged(const int & cid, const QString & topic, const int & users, const bool & chat_protected, const int & type) {
+	qDebug() << "Topic:"<<cid<<topic;
+	if( cid==0 ) { // Public chat
+		pMainChat->fTopic->setText(tr("Topic: %1").arg(topic));
+	} else if( pChats.contains(cid) ) { // Topic of private chat
+		WidgetForum *chat = pChats[cid];
+		chat->fTopic->setText(tr("Topic: %1").arg(topic));
+	}
 }

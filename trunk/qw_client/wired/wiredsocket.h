@@ -78,9 +78,10 @@ class WiredSocket : public QObject
 		QHash<int, QList<ClassWiredUser> > pUsers;
 	
 		// User Information
-		void setUserNick(QString);
+		void setNickname(const QString &);
 		void setUserAccount(QString, QString);
 		ClassWiredUser getUserByID(int);
+		bool isUserKnown(int);
 
 		// No further comment on those, and, no, you can not has cheezeburger.
 		bool pIzCaturday;
@@ -104,8 +105,13 @@ class WiredSocket : public QObject
 		
 	public slots:
 
-		void getServerBanner();
+		
+		
 		void getMotd();
+		void getServerBanner();
+		void sendChat(int theChatID, QString theText, bool theIsAction);
+		void setConferenceOptions(const int &cid, const QString &topic, const QString &password);
+		void setUserStatus(const QString &theStatus);
 
 		// Wired Subsystem (not for Trackers)
 		//
@@ -141,14 +147,16 @@ class WiredSocket : public QObject
 		void readUser(QString theName);
 		void rejectChat(int theChatID);
 		void searchFiles(const QString theSearch);
-		void sendChat(int theChatID, QString theText, bool theIsAction);
-		void sendPrivateMessage(int theUserID, QString theMessage);
+		
+		void sendMessage(int theUserID, QString theMessage);
 		void setCaturday(bool);
-		void setChatTopic(int theChatID, QString theTopic);
+		
 		void setUserIcon(QPixmap theIcon);
-		void setUserStatus(QString theStatus);
+		
 		void statFile(const QString thePath);
 
+
+		
 
 	private slots:
 		QList<QByteArray> GetFieldArray(QByteArray theData);
@@ -200,6 +208,7 @@ class WiredSocket : public QObject
 		/// After all users have been transmitted, a onServerUserlistDone() signal is emitted.
 		
 		void onMotdReceived(const QString text);
+		void onConferenceChanged(const int &cid, const QString &topic, const int &users, const bool &chat_protected, const int &type); 
 		
 		void onServerUserlistItem(int theChatID, const ClassWiredUser);
 		/// This signal is emitted once all users of a chat have been transmitted.
@@ -224,6 +233,7 @@ class WiredSocket : public QObject
 		/// This signal is emitted after receiving the topic of a chat from the server.
 		/// This usually happens after a successful chatJoin command or after logging in.
 		void onChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
+		
 		/// This signal is emitted whenever a user sends a private message.
 		void onPrivateMessage(ClassWiredUser theUser, QString theMessage);
 		/// This signal is emitted if a user has been kicked off the server.

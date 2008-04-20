@@ -25,6 +25,7 @@
 #include <QHostAddress>
 #include <QDateTime>
 #include <QtGui>
+#include "qwtransaction.h"
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
@@ -38,6 +39,8 @@ class ClassWiredUser
 		~ClassWiredUser();
 		
 		void setFromPrivileges(QList<QByteArray> theParams);
+		void setFromTransaction(const QWTransaction &t);
+		
 		QByteArray privilegesFlags();
 		
 		QString cryptedPassword();

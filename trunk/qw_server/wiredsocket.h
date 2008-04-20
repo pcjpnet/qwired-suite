@@ -66,10 +66,13 @@ class WiredSocket : public QObject
 		
 		
 	signals:
+		void conferenceOptionsChanged(const int id, const QWTransaction &t);
+		void privateMessageReceived(const int id, const QWTransaction &t);
+		void receivedChat(const int id, const QWTransaction &t);
 		void requestedMotd(const int id, const QWTransaction &t);
-		void transactionReceived(const int id, const QWTransaction &t);
 		void requestedBanner(const int id, const QWTransaction &t);
 		void requestedUserlist(const int id, const QWTransaction &t);
+		void transactionReceived(const int id, const QWTransaction &t);
 		
 		/**
 		 * The client has sent the login and password and the server should now check if these are correct.
@@ -94,7 +97,7 @@ class WiredSocket : public QObject
 		void newsPosted(const int id, const QString news);
 		void privateChatLeft(const int id, const int chatId);
 		void receivedClientInfo(const int id, const QString info);
-		void receivedChat(const int id, const int chatId, const QString text, const bool emote);
+		
 		void receivedBroadcastMessage(const int id, const QString text);
 		void requestedAccountsList(const int id);
 		
@@ -107,16 +110,15 @@ class WiredSocket : public QObject
 		void requestedReadGroup(const int id, const QString name);
 		void requestedUserInfo(const int id, const int userId);
 		
-		void topicChanged(const ClassWiredUser user, const int chatId, const QString topic);
+		
 		void userImageChanged(const ClassWiredUser user);
 		void userKicked(const int id, const int userId, const QString reason, const bool banned);
-		void userStatusChanged(const ClassWiredUser user);
+		void userStatusChanged(const ClassWiredUser user, const int changeFlags);
 		
-		void privateMessageReceived(const int id, const int targetId, const QString text);
+		
 		
 	public slots:
 		void disconnectClient();
-		void sendLoginSuccessful();
 		void sendErrorLoginFailed();
 		
 		void sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize);
@@ -134,7 +136,6 @@ class WiredSocket : public QObject
 		void sendFileListingDone(const QString path, const int free);
 		void sendFileStat(const ClassWiredFile file);
 		
-		void sendBanner(const QByteArray banner);
 		void sendBroadcastMessage(const int userId, const QString text);
 		void sendChat(const int chatId, const int userId, const QString text, const bool emote);
 		void sendChatTopic(const QWClassPrivateChat chat);
@@ -146,15 +147,13 @@ class WiredSocket : public QObject
 		void sendNews(const QString nickname, const QDateTime date, const QString news);
 		void sendNewsDone();
 		void sendNewsPosted(const QString nickname, const QString news);
-		void sendPrivateMessage(const int userId, const QString text);
+		void sendMessage(const int userId, const QString text);
 		void sendPrivateChatCreated(const int chatId);
 		void sendPrivileges();
-		void sendUserlistItem(const int chatId, const ClassWiredUser item);
-		void sendUserlistDone(const int chatId);
+
 		
 		void sendUserImageChanged(const ClassWiredUser user);
 		void sendUserInfo(const ClassWiredUser user);
-		void sendUserStatusChanged(const ClassWiredUser user);
 		
 		void idleTimerTriggered();
 

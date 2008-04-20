@@ -86,7 +86,7 @@ void WiredSocket::readDataFromSocket() {
 void WiredSocket::idleTimerTriggered() {
 	if(!pSessionUser.pIdle) {
 		pSessionUser.pIdle = true;
-		emit userStatusChanged(pSessionUser);
+		emit userStatusChanged(pSessionUser, 16);
 	}
 }
 
@@ -97,7 +97,7 @@ void WiredSocket::resetIdleTimer() {
 	pIdleTimer->start();
 	if(pSessionUser.pIdle) {
 		pSessionUser.pIdle = false;
-		emit userStatusChanged(pSessionUser);
+		emit userStatusChanged(pSessionUser, 16);
 	}
 }
 
@@ -118,10 +118,15 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		sendTransaction(response);
 
 	} else if(t.type == Qwired::T_SetUserInfo) {
-		if(t.hasObject("nick"))  pSessionUser.pNick = t.getObjectString("nick");
-		if(t.hasObject("status"))  pSessionUser.pStatus = t.getObjectString("status");
-		if(t.hasObject("image"))  pSessionUser.pImage = t.getObject("image");
+		int tmpChangeFlags = 0;
+		if(t.hasObject("nick")) { pSessionUser.pNick = t.getObjectString("nick"); tmpChangeFlags |= 1; }
+		if(t.hasObject("status")) { pSessionUser.pStatus = t.getObjectString("status"); tmpChangeFlags |= 2; }
+		if(t.hasObject("image")) { pSessionUser.pImage = t.getObject("image"); tmpChangeFlags |= 4; }
 		qDebug() << "WiredSocket: Received credentials for"<<pSessionUser.pNick;
+		if(isLoggedIn()) {
+			emit userStatusChanged(pSessionUser, tmpChangeFlags);
+ 			resetIdleTimer();
+		} 
 		
 	} else if(t.type == Qwired::T_LoginRequest) {
 		emit loginReceived(userId(), t);
@@ -130,10 +135,26 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		emit requestedBanner(userId(), t);
 
 	} else if(t.type == Qwired::T_UserListRequest) {
+		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
 		emit requestedUserlist(userId(), t);
 		
 	} else if(t.type == 1012) { // MOTD
+		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
 		emit requestedMotd(userId(), t);
+
+	} else if(t.type == 2001) { // Private message/Broadcast
+		emit privateMessageReceived(userId(), t);
+		resetIdleTimer();
+		
+	} else if(t.type == 2002) { // Chat message
+		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
+		emit receivedChat(userId(), t);
+		resetIdleTimer();
+
+	} else if(t.type == 2013) { // Set conference options
+		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
+		emit conferenceOptionsChanged(userId(), t);
+		resetIdleTimer();
 	
 	}
 
@@ -511,30 +532,7 @@ void WiredSocket::setUserId(int userId) {
 }
 
 
-void WiredSocket::sendUserlistItem(const int chat, const ClassWiredUser item) {
-	QByteArray ba("310 ");
-	ba += QByteArray::number(chat);
-	ba += kFS;
-	ba += item.userListEntry();
-	sendWiredCommand(ba);
-}
 
-void WiredSocket::sendUserlistDone(const int chat) {
-	QByteArray ba("311 ");
-	ba += QByteArray::number(chat);
-	sendWiredCommand(ba);
-}
-
-/**
- * The server accepted the sent login and password.
- */
-void WiredSocket::sendLoginSuccessful() {
-	pSessionUser.pLoginTime = QDateTime::currentDateTime();
-	pLoggedIn = true;
-	QByteArray ba("201 ");
-	ba += QByteArray::number(pSessionUser.pUserID);
-	sendWiredCommand(ba);
-}
 
 /**
  * The client needs to be removed from the server. Delete the socket and this object.
@@ -599,15 +597,6 @@ void WiredSocket::sendClientLeave(const int chatId, const int id) {
 	sendWiredCommand(ba);
 }
 
-/**
- * Send a server banner to the client.
- * @param banner The PNG data of the banner.
- */
-void WiredSocket::sendBanner(const QByteArray banner) {
-	QByteArray ba("203 ");
-	ba += banner.toBase64();
-	sendWiredCommand(ba);
-}
 
 /**
  * The user changed his/her user image (seen in the user list).
@@ -622,15 +611,7 @@ void WiredSocket::sendUserImageChanged(const ClassWiredUser user) {
 }
 
 
-/**
- * The user changed his/her nick, status, icon id or idle flags.
- * @param user The user object with the new information.
- */
-void WiredSocket::sendUserStatusChanged(const ClassWiredUser user) {
-	QByteArray ba("304 ");
-	ba += user.userStatusEntry();
-	sendWiredCommand(ba);
-}
+
 
 /**
  * The new private chat has been created and the user has been automatically
@@ -661,7 +642,7 @@ void WiredSocket::sendInviteToChat(const int chatId, const int id) {
  * @param userId The ID of the originator.
  * @param text The text of the message.
  */
-void WiredSocket::sendPrivateMessage(const int userId, const QString text) {
+void WiredSocket::sendMessage(const int userId, const QString text) {
 	QByteArray ba("305 ");
 	ba += QByteArray::number(userId); ba += kFS;
 	ba += text.toUtf8();
@@ -683,14 +664,14 @@ void WiredSocket::sendUserInfo(const ClassWiredUser user) {
  * @param chat The object containing the chat information.
  */
 void WiredSocket::sendChatTopic(const QWClassPrivateChat chat) {
-	QByteArray ba("341 ");
-	ba += QByteArray::number(chat.pChatId); ba += kFS;
-	ba += chat.pTopicSetter.pNick.toUtf8(); ba += kFS;
-	ba += chat.pTopicSetter.pLogin.toUtf8(); ba += kFS;
-	ba += chat.pTopicSetter.pIP.toUtf8(); ba += kFS;
-	ba += chat.pTopicDate.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
-	ba += chat.pTopic.toUtf8();
-	sendWiredCommand(ba);
+	QWTransaction t(2511);
+	t.addObject("cid", chat.pChatId);
+	t.addObject("topic", QString("%1 [%2]").arg(chat.pTopic).arg(chat.pTopicSetter.pNick));
+	t.addObject("users", chat.pUsers.count());
+	t.addObject("protected", !chat.pPassword.isEmpty());
+	t.addObject("type", chat.pProtected);
+	sendTransaction(t);
+
 }
 
 /**

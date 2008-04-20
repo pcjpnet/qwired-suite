@@ -17,31 +17,22 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef QWCLASSPRIVATECHAT_H
-#define QWCLASSPRIVATECHAT_H
+#ifndef WIDGETMOTD_H
+#define WIDGETMOTD_H
 
-#include <QList>
-#include <QString>
-#include <QDateTime>
-#include "classwireduser.h"
+#include <QWidget>
+#include "ui_WidgetMotd.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
 */
-class QWClassPrivateChat
+class WidgetMotd : public QWidget, public Ui_WidgetMotd
 {
+Q_OBJECT
 public:
-    QWClassPrivateChat();
-    ~QWClassPrivateChat();
-
-	int pChatId;
-	QList<int> pUsers;
-	QList<int> pInvitedUsers;
-	QString pTopic;
-	ClassWiredUser pTopicSetter;
-	QDateTime pTopicDate;
-	QString pPassword;
-	bool pProtected;
+    WidgetMotd(QWidget *parent = 0);
+    ~WidgetMotd();
+	void setMotd(const QString text);
 
 };
 

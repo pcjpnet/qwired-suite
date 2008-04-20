@@ -206,7 +206,7 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 
 // Find a user by the ID specified in the list of publically connected users.
 ClassWiredUser WiredSocket::getUserByID(int theID) {
-	QList<ClassWiredUser> tmpList = pUsers[1]; // server user list
+	QList<ClassWiredUser> tmpList = pUsers[0]; // server user list
 	QListIterator<ClassWiredUser> i(tmpList);
 	while (i.hasNext()) {
 		ClassWiredUser usr = i.next();
@@ -217,6 +217,20 @@ ClassWiredUser WiredSocket::getUserByID(int theID) {
 	ClassWiredUser wu; // Fallback object
 	wu.pNick = tr("(invalid user)");
 	return wu;
+}
+
+/**
+ * Returns true if a user with userId exists in the known user list.
+ * @param userId The ID of the user.
+ */
+bool WiredSocket::isUserKnown(int userId) {
+	QList<ClassWiredUser> tmpList = pUsers[1]; // server user list
+	QListIterator<ClassWiredUser> i(tmpList);
+	while (i.hasNext()) {
+		ClassWiredUser usr = i.next();
+		if( usr.pUserID==userId ) return true;
+	}
+	return false;
 }
 
 
@@ -248,7 +262,7 @@ void WiredSocket::setCaturday(bool b) {
 		tmpNick = tmpNick.replace("e","3");
 		tmpNick = tmpNick.replace("i","ie");
 		tmpNick = tmpNick.replace("y","eh");
-		setUserNick(tmpNick);
+		setNickname(tmpNick);
 		QFile tmpF(":/general/tranzlator.txt");
 		if(tmpF.exists() && tmpF.open(QIODevice::ReadOnly)) {
 			while(!tmpF.atEnd()) {
@@ -389,32 +403,6 @@ const ClassWiredUser WiredSocket::userByIndex(const int theChatID, const int the
 
 // A user/status has changed on the server. Update the user element accordingly.
 void WiredSocket::on_server_userlist_changed(QList<QByteArray> theParams) {
-	int tmpID = theParams.value(0).toInt();
-
-	// We have to run through all chats and update the user items accordingly.
-	QMutableHashIterator<int,QList<ClassWiredUser> > i(pUsers);
-	while(i.hasNext()) {
-		i.next();
-		QList<ClassWiredUser> tmpList = i.value();
-		QMutableListIterator<ClassWiredUser> j(tmpList);
-		while(j.hasNext()) {
-			ClassWiredUser tmpUsrOld = j.next();
-			if(tmpUsrOld.pUserID==tmpID) {
-				ClassWiredUser tmpUsr = tmpUsrOld;
-				tmpUsr.pIdle = theParams.value(1).toInt();
-				tmpUsr.pAdmin = theParams.value(2).toInt();
-				tmpUsr.pIcon = theParams.value(3).toInt();
-				tmpUsr.pNick = QString::fromUtf8( theParams.value(4) );
-				tmpUsr.pStatus = QString::fromUtf8( theParams.value(5) );
-				j.setValue(tmpUsr);
-				
-				// Fire a signal, only for the main list!
-				if(i.key()==0)
-					emit onServerUserChanged(tmpUsrOld, tmpUsr);
-			}
-		}
-		i.setValue(tmpList);
-	}
 }
 
 void WiredSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
@@ -446,25 +434,7 @@ void WiredSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
 
 void WiredSocket::on_server_userlist_joined(QList< QByteArray > theParams )
 {
-	// A user has joined the server/chat.
-	int tmpChatID = theParams.value(0).toInt();
-	
-	ClassWiredUser usr;
-	usr.pUserID = theParams.value(1).toInt();
-	usr.pIdle = theParams.value(2).toInt();
-	usr.pAdmin = theParams.value(3).toInt();
-	usr.pIcon = theParams.value(4).toInt();
-	usr.pNick = QString::fromUtf8(theParams.value(5));
-	usr.pLogin = QString::fromUtf8(theParams.value(6));
-	usr.pIP = QString::fromUtf8(theParams.value(7));
-	usr.pHost = QString::fromAscii(theParams.value(8));
-	usr.pStatus = QString::fromAscii(theParams.value(9));
-	usr.pImage = QByteArray::fromBase64(theParams.value(10));
-	
-	QList<ClassWiredUser> &tmpList = pUsers[tmpChatID];
-	tmpList.append(usr);
-	
-	emit onServerUserJoined(tmpChatID, usr);
+
 }
 
 // Find a user by the user id and return the index.
@@ -484,50 +454,25 @@ const int WiredSocket::userIndexByID(const int theID, const int theChat) {
 }
 
 void WiredSocket::on_server_userlist_left(QList<QByteArray> theParams ) {
-	// The user left a chat or the server.
-	int tmpChatID = theParams.value(0).toInt();
-	int tmpUserID = theParams.value(1).toInt();
-	
-	QMutableHashIterator<int,QList<ClassWiredUser> > i(pUsers);
-	while(i.hasNext()) { i.next();
-		// If tmpChatID==1, the user has disconnected completely. Remove him/her form all chats, respectively.
-		if( tmpChatID==0 || (tmpChatID==i.key()) ) {
-			QList<ClassWiredUser> tmpList = i.value();
-			QMutableListIterator<ClassWiredUser> j(tmpList);
-			while(j.hasNext()) {
-				ClassWiredUser tmpUsr = j.next();
-				if(tmpUsr.pUserID==tmpUserID) {
-					j.remove();
-					emit onServerUserLeft(tmpChatID, tmpUsr);
-				}
-			}
-			i.setValue(tmpList);
-			
-		}
-	}
+
 	
 }
 
-void WiredSocket::sendPrivateMessage(int theUserID, QString theMessage) {
+/**
+ * Send a private message to another user.
+ * @param theUserID 
+ * @param theMessage 
+ */
+void WiredSocket::sendMessage(int theUserID, QString theMessage) {
 	if(pIzCaturday)
 		theMessage = tranzlate(theMessage);
-	
-	if( theUserID==0 ) {
-		// Broadcast Message
-		QByteArray buf("BROADCAST ");
-		buf += theMessage.toUtf8();
-		sendWiredCommand(buf);
-	} else {
-		// Send a private message to a user.
-		QByteArray buf("MSG ");
-		buf += QByteArray::number(theUserID).append(kFS).append(theMessage.toUtf8());
-		sendWiredCommand(buf);
-	}
+
+	QWTransaction t(2001);
+	t.addObject("text", theMessage);
+	t.addObject("uid", theUserID);
+	sendTransaction(t);
+	qDebug() << "sending message to"<<theUserID;
 }
-
-
-
-
 
 void WiredSocket::leaveChat(int theChatID)
 {
@@ -656,8 +601,11 @@ void WiredSocket::getFileList(QString thePath) {
 	sendWiredCommand(buf);
 }
 
+/**
+ * Set a new image for the user.
+ * @param theIcon The pixmap representing the user icon.
+ */
 void WiredSocket::setUserIcon(QPixmap theIcon) {
-	// Send a new user icon to the server
 	QByteArray tmpCmd;
 	if( !theIcon.isNull() ) {
 		QImage tmpImg = theIcon.toImage();
@@ -665,11 +613,10 @@ void WiredSocket::setUserIcon(QPixmap theIcon) {
 		QBuffer buf(&ba);
 		buf.open(QIODevice::WriteOnly);
 		tmpImg.save(&buf, "PNG");
-		tmpCmd += "ICON 0"; // unused since 1.1
-		tmpCmd += kFS;
-		tmpCmd += ba.toBase64();
 		sessionUser.pImage = ba;
-		sendWiredCommand(tmpCmd); 
+		QWTransaction t(1002);
+		t.addObject("image", ba);
+		sendTransaction(t);
 	}
 }
 
@@ -1002,7 +949,7 @@ void WiredSocket::on_server_privileges(QList< QByteArray > theParams) {
 // Send the login sequence to the server (reponses: 201 or 510)
 void WiredSocket::do_send_user_login() {
 // 	sendClientInfo();
-// 	setUserNick(sessionUser.pNick.toUtf8());
+// 	setNickname(sessionUser.pNick.toUtf8());
 // 	setUserIcon(sessionUser.iconAsPixmap());
 // 	setUserStatus(sessionUser.pStatus);
 	
@@ -1012,20 +959,22 @@ void WiredSocket::do_send_user_login() {
 }
 
 // Set the nickname of the current user session.
-void WiredSocket::setUserNick(QString theNick) {
+void WiredSocket::setNickname(const QString &theNick) {
 	sessionUser.pNick = theNick;
-	QByteArray tmpCmd("NICK ");
-	tmpCmd += theNick.toUtf8();
-	sendWiredCommand(tmpCmd);
+	QWTransaction t(1002);
+	t.addObject("nick", theNick);
+	sendTransaction(t);
 }
 
 // Update the user status for the session
-void WiredSocket::setUserStatus(QString theStatus) {
+void WiredSocket::setUserStatus(const QString &theStatus) {
 	sessionUser.pStatus = theStatus;
-	QByteArray buf("STATUS ");
-	buf += sessionUser.pStatus.toUtf8();
-	sendWiredCommand(buf);
+	QWTransaction t(1002);
+	t.addObject("status", theStatus);
+	sendTransaction(t);
 }
+
+
 
 // Reject/Decline a private chat.
 void WiredSocket::rejectChat(int theChatID) {
@@ -1042,13 +991,15 @@ void WiredSocket::joinChat(int theChatID) {
 	requestUserlistByID(theChatID);
 }
 
-// Set a chat topic.
-void WiredSocket::setChatTopic(int theChatID, QString theTopic) {
-	QByteArray buf("TOPIC ");
-	buf += QByteArray::number(theChatID);
-	buf += kFS;
-	buf += theTopic.toUtf8();
-	sendWiredCommand(buf);
+/**
+ * Set options of a conference/chat.
+ */
+void WiredSocket::setConferenceOptions(const int &cid, const QString &topic, const QString &password) {
+	QWTransaction t(2013);
+	t.addObject("cid", cid);
+	t.addObject("topic", topic);
+	t.addObject("password", password);
+	sendTransaction(t);
 }
 
 // Ban a user from the server.
@@ -1085,18 +1036,7 @@ void WiredSocket::getClientInfo(int theUserID) {
 	sendWiredCommand(buf);
 }
 
-// Send a chat message to the server.
-void WiredSocket::sendChat(int theChatID, QString theText, bool theIsAction) {
-	QByteArray buf;
-	if(pIzCaturday)
-		theText = tranzlate(theText);
-	
-	if(!theIsAction) buf+="SAY "; else buf+="ME ";
-	buf += QByteArray::number(theChatID);
-	buf += kFS;
-	buf += theText.toUtf8();
-	sendWiredCommand(buf);
-}
+
 
 // Request some file information.
 void WiredSocket::statFile(const QString thePath) {
@@ -1388,7 +1328,7 @@ void WiredSocket::sendTransaction(const QWTransaction &t) {
  * @param t A reference to the transaction.
  */
 void WiredSocket::handleTransaction(const QWTransaction & t) {
-	qDebug() << "Handling transaction"<<t.type<<"|"<<t.objects;
+	qDebug() << "Handling transaction"<<t.type<<"|"<<t.objects.keys();
 	QWTransaction response;
 	if(t.type == 1000) {
 		// Handshake OK
@@ -1439,19 +1379,73 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		} else {
 			qDebug() << "WiredSocket: Received user list entry"<<tmpChannel;
 			ClassWiredUser tmpUsr;
-			tmpUsr.pUserID = t.getObjectInt("uid");
-			tmpUsr.pNick = t.getObjectString("nick");
-			tmpUsr.pAdmin = t.getObjectInt("admin");
-			tmpUsr.pIdle = t.getObjectInt("idle");
-			tmpUsr.pStatus = t.getObjectString("status");
-			tmpUsr.pImage = t.getObject("image");
-// 			tmpUsr.pUserID = t.getObjectInt("via");
-			
+			tmpUsr.setFromTransaction(t);
 			pUsers[tmpChannel].append(tmpUsr);
 			emit onServerUserlistItem(tmpChannel, tmpUsr);
 		}
 
-		
+
+	} else if(t.type == 1502) {
+		// User changed/joined/left
+		//
+		int tmpChatID = t.getObjectInt("cid");
+		int tmpType = t.getObjectInt("type");
+		int tmpUserID = t.getObjectInt("uid");
+
+		if(tmpType == 0) { // User joined
+			ClassWiredUser usr;
+			usr.setFromTransaction(t);
+			QList<ClassWiredUser> &tmpList = pUsers[tmpChatID];
+			tmpList.append(usr);
+			emit onServerUserJoined(tmpChatID, usr);
+				
+		} else if(tmpType == 1) { // User changed
+			// We have to run through all chats and update the user items accordingly.
+			QMutableHashIterator<int,QList<ClassWiredUser> > i(pUsers);
+			while(i.hasNext()) { i.next();
+				QList<ClassWiredUser> tmpList = i.value();
+				QMutableListIterator<ClassWiredUser> j(tmpList);
+				while(j.hasNext()) {
+					ClassWiredUser tmpUsrOld = j.next();
+					if(tmpUsrOld.pUserID==tmpUserID) {
+						ClassWiredUser tmpUsr = tmpUsrOld;
+						tmpUsr.setFromTransaction(t);
+						j.setValue(tmpUsr);
+						if(i.key()==0)  emit onServerUserChanged(tmpUsrOld, tmpUsr);
+				} }
+				i.setValue(tmpList);
+			}
+			
+		} else if(tmpType == 2) { // User left
+			QMutableHashIterator<int,QList<ClassWiredUser> > i(pUsers);
+			while(i.hasNext()) { i.next();
+				if( tmpChatID==0 || (tmpChatID==i.key()) ) {
+					QList<ClassWiredUser> tmpList = i.value();
+					QMutableListIterator<ClassWiredUser> j(tmpList);
+					while(j.hasNext()) {
+						ClassWiredUser tmpUsr = j.next();
+						if(tmpUsr.pUserID==tmpUserID) {
+							j.remove();
+							emit onServerUserLeft(tmpChatID, tmpUsr);
+						} }
+					i.setValue(tmpList);
+		} } }
+
+
+	} else if(t.type == 2501) { // Message/Broadcast/Server
+		ClassWiredUser usr = getUserByID(t.getObjectInt("uid"));
+		if(t.getObjectInt("type")==0) { // private message
+			emit onPrivateMessage(usr, t.getObjectString("text"));
+		} else if(t.getObjectInt("type")==2) { // broadcast
+			emit onServerBroadcast(usr, t.getObjectString("text"));
+		}
+				
+	} else if(t.type == 2502) { // Chat Message
+		emit onServerChat(t.getObjectInt("cid"), t.getObjectInt("uid"), t.getObjectString("text"), t.getObjectInt("emote"));
+
+	} else if(t.type == 2511) { // Conference changed
+		emit onConferenceChanged( t.getObjectInt("cid"), t.getObjectString("topic"), t.getObjectInt("users"),
+								  t.getObjectInt("protected"), t.getObjectInt("type"));
 		
 	} else {
 		
@@ -1480,6 +1474,16 @@ void WiredSocket::getMotd() {
 	sendTransaction(QWTransaction(1012));
 }
 
+// Send a chat message to the server.
+void WiredSocket::sendChat(int theChatID, QString theText, bool theIsAction) {
+	if(pIzCaturday)  theText = tranzlate(theText);
+	QWTransaction t(2002);
+	t.addObject("cid", theChatID);
+	t.addObject("emote", theIsAction ? 1 : 0);
+	t.addObject("text", theText);
+	sendTransaction(t);
+}
+
 /**
  * Store a transaction (request) in the store for later referencing.
  * @param t The transaction.
@@ -1487,4 +1491,6 @@ void WiredSocket::getMotd() {
 void WiredSocket::registerTransaction(const QWTransaction & t) {
 	pTransactionStore[t.sequence] = t;
 }
+
+
 
