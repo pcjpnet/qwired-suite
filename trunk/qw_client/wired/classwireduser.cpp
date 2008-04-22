@@ -204,7 +204,7 @@ QString ClassWiredUser::cryptedPassword() {
 	return QString::fromUtf8(tmpDat.toHex());
 }
 
-QPixmap ClassWiredUser::iconAsPixmap()
+QPixmap ClassWiredUser::iconAsPixmap() const
 {
 	// Return the image of the user as icon/pixmap
 	QPixmap tmpIcon;
