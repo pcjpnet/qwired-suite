@@ -44,7 +44,7 @@ class ClassWiredUser
 		QByteArray privilegesFlags();
 		
 		QString cryptedPassword();
-		QPixmap iconAsPixmap();
+		QPixmap iconAsPixmap() const;
 
 		int pUserID;
 		bool pIdle;
