@@ -72,5 +72,7 @@
 		<file>icons/icn_showhide.png</file>
 		<file>icons/icn_quit.png</file>
 		<file>icons/icn_event.png</file>
+		<file>icons/icon_msg_normal.png</file>
+		<file>icons/icon_msg_unread.png</file>
     </qresource>
 </RCC>

@@ -39,10 +39,12 @@ class WidgetSendPrivMsg : public QWidget, private Ui::WidgetSendPrivMsg
 		~WidgetSendPrivMsg();
 		void handleNewMessage(const ClassWiredUser &user, const QString &text);
 		
+		
 		void setSocket(WiredSocket *socket);
 		
 	public slots:
-		void showUserMessages(const ClassWiredUser &user);
+		void initUserMessages(const ClassWiredUser &user);
+		void showUserMessages(const int uid);
 		void setInputFocus();
 
 	signals:
@@ -51,16 +53,18 @@ class WidgetSendPrivMsg : public QWidget, private Ui::WidgetSendPrivMsg
 	private slots:
 		void on_fInput_returnPressed();
 		void on_fUsers_currentRowChanged(int currentRow);
-		void addMessage(const int uid, const QString &text, const int senderId);
+		void addMessage(const int uid, const QString &text, const int senderId, const int msgType);
 		void handleUserChanged(const ClassWiredUser oldUser, const ClassWiredUser newUser);
 		void handleUserLeft(int theChatID, const ClassWiredUser theUser);
+		void on_fBtnDelete_clicked(bool);
+		void on_fBtnSave_clicked(bool);
 
 	private:
 		ClassWiredUser pUser;
 		QHash<int,QPointer<QTextDocument> > pDocuments;
 		QPointer<WiredSocket> pSocket;
 
-protected:
+	protected:
 		bool eventFilter(QObject *object, QEvent *event);
 			
 		

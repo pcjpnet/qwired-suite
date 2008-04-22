@@ -294,52 +294,12 @@ void WidgetForum::on_fBtnMsg_clicked() {
 void WidgetForum::on_fUsers_doubleClicked (const QModelIndex &index) {
 	int tmpUserID = index.data( Qt::UserRole ).toInt();
 	ClassWiredUser tmpUsr = pSession->pWiredSocket->getUserByID(tmpUserID);
-	
-	if(!pSession->pWinMessages) {
-		pSession->pWinMessages = new WidgetSendPrivMsg();
-		
-		pSession->pWinMessages->setParent(this, Qt::Window);
-		pSession->pWinMessages->setSocket(pSession->pWiredSocket);
-		int tmpIdx = pSession->pConnWindow->pTabWidget->addTab(pSession->pWinMessages, QIcon(), tr("Messages"));
-		pSession->pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
-		pSession->pWinMessages->showUserMessages(tmpUsr);
-		pSession->pWinMessages->setInputFocus();
-	} else {
-		int tmpIdx = pSession->pConnWindow->pTabWidget->indexOf(pSession->pWinMessages);
- 		pSession->pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
-		pSession->pWinMessages->showUserMessages(tmpUsr);
-		pSession->pWinMessages->setInputFocus();
-//		pSession->pWinMessages->fInput->setFocus();
- 	}
 
+	pSession->showMessages();
+	pSession->pWinMessages->initUserMessages(tmpUsr);
+	pSession->pWinMessages->showUserMessages(tmpUsr.pUserID);
+	pSession->pWinMessages->setInputFocus();
 
-
-	
-
-	
-// 	WidgetSendPrivMsg *msg;
-// 	if(!pSession->pMsgWindows.contains(tmpUserID)) {
-// 		msg = new WidgetSendPrivMsg();
-// 		msg->setParent(this, Qt::Window);
-// 		msg->setWindowTitle(tmpUsr.pNick);
-// 		msg->setWindowIcon(tmpUsr.iconAsPixmap());
-// 		msg->pTargetID = tmpUserID;
-// 		connect( msg, SIGNAL(newMessageEntered(int,QString)), pSession->pWiredSocket, SLOT(sendMessage(int,QString)) );
-// 		pSession->pMsgWindows[tmpUserID] = msg;
-// 	} else {
-// 		msg = pSession->pMsgWindows.value(tmpUserID);
-// 	}
-// 	if(msg) {
-// 		msg->move( fUsers->pos() );
-// 		msg->show();
-// 		msg->raise();
-// 		msg->fInput->setFocus();
-// 	}
-// 	
-// 	msg->setTarget ( pSession, tmpUserID );
-// 	msg->fTitle->setText(tr("Private Message To: %1").arg( index.data(Qt::DisplayRole).toString() ));
-// 	
-// 	msg->show();
 }
 
 // User list item has changed/selection changed.

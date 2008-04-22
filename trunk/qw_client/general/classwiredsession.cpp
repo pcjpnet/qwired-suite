@@ -66,6 +66,11 @@ ClassWiredSession::ClassWiredSession(QObject *parent) : QObject(parent) {
 	pWiredSocket->setUserStatus( settings.value("general/status","Qwired Newbie").toString() );
 	pWiredSocket->setNickname(settings.value("general/nickname", "Unnamed").toString());
 
+	// messages window
+	pWinMessages = new WidgetSendPrivMsg();
+	pWinMessages->setParent(pMainChat, Qt::Window);
+	pWinMessages->setSocket(pWiredSocket);
+	
 	reloadPrefs();
 	pConnWindow->show();
 }
@@ -150,6 +155,7 @@ void ClassWiredSession::doSetupConnections() {
 	connect( pConnWindow->actionBroadcast, SIGNAL(triggered(bool)), this, SLOT(do_new_broadcastmsg()) );
 	connect( pConnWindow->actionFiles, SIGNAL(triggered(bool)), this, SLOT(do_new_filebrowser()) );
 	connect( pConnWindow->actionPreferences, SIGNAL(triggered(bool)), this, SLOT(do_show_prefs()));
+	connect(pConnWindow->actionMessages, SIGNAL(triggered(bool)), this, SLOT(showMessages()) );
 	//connect( pConnWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
 	connect( pConnWindow->actionDisconnect, SIGNAL(triggered(bool)), this, SLOT(disconnectFromServer()));
 	connect( pConnWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(showTransfers()) );
@@ -184,6 +190,21 @@ void ClassWiredSession::displayMotd(const QString text) {
 
 }
 
+/**
+ * Display the messages pane in the connection window.
+ */
+void ClassWiredSession::showMessages() {
+	if(!pWinMessages) return;
+	int tmpIdx = pConnWindow->pTabWidget->indexOf(pWinMessages);
+	if(tmpIdx==-1)
+		tmpIdx = pConnWindow->pTabWidget->addTab(pWinMessages, QIcon(":/icons/icon_msg_normal.png"), tr("Messages"));
+	
+	pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+	
+	pConnWindow->actionMessages->setIcon(QIcon(":/icons/icon_msg_normal.png"));
+
+
+}
 
 
 /**
@@ -295,53 +316,18 @@ void ClassWiredSession::doHandlePublicChatInput(QString theText, bool theIsActio
  * A new private message arrived. Handle the message.
  */
 void ClassWiredSession::doHandlePrivMsg(ClassWiredUser theUser, QString theMessage) {
-	if(!pWinMessages) {
-		pWinMessages = new WidgetSendPrivMsg();
-		pWinMessages->setParent(pMainChat, Qt::Window);
-		pWinMessages->setSocket(pWiredSocket);
-		int tmpIdx = pConnWindow->pTabWidget->addTab(pWinMessages, QIcon(), tr("Messages"));
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+	if(!pWinMessages) return;
+	pWinMessages->handleNewMessage(theUser, theMessage);
+
+	if(pConnWindow->pTabWidget->currentWidget()!=pWinMessages) {
+		pConnWindow->actionMessages->setIcon(QIcon(":/icons/icon_msg_unread.png"));
+		pConnWindow->pTabWidget->setTabIcon(pConnWindow->pTabWidget->currentIndex(), QIcon(":/icons/icon_msg_unread.png"));
 	}
-// 	else {
-// 		int tmpIdx = pConnWindow->pTabWidget->indexOf(pWinMessages);
-// 		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
-// 	}
-
-	if(pWinMessages) {
-		pWinMessages->handleNewMessage(theUser, theMessage);
-	}	
-	
-// 	WidgetSendPrivMsg *msg;
-// 	if(!pMsgWindows.contains(theUser.pUserID)) {
-// 		// Create a new message dialog
-// 		msg = new WidgetSendPrivMsg(pConnWindow);
-// 		msg->setParent(pMainChat, Qt::Window);
-// 		msg->pTargetID = theUser.pUserID;
-// 		msg->fMsg->setReadOnly(true);
-// 		msg->setWindowTitle( theUser.pNick);
-// 		msg->setWindowIcon( theUser.iconAsPixmap() );
-// 		connect( msg, SIGNAL(newMessageEntered(int,QString)), pWiredSocket, SLOT(sendMessage(int,QString)) );
-// 		//msg->show();
-// 	} else {
-// 		// Recover the old window
-// 		msg = pMsgWindows.value(theUser.pUserID);
-// 		pMsgWindows[theUser.pUserID] = msg;
-// 	}
-// 
-// 	// Write to the chat
-// 	if(msg) {
-// 		msg->addText(theMessage,1);
-// 		if(!msg->isVisible()) {
-// 			msg->show();
-// 		}
-// 	}
-
+	// Notification
 	QStringList tmpParams;
 	tmpParams << theUser.pNick;
 	tmpParams << theMessage;
 	triggerEvent("MessageReceived", tmpParams);
-
-
 }
 
 // Handle a broadcast
@@ -359,6 +345,7 @@ void ClassWiredSession::doHandleBroadcast(ClassWiredUser theUser, QString theMes
 	msg->setSocket(pWiredSocket);
 	msg->show();
 
+	// Notification
 	QStringList tmpParms;
 	tmpParms << theUser.pNick;
 	tmpParms << theMessage;
@@ -610,6 +597,7 @@ void ClassWiredSession::enableConnToolButtons(bool theEnable) {
 	pConnWindow->actionNewsPost->setEnabled(theEnable);
 	pConnWindow->actionBroadcast->setEnabled(theEnable);
 	pConnWindow->actionSearch->setEnabled(theEnable);
+	pConnWindow->actionMessages->setEnabled(theEnable);
 }
 
 // Set the banner image to the toolbar of the main window.
@@ -836,3 +824,5 @@ void ClassWiredSession::handleConferenceChanged(const int & cid, const QString &
 		chat->fTopic->setText(tr("Topic: %1").arg(topic));
 	}
 }
+
+

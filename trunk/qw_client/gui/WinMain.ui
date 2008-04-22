@@ -21,7 +21,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQwired" >
@@ -34,8 +34,8 @@
     <addaction name="separator" />
     <addaction name="actionServerInfo" />
     <addaction name="actionNews" />
-    <addaction name="actionFiles" />
     <addaction name="actionMessages" />
+    <addaction name="actionFiles" />
     <addaction name="actionTransfers" />
     <addaction name="separator" />
     <addaction name="actionAccounts" />
@@ -55,6 +55,12 @@
    <property name="movable" >
     <bool>false</bool>
    </property>
+   <property name="iconSize" >
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
    <property name="toolButtonStyle" >
     <enum>Qt::ToolButtonTextUnderIcon</enum>
    </property>
@@ -71,7 +77,7 @@
    <addaction name="actionFiles" />
    <addaction name="actionSearch" />
    <addaction name="actionTransfers" />
-   <addaction name="actionAccounts" />
+   <addaction name="actionMessages" />
    <addaction name="separator" />
    <addaction name="actionDisconnect" />
   </widget>
@@ -145,6 +151,12 @@
    </property>
   </action>
   <action name="actionMessages" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="../application.qrc" >:/icons/icon_msg_normal.png</iconset>
+   </property>
    <property name="text" >
     <string>Messages</string>
    </property>
