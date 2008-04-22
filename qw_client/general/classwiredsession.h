@@ -98,7 +98,9 @@ private slots:
 	void transferDone(ClassWiredTransfer);
 	void transferSocketError(QAbstractSocket::SocketError);
 	
+	
 public slots:
+	void showMessages();
 	void triggerEvent(QString event, QStringList parameters);
 	void setTrayMenuAction(QMenu*);
 	

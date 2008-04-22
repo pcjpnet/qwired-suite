@@ -29,6 +29,7 @@ ConnWindow::ConnWindow(QWidget *parent) : QMainWindow(parent) {
 	setUnifiedTitleAndToolBarOnMac(true);
 	setAttribute(Qt::WA_DeleteOnClose);
 	
+	
 	setWindowIcon( QIcon(":/icons/qwired_logo_32.png") );
 	pTabWidget = new QTabWidget(this);
 	pTabWidget->clear();

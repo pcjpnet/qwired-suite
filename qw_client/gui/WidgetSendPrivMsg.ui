@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>498</width>
     <height>400</height>
    </rect>
   </property>
@@ -15,65 +15,141 @@
   </property>
   <layout class="QHBoxLayout" >
    <item>
-    <widget class="QListWidget" name="fUsers" >
-     <property name="maximumSize" >
-      <size>
-       <width>200</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="alternatingRowColors" >
-      <bool>true</bool>
-     </property>
-     <property name="iconSize" >
-      <size>
-       <width>22</width>
-       <height>22</height>
-      </size>
-     </property>
-     <property name="spacing" >
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSplitter" name="fSplitter" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QSplitter" name="fSplitterV" >
      <property name="orientation" >
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QTextEdit" name="fMsg" >
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-        <horstretch>0</horstretch>
-        <verstretch>4</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="tabChangesFocus" >
-       <bool>true</bool>
-      </property>
-      <property name="readOnly" >
-       <bool>true</bool>
-      </property>
+     <widget class="QWidget" name="layoutWidget" >
+      <layout class="QVBoxLayout" >
+       <item>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QToolButton" name="fBtnSave" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="toolTip" >
+            <string>Save Message History</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="../application.qrc" >:/icons/icn_download.png</iconset>
+           </property>
+           <property name="iconSize" >
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoRaise" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="fBtnDelete" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="toolTip" >
+            <string>Delete Message History</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="../application.qrc" >:/icons/icn_delete.png</iconset>
+           </property>
+           <property name="iconSize" >
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoRaise" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="fUsers" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="alternatingRowColors" >
+          <bool>true</bool>
+         </property>
+         <property name="iconSize" >
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="spacing" >
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
-     <widget class="QTextEdit" name="fInput" >
+     <widget class="QSplitter" name="fSplitterH" >
       <property name="sizePolicy" >
        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
         <horstretch>0</horstretch>
-        <verstretch>1</verstretch>
+        <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="tabChangesFocus" >
-       <bool>true</bool>
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
       </property>
-      <property name="acceptRichText" >
-       <bool>false</bool>
-      </property>
+      <widget class="QTextEdit" name="fMsg" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+         <horstretch>4</horstretch>
+         <verstretch>4</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="tabChangesFocus" >
+        <bool>true</bool>
+       </property>
+       <property name="readOnly" >
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="fInput" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+         <horstretch>0</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="tabChangesFocus" >
+        <bool>true</bool>
+       </property>
+       <property name="acceptRichText" >
+        <bool>false</bool>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>
@@ -83,6 +159,8 @@
   <tabstop>fUsers</tabstop>
   <tabstop>fMsg</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../application.qrc" />
+ </resources>
  <connections/>
 </ui>
