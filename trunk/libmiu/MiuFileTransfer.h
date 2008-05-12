@@ -19,66 +19,40 @@
  ***************************************************************************/
 
  
-#ifndef WIDGETFORUM_H
-#define WIDGETFORUM_H
+#ifndef WIREDTRANSFER_H
+#define WIREDTRANSFER_H
 
-#include "ui_WidgetForum.h"
-#include "modeluserlist.h"
-#include "delegateuserlist.h"
+#include <QtCore>
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-
-class ClassWiredSession;
-
-class WidgetForum : public QWidget, public Ui::WidgetForum
-{
-	Q_OBJECT
-			
+class ClassWiredTransfer{
 public:
-	WidgetForum(QWidget *parent = 0);
-	~WidgetForum();
-	void setUserListModel(ModelUserList *model);
-	QPointer<ClassWiredSession> pSession;
+    ClassWiredTransfer();
+    ~ClassWiredTransfer();
+    ClassWiredTransfer(const ClassWiredTransfer &);
 	
-	int pChatID;
-	
-	bool pEmoticonsEnabled;
-	
-	
-public slots:
-	void writeToChat(QString theUser, QString theText, bool theEmote);
-	void writeEventToChat(QString theMsg);
-	
-private:
-	QColor pChatTextColor;
-	QColor pChatTimeColor;
-	QColor pChatEventColor;
-	int pChatStyle;
-	bool pChatShowTime;
-	QFont pChatFont;
-	QPointer<DelegateUserlist> userlistDelegate;
-	QPointer<QMenu> pInviteMenu;
-	void updateInviteMenu();
-	
-	
-private slots:
-	void on_fUsers_doubleClicked ( const QModelIndex & index );
-	void on_fChatInput_returnPressed();
-	void on_fBtnMsg_clicked();
-	void on_fBtnKick_clicked();
-	void on_fBtnBan_clicked();
-	void on_fBtnInfo_clicked();
-	void on_fBtnChat_clicked();
-	void onUserlistSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
-	void inviteMenuTriggered(QAction *action);
-
-	void reloadPrefs();
-
-protected:
-	bool eventFilter(QObject *object, QEvent *event);
-
+    int pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running
+    QString pLocalPath; // path to file on local disk
+    QString pRemotePath; // path to file on server
+    QString pHash; // hash for the file transfer
+    QString pChecksum; // checksum for the file
+    int pTransferType; // 0=download, 1=upload
+    qlonglong pOffset; // first byte for transfer
+    qlonglong pTotalSize; // total length of file
+    qlonglong pDoneSize; // transferred size of data
+    int pQueuePosition; // position within the queue
+    
+	bool pEncryptTransfer; // if true, transfer will be encrypted
+	int pCurrentSpeed; // the current speed, updated during transfer, otherwise 0
+    void calcLocalChecksum();
+	QString fileName() const;
+    
+    
 };
+
+Q_DECLARE_METATYPE(ClassWiredTransfer)
+
 
 #endif

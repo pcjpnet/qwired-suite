@@ -33,6 +33,7 @@
 #include "wiredtransfersocket.h"
 
 #include "qwtransaction.h"
+#include "qwclassprivatechat.h"
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
@@ -98,6 +99,8 @@ class WiredSocket : public QObject
 		QPointer<QSslSocket> pSocket;
 		QList<QPointer<WiredTransferSocket> > pTransferSockets;
 
+		QList<QWClassPrivateChat> pConferences;
+		
 		// Tracker subsystem
 		//
 		void connectToTracker(QString theHostName, int thePort=2002);
@@ -108,6 +111,7 @@ class WiredSocket : public QObject
 		
 		
 		void getMotd();
+		void getConferencesList();
 		void getServerBanner();
 		void sendChat(int theChatID, QString theText, bool theIsAction);
 		void setConferenceOptions(const int &cid, const QString &topic, const QString &password);
@@ -202,13 +206,13 @@ class WiredSocket : public QObject
 		void onServerInformation();
 		
 		void onServerLoginSuccessful();
-		/// This signal is emitted if the server has sent a server banner.
 		void onServerBanner(const QPixmap);
-		/// This signal is emitted once of every registered user in the chat identified by theChatID.
-		/// After all users have been transmitted, a onServerUserlistDone() signal is emitted.
-		
+		void conferenceListReceived(const QList<QWClassPrivateChat> chats);
 		void onMotdReceived(const QString text);
+
+		
 		void onConferenceChanged(const int &cid, const QString &topic, const int &users, const bool &chat_protected, const int &type); 
+		
 		
 		void onServerUserlistItem(int theChatID, const ClassWiredUser);
 		/// This signal is emitted once all users of a chat have been transmitted.

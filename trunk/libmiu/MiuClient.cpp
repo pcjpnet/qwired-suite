@@ -18,12 +18,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
  ***************************************************************************/
 
- 
-#include "wiredsocket.h"
 
-#include "../general/wiredcommon.h"
-
-WiredSocket::WiredSocket(QObject *parent)
+MiuClient::MiuClient(QObject *parent)
  : QObject(parent)
 {
 	// Initialize the socket
@@ -39,14 +35,29 @@ WiredSocket::WiredSocket(QObject *parent)
 	pIzCaturday = false; // :< no iz caturday?
 }
 
+
+void sendHandshakeRequest() {
+	MiuTransaction t(1000);
+	t.addObject("client", pClientInfo);
+	t.addObject("version", pProtocolVersion);
+	t.addObject("client-arch", "unknown");
+	t.addObject("client-os", "unknown");
+	t.addObject("client-type", pClientType);
+	t.addObject("compression", 0);
+//	t.addObject("extensions", "");
+	pSock
+}
+
+
+
 // Called by the socket and indicates the an SSL error has occoured.
-void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
-	qDebug() << "WiredSocket.on_socket_sslErrors(): "<<errors;
+void MiuClient::on_socket_sslErrors(const QList<QSslError> & errors) {
+	qDebug() << "MiuClient.on_socket_sslErrors(): "<<errors;
 	pSocket->ignoreSslErrors();
 }
 
 // Disconnect from the server and clean up
-void WiredSocket::disconnectFromServer() {
+void MiuClient::disconnectFromServer() {
 	pSocket->disconnectFromHost();
 	pAdminGroups.clear();
 	pAdminUsers.clear();
@@ -66,7 +77,7 @@ void WiredSocket::disconnectFromServer() {
 // Called by on_socket_readyRead() after splitting a message off the internal
 // buffer. We have to extract the command ID here and decide what to do with
 // the message.
-void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
+void MiuClient::do_handle_wiredmessage(QByteArray theData) {
 	int tmpPos = theData.indexOf(" ");
 	int tmpCmdID = 0;
 	if( tmpPos>-1 ) tmpCmdID = theData.left(tmpPos).toInt();
@@ -91,22 +102,22 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 			pServerName = QString::fromUtf8(tmpParams.value(2));
 			pServerDescription = QString::fromUtf8(tmpParams.value(3));
 			pServerStartTime = QDateTime::fromString( QString::fromUtf8(tmpParams.value(4)), Qt::ISODate );
-			if(pServerProtoVersion=="1.1" && pSocketType==Wired::WiredSocket) {
+			if(pServerProtoVersion=="1.1" && pSocketType==Wired::MiuClient) {
 				pServerFileCount = tmpParams.value(5).toInt();
 				pServerFileSize = tmpParams.value(6).toLongLong();
 			}
 			emit onServerInformation();
-			if(pSocketType==Wired::WiredSocket) { // Wired
+			if(pSocketType==Wired::MiuClient) { // Wired
 				do_send_user_login();
 			} else { // Tracker
 				tracker_request_servers();
 			}
-			qDebug() << "WiredSocket: Session established with '"<<pServerName<<"'";
+			qDebug() << "MiuClient: Session established with '"<<pServerName<<"'";
 			break;
 
 		case 201: // Login successful
 // 			sessionUser.pUserID = tmpParams.value(0).toInt();
-// 			qDebug() << "WiredSocket: Login successful with ID"<<sessionUser.pUserID;
+// 			qDebug() << "MiuClient: Login successful with ID"<<sessionUser.pUserID;
 // 			emit onServerLoginSuccessful();
 // 			requestUserlistByID(1);
 // 			getServerBanner();
@@ -199,13 +210,13 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 		case 720: on_tracker_listing_item(tmpParams); break;
 		case 721: on_tracker_listing_done(); break;
 
-		default: qDebug() << "WiredSocket: Unhandled command:"<<tmpCmdID; break;
+		default: qDebug() << "MiuClient: Unhandled command:"<<tmpCmdID; break;
 
 	}
 }
 
 // Find a user by the ID specified in the list of publically connected users.
-ClassWiredUser WiredSocket::getUserByID(int theID) {
+ClassWiredUser MiuClient::getUserByID(int theID) {
 	QList<ClassWiredUser> tmpList = pUsers[0]; // server user list
 	QListIterator<ClassWiredUser> i(tmpList);
 	while (i.hasNext()) {
@@ -223,7 +234,7 @@ ClassWiredUser WiredSocket::getUserByID(int theID) {
  * Returns true if a user with userId exists in the known user list.
  * @param userId The ID of the user.
  */
-bool WiredSocket::isUserKnown(int userId) {
+bool MiuClient::isUserKnown(int userId) {
 	QList<ClassWiredUser> tmpList = pUsers[1]; // server user list
 	QListIterator<ClassWiredUser> i(tmpList);
 	while (i.hasNext()) {
@@ -236,7 +247,7 @@ bool WiredSocket::isUserKnown(int userId) {
 
 // Called whenever a type 310 message arrives.
 // Process an incoming user list entry, append it to the list of chats.
-void WiredSocket::on_server_userlist_item(QList<QByteArray> theParams) {
+void MiuClient::on_server_userlist_item(QList<QByteArray> theParams) {
 	int tmpChannel = theParams.value(0,"").toInt();
 	ClassWiredUser tmpUsr(theParams);
 	QList<ClassWiredUser> &tmpList = pUsers[tmpChannel];
@@ -245,13 +256,13 @@ void WiredSocket::on_server_userlist_item(QList<QByteArray> theParams) {
 }
 
 // Set the username and password for the login sequence.
-void WiredSocket::setUserAccount(QString theAcct, QString thePass) {
+void MiuClient::setUserAccount(QString theAcct, QString thePass) {
 	sessionUser.pLogin = theAcct;
 	sessionUser.pPassword = thePass;
 }
 
 // Do I really have to comment this? :D
-void WiredSocket::setCaturday(bool b) {
+void MiuClient::setCaturday(bool b) {
 	 // everyday iz caturday!  :3
 	if(b) {
 		pTranzlator.clear();
@@ -282,7 +293,7 @@ void WiredSocket::setCaturday(bool b) {
 
 // Tracker subsystem
 //
-void WiredSocket::connectToTracker(QString theHostName, int thePort) {
+void MiuClient::connectToTracker(QString theHostName, int thePort) {
 	QString tmpHost;
 	pSocketType = Wired::TrackerSocket;
 	int tmpPort;
@@ -293,14 +304,14 @@ void WiredSocket::connectToTracker(QString theHostName, int thePort) {
 		tmpPort = thePort;
 		tmpHost = theHostName;
 	}
-	qDebug() << "WiredSocket: Connecting to tracker at"<<tmpHost<<"port"<<tmpPort;
+	qDebug() << "MiuClient: Connecting to tracker at"<<tmpHost<<"port"<<tmpPort;
 	pSocket->connectToHostEncrypted(tmpHost, tmpPort);
 }
 
 // Wrapper that allows other code to tell this socket to connect to a remote server.
-void WiredSocket::connectToWiredServer(QString theHostName, int thePort) {
+void MiuClient::connectToWiredServer(QString theHostName, int thePort) {
 	QString tmpHost;
-	pSocketType = Wired::WiredSocket;
+	pSocketType = Wired::MiuClient;
 	int tmpPort;
 	if( theHostName.contains(":") ) { // Has port defined
 		tmpHost = theHostName.section(":",0,0);
@@ -309,14 +320,14 @@ void WiredSocket::connectToWiredServer(QString theHostName, int thePort) {
 		tmpPort = thePort;
 		tmpHost = theHostName;
 	}
-	qDebug() << "WiredSocket: Connecting to wired server at"<<tmpHost<<"port"<<tmpPort;
+	qDebug() << "MiuClient: Connecting to wired server at"<<tmpHost<<"port"<<tmpPort;
 	pSocket->connectToHostEncrypted(tmpHost, tmpPort);
 }
 
 // Called by the socket once it has received some data.
 // We will read the buffer, put the data in our own buffer and then read
 // message after message from it before passing it to do_handle_wiredmessage().
-void WiredSocket::on_socket_readyRead() {
+void MiuClient::on_socket_readyRead() {
 	pBuffer += pSocket->readAll();
 	//qDebug() << "Received data, buffer now"<<pBuffer.toHex();
 
@@ -339,7 +350,7 @@ void WiredSocket::on_socket_readyRead() {
 
 }
 
-bool WiredSocket::bufferHasMessage(QByteArray & buffer) {
+bool MiuClient::bufferHasMessage(QByteArray & buffer) {
 	if(buffer.length()<14)
 		return false;
 	QDataStream stream(buffer);
@@ -352,7 +363,7 @@ bool WiredSocket::bufferHasMessage(QByteArray & buffer) {
 
 // First off, let's send the HELLO command for the handshake.
 // We will get a 200 or 511 response to this.
-void WiredSocket::on_socket_encrypted() {
+void MiuClient::on_socket_encrypted() {
 	QWTransaction t(1000);
 	t.addObject("client", QString("Qwired Client"));
 	t.addObject("version", QString("SVN Snapshot"));
@@ -361,10 +372,10 @@ void WiredSocket::on_socket_encrypted() {
 	t.addObject("client-type", 0);
 	sendTransaction(t);
 
-	qDebug() << "WiredSocket: SSL/TLS connection established.";
+	qDebug() << "MiuClient: SSL/TLS connection established.";
 }
 
-WiredSocket::~WiredSocket()
+MiuClient::~MiuClient()
 { }
 
 /**
@@ -372,10 +383,10 @@ WiredSocket::~WiredSocket()
  * @param theChatID The ID of the chat.
  * @return The number of users in the given chat. If theChatID is invalid, 0 will be returned.
  */
-const int WiredSocket::userCountByChat(const int theChatID) {
+const int MiuClient::userCountByChat(const int theChatID) {
 	if( pUsers.contains(theChatID) ) {
 		QList<ClassWiredUser> *tmpList = &pUsers[theChatID];
-		//qDebug() << "WiredSocket::userCountByChat channel"<<theChatID<<"="<<tmpList->size();
+		//qDebug() << "MiuClient::userCountByChat channel"<<theChatID<<"="<<tmpList->size();
 		return tmpList->size();
 	}
 	return 0;
@@ -387,7 +398,7 @@ const int WiredSocket::userCountByChat(const int theChatID) {
  * @param theIndex The index of the user within the chat.
  * @return The ClassWiredUser object. If the user is not found, a default object will be returned with user id -1.
  */
-const ClassWiredUser WiredSocket::userByIndex(const int theChatID, const int theIndex) {
+const ClassWiredUser MiuClient::userByIndex(const int theChatID, const int theIndex) {
 	if( pUsers.contains(theChatID) ) {
 		QList<ClassWiredUser> *tmpList = &pUsers[theChatID];
 		return tmpList->value(theIndex);
@@ -402,10 +413,10 @@ const ClassWiredUser WiredSocket::userByIndex(const int theChatID, const int the
 
 
 // A user/status has changed on the server. Update the user element accordingly.
-void WiredSocket::on_server_userlist_changed(QList<QByteArray> theParams) {
+void MiuClient::on_server_userlist_changed(QList<QByteArray> theParams) {
 }
 
-void WiredSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
+void MiuClient::on_server_userlist_imagechanged(QList< QByteArray > theParams)
 {
 	// A user has changed his/her user image.
 	int tmpID = theParams.value(0).toInt();
@@ -432,13 +443,13 @@ void WiredSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
 	}
 }
 
-void WiredSocket::on_server_userlist_joined(QList< QByteArray > theParams )
+void MiuClient::on_server_userlist_joined(QList< QByteArray > theParams )
 {
 
 }
 
 // Find a user by the user id and return the index.
-const int WiredSocket::userIndexByID(const int theID, const int theChat) {
+const int MiuClient::userIndexByID(const int theID, const int theChat) {
 	if( pUsers.contains(theChat) ) {
 		QList<ClassWiredUser> tmpList = pUsers[theChat];
 		QListIterator<ClassWiredUser> j(tmpList);
@@ -453,7 +464,7 @@ const int WiredSocket::userIndexByID(const int theID, const int theChat) {
 	return -1;
 }
 
-void WiredSocket::on_server_userlist_left(QList<QByteArray> theParams ) {
+void MiuClient::on_server_userlist_left(QList<QByteArray> theParams ) {
 
 	
 }
@@ -463,7 +474,7 @@ void WiredSocket::on_server_userlist_left(QList<QByteArray> theParams ) {
  * @param theUserID 
  * @param theMessage 
  */
-void WiredSocket::sendMessage(int theUserID, QString theMessage) {
+void MiuClient::sendMessage(int theUserID, QString theMessage) {
 	if(pIzCaturday)
 		theMessage = tranzlate(theMessage);
 
@@ -474,7 +485,7 @@ void WiredSocket::sendMessage(int theUserID, QString theMessage) {
 	qDebug() << "sending message to"<<theUserID;
 }
 
-void WiredSocket::leaveChat(int theChatID)
+void MiuClient::leaveChat(int theChatID)
 {
 	// Leave a private chat.
 	QByteArray buf("LEAVE ");
@@ -489,7 +500,7 @@ void WiredSocket::leaveChat(int theChatID)
 
 
 
-void WiredSocket::on_server_userlist_kicked(QList<QByteArray> theParams)
+void MiuClient::on_server_userlist_kicked(QList<QByteArray> theParams)
 {
 	// A user got kicked from the server.
 	ClassWiredUser tmpVictim = getUserByID(theParams.value(0).toInt());
@@ -513,7 +524,7 @@ void WiredSocket::on_server_userlist_kicked(QList<QByteArray> theParams)
 	emit onServerUserKicked(tmpVictim, tmpKiller, tmpReason);
 }
 
-void WiredSocket::on_server_userlist_banned(QList< QByteArray > theParams)
+void MiuClient::on_server_userlist_banned(QList< QByteArray > theParams)
 {
 	// A user got kicked from the server.
 	ClassWiredUser tmpVictim = getUserByID(theParams.value(0).toInt());
@@ -537,7 +548,7 @@ void WiredSocket::on_server_userlist_banned(QList< QByteArray > theParams)
 	emit onServerUserBanned(tmpVictim, tmpKiller, tmpReason);
 }
 
-void WiredSocket::on_server_userinfo(QList< QByteArray > theParams)
+void MiuClient::on_server_userinfo(QList< QByteArray > theParams)
 {
 	// Received user info from the server.
 	ClassWiredUser usr = ClassWiredUser::fromUserInfo(theParams);
@@ -546,14 +557,14 @@ void WiredSocket::on_server_userinfo(QList< QByteArray > theParams)
 	
 }
 
-void WiredSocket::createChatWithClient(int theUserID)
+void MiuClient::createChatWithClient(int theUserID)
 {
 	// Initiate a new private chat with a specific user.
 	pInvitedUserID = theUserID;
 	sendWiredCommand("PRIVCHAT");
 }
 
-void WiredSocket::on_server_new_chat_created(QList<QByteArray> theParams)
+void MiuClient::on_server_new_chat_created(QList<QByteArray> theParams)
 {
 	// Server opened a new private chat for us. We now invite the user we have stored in pInvitedUserID before.
 	int tmpChatID = theParams.value(0).toInt();
@@ -568,7 +579,7 @@ void WiredSocket::on_server_new_chat_created(QList<QByteArray> theParams)
 }
 
 // Invite a user to a private chat.
-void WiredSocket::inviteClientToChat(int theChatID, int theUserID) {
+void MiuClient::inviteClientToChat(int theChatID, int theUserID) {
 	QByteArray buf("INVITE ");
 	buf += QByteArray::number(theUserID);
 	buf += kFS;
@@ -578,9 +589,9 @@ void WiredSocket::inviteClientToChat(int theChatID, int theUserID) {
 
 
 
-void WiredSocket::on_server_banner(QList< QByteArray > theParams) {}
+void MiuClient::on_server_banner(QList< QByteArray > theParams) {}
 
-void WiredSocket::on_server_broadcast(QList< QByteArray > theParams)
+void MiuClient::on_server_broadcast(QList< QByteArray > theParams)
 {
 	// Handle Server Broadcast
 	ClassWiredUser usr = getUserByID( theParams.value(0).toInt() );
@@ -589,11 +600,11 @@ void WiredSocket::on_server_broadcast(QList< QByteArray > theParams)
 }
 
 // Request to clear the news from the server's database
-void WiredSocket::clearNews() {
+void MiuClient::clearNews() {
 	sendWiredCommand("CLEARNEWS");
 }
 
-void WiredSocket::getFileList(QString thePath) {
+void MiuClient::getFileList(QString thePath) {
 	// Request a file listing of all files at thePath.
 	// Results in a number of 410 and one 411 responses.
 	QByteArray buf("LIST ");
@@ -605,7 +616,7 @@ void WiredSocket::getFileList(QString thePath) {
  * Set a new image for the user.
  * @param theIcon The pixmap representing the user icon.
  */
-void WiredSocket::setUserIcon(QPixmap theIcon) {
+void MiuClient::setUserIcon(QPixmap theIcon) {
 	QByteArray tmpCmd;
 	if( !theIcon.isNull() ) {
 		QImage tmpImg = theIcon.toImage();
@@ -622,7 +633,7 @@ void WiredSocket::setUserIcon(QPixmap theIcon) {
 
 
 
-void WiredSocket::on_socket_error()
+void MiuClient::on_socket_error()
 {
 	// Handle a socket error and generate a signal
 	QString theErrReason = pSocket->errorString();
@@ -632,13 +643,13 @@ void WiredSocket::on_socket_error()
 }
 
 /**
- * Request a file download slot from the server. WiredSocket checks if the file already exists, 
- * calculates a checksum for it and resumes it, if possible. Internally WiredSocket will request
+ * Request a file download slot from the server. MiuClient checks if the file already exists, 
+ * calculates a checksum for it and resumes it, if possible. Internally MiuClient will request
  * a STAT on the file before starting the transfer.
  * @param thePath The remote path of the file to be downloaded.
  * @param theLocalPath The destination path of the file on the local system.
  */
-void WiredSocket::getFile(const QString thePath, const QString theLocalPath){
+void MiuClient::getFile(const QString thePath, const QString theLocalPath){
 	
 	// Check for duplicate downloads
 	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
@@ -681,7 +692,7 @@ void WiredSocket::getFile(const QString thePath, const QString theLocalPath){
 
 // File transfer is ready. The client should now connect and send or recieve the
 // requested file.
-void WiredSocket::on_server_transfer_ready(QList<QByteArray> theParams) {
+void MiuClient::on_server_transfer_ready(QList<QByteArray> theParams) {
 	QString tmpPath = QString::fromUtf8(theParams.value(0));
 	qlonglong tmpOffset = theParams.value(1).toLongLong();
 	QString tmpHash = QString::fromUtf8(theParams.value(2));
@@ -709,7 +720,7 @@ void WiredSocket::on_server_transfer_ready(QList<QByteArray> theParams) {
 
 
 // The transfer has been queued on the server. Update the transfers respectively.
-void WiredSocket::on_server_transfer_queued(QList< QByteArray > theParams) {
+void MiuClient::on_server_transfer_queued(QList< QByteArray > theParams) {
 	QString tmpPath = QString::fromUtf8(theParams.value(0));
 	int tmpPosition = theParams.value(1).toInt();
 	qDebug() << "Transfer Phase 2/3: File"<<tmpPath<<"queued at position"<<tmpPosition<<" . o ( Zz..zzzZ..zzZ )";
@@ -731,7 +742,7 @@ void WiredSocket::on_server_transfer_queued(QList< QByteArray > theParams) {
 	
 }
 
-void WiredSocket::on_server_search_listing(QList<QByteArray> theParams) {
+void MiuClient::on_server_search_listing(QList<QByteArray> theParams) {
 	ClassWiredFile tmpFile;
 	tmpFile.path = QString::fromUtf8(theParams.value(0));
 	tmpFile.type = theParams.value(1).toInt();
@@ -742,31 +753,31 @@ void WiredSocket::on_server_search_listing(QList<QByteArray> theParams) {
 		pSearchResults.append(tmpFile);
 }
 
-void WiredSocket::on_server_search_done(QList<QByteArray> ) {
+void MiuClient::on_server_search_done(QList<QByteArray> ) {
 	emit fileSearchDone(pSearchResults);
 	pSearchResults.clear();
 }
 
 
-void WiredSocket::on_server_groups_listing(QList< QByteArray > theParams) {
+void MiuClient::on_server_groups_listing(QList< QByteArray > theParams) {
 	pAdminGroups.append( QString::fromUtf8( theParams.value(0) ) );
 }
 
-void WiredSocket::on_server_groups_done() {
+void MiuClient::on_server_groups_done() {
 	emit groupsListingDone(pAdminGroups);
 	pAdminGroups.clear();
 }
 
-void WiredSocket::on_server_users_listing(QList< QByteArray > theParams) {
+void MiuClient::on_server_users_listing(QList< QByteArray > theParams) {
 	pAdminUsers.append( QString::fromUtf8(theParams.value(0)) );
 }
 
-void WiredSocket::on_server_users_done() {
+void MiuClient::on_server_users_done() {
 	emit usersListingDone(pAdminUsers);
 	pAdminUsers.clear();
 }
 
-void WiredSocket::on_server_user_spec(QList< QByteArray > theParams) {
+void MiuClient::on_server_user_spec(QList< QByteArray > theParams) {
 	ClassWiredUser tmpAcct;
 	tmpAcct.pAccountType = 0;
 	tmpAcct.pLogin = QString::fromUtf8( theParams.value(0) );
@@ -779,7 +790,7 @@ void WiredSocket::on_server_user_spec(QList< QByteArray > theParams) {
 	emit userSpecReceived(tmpAcct);
 }
 
-void WiredSocket::on_server_group_spec(QList< QByteArray > theParams) {
+void MiuClient::on_server_group_spec(QList< QByteArray > theParams) {
 	ClassWiredUser tmpAcct;
 	tmpAcct.pLogin = QString::fromUtf8( theParams.value(0) );
 	tmpAcct.pAccountType = 1;
@@ -792,13 +803,13 @@ void WiredSocket::on_server_group_spec(QList< QByteArray > theParams) {
 // Tracker handling code
 //
 
-void WiredSocket::on_tracker_listing_item(QList< QByteArray > theParams) {
+void MiuClient::on_tracker_listing_item(QList< QByteArray > theParams) {
 	ClassTrackerServer ts;
 	ts.loadFromTrackerResponse(theParams);
 	pTrackerServers.append(ts);
 }
 
-void WiredSocket::on_tracker_listing_done() {
+void MiuClient::on_tracker_listing_done() {
 	emit trackerServersReceived(pTrackerServers);
 	pTrackerServers.clear();
 	this->disconnectFromServer();
@@ -811,7 +822,7 @@ void WiredSocket::on_tracker_listing_done() {
 
 
 
-void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
+void MiuClient::on_server_file_info(QList<QByteArray> theParams) {
 	// Received file information. This can be the response to a file in the
 	// transfer queue or a user request. Let's see...
 	
@@ -838,13 +849,13 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 					if(tmpFile.open(QIODevice::ReadOnly)) {
 						QByteArray tmpDat = tmpFile.read(1024*1024);
 						QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
-						qDebug() << "WiredSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
+						qDebug() << "MiuClient: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
 						if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
-							qDebug() << "WiredSocket: Checksums are identical. Offset is"<<tmpFile.size();
+							qDebug() << "MiuClient: Checksums are identical. Offset is"<<tmpFile.size();
 							tmpT->pTransfer.pOffset = tmpFile.size();
 							tmpT->pTransfer.pDoneSize = tmpFile.size();
 						} else {
-							qDebug() << "WiredSocket: Checksums are NOT identical, deleting file.";
+							qDebug() << "MiuClient: Checksums are NOT identical, deleting file.";
 							tmpFile.close();
 							tmpFile.remove();
 							tmpT->pTransfer.pOffset = 0;
@@ -864,7 +875,7 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 				buf += QByteArray::number(tmpT->pTransfer.pOffset);
 				sendWiredCommand(buf);
 				
-				qDebug() << "WiredSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset;
+				qDebug() << "MiuClient: GET'ing the file with offset"<<tmpT->pTransfer.pOffset;
 				
 				return;
 			}
@@ -881,7 +892,7 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 }
 
 // Request uploading of a file to the server
-void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePath) {
+void MiuClient::putFile(const QString theLocalPath, const QString theRemotePath) {
 	QFile tmpFile(theLocalPath);
 	if(tmpFile.exists() && !theRemotePath.isEmpty()) {
 
@@ -922,7 +933,7 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		pTransferSockets.append(tmpSock);
 		
 		// Request upload slot
-		qDebug() << "WiredSocket: Upload requested, hash"<<tmpTrans.pChecksum;
+		qDebug() << "MiuClient: Upload requested, hash"<<tmpTrans.pChecksum;
 		QByteArray tmpBuf("PUT ");
 		tmpBuf += theRemotePath.toUtf8();
 		tmpBuf += kFS;
@@ -936,8 +947,8 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 
 
 // Handle a privileges response/info
-void WiredSocket::on_server_privileges(QList< QByteArray > theParams) {
-	qDebug() << "WiredSocket: Updating privileges on session";
+void MiuClient::on_server_privileges(QList< QByteArray > theParams) {
+	qDebug() << "MiuClient: Updating privileges on session";
 	sessionUser.setFromPrivileges(theParams);
 	emit userPrivileges(sessionUser);
 }
@@ -947,7 +958,7 @@ void WiredSocket::on_server_privileges(QList< QByteArray > theParams) {
 // ///
 
 // Send the login sequence to the server (reponses: 201 or 510)
-void WiredSocket::do_send_user_login() {
+void MiuClient::do_send_user_login() {
 // 	sendClientInfo();
 // 	setNickname(sessionUser.pNick.toUtf8());
 // 	setUserIcon(sessionUser.iconAsPixmap());
@@ -959,7 +970,7 @@ void WiredSocket::do_send_user_login() {
 }
 
 // Set the nickname of the current user session.
-void WiredSocket::setNickname(const QString &theNick) {
+void MiuClient::setNickname(const QString &theNick) {
 	sessionUser.pNick = theNick;
 	QWTransaction t(1002);
 	t.addObject("nick", theNick);
@@ -967,7 +978,7 @@ void WiredSocket::setNickname(const QString &theNick) {
 }
 
 // Update the user status for the session
-void WiredSocket::setUserStatus(const QString &theStatus) {
+void MiuClient::setUserStatus(const QString &theStatus) {
 	sessionUser.pStatus = theStatus;
 	QWTransaction t(1002);
 	t.addObject("status", theStatus);
@@ -977,14 +988,14 @@ void WiredSocket::setUserStatus(const QString &theStatus) {
 
 
 // Reject/Decline a private chat.
-void WiredSocket::rejectChat(int theChatID) {
+void MiuClient::rejectChat(int theChatID) {
 	QByteArray buf("DECLINE ");
 	buf += QByteArray::number(theChatID);
 	sendWiredCommand(buf);
 }
 
 // Join a private chat.
-void WiredSocket::joinChat(int theChatID) {
+void MiuClient::joinChat(int theChatID) {
 	QByteArray buf("JOIN ");
 	buf += QByteArray::number(theChatID);
 	sendWiredCommand(buf);
@@ -994,7 +1005,7 @@ void WiredSocket::joinChat(int theChatID) {
 /**
  * Set options of a conference/chat.
  */
-void WiredSocket::setConferenceOptions(const int &cid, const QString &topic, const QString &password) {
+void MiuClient::setConferenceOptions(const int &cid, const QString &topic, const QString &password) {
 	QWTransaction t(2013);
 	t.addObject("cid", cid);
 	t.addObject("topic", topic);
@@ -1003,7 +1014,7 @@ void WiredSocket::setConferenceOptions(const int &cid, const QString &topic, con
 }
 
 // Ban a user from the server.
-void WiredSocket::banClient(int theUserID, QString theReason) {
+void MiuClient::banClient(int theUserID, QString theReason) {
 	QByteArray tmpBuf("BAN ");
 	tmpBuf += QByteArray::number(theUserID);
 	tmpBuf += kFS;
@@ -1015,22 +1026,22 @@ void WiredSocket::banClient(int theUserID, QString theReason) {
 
 
 // Request news from the server (reponse will be 320s and one 321)
-void WiredSocket::getNews() {
+void MiuClient::getNews() {
 	sendWiredCommand("NEWS");
 }
 
 // Request current privileges from the server
-void WiredSocket::getPrivileges() { sendWiredCommand("PRIVILEGES"); }
+void MiuClient::getPrivileges() { sendWiredCommand("PRIVILEGES"); }
 
 // Post news to the news board
-void WiredSocket::postNews(QString thePost) {
+void MiuClient::postNews(QString thePost) {
 	QByteArray data("POST ");
 	data += thePost;
 	sendWiredCommand(data);
 }
 
 // Request info for a user
-void WiredSocket::getClientInfo(int theUserID) {
+void MiuClient::getClientInfo(int theUserID) {
 	QByteArray buf("INFO ");
 	buf += QByteArray::number(theUserID);
 	sendWiredCommand(buf);
@@ -1039,21 +1050,21 @@ void WiredSocket::getClientInfo(int theUserID) {
 
 
 // Request some file information.
-void WiredSocket::statFile(const QString thePath) {
+void MiuClient::statFile(const QString thePath) {
 	QByteArray buf("STAT ");
 	buf += thePath.toUtf8();
 	sendWiredCommand(buf);
 }
 
 // Request to create a folder at the specified path
-void WiredSocket::createFolder(const QString thePath) {
+void MiuClient::createFolder(const QString thePath) {
 	QByteArray tmpBuf("FOLDER ");
 	tmpBuf += thePath.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 // Kick a user off the server.
-void WiredSocket::kickClient(int theUserID, QString theReason) {
+void MiuClient::kickClient(int theUserID, QString theReason) {
 	QByteArray tmpBuf("KICK ");
 	tmpBuf += QByteArray::number(theUserID);
 	tmpBuf += kFS;
@@ -1062,7 +1073,7 @@ void WiredSocket::kickClient(int theUserID, QString theReason) {
 }
 
 // Request to move a file on the server
-void WiredSocket::moveFile(const QString thePath, const QString theDestination) {
+void MiuClient::moveFile(const QString thePath, const QString theDestination) {
 	QByteArray tmpBuf("MOVE ");
 	tmpBuf += thePath.toUtf8();
 	tmpBuf += kFS;
@@ -1071,7 +1082,7 @@ void WiredSocket::moveFile(const QString thePath, const QString theDestination) 
 }
 
 // Delete a file or folder from the server.
-void WiredSocket::deleteFile(const QString thePath) {
+void MiuClient::deleteFile(const QString thePath) {
 	if(thePath=="/" || thePath.isEmpty()) return;
 	QByteArray tmpBuf("DELETE ");
 	tmpBuf += thePath.toUtf8();
@@ -1079,17 +1090,17 @@ void WiredSocket::deleteFile(const QString thePath) {
 }
 
 // Request a list of groups.
-void WiredSocket::getGroups() {
+void MiuClient::getGroups() {
 	 sendWiredCommand("GROUPS");
 }
 
 // Request a list of users.
-void WiredSocket::getUsers() {
+void MiuClient::getUsers() {
 	sendWiredCommand("USERS");
 }
 
 // Create a user account on the server.
-void WiredSocket::createUser(ClassWiredUser tmpUser) {
+void MiuClient::createUser(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("CREATEUSER ");
 	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
@@ -1102,7 +1113,7 @@ void WiredSocket::createUser(ClassWiredUser tmpUser) {
 }
 
 // Modify a user account on the server.
-void WiredSocket::editUser(ClassWiredUser tmpUser) {
+void MiuClient::editUser(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("EDITUSER ");
 	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
@@ -1115,7 +1126,7 @@ void WiredSocket::editUser(ClassWiredUser tmpUser) {
 }
 
 // Create a group on the server.
-void WiredSocket::createGroup(ClassWiredUser tmpUser) {
+void MiuClient::createGroup(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("CREATEGROUP ");
 	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
@@ -1124,7 +1135,7 @@ void WiredSocket::createGroup(ClassWiredUser tmpUser) {
 }
 
 // Modify a user account on the server.
-void WiredSocket::editGroup(ClassWiredUser tmpUser) {
+void MiuClient::editGroup(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("EDITGROUP ");
 	tmpBuf += tmpUser.pLogin.toUtf8();
 	tmpBuf += kFS;
@@ -1132,32 +1143,32 @@ void WiredSocket::editGroup(ClassWiredUser tmpUser) {
 	sendWiredCommand(tmpBuf);
 }
 
-void WiredSocket::deleteGroup(QString theName) {
+void MiuClient::deleteGroup(QString theName) {
 	QByteArray tmpBuf("DELETEGROUP ");
 	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
-void WiredSocket::deleteUser(QString theName) {
+void MiuClient::deleteUser(QString theName) {
 	QByteArray tmpBuf("DELETEUSER ");
 	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
-void WiredSocket::readUser(QString theName) {
+void MiuClient::readUser(QString theName) {
 	QByteArray tmpBuf("READUSER ");
 	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
-void WiredSocket::readGroup(QString theName) {
+void MiuClient::readGroup(QString theName) {
 	QByteArray tmpBuf("READGROUP ");
 	tmpBuf += theName.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 // Tracker - request servers
-void WiredSocket::tracker_request_servers() {
+void MiuClient::tracker_request_servers() {
 	sendWiredCommand("SERVERS");
 }
 
@@ -1169,14 +1180,14 @@ void WiredSocket::tracker_request_servers() {
  * Search the server for files.
  * @param theSearch The search term.
  */
-void WiredSocket::searchFiles(const QString theSearch) {
+void MiuClient::searchFiles(const QString theSearch) {
 	QByteArray tmpBuf("SEARCH ");
 	tmpBuf += theSearch.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 
-void WiredSocket::sendClientInfo() {
+void MiuClient::sendClientInfo() {
 	QString tmpV("%1/%2 (%3; %4; %5)");
 
 QString tmpOsVersion("Unknown");
@@ -1249,7 +1260,7 @@ QString tmpOsArch("Unknown");
 // ///
 
 // Send a Wired message
-void WiredSocket::sendWiredCommand(const QByteArray theData) {
+void MiuClient::sendWiredCommand(const QByteArray theData) {
 // 	if(!pSocket->isOpen()) return;
 // 	QByteArray tmpBuffer;
 // 	tmpBuffer += theData;
@@ -1258,7 +1269,7 @@ void WiredSocket::sendWiredCommand(const QByteArray theData) {
 }
 
 // Return a list of parameters from the message, automatically skipping the command identifier.
-QList<QByteArray> WiredSocket::GetFieldArray(QByteArray theData) {
+QList<QByteArray> MiuClient::GetFieldArray(QByteArray theData) {
 	QByteArray tmpData(theData);
 	int tmpPos = theData.indexOf(" "); // Remove the identifier
 	if( tmpPos!=-1 ) tmpData=tmpData.mid(tmpPos+1);
@@ -1266,7 +1277,7 @@ QList<QByteArray> WiredSocket::GetFieldArray(QByteArray theData) {
 	return tmpParams;
 }
 
-void WiredSocket::cleanTransfers() {
+void MiuClient::cleanTransfers() {
 	QMutableListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
 	while(i.hasNext()) {
 		QPointer<WiredTransferSocket> tmpP = i.next();
@@ -1278,7 +1289,7 @@ void WiredSocket::cleanTransfers() {
  * Cancel a running transfer.
  * @param  The transfer to cancel.
  */
-void WiredSocket::cancelTransfer(ClassWiredTransfer theTransfer) {
+void MiuClient::cancelTransfer(ClassWiredTransfer theTransfer) {
 	QMutableListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
 	while(i.hasNext()) {
 		QPointer<WiredTransferSocket> tmpTS = i.next();
@@ -1295,7 +1306,7 @@ void WiredSocket::cancelTransfer(ClassWiredTransfer theTransfer) {
 	}
 }
 
-QString WiredSocket::tranzlate(QString theText){
+QString MiuClient::tranzlate(QString theText){
 	QString tmpText = theText.toLower();
 	QString tmpResult;
 	
@@ -1315,7 +1326,7 @@ QString WiredSocket::tranzlate(QString theText){
 	return tmpResult;
 }
 
-void WiredSocket::sendTransaction(const QWTransaction &t) {
+void MiuClient::sendTransaction(const QWTransaction &t) {
 	qDebug() << "Sending transaction:"<<t.type;
 	pSocket->write( t.toData() );
 	
@@ -1327,7 +1338,7 @@ void WiredSocket::sendTransaction(const QWTransaction &t) {
  * Handle an incoming transaction.
  * @param t A reference to the transaction.
  */
-void WiredSocket::handleTransaction(const QWTransaction & t) {
+void MiuClient::handleTransaction(const QWTransaction & t) {
 	qDebug() << "Handling transaction"<<t.type<<"|"<<t.objects.keys();
 	QWTransaction response;
 	if(t.type == 1000) {
@@ -1348,7 +1359,7 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		
 	} else if(t.type == 1001) { // Login OK
 		sessionUser.pUserID = t.getObject("uid").toInt();
-		qDebug() << "WiredSocket: Login successful with ID"<<sessionUser.pUserID;
+		qDebug() << "MiuClient: Login successful with ID"<<sessionUser.pUserID;
 		getServerBanner();
 		getMotd();
 		requestUserlistByID(0);
@@ -1373,11 +1384,11 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		int tmpChannel = request.objects["cid"].toInt();
 		
 		if(t.flags & Qwired::FlagListingComplete) {
-			qDebug() << "WiredSocket: Received user list DONE"<<tmpChannel;
+			qDebug() << "MiuClient: Received user list DONE"<<tmpChannel;
 			emit onServerUserlistDone(tmpChannel);
 			pTransactionStore.remove(t.sequence);
 		} else {
-			qDebug() << "WiredSocket: Received user list entry"<<tmpChannel;
+			qDebug() << "MiuClient: Received user list entry"<<tmpChannel;
 			ClassWiredUser tmpUsr;
 			tmpUsr.setFromTransaction(t);
 			pUsers[tmpChannel].append(tmpUsr);
@@ -1479,8 +1490,8 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 }
 
 // Request the list of users for a specific channel.
-void WiredSocket::requestUserlistByID(int theChannel) {
-	qDebug() << "WiredSocket. Requesting user list...";
+void MiuClient::requestUserlistByID(int theChannel) {
+	qDebug() << "MiuClient. Requesting user list...";
 	QWTransaction t(1020);
 	t.addObject("cid", theChannel);
 	registerTransaction(t);
@@ -1488,19 +1499,19 @@ void WiredSocket::requestUserlistByID(int theChannel) {
 }
 
 // Request the server banner.
-void WiredSocket::getServerBanner() {
-	qDebug() << "WiredSocket: Requesting server banner";
+void MiuClient::getServerBanner() {
+	qDebug() << "MiuClient: Requesting server banner";
 	sendTransaction(QWTransaction(1011));
 }
 
 // Request the MOTD
-void WiredSocket::getMotd() {
-	qDebug() << "WiredSocket: Requesting MOTD";
+void MiuClient::getMotd() {
+	qDebug() << "MiuClient: Requesting MOTD";
 	sendTransaction(QWTransaction(1012));
 }
 
 // Send a chat message to the server.
-void WiredSocket::sendChat(int theChatID, QString theText, bool theIsAction) {
+void MiuClient::sendChat(int theChatID, QString theText, bool theIsAction) {
 	if(pIzCaturday)  theText = tranzlate(theText);
 	QWTransaction t(2002);
 	t.addObject("cid", theChatID);
@@ -1513,15 +1524,15 @@ void WiredSocket::sendChat(int theChatID, QString theText, bool theIsAction) {
  * Store a transaction (request) in the store for later referencing.
  * @param t The transaction.
  */
-void WiredSocket::registerTransaction(const QWTransaction & t) {
+void MiuClient::registerTransaction(const QWTransaction & t) {
 	pTransactionStore[t.sequence] = t;
 }
 
 /**
  * Request the list of conferences from the server.
  */
-void WiredSocket::getConferencesList() {
-	qDebug() << "WiredSocket: Requesting list of conferences...";
+void MiuClient::getConferencesList() {
+	qDebug() << "MiuClient: Requesting list of conferences...";
 	pConferences.clear();
 	QWTransaction t(2014);
 	registerTransaction(t);

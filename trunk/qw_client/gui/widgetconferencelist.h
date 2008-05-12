@@ -17,31 +17,22 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef QWCLASSPRIVATECHAT_H
-#define QWCLASSPRIVATECHAT_H
+#ifndef WIDGETCONFERENCELIST_H3
+#define WIDGETCONFERENCELIST_H
 
-#include <QList>
-#include <QString>
-#include <QDateTime>
-#include "classwireduser.h"
+#include <QWidget>
+#include "ui_WidgetConferenceList.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
 */
-class QWClassPrivateChat
+class WidgetConferenceList : public QWidget, public Ui_WidgetConferenceList
 {
+Q_OBJECT
 public:
-    QWClassPrivateChat();
-    ~QWClassPrivateChat();
-
-	int pChatId;
-	QList<int> pUsers;
-	QList<int> pInvitedUsers;
-	QString pTopic;
-	ClassWiredUser pTopicSetter;
-	QDateTime pTopicDate;
-	QString pPassword;
-	bool pProtected;
+    WidgetConferenceList(QWidget *parent = 0);
+    ~WidgetConferenceList();
+	QPointer<WiredSocket> pSocket;
 
 };
 

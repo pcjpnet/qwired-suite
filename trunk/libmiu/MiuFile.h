@@ -19,66 +19,45 @@
  ***************************************************************************/
 
  
-#ifndef WIDGETFORUM_H
-#define WIDGETFORUM_H
+#ifndef CLASSWIREDFILE_H
+#define CLASSWIREDFILE_H
 
-#include "ui_WidgetForum.h"
-#include "modeluserlist.h"
-#include "delegateuserlist.h"
+#include <QtCore>
+#include <QtGui>
+
+namespace Wired {
+	enum FileType { RegularFile, Directory, Uploads, DropBox };
+}
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-
-class ClassWiredSession;
-
-class WidgetForum : public QWidget, public Ui::WidgetForum
-{
-	Q_OBJECT
-			
+class ClassWiredFile {
 public:
-	WidgetForum(QWidget *parent = 0);
-	~WidgetForum();
-	void setUserListModel(ModelUserList *model);
-	QPointer<ClassWiredSession> pSession;
+    ClassWiredFile(QList<QByteArray> theParams);
+    ClassWiredFile();
+    ~ClassWiredFile();
+    
+	static QString humanReadableSize(float theBytes);
+    void setFromStat(QList<QByteArray> theParams);
 	
-	int pChatID;
-	
-	bool pEmoticonsEnabled;
-	
-	
-public slots:
-	void writeToChat(QString theUser, QString theText, bool theEmote);
-	void writeEventToChat(QString theMsg);
-	
-private:
-	QColor pChatTextColor;
-	QColor pChatTimeColor;
-	QColor pChatEventColor;
-	int pChatStyle;
-	bool pChatShowTime;
-	QFont pChatFont;
-	QPointer<DelegateUserlist> userlistDelegate;
-	QPointer<QMenu> pInviteMenu;
-	void updateInviteMenu();
-	
-	
-private slots:
-	void on_fUsers_doubleClicked ( const QModelIndex & index );
-	void on_fChatInput_returnPressed();
-	void on_fBtnMsg_clicked();
-	void on_fBtnKick_clicked();
-	void on_fBtnBan_clicked();
-	void on_fBtnInfo_clicked();
-	void on_fBtnChat_clicked();
-	void onUserlistSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
-	void inviteMenuTriggered(QAction *action);
-
-	void reloadPrefs();
-
-protected:
-	bool eventFilter(QObject *object, QEvent *event);
+    
+    // Default parameters
+    QString path;
+    int type;
+    qlonglong size;
+    QDateTime created;
+    QDateTime modified;
+    
+    // STAT parameters
+    QString checksum;
+    QString comment;
+    
+    QString fileName() const;
+	QIcon fileIcon() const;
 
 };
+
+Q_DECLARE_METATYPE(ClassWiredFile)
 
 #endif

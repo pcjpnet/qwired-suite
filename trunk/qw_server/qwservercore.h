@@ -40,13 +40,13 @@ public:
     QWServerCore(QObject *parent = 0);
     ~QWServerCore();
 	QDateTime pStartTime;
-	QHash<int,QPointer<WiredSocket> > pClients;
+	QMap<int,QPointer<WiredSocket> > pClients;
 	int getUniqueUserId();
 	int getUniqueChatId();
 	
 
 	QWClassPrivateChat pPublicChat;
-	QHash<int, QWClassPrivateChat > pPrivateChats;
+	QMap<int, QWClassPrivateChat > pPrivateChats;
 	QSqlDatabase pDatabase;
 
 	QByteArray pBannerData;
@@ -61,7 +61,8 @@ private slots:
 
 	void checkLogin(const int id, const QWTransaction &t);
 	void sendServerBanner(const int id, const QWTransaction &t);
-	void sendUserlist(const int id, const QWTransaction &);
+	void sendUserlist(const int id, const QWTransaction &t);
+	void sendUserInfo(const int id, const QWTransaction &t);
 	void sendMotd(const int id, const QWTransaction &t);
 	void broadcastUserStatusChanged(const ClassWiredUser, const int changeFlags);
 	

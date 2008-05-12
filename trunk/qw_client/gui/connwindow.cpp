@@ -40,6 +40,7 @@ ConnWindow::ConnWindow(QWidget *parent) : QMainWindow(parent) {
 	tmpCloseBtn->setIcon( QIcon(":/icons/icn_close.png") );
 	tmpCloseBtn->setShortcut(QKeySequence("ctrl+w"));
 	tmpCloseBtn->setEnabled(false);
+	tmpCloseBtn->setAutoRaise(true);
 	connect( tmpCloseBtn, SIGNAL(clicked()), this, SLOT(onCloseButton()) );
 	pTabWidget->setCornerWidget(tmpCloseBtn);
 }

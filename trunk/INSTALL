@@ -1,4 +1,4 @@
-To build Qwired on Linux/Ubuntu 7.10:
+To build Miu on Linux/Ubuntu 7.10/8.04:
 
 Install the packages
   - libqt4-core

@@ -26,13 +26,22 @@
 #include "widgetsendprivmsg.h"
 
 WidgetForum::WidgetForum ( QWidget *parent ) : QWidget ( parent ) {
+	QSettings settings;
+	
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 	fBtnInvite->setVisible(false);
 	pChatID = 0;
 
-	fVSplitter->setStretchFactor(0,20);
-	fVSplitter->setStretchFactor(1,1);
+	fChatInput->installEventFilter(this);
+	fSplitterV->setStretchFactor(0,20);
+	fSplitterV->setStretchFactor(1,1);
+
+	fSplitterH->setStretchFactor(0,10);
+	fSplitterH->setStretchFactor(1,2);
+	
+	fSplitterV->restoreState(settings.value("gui/chat/splitterV").toByteArray());
+	fSplitterH->restoreState(settings.value("gui/chat/splitterH").toByteArray());
 	
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
@@ -45,7 +54,27 @@ WidgetForum::~WidgetForum() {
 	if( pChatID!=0 ) {
 		pSession->pChats.remove(pChatID);
 		pSession->pWiredSocket->leaveChat(pChatID);
+	} else {
+		QSettings settings;
+		settings.setValue("gui/chat/splitterV", fSplitterV->saveState());
+		settings.setValue("gui/chat/splitterH", fSplitterH->saveState());
 	}
+}
+
+
+/**
+ * The event filter for the input field.
+ */
+bool WidgetForum::eventFilter(QObject * object, QEvent * event) {
+	if(object == fChatInput && QEvent::KeyPress) {
+		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+		if((keyEvent->key()==Qt::Key_Enter || keyEvent->key()==Qt::Key_Return) && !(keyEvent->modifiers() & Qt::ShiftModifier) ){
+			on_fChatInput_returnPressed();
+			keyEvent->accept();
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -200,7 +229,7 @@ void WidgetForum::writeToChat(QString theUser, QString theText, bool theEmote) {
 // Send the chat message to the server.
 void WidgetForum::on_fChatInput_returnPressed() {
 
-	QString msg = fChatInput->text();
+	QString msg = fChatInput->toPlainText().trimmed();
 	if(msg.startsWith("/me ")) {
 		pSession->pWiredSocket->sendChat(pChatID, msg.mid(4), true);
 	} else if(msg.startsWith("/topic ")) {
@@ -223,7 +252,7 @@ void WidgetForum::on_fChatInput_returnPressed() {
 		//   Caturday mode   :3
 		pSession->pWiredSocket->setCaturday(true);
 		
-	} else {
+	} else if(!msg.isEmpty()) {
 		pSession->pWiredSocket->sendChat(pChatID, msg, false);
 	}
 	fChatInput->clear();

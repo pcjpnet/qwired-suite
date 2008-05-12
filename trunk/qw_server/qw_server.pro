@@ -4,7 +4,7 @@ SOURCES += main.cpp \
  ssltcpserver.cpp \
  classwireduser.cpp \
  qwservercore.cpp \
- qwclassprivatechat.cpp \
+ ../common/qwclassprivatechat.cpp \
  classwiredfile.cpp \
  ../common/qwtransaction.cpp
 
@@ -25,7 +25,7 @@ HEADERS += qwservercontroller.h \
  ssltcpserver.h \
  classwireduser.h \
  qwservercore.h \
- qwclassprivatechat.h \
+ ../common/qwclassprivatechat.h \
  classwiredfile.h \
  ../common/qwtransaction.h
 INCLUDEPATH += ../common/

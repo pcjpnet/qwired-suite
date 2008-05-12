@@ -275,14 +275,16 @@ void ClassWiredSession::getNews() {
 void ClassWiredSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction) {
 	// A chat message arrived. Write it to the specific chat window.
 	ClassWiredUser tmpUsr = pWiredSocket->getUserByID(theUserID); // Find the user
-	qDebug() << "from:"<<theUserID;
-	if( theChat==0 ) { // Public chat
+	if(theChat==0) { // Public chat
 		pMainChat->writeToChat(tmpUsr.pNick, theText, theIsAction);
-		
+
+		// Notification
 		QStringList tmpParams;
 		tmpParams << tmpUsr.pNick;
-		if(theIsAction) tmpParams << QString("*** %1 %2").arg(tmpUsr.pNick).arg(theText);
-			else tmpParams << theText;
+		if(theIsAction)
+			 tmpParams << QString("*** %1 %2").arg(tmpUsr.pNick).arg(theText);
+		else tmpParams << theText;
+
 		triggerEvent("ChatReceived", tmpParams);
 
 	} else { // Handle private chat
@@ -319,9 +321,10 @@ void ClassWiredSession::doHandlePrivMsg(ClassWiredUser theUser, QString theMessa
 	if(!pWinMessages) return;
 	pWinMessages->handleNewMessage(theUser, theMessage);
 
-	if(pConnWindow->pTabWidget->currentWidget()!=pWinMessages) {
+	QTabWidget *tabWidget = pConnWindow->pTabWidget;
+	if(tabWidget->currentWidget()!=pWinMessages && tabWidget->indexOf(pWinMessages)>-1 ) {
 		pConnWindow->actionMessages->setIcon(QIcon(":/icons/icon_msg_unread.png"));
-		pConnWindow->pTabWidget->setTabIcon(pConnWindow->pTabWidget->currentIndex(), QIcon(":/icons/icon_msg_unread.png"));
+		tabWidget->setTabIcon(tabWidget->currentIndex(), QIcon(":/icons/icon_msg_unread.png"));
 	}
 	// Notification
 	QStringList tmpParams;
