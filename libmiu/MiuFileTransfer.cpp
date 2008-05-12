@@ -17,68 +17,60 @@
  * Free Software Foundation, Inc.,                                         *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
  ***************************************************************************/
-
  
-#ifndef WIDGETFORUM_H
-#define WIDGETFORUM_H
+#include "classwiredtransfer.h"
+#include <QCryptographicHash>
 
-#include "ui_WidgetForum.h"
-#include "modeluserlist.h"
-#include "delegateuserlist.h"
+ClassWiredTransfer::ClassWiredTransfer()
+{
+	pStatus = 0;
+	pTotalSize = 0;
+	pDoneSize = 0;
+	pOffset = 0;
+	pTransferType = 0;
+	pQueuePosition = 0;
+	pEncryptTransfer = true;
+	pCurrentSpeed = 0;
+}
+
+
+ClassWiredTransfer::~ClassWiredTransfer()
+{ }
 
 /**
-	@author Bastian Bense <bastibense@gmail.com>
+ * Calculate the checksum of the first megabyte of the file specified in pLocalPath.
  */
+void ClassWiredTransfer::calcLocalChecksum() {
+	QFile tmpFile(pLocalPath);
+	if( tmpFile.open(QIODevice::ReadOnly) ) {
+		// If file exists, calculate the hash.
+		QByteArray tmpData = tmpFile.read(1048576); // 1MB for the hash
+		QByteArray tmpHash = QCryptographicHash::hash(tmpData, QCryptographicHash::Sha1);
+		pChecksum = tmpHash.toHex();
+		qDebug() << "Hash of"<<pLocalPath<<"="<<pChecksum<<"size"<<tmpFile.size();
+		tmpFile.close();
+	}
+	
+	
+}
 
-class ClassWiredSession;
+ClassWiredTransfer::ClassWiredTransfer(const ClassWiredTransfer &orig) {
+	pStatus = orig.pStatus;
+	pLocalPath = orig.pLocalPath;
+	pRemotePath = orig.pRemotePath;
+	pHash = orig.pHash;
+	pChecksum = orig.pChecksum;
+	pTransferType = orig.pTransferType; 
+	pOffset = orig.pOffset;
+	pTotalSize = orig.pTotalSize;
+	pDoneSize = orig.pDoneSize;
+	pQueuePosition = orig.pQueuePosition;
+    
+	pEncryptTransfer = orig.pEncryptTransfer;
+	pCurrentSpeed = orig.pCurrentSpeed;
+}
 
-class WidgetForum : public QWidget, public Ui::WidgetForum
-{
-	Q_OBJECT
-			
-public:
-	WidgetForum(QWidget *parent = 0);
-	~WidgetForum();
-	void setUserListModel(ModelUserList *model);
-	QPointer<ClassWiredSession> pSession;
-	
-	int pChatID;
-	
-	bool pEmoticonsEnabled;
-	
-	
-public slots:
-	void writeToChat(QString theUser, QString theText, bool theEmote);
-	void writeEventToChat(QString theMsg);
-	
-private:
-	QColor pChatTextColor;
-	QColor pChatTimeColor;
-	QColor pChatEventColor;
-	int pChatStyle;
-	bool pChatShowTime;
-	QFont pChatFont;
-	QPointer<DelegateUserlist> userlistDelegate;
-	QPointer<QMenu> pInviteMenu;
-	void updateInviteMenu();
-	
-	
-private slots:
-	void on_fUsers_doubleClicked ( const QModelIndex & index );
-	void on_fChatInput_returnPressed();
-	void on_fBtnMsg_clicked();
-	void on_fBtnKick_clicked();
-	void on_fBtnBan_clicked();
-	void on_fBtnInfo_clicked();
-	void on_fBtnChat_clicked();
-	void onUserlistSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
-	void inviteMenuTriggered(QAction *action);
+QString ClassWiredTransfer::fileName() const {
+	return pRemotePath.section("/", -1);
+}
 
-	void reloadPrefs();
-
-protected:
-	bool eventFilter(QObject *object, QEvent *event);
-
-};
-
-#endif

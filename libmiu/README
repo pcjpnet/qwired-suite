@@ -1,0 +1,40 @@
+`libmiu' is a set of classes that provide high level access to the
+Miu protocol specification.
+
+This version implements version 1 of the Miu protocol specification.
+
+
+It is structured as follows:
+
+Connection Classes:
+
+  MiuSocket  --- a low level socket wrapper providing access to the
+                 transaction streams and SSL handling. Normally this
+                 class is not directly used in most applications.
+
+  MiuClient  --- a high level class providing tools to communicate with
+                 Miu servers. This class is used on the client-side.
+                 This is the class you want to use when creating new clients
+                 and bots. Connecting to tracker is supported by using a sub-
+                 set of available class functions.
+
+  MiuServer  --- a high level class providing tools to communicate with
+                 Miu clients.
+
+
+Data Classes:
+
+  MiuUser    --- a class that represents information about a user.
+
+  MiuConference --- a class that represents information about a conference.
+
+  MiuFileEnty --- a class that represents information about a file.
+
+  MiuFileTransfer --- a class providing information about and handling of
+                      file transfers.
+
+  MiuTrackerEntry --- a class that represents a registered server from a tracker.
+
+
+The code is well documented, please use Doxygen to generate API documentation.
+

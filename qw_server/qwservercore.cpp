@@ -126,7 +126,7 @@ void QWServerCore::sendUserlist(const int id, const QWTransaction &t) {
 	qDebug() << "[core] sending user list to client"<<id<<"of chat"<<t.getObject("cid").toInt();
 	WiredSocket *tmpSock = pClients[id];
 	if(t.getObject("cid").toInt()==0) { // Public user list
-		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 		while(i.hasNext()) { i.next();
 			if(!i.value()) continue;
 			ClassWiredUser u = i.value()->sessionUser();
@@ -141,7 +141,6 @@ void QWServerCore::sendUserlist(const int id, const QWTransaction &t) {
 			tmpSock->sendTransaction(response);
 		}
 		
-
 		
 	} else {
 		// Private chat list
@@ -216,7 +215,7 @@ void QWServerCore::checkLogin(const int id, const QWTransaction &t) {
 	event.addObject("cid", 0);
 	addUserInfoToTransaction(socket->sessionUser(), event);
 
-	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+	QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(i.key()!=id && i.value())
 			i.value()->sendTransaction(event);
@@ -234,7 +233,7 @@ void QWServerCore::removeClient(const int id) {
 	qDebug() << "[core] broadcasting user-left from"<<id;
 
 	// Check for private chats
-	QHashIterator<int,QWClassPrivateChat > j(pPrivateChats);
+	QMapIterator<int,QWClassPrivateChat > j(pPrivateChats);
 	while(j.hasNext()) { j.next();
 		if(j.value().pUsers.contains(id)) {
 			qDebug() << "[core] removed user"<<id<<"from private chat"<<j.key();
@@ -248,7 +247,7 @@ void QWServerCore::removeClient(const int id) {
 	event.addObject("type", 2);
 	event.addObject("cid", 0);
 	
-	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+	QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(!i.value()) continue;
 		i.value()->sendTransaction(event);
@@ -309,7 +308,7 @@ void QWServerCore::broadcastUserStatusChanged(const ClassWiredUser user, const i
 	if(changeFlags & 16) event.addObject("idle", user.pIdle);
 
 	// Send the transaction to everyone
-	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+	QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(!i.value()) continue;
 		i.value()->sendTransaction(event);
@@ -340,7 +339,7 @@ void QWServerCore::broadcastChat(const int id, const QWTransaction &t) {
 	response.addObject("emote", t.getObjectInt("emote") );
 
 	if(chatId==0) { // Public user list
-		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 		while(i.hasNext()) { i.next();
 			if(!i.value()) continue;
 			i.value()->sendTransaction(response);
@@ -382,7 +381,7 @@ void QWServerCore::kickUser(const int id, const int userId, const QString reason
 	}
 	
 	// Check for private chats
-	QHashIterator<int,QWClassPrivateChat > j(pPrivateChats);
+	QMapIterator<int,QWClassPrivateChat > j(pPrivateChats);
 	while(j.hasNext()) { j.next();
 		if(j.value().pUsers.contains(id)) {
 			qDebug() << "[core] removed user"<<id<<"from private chat"<<j.key();
@@ -391,7 +390,7 @@ void QWServerCore::kickUser(const int id, const int userId, const QString reason
 	}
 	
 	// Notify everyone else
-	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+	QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(i.value()) i.value()->sendClientKicked(id, userId, reason, banned);
 	}
@@ -403,7 +402,7 @@ void QWServerCore::kickUser(const int id, const int userId, const QString reason
 
 void QWServerCore::broadcastUserImageChanged(const ClassWiredUser user) {
 	qDebug() << "[core] broadcasting user-image-changed from"<<user.pUserID;
-	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+	QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(i.value()) i.value()->sendUserImageChanged(user);
 	}
@@ -430,7 +429,7 @@ void QWServerCore::deliverPrivateMessage(const int id, const QWTransaction &t) {
 	
 	if(targetId==0) { // Broadcast
 		event.addObject("type", 2); // broadcast
-		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 		while(i.hasNext()) { i.next();
 			if(i.value()) i.value()->sendTransaction(event);
 		}
@@ -451,7 +450,7 @@ void QWServerCore::deliverPrivateMessage(const int id, const QWTransaction &t) {
 
 void QWServerCore::broadcastBroadcast(const int id, const QString text) {
 	qDebug() << "[core] broadcasting message from"<<id;
-	QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+	QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 	while(i.hasNext()) { i.next();
 		if(i.value()) i.value()->sendBroadcastMessage(id, text);
 	}
@@ -580,7 +579,7 @@ void QWServerCore::broadcastChatTopic(const int id, const QWTransaction &t) {
 			pClients[i.next()]->sendChatTopic(*chat);
 		}
 	} else { // Public chat
-		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 		while(i.hasNext()) { i.next();
 			if(i.value()) i.value()->sendChatTopic(*chat);
 		}
@@ -601,7 +600,7 @@ void QWServerCore::postNews(const int id, const QString news) {
 	query.bindValue(":date", QDateTime::currentDateTime().toUTC().toString(Qt::ISODate));
 	query.bindValue(":user", tmpNick);
 	if(query.exec()) {
-		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 		while(i.hasNext()) { i.next();
 			if(i.value()) i.value()->sendNewsPosted(tmpNick, news);
 		}
@@ -780,7 +779,7 @@ void QWServerCore::editUser(const int id, const ClassWiredUser user) {
 		if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
 
 		// Update connected users
-		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 		while(i.hasNext()) { i.next();
 			WiredSocket *client = i.value();
 			if(client && client->sessionUser().pLogin==user.pLogin) {
@@ -813,7 +812,7 @@ void QWServerCore::editGroup(const int id, const ClassWiredUser group) {
 		if(!query.exec()) qDebug() << "SQL error:"<<query.lastError().text();
 
 		// Update connected users
-		QHashIterator<int,QPointer<WiredSocket> > i(pClients);
+		QMapIterator<int,QPointer<WiredSocket> > i(pClients);
 		while(i.hasNext()) { i.next();
 			WiredSocket *client = i.value();
 			if(client && client->sessionUser().pGroupName==group.pGroupName) {
@@ -924,6 +923,31 @@ void QWServerCore::sendMotd(const int id, const QWTransaction &t) {
 	pClients[id]->sendTransaction(response);
 }
 
+/**
+ * Send detailed information about a user to the client.
+ */
+void QWServerCore::sendUserInfo(const int id, const QWTransaction & t) {
+	qDebug() << "[core] sending user info to"<<id;
+	int uid = t.getObjectInt("uid");
+	QWTransaction response = t.toResponse();
+	if(pClients.contains(uid)) {
+		ClassWiredUser &user = pClients[uid]->sessionUser;
+		t.addObject("nick", user.pNick);
+		t.addObject("admin", user.pAdmin);
+		t.addObject("idle", user.pIdle);
+		t.addObject("groups", user.pGroupName);
+		t.addObject("status", user.pStatus);
+		t.addObject("image", user.pImage);
+		t.addObject("via", "");
+		t.addObject("comment", "A comment about this account.");
+		t.addObject("root", "/");
+	} else {
+		response.error = Qwired::ErrorObjectNotExists;
+	}
+	pClients[id]->sendTransaction(response);
+}
+
+
 
 /**
  * Add the default user info fields to a transaction object.
@@ -938,6 +962,7 @@ void QWServerCore::addUserInfoToTransaction(const ClassWiredUser & u, QWTransact
 	t.addObject("status", u.pStatus);
 	t.addObject("image", u.pImage);
 }
+
 
 
 

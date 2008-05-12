@@ -12,9 +12,9 @@
   <property name="windowTitle" >
    <string>Qwired</string>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" >
-    <widget class="QSplitter" name="fVSplitter" >
+  <layout class="QHBoxLayout" >
+   <item>
+    <widget class="QSplitter" name="fSplitterV" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
@@ -33,36 +33,31 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextBrowser" name="fChatLog" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-           <horstretch>10</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QSplitter" name="fSplitterH" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="openExternalLinks" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="fChatInput" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-           <horstretch>10</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font" >
-          <font>
-           <family>Monospace</family>
-          </font>
-         </property>
+         <widget class="QTextBrowser" name="fChatLog" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>10</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="openExternalLinks" >
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QTextEdit" name="fChatInput" >
+          <property name="acceptRichText" >
+           <bool>false</bool>
+          </property>
+         </widget>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="" >
+     <widget class="QWidget" name="layoutWidget" >
       <layout class="QVBoxLayout" >
        <item>
         <layout class="QHBoxLayout" >

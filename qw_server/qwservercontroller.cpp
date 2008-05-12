@@ -157,6 +157,12 @@ void QWServerController::reloadDatabase() {
 			query.exec("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES ('guest', '', '', '0:0:0:0:1:1:0:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0');");
 		}
 
+		if(!tmpTables.contains("qw_conferences")) {
+			qDebug() << "[controller] Creating missing qw_conferences table.";
+			query.exec("CREATE TABLE qw_conferences (id INTEGER PRIMARY KEY, topic TEXT, password TEXT);");
+			query.exec("INSERT INTO qw_accounts (password,topic) VALUES ('Administrators Chat', 'admin');");
+		}
+
 		// Import accounts from older configuration file
 		if(int index=tmpCmdArgs.indexOf("-iu") > -1) {
 			QFile tmpFile(tmpCmdArgs.value(index+1));

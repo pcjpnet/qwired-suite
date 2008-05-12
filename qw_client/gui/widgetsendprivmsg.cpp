@@ -52,7 +52,7 @@ WidgetSendPrivMsg::~WidgetSendPrivMsg()
 bool WidgetSendPrivMsg::eventFilter(QObject * object, QEvent * event) {
 	if(object == fInput && QEvent::KeyPress) {
 		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-		if(keyEvent->key()==Qt::Key_Enter || keyEvent->key()==Qt::Key_Return){
+		if((keyEvent->key()==Qt::Key_Enter || keyEvent->key()==Qt::Key_Return) && !(keyEvent->modifiers() & Qt::ShiftModifier) ){
 			on_fInput_returnPressed();
 			
 			keyEvent->accept();
@@ -111,13 +111,20 @@ void WidgetSendPrivMsg::on_fUsers_currentRowChanged(int currentRow) {
 	fInput->setEnabled(currentRow>-1);
 	fBtnDelete->setEnabled(currentRow>-1);
 	fBtnSave->setEnabled(currentRow>-1);
-	
-	if(currentRow==-1) { fMsg->clear();	return; }
+
+	qDebug() << "changed row to"<<currentRow;
+	if(currentRow==-1) {
+		qDebug() << "Cleaned.";
+		fMsg->clear();
+		return;
+	}
 
  	int tmpId = fUsers->currentItem()->data(Qt::UserRole+1).toInt();
 	int tmpLockFlag = fUsers->currentItem()->data(Qt::UserRole+2).toInt();
 	QTextDocument *tdoc = pDocuments[tmpId];
+	qDebug() << "Loading document"<<tmpId;
 	if(tdoc) {
+		qDebug() << "OK:"<<tdoc->toPlainText();
 		fMsg->setDocument(tdoc);
 		fMsg->ensureCursorVisible();
 		fInput->setEnabled(!tmpLockFlag);
@@ -289,15 +296,24 @@ void WidgetSendPrivMsg::setInputFocus() {
 	fInput->setFocus();
 }
 
+/**
+ * Delete the message history.
+ */
 void WidgetSendPrivMsg::on_fBtnDelete_clicked(bool) {
 	if(fUsers->currentItem()) {
 		QListWidgetItem *item = fUsers->takeItem(fUsers->currentRow());
+		qDebug() << "removing item with id"<<item->data(Qt::UserRole+1).toInt();
+		
 		pDocuments.remove(item->data(Qt::UserRole+1).toInt());
+		qDebug() << "remains:"<<pDocuments;
 		delete item;
-		fUsers->setCurrentRow(-1);
+		//fUsers->setCurrentRow(-1);
 	}
 }
 
+/**
+ * Save the transcript to a HTML file.
+ */
 void WidgetSendPrivMsg::on_fBtnSave_clicked(bool ) {
 	QListWidgetItem *item = fUsers->currentItem();
 	if(!item) return;

@@ -18,67 +18,56 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
  ***************************************************************************/
 
- 
-#ifndef WIDGETFORUM_H
-#define WIDGETFORUM_H
-
-#include "ui_WidgetForum.h"
-#include "modeluserlist.h"
-#include "delegateuserlist.h"
-
 /**
-	@author Bastian Bense <bastibense@gmail.com>
+ * MiuSocket provides a low level implementation of the transaction-based
+ * Miu protocol stack. If you want to implement a client or server, refer
+ * to MiuClient and MiuServer instead.
  */
+ 
+#ifndef MIUSOCKET_H
+#define MIUSOCKET_H
 
-class ClassWiredSession;
+#include <QSslSocket>
+#include <QByteArray>
 
-class WidgetForum : public QWidget, public Ui::WidgetForum
-{
-	Q_OBJECT
-			
+#include "MiuSocket.h"
+#include "MiuTransaction.h"
+
+const int kEOF = 0x04;
+const int kFS = 0x1C;
+
+class MiuSocket : public QObject {
+
+Q_OBJECT
+
 public:
-	WidgetForum(QWidget *parent = 0);
-	~WidgetForum();
-	void setUserListModel(ModelUserList *model);
-	QPointer<ClassWiredSession> pSession;
-	
-	int pChatID;
-	
-	bool pEmoticonsEnabled;
-	
-	
+	MiuSocket(QObject *parent = 0);
+	~MiuSocket();
+	void setMiuSocket(QSslSocket *socket);
+	bool bufferHasMessage(QByteArray &buffer);
+	void sendTransaction(const MiuTransaction &t);	
+
+
+signals:
+	void transactionReceived(const MiuTransaction &t);
+	void clientDisconnected();
+
+		
 public slots:
-	void writeToChat(QString theUser, QString theText, bool theEmote);
-	void writeEventToChat(QString theMsg);
-	
-private:
-	QColor pChatTextColor;
-	QColor pChatTimeColor;
-	QColor pChatEventColor;
-	int pChatStyle;
-	bool pChatShowTime;
-	QFont pChatFont;
-	QPointer<DelegateUserlist> userlistDelegate;
-	QPointer<QMenu> pInviteMenu;
-	void updateInviteMenu();
-	
-	
+	void disconnectClient();
+
+
 private slots:
-	void on_fUsers_doubleClicked ( const QModelIndex & index );
-	void on_fChatInput_returnPressed();
-	void on_fBtnMsg_clicked();
-	void on_fBtnKick_clicked();
-	void on_fBtnBan_clicked();
-	void on_fBtnInfo_clicked();
-	void on_fBtnChat_clicked();
-	void onUserlistSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
-	void inviteMenuTriggered(QAction *action);
+	void handleSocketError();
+	void readDataFromSocket();
+	void handleSocketSslError(const QList<QSslError> & errors);
 
-	void reloadPrefs();
 
-protected:
-	bool eventFilter(QObject *object, QEvent *event);
-
+private:
+	QByteArray pBuffer;
+	QPointer<QSslSocket> pSocket;
+		
+    
 };
 
 #endif

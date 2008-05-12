@@ -73,6 +73,7 @@ class WiredSocket : public QObject
 		void requestedBanner(const int id, const QWTransaction &t);
 		void requestedUserlist(const int id, const QWTransaction &t);
 		void transactionReceived(const int id, const QWTransaction &t);
+		void userInfoRequested(const int id, const QWTransaction &t);
 		
 		/**
 		 * The client has sent the login and password and the server should now check if these are correct.

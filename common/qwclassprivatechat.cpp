@@ -25,7 +25,8 @@ QWClassPrivateChat::QWClassPrivateChat()
 	pTopic = "No topic.";
 	pTopicDate = QDateTime::currentDateTime();
 	pTopicSetter.pNick = "Qwired Server";
-	pProtected = false;
+	pPermanent = true;
+	pUserCount = 0;
 	
 }
 

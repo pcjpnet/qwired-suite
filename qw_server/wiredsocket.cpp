@@ -142,6 +142,10 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
 		emit requestedMotd(userId(), t);
 
+	} else if(t.type == 1021) { // Get User Info
+		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
+		emit userInfoRequested(userId(), t);
+
 	} else if(t.type == 2001) { // Private message/Broadcast
 		emit privateMessageReceived(userId(), t);
 		resetIdleTimer();
