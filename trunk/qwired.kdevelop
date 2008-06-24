@@ -172,7 +172,7 @@
       </debugarguments>
     </run>
     <general>
-      <activedir>libfisk</activedir>
+      <activedir>qw_serverlauncher</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>
