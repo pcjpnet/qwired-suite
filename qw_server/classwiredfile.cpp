@@ -23,7 +23,8 @@
 
 
 // Load data from the server file listing responses.
-ClassWiredFile::ClassWiredFile(QList<QByteArray> theParams) {
+ClassWiredFile::ClassWiredFile(QList<QByteArray> theParams)
+{
 	path = QString::fromUtf8( theParams.value(0) );
 	type = theParams.value(1).toInt();
 	size = theParams.value(2).toInt();
@@ -33,21 +34,25 @@ ClassWiredFile::ClassWiredFile(QList<QByteArray> theParams) {
 
 
 ClassWiredFile::~ClassWiredFile()
-{ }
+{
+}
 
 
-ClassWiredFile::ClassWiredFile() {
+ClassWiredFile::ClassWiredFile()
+{
 	path="";
 	type=0;
 	size=0;
 }
 
 // Return the name of the file without all the slashes.
-QString ClassWiredFile::fileName() const {
+QString ClassWiredFile::fileName() const
+{
 	return path.section("/", -1);
 }
 
-void ClassWiredFile::setFromStat(QList<QByteArray> theParams) {
+void ClassWiredFile::setFromStat(QList<QByteArray> theParams)
+{
 	path = QString::fromUtf8( theParams.value(0) );
 	type = theParams.value(1).toInt();
 	size = theParams.value(2).toInt();
