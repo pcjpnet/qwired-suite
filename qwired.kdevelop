@@ -172,7 +172,7 @@
       </debugarguments>
     </run>
     <general>
-      <activedir>qw_serverlauncher</activedir>
+      <activedir></activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>

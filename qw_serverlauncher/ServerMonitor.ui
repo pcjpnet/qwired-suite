@@ -12,6 +12,9 @@
   <property name="windowTitle" >
    <string>Qwired Server Monitor</string>
   </property>
+  <property name="windowIcon" >
+   <iconset resource="Resources.qrc" >:/qwired_logo_48.png</iconset>
+  </property>
   <layout class="QVBoxLayout" >
    <item>
     <layout class="QHBoxLayout" >
@@ -27,7 +30,10 @@
         <string/>
        </property>
        <property name="pixmap" >
-        <pixmap resource="Resources.qrc" >:/images/qwired_logo_48.png</pixmap>
+        <pixmap resource="Resources.qrc" >:/qwired_logo_48.png</pixmap>
+       </property>
+       <property name="margin" >
+        <number>6</number>
        </property>
       </widget>
      </item>
