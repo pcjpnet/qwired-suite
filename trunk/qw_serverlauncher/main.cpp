@@ -20,6 +20,10 @@
 
 
 #include <QApplication>
+#include <QTranslator>
+#include <QLocale>
+#include <QSettings>
+#include <QtDebug>
 #include "widgets/servermonitor.h"
 
  int main(int argc, char *argv[])
@@ -27,6 +31,32 @@
 	Q_INIT_RESOURCE(Resources);
 
 	QApplication app(argc, argv);
+
+
+	// Translation loader
+	QSettings tmpPrefs;
+	QTranslator translator;
+	QString tmpLocaleShort = QLocale::system().name().section ( "_",0,0 );
+	QStringList tmpLocaleList;
+	if (tmpPrefs.contains("general/language") && tmpPrefs.value("general/language").toString()!="_auto_" ) {
+		tmpLocaleList.append(QString(":lang_%1.qm").arg(tmpPrefs.value("general/language").toString()));
+	} else {
+		tmpLocaleList.append(QLocale::system().name()); // long locale, from file
+		tmpLocaleList.append(tmpLocaleShort); // short locale, from file
+		tmpLocaleList.append(QString(":%1.qm").arg(QLocale::system().name())); // long locale, from res
+		tmpLocaleList.append(QString(":lang_%1.qm").arg(tmpLocaleShort) );
+	}
+	QStringListIterator i(tmpLocaleList);
+	while (i.hasNext()) {
+		QString tmpName = i.next();
+		if(translator.load(tmpName)) {
+			app.installTranslator(&translator);
+			break;
+		} else {
+			qDebug() << "Trying to load locale:"<<tmpName<<": Failed (trying next)";
+		}
+	}
+	
 
 	ServerMonitor *widget = new ServerMonitor();
 	widget->show();

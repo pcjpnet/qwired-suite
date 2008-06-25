@@ -1,40 +1,22 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="1" >
+ <DocsAndViews NumberOfDocuments="3" >
   <Doc0 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_serverlauncher/main.cpp" >
-   <View0 Encoding="" line="7" Type="Source" />
+   <View0 Encoding="" line="31" Type="Source" />
   </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_serverlauncher/widgets/servermonitor.cpp" >
+   <View0 Encoding="" line="31" Type="Source" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_serverlauncher/widgets/servermonitor.h" >
+   <View0 Encoding="" line="23" Type="Source" />
+  </Doc2>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
    <breakpointList/>
    <showInternalCommands value="0" />
   </kdevdebugger>
-  <kdevfilelist>
-   <projectview name="Client" >
-    <file line="50" url="qw_client/gui/widgetforum.h" col="0" encoding="" />
-    <file line="123" url="qw_client/gui/widgetforum.cpp" col="21" encoding="" />
-    <file line="21" url="qw_client/gui/widgetsendprivmsg.cpp" col="30" encoding="" />
-    <file line="66" url="qw_client/gui/widgetsendprivmsg.h" col="1" encoding="" />
-    <file line="56" url="qw_client/gui/connwindow.cpp" col="0" encoding="" />
-    <file line="47" url="qw_client/gui/connwindow.h" col="0" encoding="" />
-    <file line="224" url="qw_client/wired/wiredsocket.h" col="0" encoding="" />
-    <file line="1458" url="qw_client/wired/wiredsocket.cpp" col="1" encoding="" />
-   </projectview>
-   <projectview name="Server" >
-    <file line="37" url="qw_server/qwservercontroller.h" col="30" encoding="" />
-    <file line="60" url="qw_server/qwservercore.h" col="0" encoding="" />
-    <file line="174" url="qw_server/qwservercontroller.cpp" col="45" encoding="" />
-    <file line="844" url="qw_server/qwservercore.cpp" col="17" encoding="" />
-    <file line="69" url="qw_server/wiredsocket.h" col="23" encoding="" />
-    <file line="146" url="qw_server/wiredsocket.cpp" col="24" encoding="" />
-    <file line="0" url="common/qwtransaction.h" col="0" encoding="" />
-    <file line="27" url="qw_server/qwclassprivatechat.cpp" col="19" encoding="" />
-    <file line="43" url="qw_server/qwclassprivatechat.h" col="16" encoding="" />
-   </projectview>
-   <defaultview name="" />
-  </kdevfilelist>
   <kdevastyle>
    <Extensions ext="*.cpp *.h,*.c *.h,*.cxx *.hxx,*.c++ *.h++,*.cc *.hh,*.C *.H,*.diff,*.inl,*.java,*.moc,*.patch,*.tlh,*.xpm" />
    <AStyle IndentPreprocessors="0" FillCount="4" PadParenthesesOut="1" IndentNamespaces="1" IndentLabels="1" Fill="Tabs" MaxStatement="40" Brackets="Break" MinConditional="-1" IndentBrackets="0" PadParenthesesUn="1" BlockBreak="0" KeepStatements="1" KeepBlocks="1" BlockIfElse="0" IndentSwitches="0" PadOperators="0" FStyle="UserDefined" IndentCases="0" FillEmptyLines="0" BracketsCloseHeaders="0" BlockBreakAll="0" PadParenthesesIn="1" IndentClasses="0" IndentBlocks="0" FillForce="0" />
