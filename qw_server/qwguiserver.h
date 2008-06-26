@@ -17,21 +17,38 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "../widgets/servermonitor.h"
+#ifndef QWGUISERVER_H
+#define QWGUISERVER_H
 
-ServerMonitor::ServerMonitor(QWidget *parent)
- : QWidget(parent)
+#include <QObject>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QPointer>
+
+/**
+	@author Bastian Bense <bb@bense.de>
+*/
+class QWGuiServer : public QObject
 {
-	setupUi(this);
-}
+Q_OBJECT
 
+private:
+	QPointer<QTcpSocket> tcpSocket;
+	QTcpServer *tcpServer;
+	QByteArray tcpBuffer;
 
-ServerMonitor::~ServerMonitor()
-{
-}
+public:
+    QWGuiServer(QObject *parent = 0);
+    ~QWGuiServer();
 
-void ServerMonitor::on_btnStart_clicked() {
-	qDebug() << "Heh";
-}
+private slots:
+	void acceptConnection();
+	void clearConnection();
+	void readData();
+	
+public slots:
+	void startServer();
 
+};
 
+#endif

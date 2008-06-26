@@ -112,6 +112,21 @@ void QWServerController::startServer() {
 	}
 }
 
+void QWServerController::startGuiInterfaceServer()
+{
+	int tmpPort = pConfigParams.value("gui_port","2016").toInt();
+	QString tmpAddress = pConfigParams.value("gui_address","127.0.0.1");
+	qwLog(QString("Starting GUI interface on  %2:%1...").arg(tmpPort).arg(tmpAddress));
+	pGuiServer = new QWGuiServer(this);
+	pGuiServer->startServer();
+	//connect(pTcpServer, SIGNAL(newSslConnection()), this, SLOT(acceptSslConnection()));
+	//if(!pTcpServer->listen( QHostAddress(tmpAddress), tmpPort)) {
+	//	qwLog(QString("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(pTcpServer->errorString()));
+	//	exit(1);
+	//}
+}
+
+
 /**
  * Write a message to the log (and console)
  */
@@ -219,4 +234,6 @@ void QWServerController::reloadDatabase() {
 		qDebug() << "Tables:"<<db.tables();
 	}
 }
+
+
 

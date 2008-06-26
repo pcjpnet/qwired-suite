@@ -6,7 +6,8 @@ SOURCES += main.cpp \
  qwservercore.cpp \
  ../common/qwclassprivatechat.cpp \
  classwiredfile.cpp \
- ../common/qwtransaction.cpp
+ ../common/qwtransaction.cpp \
+ qwguiserver.cpp
 
 TEMPLATE = app
 
@@ -27,7 +28,8 @@ HEADERS += qwservercontroller.h \
  qwservercore.h \
  ../common/qwclassprivatechat.h \
  classwiredfile.h \
- ../common/qwtransaction.h
+ ../common/qwtransaction.h \
+ qwguiserver.h
 INCLUDEPATH += ../common/
 
 DESTDIR = ../bin/
