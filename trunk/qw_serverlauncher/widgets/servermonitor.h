@@ -20,6 +20,7 @@
 #ifndef SERVERMONITOR_H
 #define SERVERMONITOR_H
 
+#include <QtDebug>
 #include <QWidget>
 #include "ui_ServerMonitor.h"
 
@@ -31,8 +32,10 @@ class ServerMonitor : public QWidget, public Ui_ServerMonitor
 Q_OBJECT
 public:
     ServerMonitor(QWidget *parent = 0);
-
     ~ServerMonitor();
+
+private slots:
+	void on_btnStart_clicked();
 
 };
 

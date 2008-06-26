@@ -28,12 +28,24 @@ const QString QWSERVER_VERSION("1.0.0");
 
 int main (int argc, char *argv[]) {
 	QCoreApplication app(argc, argv);
-	
+	QStringList tmpCmdArgs = QCoreApplication::arguments();
 
 	QWServerController *controller = new QWServerController();
 	controller->reloadConfig();
 	controller->reloadDatabase();
-	controller->startServer();
+
+	if(int index=tmpCmdArgs.indexOf("-gui") > -1) {
+		// Started in GUI mode. Wait for the GUI client to connnect and
+		// provide commands.
+		qDebug() << "QWServer: Starting in GUI interface mode.";
+		controller->startGuiInterfaceServer();
+	} else {
+		// Normal mode - start server directly
+		qDebug() << "QWServer: Starting normally.";
+		controller->startServer();
+	}
+	
+	
 	
 	return app.exec();
 }

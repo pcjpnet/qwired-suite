@@ -17,21 +17,61 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "../widgets/servermonitor.h"
+#include "qwguiserver.h"
 
-ServerMonitor::ServerMonitor(QWidget *parent)
- : QWidget(parent)
+QWGuiServer::QWGuiServer(QObject *parent)
+ : QObject(parent)
 {
-	setupUi(this);
+	tcpSocket = NULL;
+	tcpServer = new QTcpServer(this);
+	connect(tcpServer, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
+	
 }
 
 
-ServerMonitor::~ServerMonitor()
+QWGuiServer::~QWGuiServer()
 {
 }
 
-void ServerMonitor::on_btnStart_clicked() {
-	qDebug() << "Heh";
+void QWGuiServer::startServer()
+{
+	tcpServer->listen(QHostAddress::LocalHost, 2016);
+	
+}
+
+void QWGuiServer::acceptConnection()
+{
+	if(!tcpSocket) {
+		tcpSocket = tcpServer->nextPendingConnection();
+		connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(clearConnection()));
+		connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+		tcpSocket->write(QByteArray("QWS_PROTOCOL 1\n"));
+	} else {
+		// Already connected, drop this connection.
+		QTcpSocket *socket = tcpServer->nextPendingConnection();
+		socket->disconnectFromHost();
+		socket->deleteLater();
+	}
+}
+
+void QWGuiServer::clearConnection()
+{
+	qDebug() << "QWGuiServer: GUI disconnected, cleaning up.";
+	if(!tcpSocket) return;
+	tcpSocket->disconnectFromHost();
+	tcpSocket->deleteLater();
+	
+}
+
+void QWGuiServer::readData()
+{
+	tcpBuffer += tcpSocket->readAll();
+	while(tcpBuffer.contains("\n")) {
+		int tmpPos = tcpBuffer.indexOf("\n");
+		QByteArray command( tcpBuffer.left(tmpPos) );
+		tcpBuffer.remove(0, tmpPos+1);
+		tcpSocket->write(command + QByteArray("\n"));
+	}
 }
 
 

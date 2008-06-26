@@ -110,7 +110,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QToolButton" name="toolButton" >
+         <widget class="QToolButton" name="btnStart" >
           <property name="text" >
            <string>Start Server</string>
           </property>

@@ -27,6 +27,7 @@
 #include <QtNetwork>
 #include "ssltcpserver.h"
 #include "qwservercore.h"
+#include "qwguiserver.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
@@ -44,6 +45,7 @@ public:
 
 private:
 	QPointer<SslTcpServer> pTcpServer;
+	QPointer<QWGuiServer> pGuiServer;
 	QHash<QString,QString> pConfigParams;
 
 
@@ -58,6 +60,7 @@ public slots:
 	void reloadDatabase();
 	void reloadConfig();
 	void startServer();
+	void startGuiInterfaceServer();
 	void acceptSslConnection();
 
 };
