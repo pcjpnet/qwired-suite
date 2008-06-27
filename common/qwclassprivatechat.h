@@ -23,7 +23,7 @@
 #include <QList>
 #include <QString>
 #include <QDateTime>
-#include "classwireduser.h"
+#include "wired/classwireduser.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>

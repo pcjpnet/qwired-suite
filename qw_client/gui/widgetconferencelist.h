@@ -22,6 +22,7 @@
 
 #include <QWidget>
 #include "ui_WidgetConferenceList.h"
+#include "../wired/wiredsocket.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
