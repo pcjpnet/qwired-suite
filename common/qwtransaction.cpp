@@ -94,15 +94,12 @@ bool QWTransaction::parseFromData(const QByteArray data) {
 QByteArray QWTransaction::toData() const {
 	QByteArray buffer;
 	QDataStream stream(&buffer, QIODevice::WriteOnly);
-	
-// 	QDataStream headerStream(&buffer, QIODevice::WriteOnly);
 	stream << (quint32)0;
 	stream << type;
 	stream << sequence;
 	stream << error;
 	stream << ttl;
 	stream << flags;
-// 	qDebug() << "Len after headers:"<<buffer.length();
 	
 	// add objects
 	QHashIterator<QByteArray,QByteArray> i(objects);
@@ -113,20 +110,8 @@ QByteArray QWTransaction::toData() const {
 		
 	}
 	int tmpLength = buffer.length();
-// 	qDebug() << "Len after data:"<<buffer.length();
-
-// 	qDebug() << "Data before:"<<buffer.toHex();
 	stream.device()->seek(0);
 	stream << tmpLength;
-// 	qDebug() << "Len after seek:"<<buffer.length();
-// 	qDebug() << "Data after:"<<buffer.toHex();
-
-
-// 	qDebug() << "Total length:"<<rawLength;
-	
-// 	buffer = buffer.prepend(header);
-
-// 	qDebug() << "buffer is now"<<buffer.length();
 	return buffer;
 	
 }
@@ -136,7 +121,8 @@ QByteArray QWTransaction::toData() const {
  * @param key The ASCII formatted key.
  * @param data The raw data.
  */
-void QWTransaction::addObject(const QByteArray key, const QByteArray data) {
+void QWTransaction::addObject(const QByteArray key, const QByteArray data)
+{
 	objects[key] = data;
 	//qDebug() << "QWTransaction: Adding"<<key;
 }
@@ -146,7 +132,8 @@ void QWTransaction::addObject(const QByteArray key, const QByteArray data) {
  * @param key The key of the object.
  * @return The raw data of the object.
  */
-QByteArray QWTransaction::getObject(const QByteArray key) const {
+QByteArray QWTransaction::getObject(const QByteArray key) const
+{
 	if(!objects.contains(key))
 		qDebug() << "QWTransaction: Warning: Unknown key: "<<key;
 	return objects[key];
@@ -158,14 +145,16 @@ QByteArray QWTransaction::getObject(const QByteArray key) const {
  * @param key The key of the object
  * @return The UTF-8 version of the data.
  */
-QString QWTransaction::getObjectString(const QByteArray key) const {
+QString QWTransaction::getObjectString(const QByteArray key) const
+{
 	return QString::fromUtf8( getObject(key) );
 }
 
 /**
  * Create a new transaction with proper flags set and return it.
  */
-QWTransaction QWTransaction::toResponse() const {
+QWTransaction QWTransaction::toResponse() const
+{
 	QWTransaction t;
 	t.type = type;
 	t.ttl = ttl;
@@ -174,25 +163,40 @@ QWTransaction QWTransaction::toResponse() const {
 	return t;
 }
 
-int QWTransaction::getNextSequence() {
+int QWTransaction::getNextSequence()
+{
 	static quint32 tmpSeq=0;
 	return ++tmpSeq;
 }
 
-bool QWTransaction::hasObject(const QByteArray key) const {
+bool QWTransaction::hasObject(const QByteArray key) const
+{
 	return objects.contains(key);
 }
 
-void QWTransaction::addObject(const QByteArray key, const QString data) {
+void QWTransaction::addObject(const QByteArray key, const QString data)
+{
 	objects[key] = data.toUtf8();
 }
 
-void QWTransaction::addObject(const QByteArray key, const int data) {
+void QWTransaction::addObject(const QByteArray key, const int data)
+{
 	objects[key] = QByteArray::number(data);
 }
 
-int QWTransaction::getObjectInt(const QByteArray key) const {
+int QWTransaction::getObjectInt(const QByteArray key) const
+{
 	return getObject(key).toInt();
+}
+
+void QWTransaction::setFlagListingComplete()
+{
+	flags = flags | Qwired::FlagListingComplete;
+}
+
+bool QWTransaction::hasFlagListingComplete()
+{
+	return flags & Qwired::FlagListingComplete;
 }
 
 

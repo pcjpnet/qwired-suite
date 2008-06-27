@@ -23,19 +23,23 @@
 #include <QMessageBox>
 #include <QKeyEvent>
 
-WidgetSendPrivMsg::WidgetSendPrivMsg ( QWidget *parent )
-		: QWidget ( parent )
+WidgetSendPrivMsg::WidgetSendPrivMsg(QWidget *parent)
+	: QWidget(parent)
 {
-	QSettings settings;
 	
 	setupUi(this);
+	QSettings settings;
+	
 	fInput->installEventFilter(this);
 
 	fSplitterV->setStretchFactor(0,5);
 	fSplitterV->setStretchFactor(1,10);
 
-	fSplitterV->restoreState(settings.value("gui/messages/splitterV").toByteArray());
-	fSplitterH->restoreState(settings.value("gui/messages/splitterH").toByteArray());
+	if(settings.contains("gui/messages/splitterV"))
+		fSplitterV->restoreState(settings.value("gui/messages/splitterV").toByteArray());
+
+	if(settings.contains("gui/messages/splitterH"))
+		fSplitterH->restoreState(settings.value("gui/messages/splitterH").toByteArray());
 }
 
 

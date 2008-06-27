@@ -159,20 +159,23 @@
         <qwired/>
         <qw_server/>
         <qwired_server/>
+        <qw_serverlauncher/>
       </runarguments>
       <cwd>
         <qwired>/home/bbense/Desktop/Qwired</qwired>
         <qw_server>/home/bbense/Desktop/QwiredSVN/trunk</qw_server>
         <qwired_server>/home/bbense/Desktop/QwiredSVN/trunk/../bin</qwired_server>
+        <qw_serverlauncher>/home/bbense/Desktop/QwiredSVN/trunk</qw_serverlauncher>
       </cwd>
       <debugarguments>
         <qwired/>
         <qw_server/>
         <qwired_server/>
+        <qw_serverlauncher/>
       </debugarguments>
     </run>
     <general>
-      <activedir></activedir>
+      <activedir>qw_serverlauncher</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>

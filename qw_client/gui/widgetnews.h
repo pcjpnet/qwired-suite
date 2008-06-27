@@ -26,6 +26,7 @@
 #include <QPointer>
 #include "ui_WidgetNews.h"
 #include "dialognewspost.h"
+#include "wired/wiredsocket.h"
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
@@ -38,11 +39,13 @@ class WidgetNews : public QWidget, private Ui::WidgetNews
 	private:
 		QColor pColorTitle;
 		QColor pColorText;
+		QPointer<WiredSocket> pSocket;
 		
 	public:
 		WidgetNews( QWidget *parent = 0 );
 		~WidgetNews();
 		QPointer<DialogNewsPost> pWinPost;
+		void setSocket(WiredSocket *socket);
 		
 	signals:
 		void doRefreshNews();
@@ -62,6 +65,10 @@ class WidgetNews : public QWidget, private Ui::WidgetNews
 		void reloadPrefs();
 		void initPrefs();
 
+
+		// Socket slots
+		void onNewsGroupListItem(const int nid, const QString name, const int count);
+		void onNewsGroupListDone();
 
 };
 

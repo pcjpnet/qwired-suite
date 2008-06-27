@@ -53,6 +53,9 @@ public:
 	void addObject(const QByteArray key, const QByteArray data);
 	void addObject(const QByteArray key, const QString data);
 	void addObject(const QByteArray key, const int data);
+
+	void setFlagListingComplete();
+	bool hasFlagListingComplete();
 	
 	QByteArray getObject(const QByteArray key) const;
 	QString getObjectString(const QByteArray key) const;

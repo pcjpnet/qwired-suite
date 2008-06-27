@@ -2,14 +2,14 @@
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
  <DocsAndViews NumberOfDocuments="3" >
-  <Doc0 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_serverlauncher/main.cpp" >
-   <View0 Encoding="" line="31" Type="Source" />
+  <Doc0 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_client/gui/connwindow.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_serverlauncher/widgets/servermonitor.cpp" >
-   <View0 Encoding="" line="31" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_client/general/classwiredsession.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_serverlauncher/widgets/servermonitor.h" >
-   <View0 Encoding="" line="23" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///home/bbense/Desktop/QwiredSVN/trunk/qw_client/gui/widgetsendprivmsg.h" >
+   <View0 Encoding="" line="37" Type="Source" />
   </Doc2>
  </DocsAndViews>
  <pluginList>

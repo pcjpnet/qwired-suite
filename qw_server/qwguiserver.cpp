@@ -45,7 +45,7 @@ void QWGuiServer::acceptConnection()
 		tcpSocket = tcpServer->nextPendingConnection();
 		connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(clearConnection()));
 		connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
-		tcpSocket->write(QByteArray("QWS_PROTOCOL 1\n"));
+		tcpSocket->write(QByteArray("OK QWSERVER 1\n"));
 	} else {
 		// Already connected, drop this connection.
 		QTcpSocket *socket = tcpServer->nextPendingConnection();
@@ -70,8 +70,26 @@ void QWGuiServer::readData()
 		int tmpPos = tcpBuffer.indexOf("\n");
 		QByteArray command( tcpBuffer.left(tmpPos) );
 		tcpBuffer.remove(0, tmpPos+1);
-		tcpSocket->write(command + QByteArray("\n"));
+		//tcpSocket->write(command + QByteArray("\n"));
+		handleCommand(command);
 	}
+}
+
+void QWGuiServer::handleCommand(const QByteArray & command)
+{
+	QByteArray tmpCmd;
+	int tmpPos = command.indexOf(" ");
+	if(tmpPos<0) tmpCmd=command; else tmpCmd=command.left(tmpPos);
+	qDebug() << "Command:"<<tmpCmd<<"/"<<command;
+	if(tmpCmd == "STATUS") {
+		sendCommand("OK");
+	}
+}
+
+void QWGuiServer::sendCommand(const QByteArray & command)
+{
+	if(!tcpSocket) return;
+	tcpSocket->write(command+"\n");
 }
 
 

@@ -1015,7 +1015,7 @@ void WiredSocket::banClient(int theUserID, QString theReason) {
 
 
 // Request news from the server (reponse will be 320s and one 321)
-void WiredSocket::getNews() {
+void WiredSocket::showNewsBrowser() {
 	sendWiredCommand("NEWS");
 }
 
@@ -1443,7 +1443,7 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		
 		if(t.flags & Qwired::FlagListingComplete) {
 			qDebug() << "Received conference listing DONE.";
-			emit conferenceListReceived(pConferences);
+// 			emit conferenceListReceived(pConferences);
 			pTransactionStore.remove(t.sequence);
 		} else {
 			qDebug() << "Received conference entry with id"<<chat.pChatId;
@@ -1471,6 +1471,14 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 	} else if(t.type == 2511) { // Conference changed
 		emit onConferenceChanged( t.getObjectInt("cid"), t.getObjectString("topic"), t.getObjectInt("users"),
 								  t.getObjectInt("protected"), t.getObjectInt("type"));
+
+	} else if(t.type == 2020) { // News Group List Response
+		qDebug() << "Got news group item";
+		if(t.hasFlagListingComplete()) {
+			emit onNewsGroupListDone();
+		} else {
+			emit onNewsGroupListItem(t.getObjectInt("nid"), t.getObjectString("name"), t.getObjectInt("count"));
+		}
 		
 	} else {
 		
@@ -1518,13 +1526,11 @@ void WiredSocket::registerTransaction(const QWTransaction & t) {
 }
 
 /**
- * Request the list of conferences from the server.
+ * Request the list of available news groups from the server.
  */
-void WiredSocket::getConferencesList() {
-	qDebug() << "WiredSocket: Requesting list of conferences...";
-	pConferences.clear();
-	QWTransaction t(2014);
-	registerTransaction(t);
+void WiredSocket::getNewsGroups()
+{
+	QWTransaction t(2020);
 	sendTransaction(t);
 }
 

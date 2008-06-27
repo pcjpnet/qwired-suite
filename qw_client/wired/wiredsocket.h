@@ -109,10 +109,15 @@ class WiredSocket : public QObject
 	public slots:
 
 		
+		// News
+		void getNewsGroups();
 		
+		// General Session
 		void getMotd();
-		void getConferencesList();
+// 		void getConferencesList();
 		void getServerBanner();
+
+		// Conferences/User List
 		void sendChat(int theChatID, QString theText, bool theIsAction);
 		void setConferenceOptions(const int &cid, const QString &topic, const QString &password);
 		void setUserStatus(const QString &theStatus);
@@ -136,7 +141,7 @@ class WiredSocket : public QObject
 		void getFile(const QString thePath, const QString theLocalPath);
 		void getFileList(QString thePath);
 		void getGroups();
-		void getNews();
+		void showNewsBrowser();
 		void getPrivileges();
 
 		void getUsers();
@@ -205,14 +210,21 @@ class WiredSocket : public QObject
 		void onSocketError(QString theErrorReason, int theError);
 		void onServerInformation();
 		
+		
+		
+
+		// News
+		void onNewsGroupListItem(const int nid, const QString name, const int count);
+		void onNewsGroupListDone();
+
+		// General Session
 		void onServerLoginSuccessful();
-		void onServerBanner(const QPixmap);
-		void conferenceListReceived(const QList<QWClassPrivateChat> chats);
 		void onMotdReceived(const QString text);
+		void onServerBanner(const QPixmap);
 
 		
+		// Conferences
 		void onConferenceChanged(const int &cid, const QString &topic, const int &users, const bool &chat_protected, const int &type); 
-		
 		
 		void onServerUserlistItem(int theChatID, const ClassWiredUser);
 		/// This signal is emitted once all users of a chat have been transmitted.

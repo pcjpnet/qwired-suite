@@ -55,6 +55,7 @@ void QWServerCore::registerClient(WiredSocket *socket) {
 
 	connect(socket, SIGNAL(requestedBanner(int, const QWTransaction &)), this, SLOT(sendServerBanner(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(loginReceived(int, const QWTransaction &)), this, SLOT(checkLogin(const int, const QWTransaction &)) );
+	connect(socket, SIGNAL(newsGroupsRequested(int, const QWTransaction &)), this, SLOT(sendNewsGroups(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(requestedUserlist(const int, const QWTransaction &)), this, SLOT(sendUserlist(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(requestedMotd(const int, const QWTransaction &)), this, SLOT(sendMotd(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(userStatusChanged(ClassWiredUser,int)), this, SLOT(broadcastUserStatusChanged(ClassWiredUser,int)) );
@@ -905,7 +906,8 @@ void QWServerCore::handleTransaction(const int id, const QWTransaction & t) {
  * Send the server banner to the client.
  * @param id The ID of the user.
  */
-void QWServerCore::sendServerBanner(const int id, const QWTransaction &t) {
+void QWServerCore::sendServerBanner(const int id, const QWTransaction &t)
+{
 	qDebug() << "[core] sending server banner to"<<id;
 	QWTransaction response = t.toResponse();
 	response.addObject("data", pBannerData);
@@ -913,10 +915,39 @@ void QWServerCore::sendServerBanner(const int id, const QWTransaction &t) {
 }
 
 /**
+ * Send the available news groups to the client.
+ */
+void QWServerCore::sendNewsGroups(const int id, const QWTransaction & t)
+{
+	QSqlQuery query;
+	qDebug() << "[core] sending list of news groups to"<<id;
+
+	query.prepare("SELECT id, title, articles FROM qw_news_groups;");
+	if(query.exec()) {
+		while(query.next()) {
+			QWTransaction response = t.toResponse();
+			response.addObject("nid", query.value(0).toString());
+			response.addObject("name", query.value(1).toString());
+			response.addObject("count", query.value(2).toInt());
+			pClients[id]->sendTransaction(response);
+		}
+		
+		QWTransaction response = t.toResponse();
+		response.setFlagListingComplete();
+		pClients[id]->sendTransaction(response);
+
+	} else { // SQL error occourred
+		qDebug() << "[core] failed sending news groups: sql error:"<<query.lastError().text();
+	}
+
+}
+
+/**
  * Send current MOTD to the client.
  * @param id The ID of the user.
  */
-void QWServerCore::sendMotd(const int id, const QWTransaction &t) {
+void QWServerCore::sendMotd(const int id, const QWTransaction &t)
+{
 	qDebug() << "[core] sending motd to"<<id;
 	QWTransaction response = t.toResponse();
 	response.addObject("text", pMotdData);
