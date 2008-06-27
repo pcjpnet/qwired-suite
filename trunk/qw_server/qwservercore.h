@@ -64,6 +64,7 @@ private slots:
 	void sendUserlist(const int id, const QWTransaction &t);
 	void sendUserInfo(const int id, const QWTransaction &t);
 	void sendMotd(const int id, const QWTransaction &t);
+	void sendNewsGroups(const int id, const QWTransaction &t);
 	void broadcastUserStatusChanged(const ClassWiredUser, const int changeFlags);
 	
 	void clearNews(const int id);

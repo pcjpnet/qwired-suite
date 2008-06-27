@@ -36,6 +36,8 @@ private:
 	QPointer<QTcpSocket> tcpSocket;
 	QTcpServer *tcpServer;
 	QByteArray tcpBuffer;
+	void handleCommand(const QByteArray &command);
+	void sendCommand(const QByteArray &command);
 
 public:
     QWGuiServer(QObject *parent = 0);

@@ -41,6 +41,34 @@ WidgetNews::~WidgetNews()
 {
 }
 
+/**
+ * Set the responsible WiredSocket and connect the signals as needed.
+ */
+void WidgetNews::setSocket(WiredSocket * socket) {
+	pSocket = socket;
+	pSocket->getNewsGroups();
+	connect(pSocket, SIGNAL(onNewsGroupListDone()),
+			this, SLOT(onNewsGroupListDone()));
+	connect(pSocket, SIGNAL(onNewsGroupListItem(const int, const QString, const int)),
+			this, SLOT(onNewsGroupListItem(const int, const QString, const int)));
+}
+
+void WidgetNews::onNewsGroupListItem(const int nid, const QString name, const int count)
+{
+	QTreeWidgetItem *item = new QTreeWidgetItem(listGroups);
+	item->setText(0, name);
+	item->setText(1, QString::number(count));
+	item->setData(0, Qt::UserRole, nid);
+}
+
+void WidgetNews::onNewsGroupListDone()
+{
+	
+}
+
+
+
+
 void WidgetNews::reloadPrefs() {
 	initPrefs();
 	fNews->clear();

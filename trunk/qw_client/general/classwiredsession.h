@@ -110,7 +110,7 @@ public slots:
 	
 	// Toolbar handlers
 	void do_show_serverinfo();
-	void getNews();
+	void showNewsBrowser();
 	void do_new_broadcastmsg();
 	void do_new_filebrowser(QString thePath="/");
 	void do_show_prefs();

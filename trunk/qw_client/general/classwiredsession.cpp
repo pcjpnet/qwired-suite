@@ -122,7 +122,8 @@ void ClassWiredSession::doSetupConnections() {
 
 	
 	connect( pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
-	connect( pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)), this, SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
+	connect( pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
+			 this, SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
 	connect( pWiredSocket, SIGNAL(onPrivateMessage(ClassWiredUser,QString)), this, SLOT(doHandlePrivMsg(ClassWiredUser,QString)) );
 	connect( pWiredSocket, SIGNAL(onServerBroadcast(ClassWiredUser,QString)), this, SLOT(doHandleBroadcast(ClassWiredUser,QString)) );
 	connect( pWiredSocket, SIGNAL(onServerUserInfo(ClassWiredUser)), this, SLOT(doHandleUserInfo(ClassWiredUser)) );
@@ -149,8 +150,9 @@ void ClassWiredSession::doSetupConnections() {
 	
 	// Main Window actions
 	//
+	connect( pConnWindow->actionNews, SIGNAL(triggered()), this, SLOT(showNewsBrowser()) );
+	
 	connect( pConnWindow->actionNewConnection, SIGNAL(triggered()), this, SLOT(createNewConnection()) );
-	connect( pConnWindow->actionNews, SIGNAL(triggered()), this, SLOT(getNews()) );
 	connect( pConnWindow->actionServerInfo, SIGNAL(triggered(bool)), this, SLOT(do_show_serverinfo()) );
 	connect( pConnWindow->actionBroadcast, SIGNAL(triggered(bool)), this, SLOT(do_new_broadcastmsg()) );
 	connect( pConnWindow->actionFiles, SIGNAL(triggered(bool)), this, SLOT(do_new_filebrowser()) );
@@ -246,25 +248,27 @@ void ClassWiredSession::onSocketPrivileges(ClassWiredUser s) {
 }
 
 
-void ClassWiredSession::getNews() {
-	// Request the news from the server.
-	
-	if( !pWinNews ) {
+/**
+ * Display the news browser widget and immediately request the list of groups.
+ */
+void ClassWiredSession::showNewsBrowser() {
+	if(!pWinNews) {
 		pWinNews = new WidgetNews();
-		connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
-		connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
-		
-		connect( pWiredSocket, SIGNAL(onServerNewsDone()), pWinNews, SLOT(onServerNewsDone()) );
-		connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
-		connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
-		connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(deleteNews()) );
+		pWinNews->setSocket(pWiredSocket);
+// 		connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
+// 		connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
+// 		
+// 		connect( pWiredSocket, SIGNAL(onServerNewsDone()), pWinNews, SLOT(onServerNewsDone()) );
+// 		connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(showNewsBrowser()) );
+// 		connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
+// 		connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(deleteNews()) );
 		
 		// Display the widget using a Tab
 		int tmpIdx = pConnWindow->pTabWidget->addTab(pWinNews, QIcon(), tr("News"));
 		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
 		
 		//pWinNews->show();
-		pWiredSocket->getNews();
+		//pWiredSocket->showNewsBrowser();
 	} else {
 		int tmpIdx = pConnWindow->pTabWidget->indexOf(pWinNews);
 		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);

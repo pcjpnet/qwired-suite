@@ -159,6 +159,11 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
 		emit conferenceOptionsChanged(userId(), t);
 		resetIdleTimer();
+
+	} else if(t.type == 2020) { // Request list of conference groups
+		if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
+		emit newsGroupsRequested(userId(), t);
+		resetIdleTimer();
 	
 	}
 
@@ -171,295 +176,7 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 // Called by readDataFromSocket() after splitting a message off the internal
 // buffer. We have to extract the command ID here and decide what to do with
 // the message.
-void WiredSocket::handleWiredMessage(QByteArray theData) {
-	
-	
-// 	int tmpPos = theData.indexOf(" ");
-// 	QString tmpCmd = tmpPos>-1 ? QString::fromUtf8(theData.left(tmpPos)) : QString::fromUtf8(theData);
-// 	QList<QByteArray> tmpParams = splitMessageFields(theData);
-
-// 	qDebug() << userId()<<"| Incoming command:"<<tmpCmd;
-// 	if(!pHandshakeOK) { // No handshake received yet. The only thing we accept is a HELLO.
-// 		pHandshakeOK = tmpCmd=="HELLO";
-// 		if(!pHandshakeOK) {
-// 			QWServerController::qwLog("Fatal: Handshake failed. Dropping connection.");
-// 			pSocket->disconnectFromHost();
-// 		} else {
-// 			emit handshakeComplete(userId());
-// 		}
-
-// 	} else {
-		// Handshake exists, handle the command.
-
-
-// 		if(tmpCmd=="BROADCAST") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privBroadcast) { sendErrorPermissionDenied(); return; }
-// 			emit receivedBroadcastMessage(userId(), QString::fromUtf8(tmpParams.value(0)));
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="BAN") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privBanUsers) { sendErrorPermissionDenied(); return; }
-// 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="BANNER") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit requestedBanner(userId());
-// 
-// 		} else if(tmpCmd=="CLEARNEWS") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privClearNews) { sendErrorPermissionDenied(); return; }
-// 			emit clearedNews(userId());
-// 
-// 		} else if(tmpCmd=="DELETEUSER") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privDeleteAccounts) { sendErrorPermissionDenied(); return; }
-// 			emit deletedUser(userId(), QString::fromUtf8(tmpParams.value(0)));
-// 
-// 		} else if(tmpCmd=="DELETEGROUP") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privDeleteAccounts) { sendErrorPermissionDenied(); return; }
-// 			emit deletedGroup(userId(), QString::fromUtf8(tmpParams.value(0)));
-// 
-// 		} else if(tmpCmd=="CREATEUSER") {
-// 			if(tmpParams.count()!=26) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privCreateAccounts) { sendErrorPermissionDenied(); return; }
-// 			ClassWiredUser tmpUser;
-// 			tmpUser.pLogin = QString::fromUtf8(tmpParams.value(0));
-// 			tmpUser.pPassword = QString::fromUtf8(tmpParams.value(1));
-// 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(2));
-// 			tmpParams.removeAt(0);
-// 			tmpParams.removeAt(0);
-// 			tmpParams.removeAt(0);
-// 			tmpUser.setFromPrivileges(tmpParams);
-// 			emit createdUser(userId(), tmpUser);
-// 
-// 		} else if(tmpCmd=="CREATEGROUP") {
-// 			if(tmpParams.count()!=24) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privCreateAccounts) { sendErrorPermissionDenied(); return; }
-// 			ClassWiredUser tmpUser;
-// 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(0));
-// 			tmpParams.removeAt(0);
-// 			tmpUser.setFromPrivileges(tmpParams);
-// 			emit createdGroup(userId(), tmpUser);
-// 			
-// 		} else if(tmpCmd=="CLIENT") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			emit receivedClientInfo(userId(), QString::fromUtf8(tmpParams.value(0)) );
-// 			
-// 		} else if(tmpCmd=="DECLINE") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit declinedPrivateChat(userId(), tmpParams.value(0).toInt() );
-// 
-// 		} else if(tmpCmd=="EDITUSER") {
-// 			if(tmpParams.count()!=26) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
-// 			ClassWiredUser tmpUser;
-// 			tmpUser.pLogin = QString::fromUtf8(tmpParams.value(0));
-// 			tmpUser.pPassword = QString::fromUtf8(tmpParams.value(1));
-// 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(2));
-// 			tmpParams.removeAt(0);
-// 			tmpParams.removeAt(0);
-// 			tmpParams.removeAt(0);
-// 			qDebug() << tmpParams;
-// 			tmpUser.setFromPrivileges(tmpParams);
-// 			emit editedUser(userId(), tmpUser);
-// 
-// 		} else if(tmpCmd=="EDITGROUP") {
-// 			if(tmpParams.count()!=24) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
-// 			ClassWiredUser tmpUser;
-// 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(0));
-// 			tmpParams.removeAt(0);
-// 			tmpUser.setFromPrivileges(tmpParams);
-// 			emit editedGroup(userId(), tmpUser);
-// 			
-// 		} else if(tmpCmd=="PING") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			sendWiredCommand("202 Pong");
-// 
-// 		} else if(tmpCmd=="GROUPS") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
-// 			emit requestedGroupsList(userId());
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="INFO") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privGetUserInfo) { sendErrorPermissionDenied(); return; }
-// 			emit requestedUserInfo(userId(), tmpParams.value(0).toInt() );
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="INVITE") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit invitedUserToChat(userId(), tmpParams.value(0).toInt(), tmpParams.value(1).toInt() );
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="JOIN") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit joinedPrivateChat(userId(), tmpParams.value(0).toInt() );
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="KICK") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			if(!pSessionUser.privKickUsers) { sendErrorPermissionDenied(); return; }
-// 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="LEAVE") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit privateChatLeft(userId(), tmpParams.value(0).toInt());
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="LIST") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit requestedFileList(userId(), QString::fromUtf8(tmpParams.value(0)));
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="NEWS") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit requestedNews(userId());
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="NICK") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			pSessionUser.pNick = QString::fromUtf8(tmpParams.value(0));
-// 			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="ME") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			emit receivedChat(pSessionUser.pUserID, tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="MSG") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-// 			emit privateMessageReceived(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)));
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="ICON") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			pSessionUser.pIcon = tmpParams.value(0).toInt();
-// 			pSessionUser.pImage = tmpParams.value(1);
-// 			if(isLoggedIn()) {
-// 				emit userStatusChanged(pSessionUser);
-// 				emit userImageChanged(pSessionUser);
-// 				resetIdleTimer();
-// 			}
-// 			
-// 		} else if(tmpCmd=="PASS") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			pSessionUser.pPassword = QString::fromUtf8(tmpParams.value(0));
-// 			emit loginReceived(pSessionUser.pUserID, pSessionUser.pLogin, pSessionUser.pPassword);
-// 
-// 		} else if(tmpCmd=="POST") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			if(!pSessionUser.privPostNews) { sendErrorPermissionDenied(); return; }
-// 			resetIdleTimer();
-// 			emit newsPosted(userId(), QString::fromUtf8(tmpParams.value(0)));
-// 			
-// 		} else if(tmpCmd=="PRIVCHAT") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			emit requestedPrivateChat(userId());
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="PRIVILEGES") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			sendPrivileges();
-// 			
-// 		} else if(tmpCmd=="STAT") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			emit requestedFileStat(userId(), QString::fromUtf8(tmpParams.value(0)));
-// 			resetIdleTimer();
-// 			
-// 			
-// 		} else if(tmpCmd=="STATUS") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			pSessionUser.pStatus = tmpParams.value(0);
-// 			if(isLoggedIn()) {
-// 				emit userStatusChanged(pSessionUser);
-// 				resetIdleTimer();
-// 			}
-// 			
-// 		} else if(tmpCmd=="TOPIC") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			if(!pSessionUser.privChangeTopic) { sendErrorPermissionDenied(); return; }
-// 			emit topicChanged(sessionUser(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)) );
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="READUSER") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
-// 			emit requestedReadUser(userId(), QString::fromUtf8(tmpParams.value(0)) );
-// 			resetIdleTimer();
-// 
-// 		} else if(tmpCmd=="READGROUP") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
-// 			emit requestedReadGroup(userId(), QString::fromUtf8(tmpParams.value(0)) );
-// 			resetIdleTimer();
-// 		
-// 		} else if(tmpCmd=="SAY") {
-// 			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			emit receivedChat(pSessionUser.pUserID, tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="USER") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			pSessionUser.pLogin = tmpParams.value(0);
-// 
-// 		} else if(tmpCmd=="USERS") {
-// 			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
-// 			emit requestedAccountsList(userId());
-// 			resetIdleTimer();
-// 			
-// 		} else if(tmpCmd=="WHO") {
-// 			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-// 			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-// 			emit requestedUserlist(pSessionUser.pUserID, tmpParams.value(0).toInt());
-// 
-// 		} else {
-// 			qDebug() << "Unknown Command |"<<userId()<<"|"<<tmpCmd;
-// // 			qwSendCommandNotImplemented();
-// 		}
-
-// 	}
-
-}
+void WiredSocket::handleWiredMessage(QByteArray theData) { }
 
 /**
  * A socket error occoured.
@@ -474,16 +191,7 @@ void WiredSocket::on_socket_error() {
  * Send a Wired-formatted message block to the peer.
  * @param theData The payload of the message.
  */
-void WiredSocket::sendWiredCommand(const QByteArray theData) {
-// 	if(!pSocket->isOpen()) return;
-//  	qDebug() << userId()<<"|"<<"Sending: "<<theData;
-// 	QByteArray tmpBuffer;
-// 	tmpBuffer += pSendBuffer;
-// 	tmpBuffer += theData;
-// 	tmpBuffer += kEOF;
-// 	pSendBuffer.clear();
-// 	pSocket->write(tmpBuffer);
-}
+void WiredSocket::sendWiredCommand(const QByteArray theData) { }
 
 void WiredSocket::sendWiredCommandBuffer(const QByteArray theData) {
 	qDebug() << userId()<<"|"<<"Sending (buffer): "<<theData;
@@ -494,6 +202,9 @@ void WiredSocket::sendWiredCommandBuffer(const QByteArray theData) {
 
 
 
+/**
+ * Return if there is a transaction left in the TCP buffer.
+ */
 bool WiredSocket::bufferHasMessage(QByteArray & buffer) {
 	if(buffer.length()<14)
 		return false;
@@ -502,21 +213,6 @@ bool WiredSocket::bufferHasMessage(QByteArray & buffer) {
 	stream >> tmpLen;
 	return (quint32)buffer.length()>=tmpLen;
 }
-
-
-/**
- * Return a list of parameters from the message, automatically skipping the command identifier.
- */
-QList<QByteArray> WiredSocket::splitMessageFields(QByteArray theData) {
-	QByteArray tmpData(theData);
-	int tmpPos = theData.indexOf(" "); // Remove the identifier
-	if(tmpPos!=-1) {
-		tmpData=tmpData.mid(tmpPos+1);
-		return tmpData.split(28);
-	}
-	return QList<QByteArray>();
-}
-
 
 
 void WiredSocket::sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize) {
