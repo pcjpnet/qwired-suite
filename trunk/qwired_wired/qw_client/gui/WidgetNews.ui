@@ -1,0 +1,80 @@
+<ui version="4.0" >
+ <class>WidgetNews</class>
+ <widget class="QWidget" name="WidgetNews" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>440</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>News</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QTextEdit" name="fNews" >
+     <property name="font" >
+      <font>
+       <family>Monospace</family>
+      </font>
+     </property>
+     <property name="readOnly" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QToolButton" name="fBtnRefresh" >
+       <property name="text" >
+        <string>Refresh</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QProgressBar" name="fProc" >
+       <property name="maximum" >
+        <number>0</number>
+       </property>
+       <property name="value" >
+        <number>-1</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnDelete" >
+       <property name="text" >
+        <string>Delete</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnPost" >
+       <property name="text" >
+        <string>Post...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

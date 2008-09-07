@@ -1,0 +1,287 @@
+<ui version="4.0" >
+ <class>WidgetFileBrowser</class>
+ <widget class="QWidget" name="WidgetFileBrowser" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>399</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Files</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../application.qrc" >:/icons/files.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="spacing" >
+    <number>4</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="spacing" >
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="fBtnBack" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="toolTip" >
+        <string>Back</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >:/icons/icn_back.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="shortcut" >
+        <string>Ctrl+Up</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>12</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnDownload" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="toolTip" >
+        <string>Download File...</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >:/icons/icn_download.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnUpload" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="toolTip" >
+        <string>Upload File...</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >:/icons/icn_upload.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnInfo" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="toolTip" >
+        <string>Get Info</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >:/icons/btn_info.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnNewFolder" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="toolTip" >
+        <string>New Folder...</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >:/icons/icn_foldernew.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnRefresh" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="toolTip" >
+        <string>Refresh</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >:/icons/icn_refresh.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="shortcut" >
+        <string>F5</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>12</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fBtnDelete" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="toolTip" >
+        <string>Delete...</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >:/icons/icn_delete.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>6</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="fFilter" />
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTreeView" name="fList" >
+     <property name="rootIsDecorated" >
+      <bool>false</bool>
+     </property>
+     <property name="uniformRowHeights" >
+      <bool>true</bool>
+     </property>
+     <property name="itemsExpandable" >
+      <bool>false</bool>
+     </property>
+     <property name="sortingEnabled" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="fStats" >
+     <property name="text" >
+      <string>0 items, 0 bytes total, 0 GB available</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../application.qrc" />
+ </resources>
+ <connections/>
+</ui>
