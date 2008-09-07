@@ -1,0 +1,42 @@
+<ui version="4.0" >
+ <class>WidgetConferenceList</class>
+ <widget class="QWidget" name="WidgetConferenceList" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>626</width>
+    <height>340</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Conferences</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <item>
+    <widget class="QTableWidget" name="fList" >
+     <property name="alternatingRowColors" >
+      <bool>true</bool>
+     </property>
+     <column>
+      <property name="text" >
+       <string>Users</string>
+      </property>
+     </column>
+     <column>
+      <property name="text" >
+       <string>Topic</string>
+      </property>
+     </column>
+     <column>
+      <property name="text" >
+       <string>Description</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

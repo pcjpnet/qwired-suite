@@ -1,0 +1,125 @@
+<ui version="4.0" >
+ <class>WidgetNews</class>
+ <widget class="QWidget" name="WidgetNews" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>684</width>
+    <height>492</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>News</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <item>
+    <widget class="QSplitter" name="splitter_2" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="" >
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QTreeWidget" name="listGroups" >
+         <column>
+          <property name="text" >
+           <string>Newsgroup</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>Articles</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QToolButton" name="fBtnRefresh" >
+           <property name="text" >
+            <string>Refresh</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="fProc" >
+           <property name="maximum" >
+            <number>0</number>
+           </property>
+           <property name="value" >
+            <number>-1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QToolButton" name="fBtnDelete" >
+           <property name="text" >
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="fBtnPost" >
+           <property name="text" >
+            <string>Post...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QSplitter" name="splitter" >
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QTreeWidget" name="listArticles" >
+       <column>
+        <property name="text" >
+         <string>Subject</string>
+        </property>
+       </column>
+       <column>
+        <property name="text" >
+         <string>Date</string>
+        </property>
+       </column>
+       <column>
+        <property name="text" >
+         <string>Author</string>
+        </property>
+       </column>
+      </widget>
+      <widget class="QTextEdit" name="fNews" >
+       <property name="font" >
+        <font>
+         <family>Monospace</family>
+        </font>
+       </property>
+       <property name="readOnly" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
