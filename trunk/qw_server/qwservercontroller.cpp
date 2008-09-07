@@ -41,7 +41,7 @@ void QWServerController::reloadConfig() {
 	QStringList tmpCmdArgs = QCoreApplication::arguments();
 
 	// Override config file
-	QString tmpCfgPath = "etc/wired.conf";
+	QString tmpCfgPath = "etc/qwired_server.conf";
 	if(int index=tmpCmdArgs.indexOf("-c") > -1)
 		tmpCfgPath = tmpCmdArgs.value(index+1);
 	

@@ -51,6 +51,11 @@ void WidgetNews::setSocket(WiredSocket * socket) {
 			this, SLOT(onNewsGroupListDone()));
 	connect(pSocket, SIGNAL(onNewsGroupListItem(const int, const QString, const int)),
 			this, SLOT(onNewsGroupListItem(const int, const QString, const int)));
+	
+	connect(pSocket, SIGNAL(onNewsGroupArticleListDone()),
+			this, SLOT(onNewsGroupArticleListDone()));
+	connect(pSocket, SIGNAL(onNewsGroupArticleListItem(const int, const QString, const QString, const QDate)),
+			this, SLOT(onNewsGroupArticleListItem(const int, const QString, const QString, const QDate)));
 }
 
 void WidgetNews::onNewsGroupListItem(const int nid, const QString name, const int count)
@@ -63,8 +68,22 @@ void WidgetNews::onNewsGroupListItem(const int nid, const QString name, const in
 
 void WidgetNews::onNewsGroupListDone()
 {
-	
 }
+
+void WidgetNews::onNewsGroupArticleListItem(const int aid, const QString subject, const QString author, const QDate date)
+{
+	qDebug() << "Got article:"<<author<<subject<<aid;
+	QTreeWidgetItem *item = new QTreeWidgetItem(listArticles);
+	item->setText(0, subject);
+	item->setText(1, date.toString());
+	item->setText(2, author);
+	item->setData(0, Qt::UserRole, aid);
+}
+
+void WidgetNews::onNewsGroupArticleListDone()
+{
+}
+
 
 
 
@@ -155,6 +174,12 @@ void WidgetNews::onServerNewsDone()
 	fProc->setVisible(false);
 }
 
+void WidgetNews::on_listGroups_itemSelectionChanged()
+{
+	QTreeWidgetItem *item = listGroups->currentItem();
+	if(!item) return;
+	pSocket->getNewsArticles(item->data(0,Qt::UserRole).toInt());
+}
 
 
 

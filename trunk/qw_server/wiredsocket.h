@@ -66,8 +66,13 @@ class WiredSocket : public QObject
 		
 		
 	signals:
-		void conferenceOptionsChanged(const int id, const QWTransaction &t);
+
+		// News
+		void newsGroupArticlesRequested(const int id, const QWTransaction &t);
 		void newsGroupsRequested(const int id, const QWTransaction &t);
+		
+		void conferenceOptionsChanged(const int id, const QWTransaction &t);
+		
 		void privateMessageReceived(const int id, const QWTransaction &t);
 		void receivedChat(const int id, const QWTransaction &t);
 		void requestedMotd(const int id, const QWTransaction &t);
@@ -158,16 +163,6 @@ class WiredSocket : public QObject
 		void sendUserInfo(const ClassWiredUser user);
 		
 		void idleTimerTriggered();
-
-		void sendErrorAccountNotFound();
-		void sendErrorAccountExists();
-		void sendErrorPermissionDenied();
-		void sendErrorClientNotFound();
-		void sendErrorCommandFailed();
-		void sendErrorSyntaxError();
-		void sendErrorCannotBeDisconnected();
-		void sendErrorFileNotFound();
-
 
 		
 	private slots:

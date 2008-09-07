@@ -4,14 +4,16 @@ SOURCES += main.cpp \
  ssltcpserver.cpp \
  classwireduser.cpp \
  qwservercore.cpp \
- ../common/qwclassprivatechat.cpp \
  classwiredfile.cpp \
  ../common/qwtransaction.cpp \
- qwguiserver.cpp
+ qwguiserver.cpp \
+ qwclassprivatechat.cpp
 
 TEMPLATE = app
 
 QT -= gui
+
+CC = colorgcc
 
 CONFIG -= app_bundle
 
@@ -26,10 +28,10 @@ HEADERS += qwservercontroller.h \
  ssltcpserver.h \
  classwireduser.h \
  qwservercore.h \
- ../common/qwclassprivatechat.h \
  classwiredfile.h \
  ../common/qwtransaction.h \
- qwguiserver.h
+ qwguiserver.h \
+ qwclassprivatechat.h
 INCLUDEPATH += ../common/
 
 DESTDIR = ../bin/

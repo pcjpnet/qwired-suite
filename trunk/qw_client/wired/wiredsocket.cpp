@@ -1479,6 +1479,15 @@ void WiredSocket::handleTransaction(const QWTransaction & t) {
 		} else {
 			emit onNewsGroupListItem(t.getObjectInt("nid"), t.getObjectString("name"), t.getObjectInt("count"));
 		}
+
+	} else if(t.type == 2021) { // News Group Articles Response
+		qDebug() << "Got news group articles item";
+		if(t.hasFlagListingComplete()) {
+			emit onNewsGroupArticleListDone();
+		} else {
+			emit onNewsGroupArticleListItem(t.getObjectInt("aid"), t.getObjectString("subject"), t.getObjectInt("author"),
+											QDate::fromString(t.getObjectString("date"), Qt::ISODate));
+		}
 		
 	} else {
 		
@@ -1531,6 +1540,16 @@ void WiredSocket::registerTransaction(const QWTransaction & t) {
 void WiredSocket::getNewsGroups()
 {
 	QWTransaction t(2020);
+	sendTransaction(t);
+}
+
+/**
+ * Request a list of available articles in a specific news group.
+ */
+void WiredSocket::getNewsArticles(const int nid)
+{
+	QWTransaction t(2021);
+	t.addObject("nid", nid);
 	sendTransaction(t);
 }
 
