@@ -65,10 +65,15 @@ class WidgetNews : public QWidget, private Ui::WidgetNews
 		void reloadPrefs();
 		void initPrefs();
 
+		// Groups list
+		void on_listGroups_itemSelectionChanged();
 
 		// Socket slots
 		void onNewsGroupListItem(const int nid, const QString name, const int count);
 		void onNewsGroupListDone();
+		void onNewsGroupArticleListItem(const int aid, const QString subject, const QString author, const QDate date);
+
+		void onNewsGroupArticleListDone();
 
 };
 

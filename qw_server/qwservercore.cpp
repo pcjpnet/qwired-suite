@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "qwservercore.h"
 #include "qwservercontroller.h"
+#include "classwireduser.h"
 
 QWServerCore::QWServerCore(QObject *parent)
  : QObject(parent)
@@ -53,9 +54,17 @@ void QWServerCore::registerClient(WiredSocket *socket) {
 	pClients[tmpId] = socket;
 	connect(socket, SIGNAL(transactionReceived(const int, const QWTransaction &)), this, SLOT(handleTransaction(const int, const QWTransaction &)));
 
+
+	// News
+	connect(socket, SIGNAL(newsGroupArticlesRequested(int, const QWTransaction &)),
+			this, SLOT(sendNewsGroupArticles(const int, const QWTransaction &)) );
+	connect(socket, SIGNAL(newsGroupsRequested(int, const QWTransaction &)),
+			this, SLOT(sendNewsGroups(const int, const QWTransaction &)) );
+
+	// General Session	
 	connect(socket, SIGNAL(requestedBanner(int, const QWTransaction &)), this, SLOT(sendServerBanner(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(loginReceived(int, const QWTransaction &)), this, SLOT(checkLogin(const int, const QWTransaction &)) );
-	connect(socket, SIGNAL(newsGroupsRequested(int, const QWTransaction &)), this, SLOT(sendNewsGroups(const int, const QWTransaction &)) );
+	
 	connect(socket, SIGNAL(requestedUserlist(const int, const QWTransaction &)), this, SLOT(sendUserlist(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(requestedMotd(const int, const QWTransaction &)), this, SLOT(sendMotd(const int, const QWTransaction &)) );
 	connect(socket, SIGNAL(userStatusChanged(ClassWiredUser,int)), this, SLOT(broadcastUserStatusChanged(ClassWiredUser,int)) );
@@ -943,6 +952,36 @@ void QWServerCore::sendNewsGroups(const int id, const QWTransaction & t)
 }
 
 /**
+ * Send a list of article (headers) in the selected news group.
+ */
+void QWServerCore::sendNewsGroupArticles(const int id, const QWTransaction & t)
+{
+	QSqlQuery query;
+	qDebug() << "[core] sending list of news articles to"<<id;
+
+	query.prepare("SELECT id, date, user, subject FROM qw_news WHERE deleted=0;");
+	if(query.exec()) {
+		while(query.next()) {
+			QWTransaction response = t.toResponse();
+			response.addObject("aid", query.value(0).toInt());
+			response.addObject("author", query.value(2).toString());
+			response.addObject("subject", query.value(3).toString());
+			response.addObject("date", query.value(1).toDate().toString(Qt::ISODate));
+			pClients[id]->sendTransaction(response);
+		}
+		
+		QWTransaction response = t.toResponse();
+		response.setFlagListingComplete();
+		pClients[id]->sendTransaction(response);
+
+	} else { // SQL error occourred
+		qDebug() << "[core] failed sending news group articles: sql error:"<<query.lastError().text();
+	}
+}
+
+
+
+/**
  * Send current MOTD to the client.
  * @param id The ID of the user.
  */
@@ -962,16 +1001,16 @@ void QWServerCore::sendUserInfo(const int id, const QWTransaction & t) {
 	int uid = t.getObjectInt("uid");
 	QWTransaction response = t.toResponse();
 	if(pClients.contains(uid)) {
-		ClassWiredUser &user = pClients[uid]->sessionUser;
-		t.addObject("nick", user.pNick);
-		t.addObject("admin", user.pAdmin);
-		t.addObject("idle", user.pIdle);
-		t.addObject("groups", user.pGroupName);
-		t.addObject("status", user.pStatus);
-		t.addObject("image", user.pImage);
-		t.addObject("via", "");
-		t.addObject("comment", "A comment about this account.");
-		t.addObject("root", "/");
+// 		ClassWiredUser &user = pClients[uid]->sessionUser;
+// 		t.addObject("nick", user.pNick);
+// 		t.addObject("admin", user.pAdmin);
+// 		t.addObject("idle", user.pIdle);
+// 		t.addObject("groups", user.pGroupName);
+// 		t.addObject("status", user.pStatus);
+// 		t.addObject("image", user.pImage);
+// 		t.addObject("via", "");
+// 		t.addObject("comment", "A comment about this account.");
+// 		t.addObject("root", "/");
 	} else {
 		response.error = Qwired::ErrorObjectNotExists;
 	}

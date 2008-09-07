@@ -111,6 +111,7 @@ class WiredSocket : public QObject
 		
 		// News
 		void getNewsGroups();
+		void getNewsArticles(const int nid);
 		
 		// General Session
 		void getMotd();
@@ -216,6 +217,8 @@ class WiredSocket : public QObject
 		// News
 		void onNewsGroupListItem(const int nid, const QString name, const int count);
 		void onNewsGroupListDone();
+		void onNewsGroupArticleListItem(const int aid, const QString subject, const QString author, const QDate date);
+		void onNewsGroupArticleListDone();
 
 		// General Session
 		void onServerLoginSuccessful();

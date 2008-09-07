@@ -17,23 +17,37 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "qwclassprivatechat.h"
+#ifndef QWCLASSPRIVATECHAT_H
+#define QWCLASSPRIVATECHAT_H
 
-QWClassPrivateChat::QWClassPrivateChat()
+#include <QList>
+#include <QString>
+#include <QDateTime>
+#include "wired/classwireduser.h"
+
+/**
+	@author Bastian Bense <bb@bense.de>
+*/
+class QWClassPrivateChat
 {
-	pChatId = 0;
-	pTopic = "No topic.";
-	pTopicDate = QDateTime::currentDateTime();
-	pTopicSetter.pNick = "Qwired Server";
-	pPermanent = true;
-	pUserCount = 0;
+public:
+    QWClassPrivateChat();
+    ~QWClassPrivateChat();
+
+	int pChatId;
+	QList<int> pUsers;
+	QList<int> pInvitedUsers;
+	QString pTopic;
+	ClassWiredUser pTopicSetter;
+	QDateTime pTopicDate;
+	QString pPassword; // the conference is protected if a password is set
+	bool pPermanent; // true if the conference is permanent
 
 
-	
-}
+	// used in client only:
+	//
+	int pUserCount;
 
+};
 
-QWClassPrivateChat::~QWClassPrivateChat()
-{}
-
-
+#endif

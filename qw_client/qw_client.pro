@@ -37,7 +37,7 @@ SOURCES += general/main.cpp \
  ../common/qwtransaction.cpp \
  gui/widgetmotd.cpp \
  gui/widgetconferencelist.cpp \
- ../common/qwclassprivatechat.cpp
+ qwclassprivatechat.cpp
 TEMPLATE = app
 CONFIG += warn_on thread qt
 macx : CONFIG += x86 ppc
@@ -97,7 +97,7 @@ HEADERS += wired/classwireduser.h \
  ../common/qwtransaction.h \
  gui/widgetmotd.h \
  gui/widgetconferencelist.h \
- ../common/qwclassprivatechat.h
+ qwclassprivatechat.h
 TRANSLATIONS += lang_de.ts \
  lang_pt.ts \
  lang_it.ts \
