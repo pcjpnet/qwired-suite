@@ -61,11 +61,7 @@ int main (int argc, char *argv[]) {
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
 
 	ClassWiredSession *tmpConn = new ClassWiredSession();
-
 	tmpS->createTrayIcon();
-
-
-
 
 	// Create initial connection window
 	tmpS->addSession(tmpConn);
