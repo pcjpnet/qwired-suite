@@ -31,10 +31,11 @@
  */
 class WiredTransferSocket : public QThread
 {
+	
 Q_OBJECT
+		
 public:
 	void run();
-    WiredTransferSocket(QObject *parent = 0);
     ~WiredTransferSocket();
     
 	
@@ -68,12 +69,13 @@ public slots:
 		    
 		    
 private slots:
+	void onTheadFinished();
     void onSocketConnected();	
     void onSocketReady();
     void onSocketDisconnected();
     void on_socket_sslErrors(const QList<QSslError> &errors);
 	void sendNextFileChunk(qint64 theOffset);
-	void onSocketError(QAbstractSocket::SocketError);
+	void onSocketError(const QAbstractSocket::SocketError error);
 };
 
 #endif

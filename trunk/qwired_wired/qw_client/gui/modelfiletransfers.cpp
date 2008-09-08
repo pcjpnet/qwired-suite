@@ -38,7 +38,7 @@ int ModelFileTransfers::rowCount(const QModelIndex &) const {
 }
 
 QVariant ModelFileTransfers::data(const QModelIndex & index, int role) const {
-	//qDebug() << "Req data for role"<<role;
+	//qDebug() << "Req data forrole"<<role;
 	if(!index.isValid())
 		return QVariant();
 	if(!pSocket)

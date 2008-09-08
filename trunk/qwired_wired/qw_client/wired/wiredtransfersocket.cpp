@@ -21,24 +21,28 @@
  
 #include "wiredtransfersocket.h"
 
-WiredTransferSocket::WiredTransferSocket(QObject *parent)
- : QThread(parent)
-{
-	pSendingFile = false;
-	pSocket = new QSslSocket(this);
-	pSocket->setProtocol(QSsl::TlsV1);
-	connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>))); 
-	connect( pSocket, SIGNAL(encrypted()), this, SLOT(onSocketConnected()) );
-	connect( pSocket, SIGNAL(readyRead()), this, SLOT(onSocketReady()) );
-	connect( pSocket, SIGNAL(disconnected()), this, SLOT(onSocketDisconnected()) );
-	connect( pSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(sendNextFileChunk(qint64)) );
-	connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)) );
-	qDebug() << "Create Transfer thread:"<<currentThreadId();
-}
-
-
 void WiredTransferSocket::run() {
-	qDebug() << "Start Transfer thread:"<<currentThreadId();
+	qDebug() << "TransferSocket: Start transfer thread:"<<this;
+	pSendingFile = false;
+	pSocket = new QSslSocket();
+	pSocket->setProtocol(QSsl::TlsV1);
+
+	connect( this, SIGNAL(finished()), this, SLOT(onTheadFinished()) );
+	
+	connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)),
+			 this, SLOT(on_socket_sslErrors(QList<QSslError>)), Qt::DirectConnection);
+	connect( pSocket, SIGNAL(encrypted()),
+			 this, SLOT(onSocketConnected()), Qt::DirectConnection );
+	connect( pSocket, SIGNAL(readyRead()),
+			 this, SLOT(onSocketReady()), Qt::DirectConnection );
+	connect( pSocket, SIGNAL(disconnected()),
+			 this, SLOT(onSocketDisconnected()), Qt::DirectConnection );
+	connect( pSocket, SIGNAL(bytesWritten(qint64)),
+			 this, SLOT(sendNextFileChunk(qint64)), Qt::DirectConnection );
+	connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+			 this, SLOT(onSocketError(QAbstractSocket::SocketError)), Qt::DirectConnection );
+
+	
 	startTransfer();
 	exec();
 }
@@ -51,10 +55,13 @@ void WiredTransferSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
 	pSocket->ignoreSslErrors();
 }
 
+
 WiredTransferSocket::~WiredTransferSocket() {
-	qDebug() << "Destroyed thread"<<currentThreadId();
-	
+	qDebug() << "TransferSocket: Destroyed thread"<<currentThreadId();
+	if(!pFile.isNull()) pFile->deleteLater();
+	if(!pSocket.isNull()) pSocket->deleteLater();
 }
+
 
 /**
  * Connect to the remote host and initiate a file transfer.
@@ -62,7 +69,7 @@ WiredTransferSocket::~WiredTransferSocket() {
 void WiredTransferSocket::startTransfer() {
 	if( pTransfer.pTransferType==0 ) { // === Download ===
 		QString tmpPath = pTransfer.pLocalPath+QString(".WiredTransfer");
-		pFile = new QFile(tmpPath, this);
+		pFile = new QFile(tmpPath);
 		if( !pFile->open(QIODevice::Append) ) {
 			qDebug() << "WiredTransfer: Unable to open the file:"<<tmpPath<<":"<<pFile->errorString();
 			quit();
@@ -84,7 +91,7 @@ void WiredTransferSocket::startTransfer() {
 		pSocket->setCiphers("NULL"); // <-- if we want no encryption ;) I guess morris' mac is just too slow
 	
 	pSocket->connectToHostEncrypted(pServerHost, pServerPort);
-	qDebug() << "WiredTransfer: Connecting to"<<pServerHost<<":"<<pServerPort<<"hash"<<pTransfer.pHash<<"offset"<<pTransfer.pOffset;	
+	qDebug() << "TransferSocket: Connecting to"<<pServerHost<<":"<<pServerPort<<"hash"<<pTransfer.pHash<<"offset"<<pTransfer.pOffset;
 }
 
 
@@ -96,7 +103,7 @@ void WiredTransferSocket::setServer(QString theServer, int thePort) {
 
 
 void WiredTransferSocket::onSocketConnected() {
-	qDebug() << "WiredTransfer: Connected, sending handshake for"<<pTransfer.pHash;
+	qDebug() << "TransferSocket: Connected, sending handshake for"<<pTransfer.pHash;
 	QByteArray tmpCmd("TRANSFER ");
 	tmpCmd += pTransfer.pHash;
 	tmpCmd += 0x04; // EOT
@@ -107,7 +114,7 @@ void WiredTransferSocket::onSocketConnected() {
 	pTimerID = startTimer(1000);
 
 	// Let others know we are on it
-	emit fileTransferStarted(pTransfer);
+ 	emit fileTransferStarted(pTransfer);
 	
 	if( pTransfer.pTransferType==1 ) { // Upload
 		pSendingFile=true;
@@ -116,11 +123,13 @@ void WiredTransferSocket::onSocketConnected() {
 }
 
 
+// Some data is available in the socket's buffer.
 void WiredTransferSocket::onSocketReady() {
 	QByteArray tmpData = pSocket->readAll();
 	if( pTransfer.pTransferType==0 ) { // Download
 		pFile->write(tmpData);
 		pTransfer.pDoneSize += tmpData.size();
+		//qDebug() << "Received"<<pTransfer.pDoneSize;
 	}
 }
 
@@ -133,9 +142,9 @@ void WiredTransferSocket::onSocketDisconnected() {
 	
 	if( pTransfer.pDoneSize==pTransfer.pTotalSize ) {
 		// File complete
+		qDebug() << "WiredTransfer: TRANSFER COMPLETED!";
 		if(pTransfer.pTransferType==0) {
 			// Rename the file on download, if needed.
-			
 			QString tmpPath = pTransfer.pLocalPath+QString(".WiredTransfer");
 			QFile tmpFile(tmpPath);
 			if(tmpFile.exists() && tmpFile.size()==pTransfer.pTotalSize) {
@@ -144,16 +153,18 @@ void WiredTransferSocket::onSocketDisconnected() {
 			}
 		}
 		emit fileTransferDone(pTransfer);
-		qDebug() << "WiredTransfer: We are done!";
+		killTransfer();
+		
 	} else {
 		// Not complete, possibly an error
 		emit fileTransferError(pTransfer);
 		qDebug() << "WiredTransfer: Not completed, Reason:"<<pSocket->errorString();
+		killTransfer();
 	}
 	
 	killTimer(pTimerID);
-	killTransfer();
-	quit();
+	//killTransfer();
+	//quit();
 	
 }
 
@@ -177,6 +188,7 @@ void WiredTransferSocket::timerEvent(QTimerEvent * event) {
 	pTransfer.pCurrentSpeed = (tmpDiff/tmpTime)*1000;
 	pLastDone = pTransfer.pDoneSize;
 	emit fileTransferStatus(pTransfer);
+	qDebug() << "Received"<<pTransfer.pDoneSize;
 }
 
 
@@ -192,8 +204,7 @@ void WiredTransferSocket::sendNextFileChunk(qint64 theOffset) {
 			QByteArray tmpData = pFile->read(tmpChunkSize);
 			pSocket->write(tmpData);
 			if(pFile->atEnd()) {
-				qDebug() << "We are done. Close.";
-				pSocket->disconnectFromHost();
+				qDebug() << "TransferSocket: UPLOAD COMPLETE.";
 				killTransfer();
 			}
 		}
@@ -201,24 +212,36 @@ void WiredTransferSocket::sendNextFileChunk(qint64 theOffset) {
 }
 
 void WiredTransferSocket::killTransfer() {
-	if(pSocket && pSocket->isEncrypted()) {
-		qDebug() << "Disconnecting thread"<<currentThreadId();
+	if(pSocket && pSocket->state()==QAbstractSocket::ConnectedState ) {
+		qDebug() << "TransferSocket: Disconnecting thread"<<currentThreadId();
 		pSocket->waitForDisconnected();
 	}
 	
-	qDebug() << "Waiting for thread to finish:"<<currentThreadId();
-	quit();
-	wait();
+	qDebug() << "TransferSocket: Terminating event loop of thread"<<currentThreadId();
+	killTimer(pTimerID);
+	exit();
 	
-	qDebug() << "Thread finished, deleting:"<<currentThreadId();
-	this->deleteLater();
+	//wait();
+	//this->deleteLater();
 }
 
-void WiredTransferSocket::onSocketError(QAbstractSocket::SocketError error) {
-	qDebug() << "Failed to connect to the transfer port.";
-	emit fileTransferSocketError(error);
-	killTransfer();
-	
+
+void WiredTransferSocket::onSocketError(const QAbstractSocket::SocketError error) {
+	if(error == QAbstractSocket::ConnectionRefusedError) {
+		qDebug() << "--> Error was a"<<error;
+		emit fileTransferSocketError(error);
+	//killTransfer();
+	} else if(error == QAbstractSocket::RemoteHostClosedError) {
+		qDebug() << "TransferSocket: Remote host closed the connection.";
+	} else {
+		qDebug() << "WiredTransferSocket: (SocketError) State:"<<pSocket->state()<<" Reason:" << error;
+	}
+}
+
+void WiredTransferSocket::onTheadFinished()
+{
+	qDebug() << "TransferSocket: Thread has finished (deleting):"<<currentThread();
+	this->deleteLater();
 }
 
 

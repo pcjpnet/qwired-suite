@@ -72,7 +72,7 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 		else tmpCmdID = theData.toInt();
 		
 	QList<QByteArray> tmpParams = GetFieldArray(theData);
-	//qDebug() << "Got command" << tmpCmdID;
+	qDebug() << "Got command" << tmpCmdID;
 
 	// If in tracker mode, we should block commands that are not included in the tracker protocol.
 	if(pSocketType==Wired::TrackerSocket && !(tmpCmdID==200 || tmpCmdID==500 || tmpCmdID==501
@@ -695,7 +695,8 @@ void WiredSocket::getFile(const QString thePath, const QString theLocalPath){
 	tmpTrans.pLocalPath = theLocalPath;
 		
 	// And the socket...
-	WiredTransferSocket *tmpSock = new WiredTransferSocket(this);
+	WiredTransferSocket *tmpSock = new WiredTransferSocket;
+	qDebug() << "Current creator thread:"<<QThread::currentThread();
 	connect(tmpSock, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SIGNAL(fileTransferDone(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SIGNAL(fileTransferError(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));
@@ -729,7 +730,8 @@ void WiredSocket::on_server_transfer_ready(QList<QByteArray> theParams) {
 				tmpT->pTransfer.pHash = tmpHash;
 				tmpT->pTransfer.pQueuePosition = 0;
 				tmpT->pTransfer.pStatus = 2;
-				tmpT->run();
+				qDebug() << "Current thread is"<<QThread::currentThread()<<"starting"<<tmpT;
+				tmpT->start();
 				return;
 			}
 		}
@@ -942,7 +944,7 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		tmpTrans.calcLocalChecksum();
 		
 		// And the socket...
-		WiredTransferSocket *tmpSock = new WiredTransferSocket(this);
+		WiredTransferSocket *tmpSock = new WiredTransferSocket;
 		connect(tmpSock, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SIGNAL(fileTransferDone(ClassWiredTransfer)));
 		connect(tmpSock, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SIGNAL(fileTransferError(ClassWiredTransfer)));
 		connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));

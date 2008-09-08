@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/" >
         <file>general/tranzlator.txt</file>
+        <file>icons/qwired_splash.png</file>
         <file>icons/accounts.png</file>
         <file>icons/btn_ban.png</file>
         <file>icons/btn_chat.png</file>
