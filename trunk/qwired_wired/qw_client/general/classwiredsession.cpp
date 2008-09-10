@@ -703,25 +703,24 @@ void ClassWiredSession::triggerEvent(QString event, QStringList params) {
 	tmpMsgs["TransferStarted"] = tr("Transfer Started: %1");
 	tmpMsgs["TransferFinished"] = tr("Transfer Finished: %1");
 	QString tmpMsg = tmpMsgs[event].arg(params.value(0)).arg(params.value(1)).arg(params.value(2));
-	
+
+	// Write to the chat
 	if(conf.value(QString("events/%1/chat").arg(event)).toBool())
 		pMainChat->writeEventToChat(tmpMsg);
-	
+
+	// Show a message in the system tray
 	if(conf.value(QString("events/%1/traymsg").arg(event)).toBool()) {
 		WiredSingleton *tmpS = &WSINGLETON::Instance();
 		tmpS->pTrayIcon->showMessage( pWiredSocket->pServerName, tmpMsg );
 	}
 	
 	if(conf.contains(QString("events/%1/sound").arg(event)) ) {
-//		if(pEventMediaObject) {
-//			pEventMediaObject->setCurrentSource(conf.value(QString("events/%1/sound").arg(event)).toString());
-//			pEventMediaObject->play();
-//		}
 		
-		//qDebug() << conf.value(QString("events/%1/sound").arg(event)).toString();
-		//QSound::play( conf.value(QString("events/%1/sound").arg(event)).toString() );
+		qDebug() << conf.value(QString("events/%1/sound").arg(event)).toString();
+		QSound::play( conf.value(QString("events/%1/sound").arg(event)).toString() );
 	}
 
+	// Execute a system command
 	if(conf.value(QString("events/%1/syscmd_enabled").arg(event), false).toBool()) {
 		QString tmpCmd = conf.value(QString("events/%1/syscmd").arg(event)).toString();
 		if(!tmpCmd.isEmpty()) {

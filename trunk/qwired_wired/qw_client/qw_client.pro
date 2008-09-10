@@ -1,5 +1,6 @@
-QMAKE_MACOSX_DEPLOYMENT_TARGET =10.3
-QMAKE_MAC_SDK =/Developer/SDKs/MacOSX10.4u.sdk
+
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
+QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
 !macx : DESTDIR =../bin/
 ICON = qwired.icns
 
@@ -34,11 +35,17 @@ SOURCES += general/main.cpp \
  gui/WidgetTracker.cpp \
  wired/classtrackerserver.cpp \
  general/wiredsingleton.cpp
+
 TEMPLATE = app
+
 CONFIG += warn_on thread qt
+
 macx : CONFIG += x86 ppc
+
 TARGET = ../bin/qwired
+
 RESOURCES = application.qrc
+
 FORMS += gui/WinMain.ui \
  gui/WidgetForum.ui \
  gui/WidgetNews.ui \
@@ -55,7 +62,9 @@ FORMS += gui/WinMain.ui \
  gui/WidgetFileInfo.ui \
  gui/WidgetTracker.ui \
  gui/WidgetAboutQwired.ui
+
 QT += gui network
+
 HEADERS += wired/classwireduser.h \
  gui/connwindow.h \
  gui/widgetforum.h \
@@ -88,9 +97,15 @@ HEADERS += wired/classwireduser.h \
  gui/WidgetFileInfo.h \
  gui/WidgetTracker.h \
  wired/classtrackerserver.h
+
 TRANSLATIONS += lang_de.ts \
  lang_pt.ts \
  lang_it.ts \
  lang_fr.ts
+
 RC_FILE = qwired.rc
+
+DESTDIR = ../bin/
+
+INCLUDEPATH += /usr/lib/kde4/include/
 
