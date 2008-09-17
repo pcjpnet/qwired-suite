@@ -13,7 +13,8 @@
    <string>Files</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../application.qrc" >:/icons/files.png</iconset>
+   <iconset resource="../application.qrc" >
+    <normaloff>:/icons/files.png</normaloff>:/icons/files.png</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <property name="spacing" >
@@ -36,7 +37,8 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="../application.qrc" >:/icons/icn_back.png</iconset>
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/icn_back.png</normaloff>:/icons/icn_back.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -60,7 +62,7 @@
        <property name="sizeType" >
         <enum>QSizePolicy::Fixed</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0" >
         <size>
          <width>12</width>
          <height>20</height>
@@ -80,7 +82,8 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="../application.qrc" >:/icons/icn_download.png</iconset>
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/icn_download.png</normaloff>:/icons/icn_download.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -105,7 +108,8 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="../application.qrc" >:/icons/icn_upload.png</iconset>
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/icn_upload.png</normaloff>:/icons/icn_upload.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -130,7 +134,8 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="../application.qrc" >:/icons/btn_info.png</iconset>
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/btn_info.png</normaloff>:/icons/btn_info.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -152,7 +157,8 @@
         <string>New Folder...</string>
        </property>
        <property name="icon" >
-        <iconset resource="../application.qrc" >:/icons/icn_foldernew.png</iconset>
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/icn_foldernew.png</normaloff>:/icons/icn_foldernew.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -177,7 +183,8 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="../application.qrc" >:/icons/icn_refresh.png</iconset>
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/icn_refresh.png</normaloff>:/icons/icn_refresh.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -201,7 +208,7 @@
        <property name="sizeType" >
         <enum>QSizePolicy::Fixed</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0" >
         <size>
          <width>12</width>
          <height>20</height>
@@ -221,7 +228,8 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="../application.qrc" >:/icons/icn_delete.png</iconset>
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/icn_delete.png</normaloff>:/icons/icn_delete.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -239,7 +247,7 @@
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0" >
         <size>
          <width>6</width>
          <height>20</height>
@@ -254,6 +262,9 @@
    </item>
    <item>
     <widget class="QTreeView" name="fList" >
+     <property name="dragEnabled" >
+      <bool>true</bool>
+     </property>
      <property name="rootIsDecorated" >
       <bool>false</bool>
      </property>

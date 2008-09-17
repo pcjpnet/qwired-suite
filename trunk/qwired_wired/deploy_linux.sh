@@ -2,7 +2,7 @@
 
 
 QTDEPLOY=contrib/deployment_mac/deployqt/deployqt
-DMGNAME=~/Desktop/qwired_linux_svn_`svnversion`.tar.gz
+DMGNAME=~/Desktop/qwired_linux_svn_`svnversion`$1.tar.gz
 
 echo "- Preparing qwired build to be deployed."
 if [ -e bin/qwired ]; then

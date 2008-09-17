@@ -43,6 +43,7 @@ ModelFileList::~ModelFileList()
 // External signals
 //
 
+// The listing is comlete, udpate the view.
 void ModelFileList::onServerFileListDone(QString thePath, qlonglong theFreeSpace) {
 	if( thePath==pCurrentPath && pWaitingForList ) {
 		pWaitingForList = false;
@@ -50,6 +51,7 @@ void ModelFileList::onServerFileListDone(QString thePath, qlonglong theFreeSpace
 	}
 }
 
+// Add a new file list item as soon it is returned from the server.
 void ModelFileList::onServerFileListItem(ClassWiredFile file) {
 	if( file.path.startsWith(pCurrentPath) && pWaitingForList ) {
 		// Add an item
@@ -60,6 +62,7 @@ void ModelFileList::onServerFileListItem(ClassWiredFile file) {
 		tmpData.setValue(file);
 		
 		item = new QStandardItem(); // name
+		item->setDragEnabled(file.type==0);
 		item->setText(file.fileName());
 		item->setIcon(file.fileIcon());
 		item->setData(file.fileName(), Qt::UserRole);
@@ -83,15 +86,18 @@ void ModelFileList::onServerFileListItem(ClassWiredFile file) {
 	}
 }
 
+// Removes all items from the file list
 void ModelFileList::clearList() {
 	this->setRowCount(0);
 	pTotalSize = 0;
 }
 
+// Returns true if stuff can be dropped onto the list/view.
 bool ModelFileList::dropMimeData(const QMimeData *, Qt::DropAction, int, int, const QModelIndex &) {
  	return true;
 }
 
+// Returns which drop/drag actions are supported.
 Qt::DropActions ModelFileList::supportedDropActions() const {
  	return Qt::CopyAction;
 }

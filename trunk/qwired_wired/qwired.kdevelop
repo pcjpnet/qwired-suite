@@ -172,7 +172,7 @@
       </debugarguments>
     </run>
     <general>
-      <activedir>qw_server</activedir>
+      <activedir>qw_client</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>
@@ -210,7 +210,7 @@
     <projectdoc>
       <docsystem>Doxygen Documentation Collection</docsystem>
       <docurl>qwired.tag</docurl>
-      <usermanualurl></usermanualurl>
+      <usermanualurl/>
     </projectdoc>
   </kdevdocumentation>
   <substmap>

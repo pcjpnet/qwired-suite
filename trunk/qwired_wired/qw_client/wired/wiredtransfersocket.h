@@ -37,14 +37,12 @@ Q_OBJECT
 public:
 	void run();
     ~WiredTransferSocket();
-    
-	
     ClassWiredTransfer pTransfer;
 	
     QString pServerHost;
     int pServerPort;
     void setServer(QString theServer, int thePort);
-    
+    int pTransferLimit;
     
 private:
 	QPointer<QSslSocket> pSocket;
@@ -56,6 +54,7 @@ private:
 	void killTransfer();
 	void timerEvent(QTimerEvent *event);
 	bool pSendingFile;
+	QList<int> pSpeedList;
 	
 signals:
     void fileTransferStarted(const ClassWiredTransfer);
