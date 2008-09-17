@@ -28,10 +28,13 @@
 WidgetForum::WidgetForum(QWidget *parent)
 	: QWidget (parent)
 {
+	pSession = NULL;
+	pChatID = 1;
+	
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 	fBtnInvite->setVisible(false);
-	pChatID = 1;
+	
 
 	// We can filter the return key with this
 	fChatInput->installEventFilter(this);
@@ -54,9 +57,9 @@ WidgetForum::WidgetForum(QWidget *parent)
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
 	connect(tmpS, SIGNAL(prefsChanged()),
-			this, SLOT(reloadPrefs()));
+			this, SLOT(reloadPreferences()));
 	
-	reloadPrefs();
+	reloadPreferences();
 }
 
 
@@ -414,7 +417,7 @@ void WidgetForum::inviteMenuTriggered(QAction * action) {
 	pSession->pWiredSocket->inviteClientToChat(pChatID, action->data().toInt());
 }
 
-void WidgetForum::reloadPrefs() {
+void WidgetForum::reloadPreferences() {
 	QPalette p;
 	QSettings conf;
 

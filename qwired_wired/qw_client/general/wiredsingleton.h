@@ -22,11 +22,15 @@
 #ifndef WIREDSINGLETON_H
 #define WIREDSINGLETON_H
 
-#include "general/classwiredsession.h"
+// #include "general/classwiredsession.h"
 #include <QObject>
 #include <QPointer>
 #include <QColor>
 #include <QSettings>
+#include <QMenu>
+#include <QSystemTrayIcon>
+
+class ClassWiredSession;
 
 /**
 A basic singleton to handle global notification within the app.

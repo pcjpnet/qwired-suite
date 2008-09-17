@@ -32,51 +32,100 @@
 
 
 
-
-/**
- * Constructor
- */
-ClassWiredSession::ClassWiredSession(QObject *parent) : QObject(parent) {
-	pWiredSocket = new WiredSocket(this);
-	pConnWindow = new ConnWindow();
-	pMainChat = new WidgetForum();
-	
-	enableConnToolButtons(false);
-	
-	// Show the connect dialog initially
-	pConnectWindow = new WidgetConnect();
-	pConnWindow->setCentralWidget(pConnectWindow);
-	
-	// Set up the user list model
-	pUserListModel = new ModelUserList(this);
-	pUserListModel->setWiredSocket(pWiredSocket);
-	pMainChat->pSession = this;
-	pMainChat->setUserListModel(pUserListModel);
-	
-	doSetupConnections();
-	
-	QSettings settings;
-	if( settings.contains("general/icon") ) { // Custom icon
-		QPixmap tmpIcon = settings.value("general/icon").value<QPixmap>();
-		pWiredSocket->setUserIcon(tmpIcon);
-	} else { // Default icon
-		QPixmap tmpIcon(":/icons/qwired_logo_32.png");
-		pWiredSocket->setUserIcon(tmpIcon);
-	}
-	pWiredSocket->setUserStatus( settings.value("general/status","Qwired Newbie").toString() );
-	pWiredSocket->setUserNick(settings.value("general/nickname", "Unnamed").toString());
-
-	reloadPrefs();
-	pConnWindow->show();
+ClassWiredSession::ClassWiredSession(QObject *parent)
+	: QObject(parent)
+{
+	initWiredSocket();
+	initMainWindow();
+	setConnectionToolButtonsEnabled(false);
+	reloadPreferences();
 }
 
-/**
- * Destructor
- */
-ClassWiredSession::~ClassWiredSession() {
-	if(pMainChat) pMainChat->deleteLater();
-	if(pConnWindow) pConnWindow->deleteLater();
-	if(pWiredSocket) pWiredSocket->deleteLater();
+void ClassWiredSession::initMainWindow()
+{
+	pConnWindow = new ConnWindow();
+	connect(pConnWindow, SIGNAL(destroyed(QObject*)),
+			this, SLOT(connectionWindowDestroyed(QObject*)) );
+	pConnWindow->show();
+	
+	pMainChat = new WidgetForum();
+	
+	pConnectWindow = new WidgetConnect();
+	connect(pConnectWindow, SIGNAL(onConnnectReady(QString,QString,QString)),
+			this, SLOT(onDoConnect(QString,QString,QString)) );
+
+
+	
+	
+	// Set up the container widget
+ 	pContainerWidget = new QWidget();
+	pContainerLayout = new QStackedLayout(pContainerWidget);
+	pContainerWidget->setContentsMargins(6, 6, 6, 6);
+ 	pContainerWidget->setLayout(pContainerLayout);
+
+	// Create the tab bar
+	pMainTabWidget = new QTabWidget(pContainerWidget);
+	pMainTabWidget->clear();
+	pMainTabWidget->setVisible(false);
+	connect(pMainTabWidget, SIGNAL(currentChanged(int)),
+			this, SLOT(onTabBarCurrentChanged(int)) );
+
+	// The tab bar's close button, too
+	QToolButton *tmpTabCloseButton = new QToolButton(pMainTabWidget);
+	tmpTabCloseButton->setIcon(QIcon(":/icons/icn_close.png"));
+	tmpTabCloseButton->setShortcut(QKeySequence("ctrl+w"));
+	tmpTabCloseButton->setEnabled(false);
+	connect( tmpTabCloseButton, SIGNAL(clicked()), this, SLOT(onTabBarCloseButtonClicked()) );
+	pMainTabWidget->setCornerWidget(tmpTabCloseButton);
+
+	// Connection window/Forum
+	pUserListModel = new ModelUserList(pMainChat);
+	pUserListModel->setWiredSocket(pWiredSocket);
+	pMainChat->setSession(this);
+	pMainChat->setUserListModel(pUserListModel);
+	
+	// Add the widgets to the stacked layout
+	pContainerWidget->layout()->addWidget(pConnectWindow);
+	pContainerWidget->layout()->addWidget(pMainTabWidget);
+	
+	// Set the virtual widget
+ 	pConnWindow->setCentralWidget(pContainerWidget);
+	pConnWindow->show();
+
+	setupConnections();
+}
+
+
+/// Tab bar close button clicked. Close the current widget.
+void ClassWiredSession::onTabBarCloseButtonClicked()
+{
+	int tmpIdx = pMainTabWidget->currentIndex();
+	if(!tmpIdx) return;
+	pMainTabWidget->currentWidget()->close();
+	pMainTabWidget->removeTab(tmpIdx);
+}
+
+
+void ClassWiredSession::onTabBarCurrentChanged(int index)
+{
+	QWidget *tmpBtn = pMainTabWidget->cornerWidget();
+	tmpBtn->setEnabled(index>0);
+	
+	// Icon removal for private chats
+	QWidget *tmpWid = pMainTabWidget->widget(index);
+	WidgetForum *tmpChat = qobject_cast<WidgetForum*>(tmpWid);
+	if(tmpChat && tmpChat->pChatID!=1) {
+		pMainTabWidget->setTabIcon(index, QIcon(":/icons/tab-idle.png"));
+	}
+}
+
+
+ClassWiredSession::~ClassWiredSession()
+{
+	pConnWindow->deleteLater();
+	pContainerWidget->deleteLater();
+	pMainChat->deleteLater();
+
 }
 
 
@@ -102,25 +151,28 @@ void ClassWiredSession::createNewConnection() {
 /**
  * Set up connections between objects in this class.
  */
-void ClassWiredSession::doSetupConnections() {
-	// Connect Window
-	//
-	connect(pConnectWindow, SIGNAL(onConnnectReady(QString,QString,QString)), this, SLOT(onDoConnect(QString,QString,QString)) );
-	connect(pConnWindow, SIGNAL(destroyed(QObject*)), this, SLOT(connectionWindowDestroyed(QObject*)) );
+void ClassWiredSession::setupConnections() {
+	
 
 	// Socket connections
 	//
-	connect( pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
-	connect( pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)), this, SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
-	connect( pWiredSocket, SIGNAL(onPrivateMessage(ClassWiredUser,QString)), this, SLOT(doHandlePrivMsg(ClassWiredUser,QString)) );
-	connect( pWiredSocket, SIGNAL(onServerBroadcast(ClassWiredUser,QString)), this, SLOT(doHandleBroadcast(ClassWiredUser,QString)) );
+	connect( pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)),
+			 this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
+	connect( pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
+			 this, SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
+	connect( pWiredSocket, SIGNAL(onPrivateMessage(ClassWiredUser,QString)),
+			 this, SLOT(doHandlePrivMsg(ClassWiredUser,QString)) );
+	connect( pWiredSocket, SIGNAL(onServerBroadcast(ClassWiredUser,QString)),
+			 this, SLOT(doHandleBroadcast(ClassWiredUser,QString)) );
+	
 	connect( pWiredSocket, SIGNAL(onServerUserInfo(ClassWiredUser)), this, SLOT(doHandleUserInfo(ClassWiredUser)) );
 	connect( pWiredSocket, SIGNAL(onServerPrivateChatInvitation(int,ClassWiredUser)), this, SLOT(doHandlePrivateChatInvitation(int,ClassWiredUser)) );
 	connect( pWiredSocket, SIGNAL(onServerPrivateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
 	
 	connect( pWiredSocket, SIGNAL(onSocketError(QString,int)), this, SLOT(onSocketError(QString,int)) );
 	connect( pWiredSocket, SIGNAL(onServerInformation()), this, SLOT(onSocketServerInfo()) );
-	connect( pWiredSocket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onSocketLoginSuccessful()) );
+	connect( pWiredSocket, SIGNAL(onServerLoginSuccessful()),
+			 this, SLOT(onSocketLoginSuccessful()) );
 		
 	connect(pWiredSocket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
 	connect(pWiredSocket, SIGNAL(errorOccoured(int)), this, SLOT(handleErrorOccoured(int)) );
@@ -155,7 +207,8 @@ void ClassWiredSession::doSetupConnections() {
 
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPrefs()) );
+	connect( tmpS, SIGNAL(prefsChanged()),
+			 this, SLOT(reloadPreferences()) );
 	
 }
 
@@ -199,9 +252,8 @@ void ClassWiredSession::onSocketPrivileges(ClassWiredUser s) {
 }
 
 
+// Request the news from the server.
 void ClassWiredSession::getNews() {
-	// Request the news from the server.
-	
 	if( !pWinNews ) {
 		pWinNews = new WidgetNews();
 		connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
@@ -213,54 +265,58 @@ void ClassWiredSession::getNews() {
 		connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(deleteNews()) );
 		
 		// Display the widget using a Tab
-		int tmpIdx = pConnWindow->pTabWidget->addTab(pWinNews, QIcon(), tr("News"));
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->addTab(pWinNews, QIcon(), tr("News"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 		
 		//pWinNews->show();
 		pWiredSocket->getNews();
 	} else {
-		int tmpIdx = pConnWindow->pTabWidget->indexOf(pWinNews);
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->indexOf(pWinNews);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 		//pWinNews->raise();
 	}
 }
 
-void ClassWiredSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction) {
-	// A chat message arrived. Write it to the specific chat window.
-	ClassWiredUser tmpUsr = pWiredSocket->getUserByID(theUserID); // Find the user
 
-	if( theChat==1 ) { // Public chat
+/// A chat message was received, handle it.
+void ClassWiredSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction) {
+	ClassWiredUser tmpUsr = pWiredSocket->getUserByID(theUserID); // Find the user
+	if(theChat==1) {
+		// Public chat
 		pMainChat->writeToChat(tmpUsr.pNick, theText, theIsAction);
 		
+		// Trigger the event
 		QStringList tmpParams;
 		tmpParams << tmpUsr.pNick;
 		if(theIsAction) tmpParams << QString("*** %1 %2").arg(tmpUsr.pNick).arg(theText);
 			else tmpParams << theText;
 		triggerEvent("ChatReceived", tmpParams);
 
-	} else { // Handle private chat
-		if(!pChats.contains(theChat)) return;
+	} else {
+		// Handle private chat
+		if(!pChats.contains(theChat)) {
+			qDebug() << "ClassWiredSession: Warning: Unknown chat with id"<<theChat;
+			return;
+		}
 		WidgetForum *chat = pChats[theChat];
 		chat->writeToChat(tmpUsr.pNick, theText, theIsAction);
 		
 		// Find the index on the tab panel
-		int tmpIdx = pConnWindow->pTabWidget->indexOf(chat);
-		if( tmpIdx>-1 && pConnWindow->pTabWidget->currentIndex()!=tmpIdx ) {
-			pConnWindow->pTabWidget->setTabIcon( tmpIdx, QIcon(":/icons/tab-content.png") );
-		}
-		
+		int tmpIdx = pMainTabWidget->indexOf(chat);
+		if( tmpIdx>-1 && pMainTabWidget->currentIndex()!=tmpIdx )
+			pMainTabWidget->setTabIcon( tmpIdx, QIcon(":/icons/tab-content.png") );
 	}
 }
 
 
-
+/// The chat topic was changed or received. Update the chat window.
 void ClassWiredSession::doHandleChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic) {
 	Q_UNUSED(theLogin);
 	Q_UNUSED(theIP);
 	if( theChatID==1 ) {
 		// Public chat
 		pMainChat->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
-	} else if( pChats.contains(theChatID) ) {
+	} else if(pChats.contains(theChatID)) {
 		// Topic of private chat
 		WidgetForum *chat = pChats[theChatID];
 		chat->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
@@ -274,8 +330,8 @@ void ClassWiredSession::doHandlePublicChatInput(QString theText, bool theIsActio
 }
 
 
+/// A private message was received. Display it to the user.
 void ClassWiredSession::doHandlePrivMsg(ClassWiredUser theUser, QString theMessage) {
-	// Display a private message to the user.
 	WidgetSendPrivMsg *msg;
 	if(!pMsgWindows.contains(theUser.pUserID)) {
 		// Create a new message dialog
@@ -286,7 +342,6 @@ void ClassWiredSession::doHandlePrivMsg(ClassWiredUser theUser, QString theMessa
 		msg->setWindowTitle( theUser.pNick);
 		msg->setWindowIcon( theUser.iconAsPixmap() );
 		connect( msg, SIGNAL(newMessage(int,QString)), pWiredSocket, SLOT(sendPrivateMessage(int,QString)) );
-		//msg->show();
 	} else {
 		// Recover the old window
 		msg = pMsgWindows.value(theUser.pUserID);
@@ -334,10 +389,10 @@ void ClassWiredSession::doHandleBroadcast(ClassWiredUser theUser, QString theMes
 // Display received user info in a new window.
 void ClassWiredSession::doHandleUserInfo(ClassWiredUser theUser){
 	
-	for(int i=0; i<pConnWindow->pTabWidget->count(); i++) {
-		WidgetUserInfo *info = dynamic_cast<WidgetUserInfo*>(pConnWindow->pTabWidget->widget(i));
+	for(int i=0; i<pMainTabWidget->count(); i++) {
+		WidgetUserInfo *info = dynamic_cast<WidgetUserInfo*>(pMainTabWidget->widget(i));
 		if(info && info->pUserID==theUser.pUserID) { // Found existing window
-			pConnWindow->pTabWidget->setCurrentIndex(i);
+			pMainTabWidget->setCurrentIndex(i);
 			info->setUser(theUser);
 			return;
 	} }
@@ -347,9 +402,9 @@ void ClassWiredSession::doHandleUserInfo(ClassWiredUser theUser){
 	info->setUser(theUser);
 	QPixmap tmpIcnPx;
  	tmpIcnPx.loadFromData(theUser.pImage);
-	int tmpIdx = pConnWindow->pTabWidget->addTab(info, QIcon(tmpIcnPx), tr("Info: %1").arg(theUser.pNick));
+	int tmpIdx = pMainTabWidget->addTab(info, QIcon(tmpIcnPx), tr("Info: %1").arg(theUser.pNick));
 	
-	pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+	pMainTabWidget->setCurrentIndex(tmpIdx);
 	
 }
 
@@ -382,15 +437,15 @@ void ClassWiredSession::doHandlePrivateChatInvitation(int theChatID, ClassWiredU
 void ClassWiredSession::doCreateNewChat(int theChatID) {
 	WidgetForum *chat = new WidgetForum(pConnWindow);
 	ModelUserList *model = new ModelUserList(chat);
-	chat->pSession = this;
+	chat->setSession(this);
 	chat->pChatID = theChatID;
 	chat->setUserListModel(model);
 	chat->fBtnChat->setVisible(false);		
 	pChats[theChatID] = chat;
 	
-	int tmpIdx = pConnWindow->pTabWidget->addTab(chat, tr("Private Chat"));
-	pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
-	pConnWindow->pTabWidget->setTabIcon(tmpIdx, QIcon(":/icons/tab-idle.png"));
+	int tmpIdx = pMainTabWidget->addTab(chat, tr("Private Chat"));
+	pMainTabWidget->setCurrentIndex(tmpIdx);
+	pMainTabWidget->setTabIcon(tmpIdx, QIcon(":/icons/tab-idle.png"));
 }
 
 // Display the server information dialog.
@@ -398,7 +453,7 @@ void ClassWiredSession::do_show_serverinfo() {
 	if( !pServerWindow ) {
 		pServerWindow = new WidgetServerInfo();
 		pServerWindow->loadInfo(this);
-		pConnWindow->pTabWidget->addTab(pServerWindow, tr("Server Info"));
+		pMainTabWidget->addTab(pServerWindow, tr("Server Info"));
 	} else {
 		pServerWindow->raise();
 	}
@@ -434,8 +489,8 @@ void ClassWiredSession::do_show_prefs() {
 	if( pPrefsWindow==0 ) {
 		pPrefsWindow = new WidgetPrefs();
 		pPrefsWindow->setParent(pConnWindow, Qt::Window);
-		//int tmpIdx = pConnWindow->pTabWidget->addTab(pPrefsWindow, QIcon(), tr("Preferences"));
-		//pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		//int tmpIdx = pMainTabWidget->addTab(pPrefsWindow, QIcon(), tr("Preferences"));
+		//pMainTabWidget->setCurrentIndex(tmpIdx);
  		pPrefsWindow->move(pConnWindow->pos() );
  		pPrefsWindow->show();
 	} else {
@@ -455,25 +510,12 @@ void ClassWiredSession::onSocketServerInfo() {
 	
 }
 
-// Status update on successful login
-void ClassWiredSession::onSocketLoginSuccessful() {
-	if( pConnectWindow>0 ) {
-		if(pConnectWindow) pConnectWindow->hide();
-		pConnWindow->setCentralWidget(pConnWindow->pTabWidget);
-		pConnWindow->pTabWidget->addTab(pMainChat, "Chat");
-		pConnWindow->pTabWidget->setVisible(true);
-		//pMainChat->show();
-		enableConnToolButtons(true);
-
-		triggerEvent("ServerConnected",QStringList());
-	}
-}
 
 // Login attempt failed.
 void ClassWiredSession::onSocketLoginFailed() {
 	pConnectWindow->setEnabled(true);
 	pConnectWindow->setProgressBar(0,0);
-	enableConnToolButtons(false);
+	setConnectionToolButtonsEnabled(false);
 }
 
 // Connect to the remote server.
@@ -496,7 +538,7 @@ void ClassWiredSession::onSocketError(QString theErrorReason, int theError) {
 		
 		triggerEvent("ServerDisconnected",QStringList());
 	}
-	enableConnToolButtons(false);
+	setConnectionToolButtonsEnabled(false);
 	QMessageBox::critical(pMainChat, tr("Socket Error"), tr("A socket error occoured.\nReason: %1 (%2).").arg(theErrorReason).arg(theError));
 }
 
@@ -504,8 +546,8 @@ void ClassWiredSession::showTransfers() {
 	// Display the transfers window
 	if( !pTranfersWindow ) {
 		pTranfersWindow = new WidgetTransfers(pConnWindow);
-		int tmpIdx = pConnWindow->pTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 		// Model
 		ModelFileTransfers *tmpModel = new ModelFileTransfers(pTranfersWindow->fTransfers);
 		tmpModel->setSocket(pWiredSocket);
@@ -514,31 +556,31 @@ void ClassWiredSession::showTransfers() {
 		connect(pTranfersWindow, SIGNAL(transferCancelled(ClassWiredTransfer)), pWiredSocket, SLOT(cancelTransfer(ClassWiredTransfer)) );
 		
 	} else {
-		int tmpIdx = pConnWindow->pTabWidget->indexOf(pTranfersWindow);
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 	}
 }
 
 void ClassWiredSession::showSearch() {
 	if(!pFileSearch) {
 		pFileSearch = new WidgetFileSearch(pConnWindow);
-		int tmpIdx = pConnWindow->pTabWidget->addTab(pFileSearch, tr("File Search"));
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->addTab(pFileSearch, tr("File Search"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 		connect( pWiredSocket, SIGNAL(fileSearchDone(QList<ClassWiredFile>)), pFileSearch, SLOT(updateResults(QList<ClassWiredFile>)) );
 		connect( pFileSearch, SIGNAL(search(QString)), pWiredSocket, SLOT(searchFiles(QString)) );
 		connect( pFileSearch, SIGNAL(downloadFile(QString)), this, SLOT(search_download_file(QString)) );
 		connect( pFileSearch, SIGNAL(revealFile(QString)), this, SLOT(search_reveal_file(QString)) );
 	} else {
-		int tmpIdx = pConnWindow->pTabWidget->indexOf(pFileSearch);
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->indexOf(pFileSearch);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 	}
 }
 
 void ClassWiredSession::showAccounts() {
 	if(!pWinAccounts) {
 		pWinAccounts = new WidgetAccounts(pConnWindow);
-		int tmpIdx = pConnWindow->pTabWidget->addTab(pWinAccounts, tr("Accounts"));
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->addTab(pWinAccounts, tr("Accounts"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 		connect( pWiredSocket, SIGNAL(usersListingDone(QStringList)), pWinAccounts, SLOT(appendUserNames(QStringList)) );
 		connect( pWiredSocket, SIGNAL(groupsListingDone(QStringList)), pWinAccounts, SLOT(appendGroupNames(QStringList)) );
 		connect( pWiredSocket, SIGNAL(userSpecReceived(ClassWiredUser)), pWinAccounts, SLOT(loadUserSpec(ClassWiredUser)) );
@@ -555,13 +597,13 @@ void ClassWiredSession::showAccounts() {
 		pWiredSocket->getGroups();
 		pWiredSocket->getUsers();
 	} else {
-		int tmpIdx = pConnWindow->pTabWidget->indexOf(pWinAccounts);
-		pConnWindow->pTabWidget->setCurrentIndex(tmpIdx);
+		int tmpIdx = pMainTabWidget->indexOf(pWinAccounts);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
 	}
 }
 
 // Enable/Disable connection-related toolbar items (true if connected)
-void ClassWiredSession::enableConnToolButtons(bool theEnable) {
+void ClassWiredSession::setConnectionToolButtonsEnabled(bool theEnable) {
 	pConnWindow->actionReconnect->setEnabled(!theEnable);
 	pConnWindow->actionDisconnect->setEnabled(theEnable);
 	pConnWindow->actionServerInfo->setEnabled(theEnable);
@@ -605,20 +647,6 @@ void ClassWiredSession::search_reveal_file(QString thePath) {
 	do_new_filebrowser(thePath.section("/",0,-2));
 }
 
-void ClassWiredSession::reloadPrefs() {
-	qDebug() << "Reloading prefs.....";
-	
-	QSettings s;
-	if(pWiredSocket->sessionUser.pNick!=s.value("general/nickname", "Unnamed").toString())
-		pWiredSocket->setUserNick(s.value("general/nickname").toString());
-
-	if(pWiredSocket->sessionUser.pStatus!=s.value("general/status", "Qwired Newbie").toString())
-		pWiredSocket->setUserStatus(s.value("general/status").toString());
-
-	QPixmap tmpNew = s.value("general/icon", QPixmap()).value<QPixmap>();
-	pWiredSocket->setUserIcon(tmpNew);
-
-}
 
 void ClassWiredSession::handleErrorOccoured(int theError) {
 	QString tmpError(tr("An unknown server error occoured. The error code is %1.").arg(theError));
@@ -785,4 +813,44 @@ void ClassWiredSession::transferSocketError(QAbstractSocket::SocketError error) 
 	QStringList tmpParams;
 	tmpParams << tr("The file transfer failed due to a connection error. Error ID is: %1").arg(error);
 	triggerEvent("ServerError",tmpParams);
+}
+
+
+
+/// The login was successful, switch to forum view.
+void ClassWiredSession::onSocketLoginSuccessful() {
+	if(!pConnectWindow) return;
+	pMainTabWidget->addTab(pMainChat, "Chat");
+	pContainerLayout->setCurrentIndex(1);
+	setConnectionToolButtonsEnabled(true);
+	triggerEvent("ServerConnected",QStringList());
+}
+
+
+/// Initialize the main socket and load settings
+void ClassWiredSession::initWiredSocket()
+{
+	pWiredSocket = new WiredSocket(this);
+	
+	QSettings settings;
+	pWiredSocket->setUserStatus(settings.value("general/status","Qwired Newbie").toString());
+	pWiredSocket->setUserNick(settings.value("general/nickname", "Unnamed").toString());
+		
+	QPixmap tmpIcon = settings.value("general/icon", QPixmap(":/icons/qwired_logo_32.png")).value<QPixmap>();
+	pWiredSocket->setUserIcon(tmpIcon);
+}
+
+
+/// Reload the preferences if the user changed those.
+void ClassWiredSession::reloadPreferences()
+{
+	QSettings s;
+	if(pWiredSocket->sessionUser.pNick!=s.value("general/nickname", "Unnamed").toString())
+		pWiredSocket->setUserNick(s.value("general/nickname").toString());
+
+	if(pWiredSocket->sessionUser.pStatus!=s.value("general/status", "Qwired Newbie").toString())
+		pWiredSocket->setUserStatus(s.value("general/status").toString());
+
+	QPixmap tmpNew = s.value("general/icon", QPixmap()).value<QPixmap>();
+	pWiredSocket->setUserIcon(tmpNew);
 }

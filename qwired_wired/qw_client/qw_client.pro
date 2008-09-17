@@ -13,7 +13,6 @@ macx {
 
 ICON = qwired.icns
 SOURCES += general/main.cpp \
-    gui/connwindow.cpp \
     wired/wiredsocket.cpp \
     general/classwiredsession.cpp \
     gui/widgetforum.cpp \

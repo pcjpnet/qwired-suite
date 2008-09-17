@@ -72,13 +72,12 @@ int main (int argc, char *argv[]) {
 
 	// Create the inital connection
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
+	
 
 	ClassWiredSession *tmpConn = new ClassWiredSession();
-	tmpS->createTrayIcon();
-
-	// Create initial connection window
 	tmpS->addSession(tmpConn);
-	
+
+	tmpS->createTrayIcon();
 
 	return app.exec();
 }

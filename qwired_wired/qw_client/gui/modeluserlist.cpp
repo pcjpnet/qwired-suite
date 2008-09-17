@@ -32,7 +32,7 @@ ModelUserList::ModelUserList(QObject *parent)
 	
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPrefs()) );
+	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
 }
 
 
@@ -190,7 +190,7 @@ bool ModelUserList::insertRows(int row, int count, const QModelIndex &) {
 	return true;
 }
 
-void ModelUserList::reloadPrefs() {
+void ModelUserList::reloadPreferences() {
 	reset();
 }
 
