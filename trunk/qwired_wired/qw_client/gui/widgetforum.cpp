@@ -36,13 +36,13 @@ WidgetForum::WidgetForum(QWidget *parent)
 	// We can filter the return key with this
 	fChatInput->installEventFilter(this);
 
-// 	// Set vertical splitter
-// 	fVSplitter->setStretchFactor(0,20);
-// 	fVSplitter->setStretchFactor(1,1);
-// 
-// 	// Set horizontal splitter
-// 	fHSplitter->setStretchFactor(0,20);
-// 	fHSplitter->setStretchFactor(1,1);
+	// Set vertical splitter
+	fVSplitter->setStretchFactor(0,20);
+	fVSplitter->setStretchFactor(1,1);
+
+	// Set horizontal splitter
+	fHSplitter->setStretchFactor(0,20);
+	fHSplitter->setStretchFactor(1,1);
 
 	// Restore splitters from prefs
 	QSettings settings;
