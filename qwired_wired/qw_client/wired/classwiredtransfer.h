@@ -24,30 +24,80 @@
 
 #include <QtCore>
 
+#include "classwiredtransfer.h"
+#include <QCryptographicHash>
+
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
 class ClassWiredTransfer{
-public:
-    ClassWiredTransfer();
-    ~ClassWiredTransfer();
-    ClassWiredTransfer(const ClassWiredTransfer &);
 	
-    int pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running
-    QString pLocalPath; // path to file on local disk
-    QString pRemotePath; // path to file on server
-    QString pHash; // hash for the file transfer
-    QString pChecksum; // checksum for the file
-    int pTransferType; // 0=download, 1=upload
-    qlonglong pOffset; // first byte for transfer
-    qlonglong pTotalSize; // total length of file
-    qlonglong pDoneSize; // transferred size of data
-    int pQueuePosition; // position within the queue
+public:
+    ClassWiredTransfer()
+	{
+		pStatus = 0;
+		pTotalSize = 0;
+		pDoneSize = 0;
+		pOffset = 0;
+		pTransferType = 0;
+		pQueuePosition = 0;
+		pEncryptTransfer = true;
+		pCurrentSpeed = 0;
+	};
+	
+    ~ClassWiredTransfer()
+	{ };
+	
+    ClassWiredTransfer(const ClassWiredTransfer &orig)
+	{
+		pStatus = orig.pStatus;
+		pLocalPath = orig.pLocalPath;
+		pRemotePath = orig.pRemotePath;
+		pHash = orig.pHash;
+		pChecksum = orig.pChecksum;
+		pTransferType = orig.pTransferType;
+		pOffset = orig.pOffset;
+		pTotalSize = orig.pTotalSize;
+		pDoneSize = orig.pDoneSize;
+		pQueuePosition = orig.pQueuePosition;
     
+		pEncryptTransfer = orig.pEncryptTransfer;
+		pCurrentSpeed = orig.pCurrentSpeed;
+	};
+
+	
+    void calcLocalChecksum()
+	{
+		QFile tmpFile(pLocalPath);
+		if( tmpFile.open(QIODevice::ReadOnly) ) {
+		// If file exists, calculate the hash.
+			QByteArray tmpData = tmpFile.read(1048576); // 1MB for the hash
+			QByteArray tmpHash = QCryptographicHash::hash(tmpData, QCryptographicHash::Sha1);
+			pChecksum = tmpHash.toHex();
+			qDebug() << "Hash of"<<pLocalPath<<"="<<pChecksum<<"size"<<tmpFile.size();
+			tmpFile.close();
+		}
+	};
+
+	
+	QString fileName() const
+	{
+		return pRemotePath.section("/", -1);
+	};
+
+
+	int pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running
+	QString pLocalPath; // path to file on local disk
+	QString pRemotePath; // path to file on server
+	QString pHash; // hash for the file transfer
+	QString pChecksum; // checksum for the file
+	int pTransferType; // 0=download, 1=upload
+	qlonglong pOffset; // first byte for transfer
+	qlonglong pTotalSize; // total length of file
+	qlonglong pDoneSize; // transferred size of data
+	int pQueuePosition; // position within the queue
 	bool pEncryptTransfer; // if true, transfer will be encrypted
 	int pCurrentSpeed; // the current speed, updated during transfer, otherwise 0
-    void calcLocalChecksum();
-	QString fileName() const;
     
     
 };

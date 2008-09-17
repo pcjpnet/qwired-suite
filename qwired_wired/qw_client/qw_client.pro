@@ -1,21 +1,20 @@
 
 macx {
-	QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
-	QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
-	CONFIG += x86 ppc
-	QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
-	QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
+    QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
+    QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
+    CONFIG += x86 ppc
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
+    QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
 }
 
 !macx {
-	ESTDIR = ../bin/
+    ESTDIR = ../bin/
 }
 
 ICON = qwired.icns
 SOURCES += general/main.cpp \
     gui/connwindow.cpp \
     wired/wiredsocket.cpp \
-    wired/classwireduser.cpp \
     general/classwiredsession.cpp \
     gui/widgetforum.cpp \
     gui/widgetnews.cpp \
@@ -31,7 +30,6 @@ SOURCES += general/main.cpp \
     wired/classwiredfile.cpp \
     gui/widgetprefs.cpp \
     gui/widgetconnect.cpp \
-    wired/classwiredtransfer.cpp \
     wired/wiredtransfersocket.cpp \
     gui/widgettransfers.cpp \
     gui/modelfiletransfers.cpp \
@@ -41,7 +39,6 @@ SOURCES += general/main.cpp \
     gui/widgetaccounts.cpp \
     gui/WidgetFileInfo.cpp \
     gui/WidgetTracker.cpp \
-    wired/classtrackerserver.cpp \
     general/wiredsingleton.cpp
 TEMPLATE = app
 CONFIG += warn_on \

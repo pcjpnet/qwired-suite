@@ -22,12 +22,17 @@
 #include "wiredtransfersocket.h"
 
 void WiredTransferSocket::run() {
+	pTransferLimit = 0; /* do not use, not done yet -basti */
 	qDebug() << "TransferSocket: Start transfer thread:"<<this;
 	pSendingFile = false;
 	pSocket = new QSslSocket();
 	pSocket->setProtocol(QSsl::TlsV1);
+	pSocket->setReadBufferSize(pTransferLimit*2);
 
-	connect( this, SIGNAL(finished()), this, SLOT(onTheadFinished()) );
+	pSpeedList << 0 << 0 << 0 << 0 << 0; // some fake data for the average calculation
+
+	connect( this, SIGNAL(finished()),
+			 this, SLOT(onTheadFinished()) );
 	
 	connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)),
 			 this, SLOT(on_socket_sslErrors(QList<QSslError>)), Qt::DirectConnection);
@@ -63,9 +68,6 @@ WiredTransferSocket::~WiredTransferSocket() {
 }
 
 
-/**
- * Connect to the remote host and initiate a file transfer.
- */
 void WiredTransferSocket::startTransfer() {
 	if( pTransfer.pTransferType==0 ) { // === Download ===
 		QString tmpPath = pTransfer.pLocalPath+QString(".WiredTransfer");
@@ -125,12 +127,29 @@ void WiredTransferSocket::onSocketConnected() {
 
 // Some data is available in the socket's buffer.
 void WiredTransferSocket::onSocketReady() {
-	QByteArray tmpData = pSocket->readAll();
-	if( pTransfer.pTransferType==0 ) { // Download
-		pFile->write(tmpData);
-		pTransfer.pDoneSize += tmpData.size();
-		//qDebug() << "Received"<<pTransfer.pDoneSize;
+
+	if(pTransferLimit) {
+		while(pSocket->bytesAvailable()) {
+			QByteArray tmpData = pSocket->read(pTransferLimit);
+			if( pTransfer.pTransferType==0 ) {
+				// Download
+				pFile->write(tmpData);
+				pTransfer.pDoneSize += tmpData.size();
+			}
+			msleep(1000);
+		}
+	} else {
+		// Normal, full speed
+		QByteArray tmpData = pSocket->readAll();
+		if( pTransfer.pTransferType==0 ) {
+			// Download
+			pFile->write(tmpData);
+			pTransfer.pDoneSize += tmpData.size();
+		}
 	}
+	
+ 		
+	
 }
 
 
@@ -180,15 +199,27 @@ void WiredTransferSocket::cancelTransfer() {
 
 
 // Timer event, mainly for launching the status event
-void WiredTransferSocket::timerEvent(QTimerEvent * event) {
+void WiredTransferSocket::timerEvent(QTimerEvent *event) {
 	Q_UNUSED(event)
+			
 	// Update current speed
 	qlonglong tmpDiff = pTransfer.pDoneSize-pLastDone; // difference between past and now
 	int tmpTime = pTimer.restart(); // time difference
-	pTransfer.pCurrentSpeed = (tmpDiff/tmpTime)*1000;
+
+	// Calc the average speed
+	int tmpCurrentSpeed = (tmpDiff/tmpTime)*1000;
+	pSpeedList.removeFirst();
+	pSpeedList.append(tmpCurrentSpeed);
+	QListIterator<int> i(pSpeedList);
+	while(i.hasNext()) { pTransfer.pCurrentSpeed += i.next(); }
+	pTransfer.pCurrentSpeed = pTransfer.pCurrentSpeed/pSpeedList.count();
+
+	
 	pLastDone = pTransfer.pDoneSize;
 	emit fileTransferStatus(pTransfer);
-	qDebug() << "Received"<<pTransfer.pDoneSize;
+	//qDebug() << "Received"<<pTransfer.pDoneSize;
+
+
 }
 
 
@@ -210,6 +241,7 @@ void WiredTransferSocket::sendNextFileChunk(qint64 theOffset) {
 		}
 	}
 }
+
 
 void WiredTransferSocket::killTransfer() {
 	if(pSocket && pSocket->state()==QAbstractSocket::ConnectedState ) {
