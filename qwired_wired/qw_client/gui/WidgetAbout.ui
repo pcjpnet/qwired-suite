@@ -50,14 +50,10 @@
       </sizepolicy>
      </property>
      <property name="text" >
-      <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-size:12pt; font-weight:600;">Qwired&lt;/span>&lt;/p>
-&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:12pt;">A free Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.&lt;/p>
-&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:12pt;">Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.&lt;/p>
-&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:12pt;">Copyright (c) Bastian Bense, Neo Software.&lt;/p>&lt;/body>&lt;/html></string>
+      <string>&lt;h2>Qwired&lt;/h2>&lt;p>A free Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.&lt;/p>&lt;p>Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.&lt;/p>&lt;p>Copyright (c) Bastian Bense, Neo Software.&lt;/p></string>
+     </property>
+     <property name="textFormat" >
+      <enum>Qt::RichText</enum>
      </property>
      <property name="alignment" >
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
