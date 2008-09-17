@@ -32,7 +32,7 @@ WidgetNews::WidgetNews(QWidget *parent)
 
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPrefs()) );
+	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
 	initPrefs();
 }
 
@@ -41,7 +41,7 @@ WidgetNews::~WidgetNews()
 {
 }
 
-void WidgetNews::reloadPrefs() {
+void WidgetNews::reloadPreferences() {
 	initPrefs();
 	fNews->clear();
 	emit doRefreshNews();

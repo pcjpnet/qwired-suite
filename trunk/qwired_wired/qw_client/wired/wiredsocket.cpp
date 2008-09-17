@@ -72,7 +72,7 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 		else tmpCmdID = theData.toInt();
 		
 	QList<QByteArray> tmpParams = GetFieldArray(theData);
-	qDebug() << "Got command" << tmpCmdID;
+// 	qDebug() << "Got command" << tmpCmdID;
 
 	// If in tracker mode, we should block commands that are not included in the tracker protocol.
 	if(pSocketType==Wired::TrackerSocket && !(tmpCmdID==200 || tmpCmdID==500 || tmpCmdID==501

@@ -59,7 +59,7 @@ class WidgetNews : public QWidget, private Ui::WidgetNews
 		void on_fBtnRefresh_clicked(bool checked);
 		void on_fBtnPost_clicked(bool checked);
 		void on_fBtnDelete_clicked(bool checked);
-		void reloadPrefs();
+		void reloadPreferences();
 		void initPrefs();
 
 

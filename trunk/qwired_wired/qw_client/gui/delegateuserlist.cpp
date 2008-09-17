@@ -28,15 +28,15 @@ DelegateUserlist::DelegateUserlist ( QObject *parent )
 {
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPrefs()) );
-	reloadPrefs();
+	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
+	reloadPreferences();
 }
 
 
 DelegateUserlist::~DelegateUserlist()
 { }
 
-void DelegateUserlist::reloadPrefs() {
+void DelegateUserlist::reloadPreferences() {
 	QSettings s;
 	pListFont.fromString(s.value("interface/userlist/font", QApplication::font().toString()).toString());
 	pCompactMode = s.value("interface/userlist/compact",false).toBool();

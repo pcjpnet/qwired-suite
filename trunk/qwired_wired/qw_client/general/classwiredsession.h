@@ -23,8 +23,13 @@
 #define WSESSIONMANAGER_H
 
 #include <QObject>
-#include "wired/wiredsocket.h"
+
+#include <QStackedLayout>
+
+#include "gui/widgetforum.h"
 #include "gui/connwindow.h"
+#include "wired/wiredsocket.h"
+
 #include "gui/widgetnews.h"
 #include "gui/modeluserlist.h"
 #include "gui/widgetserverinfo.h"
@@ -45,12 +50,25 @@ namespace Qwired {
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class ClassWiredSession : public QObject
+class ClassWiredSession
+	: public QObject
 {
 Q_OBJECT
 public:
 	ClassWiredSession(QObject *parent = 0);
 	~ClassWiredSession();
+
+	
+
+	// Main window widgets
+	void initMainWindow();
+	QPointer<QWidget> pContainerWidget;
+	QPointer<QStackedLayout> pContainerLayout;
+	QPointer<QTabWidget> pMainTabWidget;
+
+	// Wired Socket
+	void initWiredSocket();
+	
 	QPointer<WiredSocket> pWiredSocket;
 	QPointer<ConnWindow> pConnWindow;
 	QPointer<WidgetNews> pWinNews;
@@ -72,13 +90,18 @@ public:
 	QHash<int,QPointer<WidgetSendPrivMsg> > pMsgWindows;
 	
 private:
-	void doSetupConnections();
-	void enableConnToolButtons(bool);
+	void setupConnections();
+	void setConnectionToolButtonsEnabled(bool);
 
 
 private slots:
+
+	// Main window widgets
+	void onTabBarCloseButtonClicked();
+	void onTabBarCurrentChanged(int index);
+	
 	void connectionWindowDestroyed(QObject *obj);
-	void reloadPrefs();
+	void reloadPreferences();
 	void onSocketPrivileges(ClassWiredUser);
 	void showTrackers();
 	void createNewConnection();

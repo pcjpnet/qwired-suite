@@ -40,7 +40,12 @@ public:
 	WidgetForum(QWidget *parent = 0);
 	~WidgetForum();
 	void setUserListModel(ModelUserList *model);
-	QPointer<ClassWiredSession> pSession;
+	
+
+	void setSession(ClassWiredSession *session)
+	{ pSession = session; };
+	ClassWiredSession* session()
+	{ return pSession; }
 	
 	int pChatID;
 	
@@ -54,6 +59,7 @@ public slots:
 	void writeEventToChat(QString theMsg);
 	
 private:
+	ClassWiredSession *pSession;
 	QColor pChatTextColor;
 	QColor pChatTimeColor;
 	QColor pChatEventColor;
@@ -77,7 +83,7 @@ private slots:
 	void inviteMenuTriggered(QAction *action);
 
 
-	void reloadPrefs();
+	void reloadPreferences();
 
 };
 

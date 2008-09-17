@@ -59,7 +59,7 @@ private slots:
 	void onServerUserChanged(const ClassWiredUser theOld, const ClassWiredUser theNew);
 	void onServerUserJoined(int theChatID, const ClassWiredUser theUser);
 	void onServerUserLeft(int theChatID, const ClassWiredUser theUser);
-	void reloadPrefs();
+	void reloadPreferences();
 
 };
 

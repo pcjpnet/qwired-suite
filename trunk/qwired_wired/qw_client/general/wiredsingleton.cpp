@@ -28,12 +28,6 @@
 
 WiredSingleton::WiredSingleton() {
 	pTrayMenu = new QMenu();
-
-	// Quit action
-// 	QAction *tmpQuit = new QAction(QIcon(":/icons/icn_quit.png"), tr("Quit Qwired"), this);
-// 	connect(tmpQuit, SIGNAL(triggered(bool)), qApp, SLOT(quit()));
-// 	pTrayMenu->addAction(tmpQuit);
-// 	pTrayMenu->addSeparator();
 }
 
 WiredSingleton::~ WiredSingleton() {

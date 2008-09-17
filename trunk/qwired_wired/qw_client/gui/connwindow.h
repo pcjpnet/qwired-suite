@@ -24,38 +24,60 @@
 
 #include <QWidget>
 #include <QPointer>
-
 #include <QMainWindow>
+
 #include "ui_WinMain.h"
-#include "gui/widgetforum.h"
-#include "gui/widgetconnect.h"
 #include "gui/widgetabout.h"
 #include "wired/classwireduser.h"
-
-
-
+#include "../general/wiredcommon.h"
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class ConnWindow : public QMainWindow, public Ui::MainWindow
+class ConnWindow
+	: public QMainWindow, public Ui_MainWindow
 {
 Q_OBJECT
 
 public:
-	ConnWindow(QWidget *parent = 0);
-	~ConnWindow();
-	QPointer<QTabWidget> pTabWidget;
+	
 	QPointer<WidgetAbout> pWidgetAbout;
 	
-public slots:
-	void onCloseButton();
-	void toggleVisible();
+	ConnWindow(QWidget *parent=0)
+	{
+		Q_UNUSED(parent)
+		setupUi(this);
+		setUnifiedTitleAndToolBarOnMac(true);
+		setAttribute(Qt::WA_DeleteOnClose);
+		setWindowIcon( QIcon(":/icons/qwired_logo_32.png") );
+	};
 	
+	~ConnWindow()
+	{ };
+	
+	
+	
+public slots:
+	
+	void toggleVisible()
+	{
+		if(this->isMinimized()) {
+			this->showNormal();
+		} else {
+			if(this->isVisible()) this->hide();
+			else this->show();
+		}
+	};
+
 	
 private slots:
-	void onTab_currentChanged(int index);
-	void on_actionAbout_triggered(bool);
+	
+	void on_actionAbout_triggered(bool)
+	{
+		if(!pWidgetAbout)
+			pWidgetAbout = new WidgetAbout();
+		pWidgetAbout->show();
+	};
 	
 
 
