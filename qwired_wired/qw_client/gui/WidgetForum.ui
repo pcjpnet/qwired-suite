@@ -12,14 +12,14 @@
   <property name="windowTitle" >
    <string>Qwired</string>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" >
+  <layout class="QHBoxLayout" name="horizontalLayout" >
+   <item>
     <widget class="QSplitter" name="fVSplitter" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
      <widget class="QWidget" name="" >
-      <layout class="QVBoxLayout" >
+      <layout class="QVBoxLayout" name="verticalLayout_2" >
        <item>
         <widget class="QLabel" name="fTopic" >
          <property name="font" >
@@ -33,37 +33,28 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextBrowser" name="fChatLog" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-           <horstretch>10</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QSplitter" name="fHSplitter" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="openExternalLinks" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="fChatInput" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-           <horstretch>10</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font" >
-          <font>
-           <family>Monospace</family>
-          </font>
-         </property>
+         <widget class="QTextBrowser" name="fChatLog" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>10</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="openExternalLinks" >
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QPlainTextEdit" name="fChatInput" />
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="" >
-      <layout class="QVBoxLayout" >
+      <layout class="QVBoxLayout" name="verticalLayout" >
        <item>
         <layout class="QHBoxLayout" >
          <item>
@@ -75,7 +66,8 @@
             <string>Send a private message</string>
            </property>
            <property name="icon" >
-            <iconset resource="../application.qrc" >:/icons/icn_msg.png</iconset>
+            <iconset resource="../application.qrc" >
+             <normaloff>:/icons/icn_msg.png</normaloff>:/icons/icn_msg.png</iconset>
            </property>
            <property name="iconSize" >
             <size>
@@ -97,7 +89,8 @@
             <string>Start a private chat</string>
            </property>
            <property name="icon" >
-            <iconset resource="../application.qrc" >:/icons/btn_chat.png</iconset>
+            <iconset resource="../application.qrc" >
+             <normaloff>:/icons/btn_chat.png</normaloff>:/icons/btn_chat.png</iconset>
            </property>
            <property name="iconSize" >
             <size>
@@ -119,7 +112,8 @@
             <string>Show information about user</string>
            </property>
            <property name="icon" >
-            <iconset resource="../application.qrc" >:/icons/btn_info.png</iconset>
+            <iconset resource="../application.qrc" >
+             <normaloff>:/icons/btn_info.png</normaloff>:/icons/btn_info.png</iconset>
            </property>
            <property name="iconSize" >
             <size>
@@ -137,7 +131,7 @@
            <property name="orientation" >
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>16</width>
              <height>30</height>
@@ -154,7 +148,8 @@
             <string>Ban from server</string>
            </property>
            <property name="icon" >
-            <iconset resource="../application.qrc" >:/icons/btn_ban.png</iconset>
+            <iconset resource="../application.qrc" >
+             <normaloff>:/icons/btn_ban.png</normaloff>:/icons/btn_ban.png</iconset>
            </property>
            <property name="iconSize" >
             <size>
@@ -179,7 +174,8 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="../application.qrc" >:/icons/btn_kick.png</iconset>
+            <iconset resource="../application.qrc" >
+             <normaloff>:/icons/btn_kick.png</normaloff>:/icons/btn_kick.png</iconset>
            </property>
            <property name="iconSize" >
             <size>
@@ -198,7 +194,8 @@
             <string>Invite to chat...</string>
            </property>
            <property name="icon" >
-            <iconset resource="../application.qrc" >:/icons/icn_invite.png</iconset>
+            <iconset resource="../application.qrc" >
+             <normaloff>:/icons/icn_invite.png</normaloff>:/icons/icn_invite.png</iconset>
            </property>
            <property name="iconSize" >
             <size>

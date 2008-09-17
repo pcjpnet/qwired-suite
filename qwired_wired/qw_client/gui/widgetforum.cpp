@@ -25,34 +25,59 @@
 #include "../general/wiredcommon.h"
 #include "widgetsendprivmsg.h"
 
-WidgetForum::WidgetForum ( QWidget *parent ) : QWidget ( parent ) {
+WidgetForum::WidgetForum(QWidget *parent)
+	: QWidget (parent)
+{
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 	fBtnInvite->setVisible(false);
 	pChatID = 1;
 
-	fVSplitter->setStretchFactor(0,20);
-	fVSplitter->setStretchFactor(1,1);
+	// We can filter the return key with this
+	fChatInput->installEventFilter(this);
+
+// 	// Set vertical splitter
+// 	fVSplitter->setStretchFactor(0,20);
+// 	fVSplitter->setStretchFactor(1,1);
+// 
+// 	// Set horizontal splitter
+// 	fHSplitter->setStretchFactor(0,20);
+// 	fHSplitter->setStretchFactor(1,1);
+
+	// Restore splitters from prefs
+	QSettings settings;
+	if(settings.contains("gui/chat_splitter_h"))
+		fHSplitter->restoreState(settings.value("gui/chat_splitter_h").toByteArray());
+	if(settings.contains("gui/chat_splitter_v"))
+		fVSplitter->restoreState(settings.value("gui/chat_splitter_v").toByteArray());
 	
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPrefs()) );
+	connect(tmpS, SIGNAL(prefsChanged()),
+			this, SLOT(reloadPrefs()));
+	
 	reloadPrefs();
 }
 
-WidgetForum::~WidgetForum() {
+
+WidgetForum::~WidgetForum()
+{
 	// Leave the chat, if it is private
 	if( pChatID!=1 ) {
 		pSession->pChats.remove(pChatID);
 		pSession->pWiredSocket->leaveChat(pChatID);
 	}
+
+	// Save the splitters
+	QSettings s;
+	s.setValue("gui/chat_splitter_h", fHSplitter->saveState());
+	s.setValue("gui/chat_splitter_v", fVSplitter->saveState());
 }
 
-/**
- * Write a event to the chat
- * @param theMsg 
- */
-void WidgetForum::writeEventToChat(QString theMsg) {
+
+/// Write an event to the chat
+void WidgetForum::writeEventToChat(QString theMsg)
+{
 	QTextCursor tc = fChatLog->textCursor();
 	tc.movePosition(QTextCursor::End);
 	
@@ -79,12 +104,22 @@ void WidgetForum::writeEventToChat(QString theMsg) {
 }
 
 
-/**
- * Write some chat text to the chat log view.
- * @param theUser The name of the user.
- * @param theText The text of the chat message.
- * @param theEmote True if the user performed an action.
- */
+/// The event filter for the input field
+bool WidgetForum::eventFilter(QObject *watched, QEvent *event)
+{
+	if(watched == fChatInput && event->type() == QEvent::KeyPress) {
+		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+		if(!keyEvent) return false;
+		if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
+			postChatInputText();
+			return true;
+		}
+	}
+	return false;
+}
+
+
+/// Write some chat text to the chat log view.
 void WidgetForum::writeToChat(QString theUser, QString theText, bool theEmote) {
 	
 	QTextCursor tc = fChatLog->textCursor();
@@ -197,10 +232,11 @@ void WidgetForum::writeToChat(QString theUser, QString theText, bool theEmote) {
 	
 }
 
-// Send the chat message to the server.
-void WidgetForum::on_fChatInput_returnPressed() {
 
-	QString msg = fChatInput->text();
+/// Send the chat message to the server.
+void WidgetForum::postChatInputText()
+{
+	QString msg = fChatInput->toPlainText();
 	if(msg.startsWith("/me ")) {
 		pSession->pWiredSocket->sendChat(pChatID, msg.mid(4), true);
 	} else if(msg.startsWith("/topic ")) {
@@ -229,7 +265,9 @@ void WidgetForum::on_fChatInput_returnPressed() {
 	fChatInput->clear();
 }
 
-void WidgetForum::setUserListModel( ModelUserList * model ) { 
+
+void WidgetForum::setUserListModel(ModelUserList *model)
+{ 
 	// Set the model of the user list.
 	fUsers->setModel(model);
 	userlistDelegate = new DelegateUserlist (this);
@@ -258,6 +296,7 @@ void WidgetForum::setUserListModel( ModelUserList * model ) {
 
 	}
 }
+
 
 void WidgetForum::on_fBtnKick_clicked() {
 	const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
@@ -413,6 +452,10 @@ void WidgetForum::reloadPrefs() {
 
 	
 }
+
+
+
+
 
 
 
