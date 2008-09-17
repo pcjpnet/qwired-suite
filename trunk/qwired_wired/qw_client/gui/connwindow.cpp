@@ -43,7 +43,11 @@ ConnWindow::ConnWindow(QWidget *parent) : QMainWindow(parent) {
 	pTabWidget->setCornerWidget(tmpCloseBtn);
 }
 
-// Close button pressed, close the current tab.
+
+ConnWindow::~ConnWindow()
+{ }
+
+/// Close button pressed, close the current tab.
 void ConnWindow::onCloseButton() {
 	int tmpIdx = pTabWidget->currentIndex();
 	if( tmpIdx>0 ) {
@@ -67,13 +71,16 @@ void ConnWindow::onTab_currentChanged(int index) {
 	}
 }
 
+
+/// Show the about box.
 void ConnWindow::on_actionAbout_triggered(bool ) {
-	QMessageBox::about(this,
-		tr("Qwired %1").arg(QWIRED_VERSION),
-		   tr("<h2>Qwired %1</h2><br><br><b>A free Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.</b><br><br>Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.<br><br>Copyright (c) 2008 Bastian Bense.<br><br>Web: <a href=\"http://qwired-client.sourceforge.net/\">http://qwired-client.sourceforge.net/</a>").arg(QWIRED_VERSION) );
+	if(!pWidgetAbout)
+		pWidgetAbout = new WidgetAbout();
+	pWidgetAbout->show();
 }
 
-ConnWindow::~ConnWindow() { }
+
+
 
 /**
  * Toggle window visibility (implemented for TrayIcon usage)

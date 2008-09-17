@@ -29,6 +29,7 @@
 #include "ui_WinMain.h"
 #include "gui/widgetforum.h"
 #include "gui/widgetconnect.h"
+#include "gui/widgetabout.h"
 #include "wired/classwireduser.h"
 
 
@@ -45,6 +46,7 @@ public:
 	ConnWindow(QWidget *parent = 0);
 	~ConnWindow();
 	QPointer<QTabWidget> pTabWidget;
+	QPointer<WidgetAbout> pWidgetAbout;
 	
 public slots:
 	void onCloseButton();

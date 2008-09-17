@@ -38,7 +38,7 @@ int main (int argc, char *argv[]) {
 #endif
 
 #ifdef Q_WS_X11
-	QApplication::setStyle(new QPlastiqueStyle);
+	QApplication::setStyle(new QCleanlooksStyle);
 #endif
 
 	QCoreApplication::setOrganizationName("NeoSoftware");

@@ -63,7 +63,8 @@ FORMS += gui/WinMain.ui \
     gui/WidgetAccounts.ui \
     gui/WidgetFileInfo.ui \
     gui/WidgetTracker.ui \
-    gui/WidgetAboutQwired.ui
+    gui/WidgetAboutQwired.ui \
+ gui/WidgetAbout.ui
 QT += gui \
     network
 HEADERS += wired/classwireduser.h \
@@ -97,7 +98,8 @@ HEADERS += wired/classwireduser.h \
     gui/widgetaccounts.h \
     gui/WidgetFileInfo.h \
     gui/WidgetTracker.h \
-    wired/classtrackerserver.h
+    wired/classtrackerserver.h \
+ gui/widgetabout.h
 TRANSLATIONS += lang_de.ts \
     lang_pt.ts \
     lang_it.ts \
