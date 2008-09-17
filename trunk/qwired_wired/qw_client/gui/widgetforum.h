@@ -46,7 +46,9 @@ public:
 	
 	bool pEmoticonsEnabled;
 	
-	
+protected:
+	bool eventFilter(QObject *watched, QEvent *event);
+		
 public slots:
 	void writeToChat(QString theUser, QString theText, bool theEmote);
 	void writeEventToChat(QString theMsg);
@@ -64,8 +66,8 @@ private:
 	
 	
 private slots:
+	void postChatInputText();
 	void on_fUsers_doubleClicked ( const QModelIndex & index );
-	void on_fChatInput_returnPressed();
 	void on_fBtnMsg_clicked();
 	void on_fBtnKick_clicked();
 	void on_fBtnBan_clicked();
@@ -73,6 +75,7 @@ private slots:
 	void on_fBtnChat_clicked();
 	void onUserlistSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
 	void inviteMenuTriggered(QAction *action);
+
 
 	void reloadPrefs();
 
