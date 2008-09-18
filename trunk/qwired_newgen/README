@@ -1,6 +1,0 @@
-This is Qwired, a free Wired client written in C++ using the Qt4 framework.
-It can be compiled on any Qt-supported platform (Mac, Windows, Linux).
-
-Most of the work has been done by Bastian Bense <bastibense@gmail.com>.
-
-Special thanks go out to Axel Andersson, the maker of the original Wired client.

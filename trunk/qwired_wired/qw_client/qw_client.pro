@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG += warn_on thread qt release
 TARGET = qwired
-RESOURCES = misc/application.qrc
+RESOURCES = application.qrc
 QT += gui network
 DESTDIR = ../bin/
 
@@ -10,8 +10,8 @@ OBJECTS_DIR = build
 UI_DIR = build
 RCC_DIR = build
 
-ICON = misc/qwired.icns
-RC_FILE = misc/qwired.rc
+ICON = qwired.icns
+RC_FILE = qwired.rc
 
 macx {
  QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
