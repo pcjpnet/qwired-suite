@@ -47,7 +47,7 @@ private slots:
 	
 	void on_fBtnRefresh_clicked();
 	void trackerServersReceived(QList<ClassTrackerServer> theList);
-	void handleSocketError(QString,int);
+	void handleSocketError(QAbstractSocket::SocketError);
 
 };
 

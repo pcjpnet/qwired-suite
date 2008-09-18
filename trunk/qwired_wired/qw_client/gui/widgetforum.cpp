@@ -456,6 +456,14 @@ void WidgetForum::reloadPreferences() {
 	
 }
 
+/// Reset the form.
+void WidgetForum::resetForm()
+{
+	fChatLog->clear();
+	fChatInput->clear();
+	fTopic->clear();
+}
+
 
 
 

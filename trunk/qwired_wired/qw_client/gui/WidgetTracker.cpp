@@ -30,8 +30,8 @@ WidgetTracker::WidgetTracker(QWidget *parent)
 	connect( pSocket, SIGNAL(trackerServersReceived(QList<ClassTrackerServer>)),
 			 this, SLOT(trackerServersReceived(QList<ClassTrackerServer>)) );
 
-	connect( pSocket, SIGNAL(onSocketError(QString,int)),
-			 this, SLOT(handleSocketError(QString,int)) );
+	connect( pSocket, SIGNAL(onSocketError(QAbstractSocket::SocketError)),
+			 this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
 	
 	fProgress->setVisible(false);
 
@@ -145,11 +145,12 @@ void WidgetTracker::trackerServersReceived(QList< ClassTrackerServer > theList) 
 	fList->resizeColumnToContents(7);
 }
 
-void WidgetTracker::handleSocketError(QString theReason, int theError) {
-	QMessageBox::critical(this, tr("Socket Error"), tr("A socket error occoured while trying to connect to the tracker.\nReason: %1 (%2).").arg(theReason).arg(theError));
+void WidgetTracker::handleSocketError(QAbstractSocket::SocketError error) {
+	QMessageBox::critical(this, tr("Connection Error"), tr("A connection error occoured while trying to connect to the tracker.\nReason: %1").arg(error));
 	fBtnRefresh->setEnabled(true);
 	fProgress->setVisible(false);
 }
+
 
 
 

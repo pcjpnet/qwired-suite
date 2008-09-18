@@ -99,12 +99,20 @@ private slots:
 	// Main window widgets
 	void onTabBarCloseButtonClicked();
 	void onTabBarCurrentChanged(int index);
+
+
+	// Connect widget
+	void onConnectAborted();
+
+
+	// Chat Window
+	void onUserlistComplete(int chatId);
 	
 	void connectionWindowDestroyed(QObject *obj);
 	void reloadPreferences();
 	void onSocketPrivileges(ClassWiredUser);
-	void showTrackers();
-	void createNewConnection();
+	void doActionTrackers();
+
 	void onServerFileInfo(ClassWiredFile theFile);
 
 	void userJoined(int theChat, ClassWiredUser theUser);
@@ -121,17 +129,21 @@ public slots:
 	
 	void do_handle_chat_message(int, int, QString, bool);
 
-	void disconnectFromServer();
+	// Acount buttons from connect window.
+	void doActionAccounts();
+	void doActionDisconnect();
+	void doActionNews();
+	void doActionServerInfo();
+	void doActionNewConnection();
+	void doActionBroadcast();
+	void doActionFiles(QString thePath="/");
 	
 	// Toolbar handlers
-	void do_show_serverinfo();
-	void getNews();
-	void do_new_broadcastmsg();
-	void do_new_filebrowser(QString thePath="/");
-	void do_show_prefs();
-	void showTransfers();
-	void showSearch();
-	void showAccounts();
+
+	void doActionPreferences();
+	void doActionTransfers();
+	void doActionFileSearch();
+	
 	
 	void search_download_file(QString);
 	void search_reveal_file(QString);
@@ -150,9 +162,9 @@ public slots:
 	void doHandlePrivateChatInvitation(int theChatID, ClassWiredUser theUser);
 	void doCreateNewChat(int theChatID);
 	
-	void onSocketError(QString,int);
+	void onSocketError(QAbstractSocket::SocketError);
 	void onSocketServerInfo();
-	void onSocketLoginSuccessful();
+	void onLoginSuccessful();
 	void onSocketLoginFailed();
 	
 	void setBannerView(const QPixmap theBanner);

@@ -28,7 +28,6 @@ SOURCES += general/main.cpp \
     gui/modelfilelist.cpp \
     wired/classwiredfile.cpp \
     gui/widgetprefs.cpp \
-    gui/widgetconnect.cpp \
     wired/wiredtransfersocket.cpp \
     gui/widgettransfers.cpp \
     gui/modelfiletransfers.cpp \

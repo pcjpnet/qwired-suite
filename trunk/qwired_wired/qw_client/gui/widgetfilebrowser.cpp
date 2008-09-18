@@ -145,7 +145,7 @@ void WidgetFileBrowser::downloadFile(QString theRemotePath) {
 			return;
 	}
 	pSession->pWiredSocket->getFile(theRemotePath, tmpDir.fileName());
-	pSession->showTransfers();
+	pSession->doActionTransfers();
 
 }
 
@@ -186,7 +186,7 @@ void WidgetFileBrowser::on_fBtnUpload_clicked(bool) {
 		QString tmpFileName = fileName.section("/",-1,-1);
 		QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
 		pSession->pWiredSocket->putFile(fileName, tmpRemote);
-		pSession->showTransfers();
+		pSession->doActionTransfers();
 	}
 }
 
@@ -243,7 +243,7 @@ void WidgetFileBrowser::dropEvent(QDropEvent * event) {
 			QString tmpFileName = tmpFile.fileName().section("/",-1,-1);
 			QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
 			pSession->pWiredSocket->putFile(tmpFile.fileName(), tmpRemote);
-			pSession->showTransfers();
+			pSession->doActionTransfers();
 		}
 	}
 	event->acceptProposedAction();

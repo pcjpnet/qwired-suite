@@ -40,7 +40,8 @@ namespace Wired {
 const int kEOF = 0x04;
 const int kFS = 0x1C;
 
-class WiredSocket : public QObject
+class WiredSocket
+	: public QObject
 {
 	Q_OBJECT
 
