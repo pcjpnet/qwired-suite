@@ -1,5 +1,10 @@
 <RCC>
   <qresource prefix="/" >
+    <file alias="lang_de.qm">lang/lang_de.qm</file>
+    <file alias="lang_it.qm">lang/lang_it.qm</file>
+    <file alias="lang_pt.qm">lang/lang_pt.qm</file>
+    <file alias="lang_fr.qm">lang/lang_fr.qm</file>
+  
     <file>icons/about_sidebar.png</file>
     <file>general/tranzlator.txt</file>
     <file>icons/qwired_splash.png</file>
@@ -42,10 +47,7 @@
     <file>icons/tab-idle.png</file>
     <file>icons/tb_news.png</file>
     <file>icons/transfers.png</file>
-    <file>lang_de.qm</file>
-    <file>lang_it.qm</file>
-    <file>lang_pt.qm</file>
-    <file>lang_fr.qm</file>
+  
     <file>icons/files/files-archive.png</file>
     <file>icons/files/files-audio.png</file>
     <file>icons/files/files-dropbox.png</file>
