@@ -44,19 +44,17 @@ ClassWiredSession::ClassWiredSession(QObject *parent)
 void ClassWiredSession::initMainWindow()
 {
 	pConnWindow = new ConnWindow();
-	connect(pConnWindow, SIGNAL(destroyed(QObject*)),
-			this, SLOT(connectionWindowDestroyed(QObject*)) );
+	connect(pConnWindow, SIGNAL(destroyed(QObject*)), this, SLOT(connectionWindowDestroyed(QObject*)) );
 	pConnWindow->show();
 	
 	pMainChat = new WidgetForum();
-	
+	pMainChat->setContentsMargins(0,0,0,0);
+
+	// Connect window
 	pConnectWindow = new WidgetConnect();
-	connect(pConnectWindow, SIGNAL(onConnnectReady(QString,QString,QString)),
-			this, SLOT(onDoConnect(QString,QString,QString)) );
+	connect(pConnectWindow, SIGNAL(onConnnectReady(QString,QString,QString)), this, SLOT(onDoConnect(QString,QString,QString)) );
+	connect(pConnectWindow, SIGNAL(onConnectAborted()), this, SLOT(onConnectAborted()));
 
-
-	
-	
 	// Set up the container widget
  	pContainerWidget = new QWidget();
 	pContainerLayout = new QStackedLayout(pContainerWidget);
@@ -96,6 +94,15 @@ void ClassWiredSession::initMainWindow()
 }
 
 
+/// The user list was completely received after connecting.
+void ClassWiredSession::onUserlistComplete(int chatId)
+{
+	if(chatId!=1 && pContainerLayout->currentIndex()!=0) return;
+	pContainerLayout->setCurrentIndex(1);
+	setConnectionToolButtonsEnabled(true);
+}
+
+
 /// Tab bar close button clicked. Close the current widget.
 void ClassWiredSession::onTabBarCloseButtonClicked()
 {
@@ -129,50 +136,35 @@ ClassWiredSession::~ClassWiredSession()
 }
 
 
-/**
- * Called when the connection window is destroyed/closed. Allows the manager class to do
- * some clean up work.
- */
+/// Called when the connection window is destroyed/closed. Allows the manager class to do
+/// some clean up work.
 void ClassWiredSession::connectionWindowDestroyed(QObject*) {
 	this->deleteLater();
 }
 
 
-/**
- * Create a new connection and append it to the singleton object.
- */
-void ClassWiredSession::createNewConnection() {
-	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	ClassWiredSession *tmpNew = new ClassWiredSession();
-	tmpS->addSession(tmpNew);
 
-}
 
-/**
- * Set up connections between objects in this class.
- */
+/// Set up connections between objects in this class.
 void ClassWiredSession::setupConnections() {
-	
-
 	// Socket connections
 	//
-	connect( pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)),
-			 this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
-	connect( pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
-			 this, SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
-	connect( pWiredSocket, SIGNAL(onPrivateMessage(ClassWiredUser,QString)),
-			 this, SLOT(doHandlePrivMsg(ClassWiredUser,QString)) );
-	connect( pWiredSocket, SIGNAL(onServerBroadcast(ClassWiredUser,QString)),
-			 this, SLOT(doHandleBroadcast(ClassWiredUser,QString)) );
+	connect(pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
+	connect(pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
+			  this,   SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
+	connect(pWiredSocket, SIGNAL(onPrivateMessage(ClassWiredUser,QString)), this, SLOT(doHandlePrivMsg(ClassWiredUser,QString)) );
+	connect(pWiredSocket, SIGNAL(onServerBroadcast(ClassWiredUser,QString)), this, SLOT(doHandleBroadcast(ClassWiredUser,QString)) );
+	connect(pWiredSocket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onLoginSuccessful()) );
+
+	connect(pWiredSocket, SIGNAL(onServerUserlistDone(int)), this, SLOT(onUserlistComplete(int)) );
 	
-	connect( pWiredSocket, SIGNAL(onServerUserInfo(ClassWiredUser)), this, SLOT(doHandleUserInfo(ClassWiredUser)) );
-	connect( pWiredSocket, SIGNAL(onServerPrivateChatInvitation(int,ClassWiredUser)), this, SLOT(doHandlePrivateChatInvitation(int,ClassWiredUser)) );
-	connect( pWiredSocket, SIGNAL(onServerPrivateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
+	connect(pWiredSocket, SIGNAL(onServerUserInfo(ClassWiredUser)), this, SLOT(doHandleUserInfo(ClassWiredUser)) );
+	connect(pWiredSocket, SIGNAL(onServerPrivateChatInvitation(int,ClassWiredUser)), this, SLOT(doHandlePrivateChatInvitation(int,ClassWiredUser)) );
+	connect(pWiredSocket, SIGNAL(onServerPrivateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
 	
-	connect( pWiredSocket, SIGNAL(onSocketError(QString,int)), this, SLOT(onSocketError(QString,int)) );
-	connect( pWiredSocket, SIGNAL(onServerInformation()), this, SLOT(onSocketServerInfo()) );
-	connect( pWiredSocket, SIGNAL(onServerLoginSuccessful()),
-			 this, SLOT(onSocketLoginSuccessful()) );
+	connect(pWiredSocket, SIGNAL(onSocketError(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)) );
+	connect(pWiredSocket, SIGNAL(onServerInformation()), this, SLOT(onSocketServerInfo()) );
+	
 		
 	connect(pWiredSocket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
 	connect(pWiredSocket, SIGNAL(errorOccoured(int)), this, SLOT(handleErrorOccoured(int)) );
@@ -184,31 +176,32 @@ void ClassWiredSession::setupConnections() {
 	connect(pWiredSocket, SIGNAL(onServerUserLeft(int,ClassWiredUser)), this, SLOT(userLeft(int,ClassWiredUser)) );
 	connect(pWiredSocket, SIGNAL(onServerUserChanged(ClassWiredUser,ClassWiredUser)), this, SLOT(userChanged(ClassWiredUser,ClassWiredUser)) );
 	connect(pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), this, SLOT(newsPosted(QString,QString,QString)) );
+
+	// File transfer signals
 	connect(pWiredSocket, SIGNAL(fileTransferDone(const ClassWiredTransfer)), this, SLOT(transferDone(ClassWiredTransfer)) );
 	connect(pWiredSocket, SIGNAL(fileTransferStarted(const ClassWiredTransfer)), this, SLOT(transferStarted(ClassWiredTransfer)) );
 	connect(pWiredSocket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
 	
 	// Main Window actions
 	//
-	connect( pConnWindow->actionNewConnection, SIGNAL(triggered()), this, SLOT(createNewConnection()) );
-	connect( pConnWindow->actionNews, SIGNAL(triggered()), this, SLOT(getNews()) );
-	connect( pConnWindow->actionServerInfo, SIGNAL(triggered(bool)), this, SLOT(do_show_serverinfo()) );
-	connect( pConnWindow->actionBroadcast, SIGNAL(triggered(bool)), this, SLOT(do_new_broadcastmsg()) );
-	connect( pConnWindow->actionFiles, SIGNAL(triggered(bool)), this, SLOT(do_new_filebrowser()) );
-	connect( pConnWindow->actionPreferences, SIGNAL(triggered(bool)), this, SLOT(do_show_prefs()));
-	//connect( pConnWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
-	connect( pConnWindow->actionDisconnect, SIGNAL(triggered(bool)), this, SLOT(disconnectFromServer()));
-	connect( pConnWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(showTransfers()) );
-	connect( pConnWindow->actionSearch, SIGNAL(triggered(bool)), this, SLOT(showSearch()) );
-	connect( pConnWindow->actionAccounts, SIGNAL(triggered(bool)), this, SLOT(showAccounts()) );
-	connect( pConnWindow->actionTrackers, SIGNAL(triggered(bool)), this, SLOT(showTrackers()) );
-	
+	connect( pConnWindow->actionNewConnection, SIGNAL(triggered()), this, SLOT(doActionNewConnection()) );
 
+	connect( pConnWindow->actionDisconnect, SIGNAL(triggered(bool)), this, SLOT(doActionDisconnect()));
+	connect( pConnWindow->actionAccounts, SIGNAL(triggered(bool)), this, SLOT(doActionAccounts()) );
+	connect( pConnWindow->actionNews, SIGNAL(triggered()), this, SLOT(doActionNews()) );
+	connect( pConnWindow->actionServerInfo, SIGNAL(triggered(bool)), this, SLOT(doActionServerInfo()) );
+	connect( pConnWindow->actionBroadcast, SIGNAL(triggered(bool)), this, SLOT(doActionBroadcast()) );
+	connect( pConnWindow->actionFiles, SIGNAL(triggered(bool)), this, SLOT(doActionFiles()) );
+	connect( pConnWindow->actionPreferences, SIGNAL(triggered(bool)), this, SLOT(doActionPreferences()));
+	connect( pConnWindow->actionTrackers, SIGNAL(triggered(bool)), this, SLOT(doActionTrackers()) );
+	connect( pConnWindow->actionSearch, SIGNAL(triggered(bool)), this, SLOT(doActionFileSearch()) );
+	connect( pConnWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(doActionTransfers()) );
+	//connect( pConnWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
 
 	// Notification manager
+	//
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	connect( tmpS, SIGNAL(prefsChanged()),
-			 this, SLOT(reloadPreferences()) );
+	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
 	
 }
 
@@ -241,10 +234,6 @@ void ClassWiredSession::onServerFileInfo(ClassWiredFile theFile) {
 }
 
 
-void ClassWiredSession::disconnectFromServer() {
-	pWiredSocket->disconnectFromServer();
-	pConnWindow->setEnabled(false);
-}
 
 // Enable/Disable GUI elements depending on the privileges
 void ClassWiredSession::onSocketPrivileges(ClassWiredUser s) {
@@ -252,30 +241,7 @@ void ClassWiredSession::onSocketPrivileges(ClassWiredUser s) {
 }
 
 
-// Request the news from the server.
-void ClassWiredSession::getNews() {
-	if( !pWinNews ) {
-		pWinNews = new WidgetNews();
-		connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
-		connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
-		
-		connect( pWiredSocket, SIGNAL(onServerNewsDone()), pWinNews, SLOT(onServerNewsDone()) );
-		connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
-		connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
-		connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(deleteNews()) );
-		
-		// Display the widget using a Tab
-		int tmpIdx = pMainTabWidget->addTab(pWinNews, QIcon(), tr("News"));
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-		
-		//pWinNews->show();
-		pWiredSocket->getNews();
-	} else {
-		int tmpIdx = pMainTabWidget->indexOf(pWinNews);
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-		//pWinNews->raise();
-	}
-}
+
 
 
 /// A chat message was received, handle it.
@@ -448,161 +414,77 @@ void ClassWiredSession::doCreateNewChat(int theChatID) {
 	pMainTabWidget->setTabIcon(tmpIdx, QIcon(":/icons/tab-idle.png"));
 }
 
-// Display the server information dialog.
-void ClassWiredSession::do_show_serverinfo() {	
-	if( !pServerWindow ) {
-		pServerWindow = new WidgetServerInfo();
-		pServerWindow->loadInfo(this);
-		pMainTabWidget->addTab(pServerWindow, tr("Server Info"));
-	} else {
-		pServerWindow->raise();
-	}
-}
-
-// Open a new broadcast message dialog.
-void ClassWiredSession::do_new_broadcastmsg() {
-	WidgetSendPrivMsg *msg = new WidgetSendPrivMsg();
-	msg->setParent(pConnWindow, Qt::Window);
-// 	msg->setTarget ( this, 0 );
-// 	msg->fTitle->setText(tr("Broadcast Message"));
-	msg->move( pConnWindow->pos() );
-	msg->show();
-}
 
 
-void ClassWiredSession::do_new_filebrowser(QString thePath) {
-	// Open a new file browser and request the list of files (/) from the server.
-	WidgetFileBrowser *browser = new WidgetFileBrowser();
-	browser->setParent(pConnWindow, Qt::Window);
-	browser->move( pConnWindow->pos() );
-	browser->initWithConnection(this);
-	browser->setPath(thePath);
-	browser->pModel->pWaitingForList = true;
-	browser->show();
-	
-	// Request the root list of files
-	 pWiredSocket->getFileList(thePath);
 
-}
 
-void ClassWiredSession::do_show_prefs() {
-	if( pPrefsWindow==0 ) {
-		pPrefsWindow = new WidgetPrefs();
-		pPrefsWindow->setParent(pConnWindow, Qt::Window);
-		//int tmpIdx = pMainTabWidget->addTab(pPrefsWindow, QIcon(), tr("Preferences"));
-		//pMainTabWidget->setCurrentIndex(tmpIdx);
- 		pPrefsWindow->move(pConnWindow->pos() );
- 		pPrefsWindow->show();
-	} else {
-		pPrefsWindow->raise();
-	}
-}
 
-// Status update on 200 Server Information
+
+
+
+
+/// Received the server info header. Update the connect window.
 void ClassWiredSession::onSocketServerInfo() {
-	if( pConnectWindow>0 )
-		pConnectWindow->setProgressBar(1,3);
-
-	if(pTrayMenuItem) {
-		pTrayMenuItem->setTitle(pWiredSocket->pServerName);
-
-	}
-	
+	pConnectWindow->setStatus(tr("Connecting. Starting session..."));
+	if(pConnectWindow>0) pConnectWindow->setProgressBar(1,3);
+	if(pTrayMenuItem) pTrayMenuItem->setTitle(pWiredSocket->pServerName);
 }
 
 
-// Login attempt failed.
-void ClassWiredSession::onSocketLoginFailed() {
-	pConnectWindow->setEnabled(true);
-	pConnectWindow->setProgressBar(0,0);
+/// Login attempt failed.
+void ClassWiredSession::onSocketLoginFailed()
+{
+	pConnectWindow->resetForm();
+	pContainerLayout->setCurrentIndex(0);
 	setConnectionToolButtonsEnabled(false);
 }
 
-// Connect to the remote server.
+
+/// Connect to the remote server.
 void ClassWiredSession::onDoConnect(QString theHost, QString theLogin, QString thePassword) {
 	if(theLogin=="") pWiredSocket->setUserAccount("guest","");
 		else pWiredSocket->setUserAccount(theLogin,thePassword);
 	pWiredSocket->connectToWiredServer(theHost);
-	pConnectWindow->setEnabled(false);
+	//pConnectWindow->setEnabled(false);
 }
 
-void ClassWiredSession::onSocketError(QString theErrorReason, int theError) {
-	if( pConnectWindow>0 ) {
+
+/// A connection error occoured.
+void ClassWiredSession::onSocketError(QAbstractSocket::SocketError error) {
+	if(error == QAbstractSocket::ConnectionRefusedError) {
 		// Error occoured while connecting from the connecting window
-		pConnectWindow->setEnabled(true);
-		pConnectWindow->setProgressBar(0,0);
+		pConnectWindow->resetForm();
+		QMessageBox::critical(pMainChat, tr("Connection Refused"), tr("The connection was refused by the remote host. "
+				"This normally means that there is no Wired server running on the remote machine."));
+	} else if(error == QAbstractSocket::HostNotFoundError) {
+		pConnectWindow->resetForm();
+		QMessageBox::critical(pMainChat, tr("Host not found"), tr("Could not connect to the remote server because the host name could not be resolved."));
 	} else {
 		// Disconnected suddenly
-		pConnWindow->setEnabled(false);
-		pConnWindow->setWindowTitle( pConnWindow->windowTitle()+tr(" [Disconnected]") );
+		qDebug() << error;
+		pContainerLayout->setCurrentIndex(0);
+		pConnectWindow->resetForm();
+		pConnectWindow->startReconnecting();
+		
+		//pConnWindow->setEnabled(false);
+		//pConnWindow->setWindowTitle( pConnWindow->windowTitle()+tr(" [Disconnected]") );
 		
 		triggerEvent("ServerDisconnected",QStringList());
 	}
 	setConnectionToolButtonsEnabled(false);
-	QMessageBox::critical(pMainChat, tr("Socket Error"), tr("A socket error occoured.\nReason: %1 (%2).").arg(theErrorReason).arg(theError));
+	
 }
 
-void ClassWiredSession::showTransfers() {
-	// Display the transfers window
-	if( !pTranfersWindow ) {
-		pTranfersWindow = new WidgetTransfers(pConnWindow);
-		int tmpIdx = pMainTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-		// Model
-		ModelFileTransfers *tmpModel = new ModelFileTransfers(pTranfersWindow->fTransfers);
-		tmpModel->setSocket(pWiredSocket);
-		pTranfersWindow->fTransfers->setModel(tmpModel);
-		pTranfersWindow->init();
-		connect(pTranfersWindow, SIGNAL(transferCancelled(ClassWiredTransfer)), pWiredSocket, SLOT(cancelTransfer(ClassWiredTransfer)) );
-		
-	} else {
-		int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-	}
-}
 
-void ClassWiredSession::showSearch() {
-	if(!pFileSearch) {
-		pFileSearch = new WidgetFileSearch(pConnWindow);
-		int tmpIdx = pMainTabWidget->addTab(pFileSearch, tr("File Search"));
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-		connect( pWiredSocket, SIGNAL(fileSearchDone(QList<ClassWiredFile>)), pFileSearch, SLOT(updateResults(QList<ClassWiredFile>)) );
-		connect( pFileSearch, SIGNAL(search(QString)), pWiredSocket, SLOT(searchFiles(QString)) );
-		connect( pFileSearch, SIGNAL(downloadFile(QString)), this, SLOT(search_download_file(QString)) );
-		connect( pFileSearch, SIGNAL(revealFile(QString)), this, SLOT(search_reveal_file(QString)) );
-	} else {
-		int tmpIdx = pMainTabWidget->indexOf(pFileSearch);
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-	}
-}
 
-void ClassWiredSession::showAccounts() {
-	if(!pWinAccounts) {
-		pWinAccounts = new WidgetAccounts(pConnWindow);
-		int tmpIdx = pMainTabWidget->addTab(pWinAccounts, tr("Accounts"));
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-		connect( pWiredSocket, SIGNAL(usersListingDone(QStringList)), pWinAccounts, SLOT(appendUserNames(QStringList)) );
-		connect( pWiredSocket, SIGNAL(groupsListingDone(QStringList)), pWinAccounts, SLOT(appendGroupNames(QStringList)) );
-		connect( pWiredSocket, SIGNAL(userSpecReceived(ClassWiredUser)), pWinAccounts, SLOT(loadUserSpec(ClassWiredUser)) );
-		connect( pWiredSocket, SIGNAL(groupSpecReceived(ClassWiredUser)), pWinAccounts, SLOT(loadGroupSpec(ClassWiredUser)) );
-		connect( pWinAccounts, SIGNAL(userSpecRequested(QString)), pWiredSocket, SLOT(readUser(QString)) );
-		connect( pWinAccounts, SIGNAL(groupSpecRequested(QString)), pWiredSocket, SLOT(readGroup(QString)) );
-		connect( pWinAccounts, SIGNAL(userDeleted(QString)), pWiredSocket, SLOT(deleteUser(QString)) );
-		connect( pWinAccounts, SIGNAL(groupDeleted(QString)), pWiredSocket, SLOT(deleteGroup(QString)) );
 
-		connect( pWinAccounts, SIGNAL(createUser(ClassWiredUser)), pWiredSocket, SLOT(createUser(ClassWiredUser)) );
-		connect( pWinAccounts, SIGNAL(editUser(ClassWiredUser)), pWiredSocket, SLOT(editUser(ClassWiredUser)) );
-		connect( pWinAccounts, SIGNAL(createGroup(ClassWiredUser)), pWiredSocket, SLOT(createGroup(ClassWiredUser)) );
-		connect( pWinAccounts, SIGNAL(editGroup(ClassWiredUser)), pWiredSocket, SLOT(editGroup(ClassWiredUser)) );
-		pWiredSocket->getGroups();
-		pWiredSocket->getUsers();
-	} else {
-		int tmpIdx = pMainTabWidget->indexOf(pWinAccounts);
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-	}
-}
 
-// Enable/Disable connection-related toolbar items (true if connected)
+
+
+
+
+
+/// Enable/Disable connection-related toolbar items (true if connected)
 void ClassWiredSession::setConnectionToolButtonsEnabled(bool theEnable) {
 	pConnWindow->actionReconnect->setEnabled(!theEnable);
 	pConnWindow->actionDisconnect->setEnabled(theEnable);
@@ -618,7 +500,8 @@ void ClassWiredSession::setConnectionToolButtonsEnabled(bool theEnable) {
 	pConnWindow->actionSearch->setEnabled(theEnable);
 }
 
-// Set the banner image to the toolbar of the main window.
+
+/// Set the banner image to the toolbar of the main window.
 void ClassWiredSession::setBannerView(const QPixmap theBanner) {
 	QWidget *tmpSpace = new QWidget(pConnWindow->fToolBar);
 	tmpSpace->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -633,18 +516,19 @@ void ClassWiredSession::setBannerView(const QPixmap theBanner) {
 
 }
 
-// Connected to the download button in the search dialog.
+/// Connected to the download button in the search dialog.
 void ClassWiredSession::search_download_file(QString thePath) {
 	QSettings settings;
-	showTransfers();
+	doActionTransfers();
 	QString tmpName = thePath.section("/",-1,-1);
 	
 	QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
 	pWiredSocket->getFile( thePath, tmpDownloadFolder.absoluteFilePath(tmpName) );;
 }
 
+
 void ClassWiredSession::search_reveal_file(QString thePath) {
-	do_new_filebrowser(thePath.section("/",0,-2));
+	doActionFiles(thePath.section("/",0,-2));
 }
 
 
@@ -675,15 +559,9 @@ void ClassWiredSession::handleErrorOccoured(int theError) {
 	QMessageBox::critical(pConnWindow, tr("Server Error"), tmpError);
 }
 
-void ClassWiredSession::showTrackers() {
-	if(!pWinTrackers) {
-		pWinTrackers = new WidgetTracker();
-		pWinTrackers->setParent(pConnWindow, Qt::Window);
-		pWinTrackers->show();
-	} else {
-		pWinTrackers->raise();
-	}
-}
+
+
+
 
 void ClassWiredSession::setTrayMenuAction(QMenu *action) {
 	pTrayMenuItem = action;
@@ -760,17 +638,20 @@ void ClassWiredSession::triggerEvent(QString event, QStringList params) {
 	
 }
 
+
 void ClassWiredSession::userJoined(int theChat, ClassWiredUser theUser) {
 	if(theChat!=1) return;
 	QStringList tmpParams; tmpParams << theUser.pNick;
 	triggerEvent("UserJoined", tmpParams);
 }
 
+
 void ClassWiredSession::userLeft(int theChat, ClassWiredUser theUser) {
 	if(theChat!=1) return;
 	QStringList tmpParams; tmpParams << theUser.pNick;
 	triggerEvent("UserLeft", tmpParams);
 }
+
 
 void ClassWiredSession::userChanged(ClassWiredUser theOld, ClassWiredUser theNew) {
 	if(theOld.pNick != theNew.pNick) {
@@ -790,6 +671,7 @@ void ClassWiredSession::userChanged(ClassWiredUser theOld, ClassWiredUser theNew
 	
 }
 
+
 void ClassWiredSession::newsPosted(QString theNick, QString, QString thePost) {
 	QStringList tmpParams;
 	tmpParams << theNick;
@@ -797,17 +679,20 @@ void ClassWiredSession::newsPosted(QString theNick, QString, QString thePost) {
 	triggerEvent("NewsPosted", tmpParams);
 }
 
+
 void ClassWiredSession::transferStarted(ClassWiredTransfer transfer) {
 	QStringList tmpParams;
 	tmpParams << transfer.fileName();
 	triggerEvent("TransferStarted", tmpParams);
 }
 
+
 void ClassWiredSession::transferDone(ClassWiredTransfer transfer) {
 	QStringList tmpParams;
 	tmpParams << transfer.fileName();
 	triggerEvent("TransferFinished", tmpParams);
 }
+
 
 void ClassWiredSession::transferSocketError(QAbstractSocket::SocketError error) {
 	QStringList tmpParams;
@@ -816,13 +701,12 @@ void ClassWiredSession::transferSocketError(QAbstractSocket::SocketError error) 
 }
 
 
-
 /// The login was successful, switch to forum view.
-void ClassWiredSession::onSocketLoginSuccessful() {
+void ClassWiredSession::onLoginSuccessful() {
 	if(!pConnectWindow) return;
 	pMainTabWidget->addTab(pMainChat, "Chat");
-	pContainerLayout->setCurrentIndex(1);
-	setConnectionToolButtonsEnabled(true);
+	pConnectWindow->setStatus(tr("Receiving user list..."));
+	pConnectWindow->setProgressBar(2,3);
 	triggerEvent("ServerConnected",QStringList());
 }
 
@@ -854,3 +738,182 @@ void ClassWiredSession::reloadPreferences()
 	QPixmap tmpNew = s.value("general/icon", QPixmap()).value<QPixmap>();
 	pWiredSocket->setUserIcon(tmpNew);
 }
+
+
+void ClassWiredSession::onConnectAborted()
+{
+	pWiredSocket->disconnectSocketFromServer();
+}
+
+
+// === ACTIONS FROM THE MAIN WINDOW === //
+// ==================================== //
+
+/// The disconnect button has been clicked. Disconnect from the server.
+void ClassWiredSession::doActionDisconnect() {
+	setConnectionToolButtonsEnabled(false);
+	pMainChat->resetForm();
+	pConnectWindow->resetForm();
+	pWiredSocket->disconnectFromServer();
+	pContainerLayout->setCurrentIndex(0); // go to connect dialog
+}
+
+
+/// Show the list of accounts and groups in a window.
+void ClassWiredSession::doActionAccounts() {
+	if(!pWinAccounts) {
+		pWinAccounts = new WidgetAccounts(pConnWindow);
+		int tmpIdx = pMainTabWidget->addTab(pWinAccounts, tr("Accounts"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+		connect( pWiredSocket, SIGNAL(usersListingDone(QStringList)), pWinAccounts, SLOT(appendUserNames(QStringList)) );
+		connect( pWiredSocket, SIGNAL(groupsListingDone(QStringList)), pWinAccounts, SLOT(appendGroupNames(QStringList)) );
+		connect( pWiredSocket, SIGNAL(userSpecReceived(ClassWiredUser)), pWinAccounts, SLOT(loadUserSpec(ClassWiredUser)) );
+		connect( pWiredSocket, SIGNAL(groupSpecReceived(ClassWiredUser)), pWinAccounts, SLOT(loadGroupSpec(ClassWiredUser)) );
+		connect( pWinAccounts, SIGNAL(userSpecRequested(QString)), pWiredSocket, SLOT(readUser(QString)) );
+		connect( pWinAccounts, SIGNAL(groupSpecRequested(QString)), pWiredSocket, SLOT(readGroup(QString)) );
+		connect( pWinAccounts, SIGNAL(userDeleted(QString)), pWiredSocket, SLOT(deleteUser(QString)) );
+		connect( pWinAccounts, SIGNAL(groupDeleted(QString)), pWiredSocket, SLOT(deleteGroup(QString)) );
+
+		connect( pWinAccounts, SIGNAL(createUser(ClassWiredUser)), pWiredSocket, SLOT(createUser(ClassWiredUser)) );
+		connect( pWinAccounts, SIGNAL(editUser(ClassWiredUser)), pWiredSocket, SLOT(editUser(ClassWiredUser)) );
+		connect( pWinAccounts, SIGNAL(createGroup(ClassWiredUser)), pWiredSocket, SLOT(createGroup(ClassWiredUser)) );
+		connect( pWinAccounts, SIGNAL(editGroup(ClassWiredUser)), pWiredSocket, SLOT(editGroup(ClassWiredUser)) );
+		pWiredSocket->getGroups();
+		pWiredSocket->getUsers();
+	} else {
+		int tmpIdx = pMainTabWidget->indexOf(pWinAccounts);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+	}
+}
+
+
+/// Request the news from the server.
+void ClassWiredSession::doActionNews() {
+	if( !pWinNews ) {
+		pWinNews = new WidgetNews();
+		connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
+		connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
+		connect( pWiredSocket, SIGNAL(onServerNewsDone()), pWinNews, SLOT(onServerNewsDone()) );
+		connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
+		connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
+		connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(deleteNews()) );
+		
+		// Display the widget using a Tab
+		int tmpIdx = pMainTabWidget->addTab(pWinNews, QIcon(), tr("News"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+		
+		//pWinNews->show();
+		pWiredSocket->getNews();
+	} else {
+		int tmpIdx = pMainTabWidget->indexOf(pWinNews);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+		//pWinNews->raise();
+	}
+}
+
+
+/// Display the server information dialog.
+void ClassWiredSession::doActionServerInfo() {	
+	if( !pServerWindow ) {
+		pServerWindow = new WidgetServerInfo();
+		pServerWindow->loadInfo(this);
+		pMainTabWidget->addTab(pServerWindow, tr("Server Info"));
+	} else {
+		pServerWindow->raise();
+	}
+}
+
+
+/// Open a new broadcast message dialog.
+void ClassWiredSession::doActionBroadcast() {
+	WidgetSendPrivMsg *msg = new WidgetSendPrivMsg();
+	msg->setParent(pConnWindow, Qt::Window);
+	msg->move( pConnWindow->pos() );
+	msg->show();
+}
+
+
+/// Show a new file browser.
+void ClassWiredSession::doActionFiles(QString thePath) {
+	// Open a new file browser and request the list of files (/) from the server.
+	WidgetFileBrowser *browser = new WidgetFileBrowser();
+	browser->setParent(pConnWindow, Qt::Window);
+	browser->move( pConnWindow->pos() );
+	browser->initWithConnection(this);
+	browser->setPath(thePath);
+	browser->pModel->pWaitingForList = true;
+	browser->show();
+	pWiredSocket->getFileList(thePath); // Request the root list of files
+}
+
+
+/// Create a new connection and append it to the singleton object.
+void ClassWiredSession::doActionNewConnection() {
+	WiredSingleton *tmpS = &WSINGLETON::Instance();
+	ClassWiredSession *tmpNew = new ClassWiredSession();
+	tmpS->addSession(tmpNew);
+}
+
+
+/// Show the preferences dialog.
+void ClassWiredSession::doActionPreferences() {
+	if( pPrefsWindow==0 ) {
+		pPrefsWindow = new WidgetPrefs();
+		pPrefsWindow->setParent(pConnWindow, Qt::Window);
+		pPrefsWindow->move(pConnWindow->pos() );
+		pPrefsWindow->show();
+	} else {
+		pPrefsWindow->raise();
+	}
+}
+
+
+/// Show the list of trackers and their servers.
+void ClassWiredSession::doActionTrackers() {
+	if(!pWinTrackers) {
+		pWinTrackers = new WidgetTracker();
+		pWinTrackers->setParent(pConnWindow, Qt::Window);
+		pWinTrackers->show();
+	} else {
+		pWinTrackers->raise();
+	}
+}
+
+
+/// Show the file search dialog.
+void ClassWiredSession::doActionFileSearch() {
+	if(!pFileSearch) {
+		pFileSearch = new WidgetFileSearch(pConnWindow);
+		int tmpIdx = pMainTabWidget->addTab(pFileSearch, tr("File Search"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+		connect( pWiredSocket, SIGNAL(fileSearchDone(QList<ClassWiredFile>)), pFileSearch, SLOT(updateResults(QList<ClassWiredFile>)) );
+		connect( pFileSearch, SIGNAL(search(QString)), pWiredSocket, SLOT(searchFiles(QString)) );
+		connect( pFileSearch, SIGNAL(downloadFile(QString)), this, SLOT(search_download_file(QString)) );
+		connect( pFileSearch, SIGNAL(revealFile(QString)), this, SLOT(search_reveal_file(QString)) );
+	} else {
+		int tmpIdx = pMainTabWidget->indexOf(pFileSearch);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+	}
+}
+
+
+/// Show the list of transfers.
+void ClassWiredSession::doActionTransfers() {
+	// Display the transfers window
+	if( !pTranfersWindow ) {
+		pTranfersWindow = new WidgetTransfers(pConnWindow);
+		int tmpIdx = pMainTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+		// Model
+		ModelFileTransfers *tmpModel = new ModelFileTransfers(pTranfersWindow->fTransfers);
+		tmpModel->setSocket(pWiredSocket);
+		pTranfersWindow->fTransfers->setModel(tmpModel);
+		pTranfersWindow->init();
+		connect(pTranfersWindow, SIGNAL(transferCancelled(ClassWiredTransfer)), pWiredSocket, SLOT(cancelTransfer(ClassWiredTransfer)) );
+		
+	} else {
+		int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+	}
+}
+

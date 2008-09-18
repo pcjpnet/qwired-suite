@@ -99,6 +99,8 @@ class WiredSocket : public QObject
 		
 	public slots:
 
+		void disconnectSocketFromServer();
+		
 		// Wired Subsystem (not for Trackers)
 		//
 		void banClient(int theUserID, QString theReason);
@@ -165,7 +167,7 @@ class WiredSocket : public QObject
 		void on_server_transfer_queued(QList<QByteArray> theParams);
 		void on_server_file_info(QList<QByteArray> theParams);
 		void on_server_privileges(QList<QByteArray> theParams);
-		void on_socket_error();
+		void on_socket_error(QAbstractSocket::SocketError error);
 		void on_server_search_listing(QList<QByteArray> theParams);
 		void on_server_search_done(QList<QByteArray> theParams);
 		void on_server_groups_listing(QList<QByteArray> theParams);
@@ -182,7 +184,7 @@ class WiredSocket : public QObject
 		void on_tracker_listing_done();
 		
 	signals:
-		void onSocketError(QString theErrorReason, int theError);
+		void onSocketError(QAbstractSocket::SocketError);
 		void onServerInformation();
 		
 		void onServerLoginSuccessful();
@@ -323,7 +325,6 @@ class WiredSocket : public QObject
 		// Tracker subsystem
 		//
 		void tracker_request_servers();
-		
 		void sendClientInfo();
 
 		// Buffers while receiving the list of groups and users (admin mode)

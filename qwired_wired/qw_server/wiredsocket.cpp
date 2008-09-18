@@ -50,6 +50,9 @@ void WiredSocket::idleTimerTriggered() {
 	}
 }
 
+
+
+
 /**
  * The user shows some activity. Check if he/she is idle and un-idle.
  */
@@ -806,6 +809,7 @@ void WiredSocket::sendErrorCannotBeDisconnected() { sendWiredCommand("515 Cannot
 void WiredSocket::sendErrorAccountNotFound() { sendWiredCommand("513 Account Not Found"); }
 void WiredSocket::sendErrorAccountExists() { sendWiredCommand("514 Account Exists"); }
 void WiredSocket::sendErrorFileNotFound() { sendWiredCommand("520 File or Directory Not Found"); }
+
 
 
 

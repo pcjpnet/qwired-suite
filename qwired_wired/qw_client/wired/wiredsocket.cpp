@@ -33,7 +33,8 @@ WiredSocket::WiredSocket(QObject *parent)
 	connect( pSocket, SIGNAL(encrypted()), this, SLOT(on_socket_encrypted()) );
 	connect( pSocket, SIGNAL(readyRead()), this, SLOT(on_socket_readyRead()) );
 	connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>))); 
-	connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_socket_error()) );
+	connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+			 this, SLOT(on_socket_error(QAbstractSocket::SocketError)) );
 	pInvitedUserID = 0;
 	pIzCaturday = false; // :< no iz caturday?
 }
@@ -44,7 +45,7 @@ void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
 	pSocket->ignoreSslErrors();
 }
 
-// Disconnect from the server and clean up
+/// Disconnect from the server and clean up
 void WiredSocket::disconnectFromServer() {
 	pSocket->disconnectFromHost();
 	pAdminGroups.clear();
@@ -203,6 +204,7 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 	}
 }
 
+
 // Find a user by the ID specified in the list of publically connected users.
 ClassWiredUser WiredSocket::getUserByID(int theID) {
 	QList<ClassWiredUser> tmpList = pUsers[1]; // server user list
@@ -229,11 +231,13 @@ void WiredSocket::on_server_userlist_item(QList<QByteArray> theParams) {
 	emit onServerUserlistItem(tmpChannel, tmpUsr);
 }
 
+
 // Set the username and password for the login sequence.
 void WiredSocket::setUserAccount(QString theAcct, QString thePass) {
 	sessionUser.pLogin = theAcct;
 	sessionUser.pPassword = thePass;
 }
+
 
 // Do I really have to comment this? :D
 void WiredSocket::setCaturday(bool b) {
@@ -265,6 +269,7 @@ void WiredSocket::setCaturday(bool b) {
 	pIzCaturday = false;
 }
 
+
 // Tracker subsystem
 //
 void WiredSocket::connectToTracker(QString theHostName, int thePort) {
@@ -281,6 +286,7 @@ void WiredSocket::connectToTracker(QString theHostName, int thePort) {
 	qDebug() << "WiredSocket: Connecting to tracker at"<<tmpHost<<"port"<<tmpPort;
 	pSocket->connectToHostEncrypted(tmpHost, tmpPort);
 }
+
 
 // Wrapper that allows other code to tell this socket to connect to a remote server.
 void WiredSocket::connectToWiredServer(QString theHostName, int thePort) {
@@ -322,6 +328,7 @@ void WiredSocket::on_socket_encrypted() {
 WiredSocket::~WiredSocket()
 { }
 
+
 /**
  * Get the number of users in the chat specified by theChatID.
  * @param theChatID The ID of the chat.
@@ -335,6 +342,7 @@ const int WiredSocket::userCountByChat(const int theChatID) {
 	}
 	return 0;
 }
+
 
 /**
  * Find a user within a specific chat by id and return it.
@@ -653,14 +661,12 @@ void WiredSocket::setUserIcon(QPixmap theIcon) {
 }
 
 
-
-void WiredSocket::on_socket_error()
+/// Handle a socket error and generate a signal
+void WiredSocket::on_socket_error(QAbstractSocket::SocketError error)
 {
-	// Handle a socket error and generate a signal
-	QString theErrReason = pSocket->errorString();
-	int theErr = pSocket->error();
+	disconnectFromServer();
 	pSocket->disconnectFromHost();
-	emit onSocketError(theErrReason,theErr);
+	emit onSocketError(error);
 }
 
 /**
@@ -1359,6 +1365,15 @@ QString WiredSocket::tranzlate(QString theText){
 	tmpResult = tmpResult.replace("?", ", plz?");
 	tmpResult = tmpResult.replace("!", "?!!11");
 	return tmpResult;
+}
+
+/// Disconnect the low level socket from the server.
+/// Mainly used during connection cancellation.
+void WiredSocket::disconnectSocketFromServer()
+{
+	if(!pSocket) return;
+	qDebug() << this << ": Aborting connection to server.";
+	pSocket->abort();
 }
 
 

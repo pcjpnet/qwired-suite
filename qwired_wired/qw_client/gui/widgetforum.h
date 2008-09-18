@@ -55,6 +55,7 @@ protected:
 	bool eventFilter(QObject *watched, QEvent *event);
 		
 public slots:
+	void resetForm();
 	void writeToChat(QString theUser, QString theText, bool theEmote);
 	void writeEventToChat(QString theMsg);
 	
