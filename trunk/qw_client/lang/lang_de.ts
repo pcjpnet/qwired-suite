@@ -300,24 +300,24 @@ Grund: %1 (%2).</translation>
     </message>
 </context>
 <context>
-    <name>DialogNewsPost</name>
+    <name>WidgetNewsPost</name>
     <message>
-        <location filename="gui/DialogNewsPost.ui" line="13"/>
+        <location filename="gui/WidgetNewsPost.ui" line="13"/>
         <source>Post News</source>
         <translation>Neuigkeiten Veröffentlichen</translation>
     </message>
     <message>
-        <location filename="gui/DialogNewsPost.ui" line="43"/>
+        <location filename="gui/WidgetNewsPost.ui" line="43"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="gui/DialogNewsPost.ui" line="50"/>
+        <location filename="gui/WidgetNewsPost.ui" line="50"/>
         <source>Post</source>
         <translation>Veröffentlichen</translation>
     </message>
     <message>
-        <location filename="gui/DialogNewsPost.ui" line="53"/>
+        <location filename="gui/WidgetNewsPost.ui" line="53"/>
         <source>Enter</source>
         <translation></translation>
     </message>

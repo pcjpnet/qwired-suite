@@ -20,6 +20,8 @@
 
  
 #include "widgetfilebrowser.h"
+#include "general/classwiredsession.h"
+
 #include <math.h>
 
 WidgetFileBrowser::WidgetFileBrowser(QWidget *parent)
@@ -27,6 +29,7 @@ WidgetFileBrowser::WidgetFileBrowser(QWidget *parent)
 {
 	setupUi(this);
 	setAcceptDrops(true);
+	setAttribute(Qt::WA_DeleteOnClose);
 }
 
 

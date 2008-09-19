@@ -23,29 +23,78 @@
 #define WIDGETCOLORBUTTON_H
 
 #include <QToolButton>
+#include <QPainter>
+#include <QColorDialog>
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class WidgetColorButton : public QToolButton
+class WidgetColorButton
+	: public QToolButton
 {
+	
 Q_OBJECT
+		
 public:
-    WidgetColorButton(QWidget *parent = 0);
-	WidgetColorButton(QColor theColor, QWidget *parent = 0);
-    ~WidgetColorButton();
-	QColor selectedColor();
+	
+    WidgetColorButton(QWidget *parent = 0)
+	{
+		Q_UNUSED(parent)
+		connect(this, SIGNAL(clicked(bool)), this, SLOT(requestColor()) );
+		updateIcon();
+	};
 
+	WidgetColorButton(QColor theColor, QWidget *parent = 0)
+	{
+		Q_UNUSED(parent)
+		connect(this, SIGNAL(clicked(bool)), this, SLOT(requestColor()) );
+		pColor = theColor;
+		updateIcon();
+	};
+
+	~WidgetColorButton()
+	{ };
+
+	QColor selectedColor()
+	{
+		return pColor;
+	};
+
+	
 private:
+	
 	QColor pColor;
-	void updateIcon();
+	
+	void updateIcon()
+	{
+		QPainter p;
+		QPixmap pm(18,18);
+		p.begin(&pm);
+		p.fillRect(0,0,18,18,pColor);
+		p.end();
+		this->setIcon(pm);
+	};
 
+	
 private slots:
-	void requestColor();	
+	void requestColor()
+	{
+		QColor tmpC = QColorDialog::getColor(pColor);
+		pColor = tmpC;
+		updateIcon();
+		emit colorSelected(pColor);
+	};	
+
 	
 public slots:
-	void setColor(QColor);
+	
+	void setColor(QColor theColor)
+	{
+		pColor = theColor;
+		updateIcon();
+	};
 
+	
 signals:
 	void colorSelected(QColor);
 

@@ -14,17 +14,17 @@ ICON = qwired.icns
 RC_FILE = qwired.rc
 
 macx {
- QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
- QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
- QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
- QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
+    QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
+    QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
+    QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
 }
 
-macx:release {
- CONFIG += x86 ppc
-}
+macx : release {
+        CONFIG += x86 ppc
+    }
 
- 
+
 TRANSLATIONS += lang/lang_de.ts \
  lang/lang_pt.ts \
  lang/lang_it.ts \
@@ -32,18 +32,17 @@ TRANSLATIONS += lang/lang_de.ts \
 
 
 
-SOURCES += general/main.cpp \
+SOURCES += \
+ general/main.cpp \
  wired/wiredsocket.cpp \
  general/classwiredsession.cpp \
  gui/widgetforum.cpp \
  gui/widgetnews.cpp \
- gui/dialognewspost.cpp \
  gui/modeluserlist.cpp \
  gui/delegateuserlist.cpp \
  gui/widgetsendprivmsg.cpp \
  gui/widgetuserinfo.cpp \
  gui/widgetitemuserlist.cpp \
- gui/widgetserverinfo.cpp \
  gui/widgetfilebrowser.cpp \
  gui/modelfilelist.cpp \
  wired/classwiredfile.cpp \
@@ -53,17 +52,15 @@ SOURCES += general/main.cpp \
  gui/modelfiletransfers.cpp \
  gui/delegatefiletransfers.cpp \
  gui/WidgetFileSearch.cpp \
- gui/WidgetColorButton.cpp \
  gui/widgetaccounts.cpp \
- gui/WidgetFileInfo.cpp \
  gui/WidgetTracker.cpp \
- general/wiredsingleton.cpp
+ general/wiredsingleton.cpp \
+ gui/widgetserverinfo.cpp
 
 
 FORMS += gui/WinMain.ui \
  gui/WidgetForum.ui \
  gui/WidgetNews.ui \
- gui/DialogNewsPost.ui \
  gui/WidgetSendPrivMsg.ui \
  gui/WidgetUserInfo.ui \
  gui/WidgetServerInfo.ui \
@@ -76,15 +73,15 @@ FORMS += gui/WinMain.ui \
  gui/WidgetFileInfo.ui \
  gui/WidgetTracker.ui \
  gui/WidgetAboutQwired.ui \
- gui/WidgetAbout.ui
+ gui/WidgetAbout.ui \
+ gui/WidgetNewsPost.ui
 
-HEADERS += wired/classwireduser.h \
+HEADERS += general/classwiredsession.h \
+ wired/classwireduser.h \
  gui/connwindow.h \
  gui/widgetforum.h \
  wired/wiredsocket.h \
- general/classwiredsession.h \
  gui/widgetnews.h \
- gui/dialognewspost.h \
  gui/modeluserlist.h \
  gui/delegateuserlist.h \
  gui/widgetsendprivmsg.h \
@@ -110,4 +107,5 @@ HEADERS += wired/classwireduser.h \
  gui/WidgetFileInfo.h \
  gui/WidgetTracker.h \
  wired/classtrackerserver.h \
- gui/widgetabout.h
+ gui/widgetabout.h \
+ gui/WidgetNewsPost.h

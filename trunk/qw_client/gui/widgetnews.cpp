@@ -21,7 +21,7 @@
 
 #include "../general/wiredcommon.h"
 #include "widgetnews.h"
-#include "dialognewspost.h"
+#include "WidgetNewsPost.h"
 #include <QtCore>
 
 WidgetNews::WidgetNews(QWidget *parent)
@@ -108,7 +108,7 @@ void WidgetNews::on_fBtnPost_clicked(bool checked)
 {
 	Q_UNUSED(checked)
 	if( pWinPost==0 ) {
-		pWinPost = new DialogNewsPost(this);
+		pWinPost = new WidgetNewsPost(this);
 		connect( pWinPost, SIGNAL(accepted()), this, SLOT(doSendNews()) );
 		pWinPost->show();
 	} else {

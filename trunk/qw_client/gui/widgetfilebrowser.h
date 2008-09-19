@@ -27,12 +27,15 @@
 #include <QtGui>
 #include "ui_WidgetFileBrowser.h"
 #include "modelfilelist.h"
-#include "general/classwiredsession.h"
+#include "../wired/classwiredtransfer.h"
+
+class ClassWiredSession;
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class WidgetFileBrowser : public QWidget, private Ui::WidgetFileBrowser
+class WidgetFileBrowser
+	: public QWidget, private Ui::WidgetFileBrowser
 {
 	
 Q_OBJECT

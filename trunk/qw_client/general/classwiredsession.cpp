@@ -23,9 +23,11 @@
 #include "classwiredsession.h"
 #include "gui/widgetsendprivmsg.h"
 #include "gui/widgetuserinfo.h"
-#include "gui/widgetfilebrowser.h"
+
 #include "gui/widgetconnect.h"
 #include "gui/modelfiletransfers.h"
+
+#include "gui/widgetfilebrowser.h"
 
 #include <QMessageBox>
 #include <QtGui>
@@ -816,7 +818,7 @@ void ClassWiredSession::doActionNews() {
 void ClassWiredSession::doActionServerInfo() {	
 	if( !pServerWindow ) {
 		pServerWindow = new WidgetServerInfo();
-		pServerWindow->loadInfo(this);
+		pServerWindow->loadInfo(pWiredSocket);
 		pMainTabWidget->addTab(pServerWindow, tr("Server Info"));
 	} else {
 		pServerWindow->raise();
@@ -833,17 +835,29 @@ void ClassWiredSession::doActionBroadcast() {
 }
 
 
-/// Show a new file browser.
+/// Open a new file browser and request the list of files (/) from the server.
 void ClassWiredSession::doActionFiles(QString thePath) {
-	// Open a new file browser and request the list of files (/) from the server.
-	WidgetFileBrowser *browser = new WidgetFileBrowser();
-	browser->setParent(pConnWindow, Qt::Window);
-	browser->move( pConnWindow->pos() );
-	browser->initWithConnection(this);
-	browser->setPath(thePath);
-	browser->pModel->pWaitingForList = true;
-	browser->show();
-	pWiredSocket->getFileList(thePath); // Request the root list of files
+	if(!pWinFileBrowser) {
+		pWinFileBrowser = new WidgetFileBrowser();
+		pWinFileBrowser->setParent(pConnWindow, Qt::Window);
+		pWinFileBrowser->initWithConnection(this);
+		pWinFileBrowser->setPath(thePath);
+		pWinFileBrowser->pModel->pWaitingForList = true;
+		pWiredSocket->getFileList(thePath);
+
+		// Display the widget using a Tab
+		pMainTabWidget->setCurrentIndex(pMainTabWidget->addTab(pWinFileBrowser, QIcon(), tr("Files")));
+		
+	} else {
+		int tmpIdx = pMainTabWidget->indexOf(pWinFileBrowser);
+		pMainTabWidget->setCurrentIndex(tmpIdx);
+	}
+// 	browser->move( pConnWindow->pos() );
+	
+	
+	
+// 	browser->show();
+	 // Request the root list of files
 }
 
 
