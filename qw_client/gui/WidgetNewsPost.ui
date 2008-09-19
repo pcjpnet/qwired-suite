@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>DialogNewsPost</class>
- <widget class="QDialog" name="DialogNewsPost" >
+ <class>WidgetNewsPost</class>
+ <widget class="QWidget" name="WidgetNewsPost" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -66,7 +66,7 @@
   <connection>
    <sender>fBtnPost</sender>
    <signal>clicked()</signal>
-   <receiver>DialogNewsPost</receiver>
+   <receiver>WidgetNewsPost</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -82,7 +82,7 @@
   <connection>
    <sender>fBtnCancel</sender>
    <signal>clicked()</signal>
-   <receiver>DialogNewsPost</receiver>
+   <receiver>WidgetNewsPost</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

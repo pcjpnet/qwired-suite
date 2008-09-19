@@ -23,9 +23,12 @@
 #define WIDGETSERVERINFORMATION_H
 
 #include <QWidget>
+#include <QtNetwork>
+#include <QSslSocket>
+#include <QSslCipher>
 #include "ui_WidgetServerInfo.h"
+#include "../wired/wiredsocket.h"
 
-class ClassWiredSession;
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
@@ -36,9 +39,10 @@ class WidgetServerInfo
 Q_OBJECT
 
 public:
+	
     WidgetServerInfo(QWidget *parent = 0);
     ~WidgetServerInfo();
-    void loadInfo(ClassWiredSession *theSession);
+    void loadInfo(WiredSocket *);
 
 };
 

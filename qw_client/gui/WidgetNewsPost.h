@@ -23,21 +23,37 @@
 #define DIALOGNEWSPOST_H
 
 #include <QDialog>
-#include "ui_DialogNewsPost.h"
+#include "ui_WidgetNewsPost.h"
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
 
-class DialogNewsPost : public QDialog, private Ui::DialogNewsPost
+class WidgetNewsPost
+	: public QWidget, private Ui_WidgetNewsPost
 {
 	Q_OBJECT
 
 	public:
-		DialogNewsPost( QWidget *parent = 0 );
-		~DialogNewsPost();
-		QString getPostText();
+
+		WidgetNewsPost(QWidget *parent = 0 )
+		{
+			Q_UNUSED(parent)
+			setAttribute(Qt::WA_DeleteOnClose);
+			setupUi(this);
+		};
+
+		
+		~WidgetNewsPost()
+		{ };
+
+		
+		QString getPostText()
+		{
+			return fNews->toPlainText();
+		};
 
 };
+
 
 #endif

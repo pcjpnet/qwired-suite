@@ -28,14 +28,40 @@
 /**
 	@author Bastian Bense <bb@bense.de>
 */
-class WidgetFileInfo : public QWidget, public Ui::WidgetFileInfo
+class WidgetFileInfo
+	: public QWidget, public Ui::WidgetFileInfo
 {
+	
 Q_OBJECT
+		
 public:
-    WidgetFileInfo(QWidget *parent = 0);
-    ~WidgetFileInfo();
-	void loadFromFile(const ClassWiredFile theFile);
 	ClassWiredFile pFile;
+	
+    WidgetFileInfo(QWidget *parent = 0)
+	{
+		Q_UNUSED(parent)
+		setAttribute(Qt::WA_DeleteOnClose);
+		setupUi(this);
+	};
+
+	
+    ~WidgetFileInfo()
+	{ };
+
+	
+	void loadFromFile(const ClassWiredFile theFile)
+	{
+		pFile = theFile;
+		fName->setText(theFile.fileName());
+		fIcon->setPixmap(theFile.fileIcon().pixmap(16,16));
+		fSize->setText(QString("%1 (%2 bytes)").arg(ClassWiredFile::humanReadableSize(theFile.size)).arg(theFile.size));
+		fPath->setText(theFile.path);
+		fModified->setText(theFile.modified.toString());
+		fCreated->setText(theFile.created.toString());
+		fChecksum->setText(theFile.checksum);
+		fComments->setText(theFile.comment);
+	};
+	
 };
 
 #endif

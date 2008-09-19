@@ -32,7 +32,6 @@
 
 #include "gui/widgetnews.h"
 #include "gui/modeluserlist.h"
-#include "gui/widgetserverinfo.h"
 #include "gui/widgetprefs.h"
 #include "gui/widgetconnect.h"
 #include "gui/widgettransfers.h"
@@ -41,11 +40,17 @@
 #include "gui/widgetaccounts.h"
 #include "gui/WidgetTracker.h"
 #include "gui/WidgetFileInfo.h"
+#include "gui/widgetserverinfo.h"
+
+
 
 namespace Qwired {
 	enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick, UserChangedStatus,
 		UserLeft, ChatReceived, MessageReceived, NewsPosted, BroadcastReceived, TransferStarted, TransferFinished };
 };
+
+
+class WidgetFileBrowser;
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
@@ -83,6 +88,7 @@ public:
 	QPointer<WidgetFileSearch> pFileSearch;
 	QPointer<WidgetAccounts> pWinAccounts;
 	QPointer<WidgetTracker> pWinTrackers;
+	QPointer<WidgetFileBrowser> pWinFileBrowser;
 
 	QPointer<QMenu> pTrayMenuItem;
 	

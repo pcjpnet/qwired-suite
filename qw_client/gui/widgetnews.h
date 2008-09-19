@@ -25,7 +25,7 @@
 #include <QWidget>
 #include <QPointer>
 #include "ui_WidgetNews.h"
-#include "dialognewspost.h"
+#include "WidgetNewsPost.h"
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
@@ -42,7 +42,7 @@ class WidgetNews : public QWidget, private Ui::WidgetNews
 	public:
 		WidgetNews( QWidget *parent = 0 );
 		~WidgetNews();
-		QPointer<DialogNewsPost> pWinPost;
+		QPointer<WidgetNewsPost> pWinPost;
 		
 	signals:
 		void doRefreshNews();
