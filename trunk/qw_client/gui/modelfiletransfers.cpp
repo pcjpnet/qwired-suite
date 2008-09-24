@@ -23,7 +23,7 @@
 
 
 ModelFileTransfers::ModelFileTransfers(QObject *parent)
- : QAbstractListModel(parent)
+	: QAbstractListModel(parent)
 { }
 
 
@@ -31,24 +31,31 @@ ModelFileTransfers::~ModelFileTransfers()
 { }
 
 
-int ModelFileTransfers::rowCount(const QModelIndex &) const {
-	if(pSocket) {
-		//qDebug() << "Returning count:"<<pSocket->pTransferSockets.count();
-		return pSocket->pTransferSockets.count();
+int ModelFileTransfers::rowCount(const QModelIndex &) const
+{
+	if(!pSocket) return 0;
+	return pSocket->pTransferSockets.count();
+	/*
+	int count=0;
+	QListIterator<WiredTransferSocket> i(pSocket->pTransferSockets);
+	while(i.hasNext()) {
+		WiredTransferSocket *socket = i.next();
+		if(!socket) continue;
+		if(socket->isActive()) count++;
 	}
-	return 0;
+	return count; //*/
+
 }
 
 
-QVariant ModelFileTransfers::data(const QModelIndex & index, int role) const {
-	if(!index.isValid())
-		return QVariant();
-	if(!pSocket)
-		return QVariant();
+QVariant ModelFileTransfers::data(const QModelIndex & index, int role) const
+{
+	if(!index.isValid()) return QVariant();
+	if(!pSocket) return QVariant();
+	
 	if(index.row()<pSocket->pTransferSockets.count()) {
 		WiredTransferSocket *tmpSock = pSocket->pTransferSockets.value(index.row());
-		if(!tmpSock)
-			return QVariant();
+		if(!tmpSock) return QVariant();
 		if (role==Qt::UserRole)
 			return QVariant::fromValue(tmpSock->pTransfer);
 	}
@@ -56,22 +63,20 @@ QVariant ModelFileTransfers::data(const QModelIndex & index, int role) const {
 }
 
 
-void ModelFileTransfers::setSocket(WiredSocket *theSocket) {
+void ModelFileTransfers::setSocket(WiredSocket *theSocket)
+{
 	if(!theSocket) return;
 	pSocket = theSocket;
-	connect(pSocket, SIGNAL(fileTransferStatus(ClassWiredTransfer)),
-			this, SLOT(updateTransfers(ClassWiredTransfer)) );
-	connect(pSocket, SIGNAL(fileTransferStarted(ClassWiredTransfer)),
-			this, SLOT(reloadTransfers()) );
-	connect(pSocket, SIGNAL(fileTransferDone(ClassWiredTransfer)),
-			this, SLOT(reloadTransfers()) );
-	connect(pSocket, SIGNAL(fileTransferError(ClassWiredTransfer)),
-			this, SLOT(reloadTransfers()) );
+	connect(pSocket, SIGNAL(fileTransferStatus(ClassWiredTransfer)),  this, SLOT(updateTransfers(ClassWiredTransfer)) );
+	connect(pSocket, SIGNAL(fileTransferStarted(ClassWiredTransfer)), this, SLOT(reloadTransfers()) );
+	connect(pSocket, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SLOT(reloadTransfers()) );
+	connect(pSocket, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SLOT(reloadTransfers()) );
 }
 
 
 // The status of an item has updated and should be redrawn
-void ModelFileTransfers::updateTransfers(const ClassWiredTransfer theTransfer) {
+void ModelFileTransfers::updateTransfers(const ClassWiredTransfer theTransfer)
+{
 	QListIterator<QPointer<WiredTransferSocket> > i(pSocket->pTransferSockets);
 	int tmpIdx=0;
 	while(i.hasNext()) {
@@ -84,7 +89,9 @@ void ModelFileTransfers::updateTransfers(const ClassWiredTransfer theTransfer) {
 	}
 }
 
-void ModelFileTransfers::reloadTransfers() {
+
+void ModelFileTransfers::reloadTransfers()
+{
 	reset();
 }
 

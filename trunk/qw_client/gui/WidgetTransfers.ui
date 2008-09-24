@@ -14,7 +14,11 @@
   </property>
   <layout class="QVBoxLayout" >
    <item>
-    <widget class="QListView" name="fTransfers" />
+    <widget class="QListView" name="fTransfers" >
+     <property name="alternatingRowColors" >
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" >
@@ -23,7 +27,7 @@
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0" >
         <size>
          <width>40</width>
          <height>20</height>
@@ -39,6 +43,13 @@
        <property name="text" >
         <string>Reveal</string>
        </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/16x16/system-search.png</normaloff>:/icons/16x16/system-search.png</iconset>
+       </property>
+       <property name="toolButtonStyle" >
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
       </widget>
      </item>
      <item>
@@ -49,6 +60,13 @@
        <property name="text" >
         <string>Cancel Transfer</string>
        </property>
+       <property name="icon" >
+        <iconset resource="../application.qrc" >
+         <normaloff>:/icons/16x16/process-stop.png</normaloff>:/icons/16x16/process-stop.png</iconset>
+       </property>
+       <property name="toolButtonStyle" >
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
       </widget>
      </item>
     </layout>
@@ -56,7 +74,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="application.qrc" />
+  <include location="../application.qrc" />
  </resources>
  <connections/>
 </ui>

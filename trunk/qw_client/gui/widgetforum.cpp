@@ -68,7 +68,7 @@ WidgetForum::~WidgetForum()
 	// Leave the chat, if it is private
 	if( pChatID!=1 ) {
 		pSession->pChats.remove(pChatID);
-		pSession->pWiredSocket->leaveChat(pChatID);
+		pSession->wiredSocket()->leaveChat(pChatID);
 	}
 
 	// Save the splitters
@@ -241,13 +241,13 @@ void WidgetForum::postChatInputText()
 {
 	QString msg = fChatInput->toPlainText();
 	if(msg.startsWith("/me ")) {
-		pSession->pWiredSocket->sendChat(pChatID, msg.mid(4), true);
+		pSession->wiredSocket()->sendChat(pChatID, msg.mid(4), true);
 	} else if(msg.startsWith("/topic ")) {
-		pSession->pWiredSocket->setChatTopic(pChatID, msg.mid(7));
+		pSession->wiredSocket()->setChatTopic(pChatID, msg.mid(7));
 	} else if(msg.startsWith("/status ")) {
-		pSession->pWiredSocket->setUserStatus(msg.mid(8));
+		pSession->wiredSocket()->setUserStatus(msg.mid(8));
 	} else if(msg.startsWith("/nick ")) {
-		pSession->pWiredSocket->setUserNick(msg.mid(6));
+		pSession->wiredSocket()->setUserNick(msg.mid(6));
 	} else if(msg.startsWith("/clear")) {
 		fChatLog->clear();
 	} else if(msg.startsWith("/exec ")) {
@@ -256,14 +256,14 @@ void WidgetForum::postChatInputText()
 			QProcess tmpProc;
 			tmpProc.start(tmpCmd);
 			if(tmpProc.waitForFinished())
-				pSession->pWiredSocket->sendChat(pChatID, tmpProc.readAllStandardOutput(), false);
+				pSession->wiredSocket()->sendChat(pChatID, tmpProc.readAllStandardOutput(), false);
 		}
 	} else if(msg.startsWith("/caturday")) {
 		//   Caturday mode   :3
-		pSession->pWiredSocket->setCaturday(true);
+		pSession->wiredSocket()->setCaturday(true);
 		
 	} else {
-		pSession->pWiredSocket->sendChat(pChatID, msg, false);
+		pSession->wiredSocket()->sendChat(pChatID, msg, false);
 	}
 	fChatInput->clear();
 }
@@ -276,7 +276,7 @@ void WidgetForum::setUserListModel(ModelUserList *model)
 	userlistDelegate = new DelegateUserlist (this);
 	fUsers->setItemDelegate(userlistDelegate);
 	model->setChatID(pChatID);
-	model->setWiredSocket(pSession->pWiredSocket);
+	model->setWiredSocket(pSession->wiredSocket());
 	
 	// Connect the change event to this window
 	connect( fUsers->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -310,7 +310,7 @@ void WidgetForum::on_fBtnKick_clicked() {
 	QString tmpReason = QInputDialog::getText(this, tr("Kick"),
 			tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.").arg(tmpNick), QLineEdit::Normal, "", &ok);
 	if (ok) {
-		pSession->pWiredSocket->kickClient(tmpID, tmpReason);
+		pSession->wiredSocket()->kickClient(tmpID, tmpReason);
 	}
 }
 
@@ -323,7 +323,7 @@ void WidgetForum::on_fBtnBan_clicked() {
 	QString tmpReason = QInputDialog::getText(this, tr("Kick"),
 			tr("You are about to ban '%1'.\nPlease enter a reason and press OK.").arg(tmpNick), QLineEdit::Normal, "", &ok);
 	if (ok) {
-		pSession->pWiredSocket->banClient(tmpID, tmpReason);
+		pSession->wiredSocket()->banClient(tmpID, tmpReason);
 	}
 }
 
@@ -335,7 +335,7 @@ void WidgetForum::on_fBtnMsg_clicked() {
 // User list item double-clicked. Show a new private message dialog.
 void WidgetForum::on_fUsers_doubleClicked (const QModelIndex &index) {
 	int tmpUserID = index.data( Qt::UserRole ).toInt();
-	ClassWiredUser tmpUsr = pSession->pWiredSocket->getUserByID(tmpUserID);
+	ClassWiredUser tmpUsr = pSession->wiredSocket()->getUserByID(tmpUserID);
 	
 	WidgetSendPrivMsg *msg;
 	if(!pSession->pMsgWindows.contains(tmpUserID)) {
@@ -344,7 +344,7 @@ void WidgetForum::on_fUsers_doubleClicked (const QModelIndex &index) {
 		msg->setWindowTitle(tmpUsr.pNick);
 		msg->setWindowIcon(tmpUsr.iconAsPixmap());
 		msg->pTargetID = tmpUserID;
-		connect( msg, SIGNAL(newMessage(int,QString)), pSession->pWiredSocket, SLOT(sendPrivateMessage(int,QString)) );
+		connect( msg, SIGNAL(newMessage(int,QString)), pSession->wiredSocket(), SLOT(sendPrivateMessage(int,QString)) );
 		pSession->pMsgWindows[tmpUserID] = msg;
 	} else {
 		msg = pSession->pMsgWindows.value(tmpUserID);
@@ -364,10 +364,10 @@ void WidgetForum::on_fUsers_doubleClicked (const QModelIndex &index) {
 
 // User list item has changed/selection changed.
 void WidgetForum::onUserlistSelectionChanged(const QItemSelection &, const QItemSelection &) {
-	fBtnInfo->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->pWiredSocket->sessionUser.privGetUserInfo );
-	fBtnBan->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->pWiredSocket->sessionUser.privBanUsers );
+	fBtnInfo->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privGetUserInfo );
+	fBtnBan->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privBanUsers );
 	fBtnMsg->setEnabled( fUsers->selectionModel()->hasSelection() );
-	fBtnKick->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->pWiredSocket->sessionUser.privKickUsers );
+	fBtnKick->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privKickUsers );
 	fBtnChat->setEnabled( fUsers->selectionModel()->hasSelection() );
 }
 
@@ -375,7 +375,7 @@ void WidgetForum::on_fBtnChat_clicked() {
 	const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
 	if( tmpIdx.isValid() ) {
 		int tmpID = tmpIdx.data(Qt::UserRole).toInt();
-		pSession->pWiredSocket->createChatWithClient(tmpID);
+		pSession->wiredSocket()->createChatWithClient(tmpID);
 	}
 }
 
@@ -384,7 +384,7 @@ void WidgetForum::on_fBtnInfo_clicked()
 	const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
 	if( tmpIdx.isValid() ) {
 		int tmpID = tmpIdx.data(Qt::UserRole).toInt();
-		pSession->pWiredSocket->getClientInfo(tmpID);
+		pSession->wiredSocket()->getClientInfo(tmpID);
 	}
 }
 
@@ -401,11 +401,11 @@ void WidgetForum::updateInviteMenu() {
 	
 	pInviteMenu->clear();
 	
-	QList<ClassWiredUser> &tmpList = pSession->pWiredSocket->pUsers[1];
+	QList<ClassWiredUser> &tmpList = pSession->wiredSocket()->pUsers[1];
 	QListIterator<ClassWiredUser> i(tmpList);
 	while(i.hasNext()) {
 		ClassWiredUser tmpUsr = i.next();
-		if(tmpUsr.pUserID!=pSession->pWiredSocket->sessionUser.pUserID) {
+		if(tmpUsr.pUserID!=pSession->wiredSocket()->sessionUser.pUserID) {
 			QAction *tmpAct = pInviteMenu->addAction(tmpUsr.pNick);
 			tmpAct->setIcon(tmpUsr.iconAsPixmap());
 			tmpAct->setData(tmpUsr.pUserID);
@@ -414,7 +414,7 @@ void WidgetForum::updateInviteMenu() {
 }
 
 void WidgetForum::inviteMenuTriggered(QAction * action) {
-	pSession->pWiredSocket->inviteClientToChat(pChatID, action->data().toInt());
+	pSession->wiredSocket()->inviteClientToChat(pChatID, action->data().toInt());
 }
 
 void WidgetForum::reloadPreferences() {

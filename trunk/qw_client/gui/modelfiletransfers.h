@@ -32,7 +32,9 @@
 
 class ModelFileTransfers : public QAbstractListModel
 {
+	
 Q_OBJECT
+		
 public:
     ModelFileTransfers(QObject *parent = 0);
     ~ModelFileTransfers();

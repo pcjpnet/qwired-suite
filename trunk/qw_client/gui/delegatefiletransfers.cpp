@@ -34,28 +34,25 @@ DelegateFileTransfers::~DelegateFileTransfers()
 { }
 
 
-QSize DelegateFileTransfers::sizeHint(const QStyleOptionViewItem& , const QModelIndex& ) const {
+QSize DelegateFileTransfers::sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const
+{
 	return QSize( 400, 50 );
 }
 
-void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-	
-	if( !index.isValid() ) return;
-	
-	if ( option.state & QStyle::State_Selected ) {
-		painter->fillRect ( 0, 0, option.rect.width(), option.rect.height(), Qt::gray );
-	}
+
+void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+	if(!index.isValid()) return;
+	if (option.state & QStyle::State_Selected)
+		painter->fillRect(0, 0, option.rect.width(), option.rect.height(), Qt::gray);
 
 	painter->save();
-	painter->translate ( 0, option.rect.y() );
-	painter->setRenderHint ( QPainter::Antialiasing, true );
+	painter->translate(0, option.rect.y());
+	painter->setRenderHint(QPainter::Antialiasing, true);
 	
 	ClassWiredTransfer tmpT = index.data(Qt::UserRole).value<ClassWiredTransfer>();
 
-
-	
 	// Progressbar
-	
 	QStyleOptionProgressBar progressBarOption;
 	progressBarOption.state = QStyle::State_Enabled;
 	progressBarOption.direction = QApplication::layoutDirection();
@@ -96,25 +93,31 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	}
 	
 	// Icon
-	if(tmpT.pTransferType==0) { // Download
-		QPixmap icn(":/icons/32_download.png");
-		painter->drawPixmap(10, 9, icn);
-	} else {
-		QPixmap icn(":/icons/32_upload.png");
-		painter->drawPixmap(10, 9, icn);
+	painter->save();
+	painter->translate(10, 9);
+	if(tmpT.pStatus == WiredTransfer::StatusWaitingForStat) {
+		painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/network-server.png"));
+	} else if(tmpT.pStatus == WiredTransfer::StatusQueued) {
+		painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/start-here.png"));
+	} else if(tmpT.pStatus == WiredTransfer::StatusActive) {
+		if(tmpT.pTransferType == WiredTransfer::TypeDownload) {
+			painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/go-down.png"));
+		} else if(tmpT.pTransferType == WiredTransfer::TypeUpload) {
+			painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/go-up.png"));
+		}
 	}
-	
-	
-	
+	painter->restore();
+
 	// Remaining
 	font.setBold(false);
 	painter->setFont(font);
 
 	if(tmpT.pStatus==2) {
 		painter->drawText( 10+32+8, 10+fontmetrics.height()+fontmetrics.ascent(),
-						tr("%1 of %2 completed (%3%)").arg(ClassWiredFile::humanReadableSize(tmpT.pDoneSize))
-						.arg(ClassWiredFile::humanReadableSize(tmpT.pTotalSize))
-						.arg(progress) );
+						tr("%1 of %2 completed (%3%)")
+							.arg(ClassWiredFile::humanReadableSize(tmpT.pDoneSize))
+							.arg(ClassWiredFile::humanReadableSize(tmpT.pTotalSize))
+							.arg(progress) );
 	}
 	
 	// Bottom Line

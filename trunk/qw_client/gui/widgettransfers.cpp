@@ -27,38 +27,33 @@ WidgetTransfers::WidgetTransfers(QWidget *parent)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
-	
-	DelegateFileTransfers *tmpD = new DelegateFileTransfers(this);
-	fTransfers->setItemDelegate(tmpD);
-
-
-	
+	fTransfers->setItemDelegate(new DelegateFileTransfers(this));
 }
 
 
 WidgetTransfers::~WidgetTransfers()
+{ }
+
+
+void WidgetTransfers::on_fBtnCancel_clicked(bool )
 {
-}
-
-
-
-
-void WidgetTransfers::on_fBtnCancel_clicked(bool ) {
 	QModelIndex idx = fTransfers->currentIndex();
-	if(idx.isValid()) {
-		ClassWiredTransfer tmpT = idx.data(Qt::UserRole).value<ClassWiredTransfer>();
-		qDebug() << "Cancelling transfer"<<tmpT.pHash<<tmpT.pRemotePath;
-		emit transferCancelled(tmpT);
-		fBtnCancel->setEnabled(false);
-	}
-
+	if(!idx.isValid()) return;
+	ClassWiredTransfer tmpT = idx.data(Qt::UserRole).value<ClassWiredTransfer>();
+	qDebug() << "Cancelling transfer"<<tmpT.pHash<<tmpT.pRemotePath;
+	emit transferCancelled(tmpT);
+	fBtnCancel->setEnabled(false);
 }
 
-void WidgetTransfers::transferListSelectionChanged(const QItemSelection &, const QItemSelection &) {
-	fBtnCancel->setEnabled( fTransfers->selectionModel()->hasSelection() );
+
+void WidgetTransfers::transferListSelectionChanged(const QItemSelection &, const QItemSelection &)
+{
+	fBtnCancel->setEnabled(fTransfers->selectionModel()->hasSelection());
 }
 
-void WidgetTransfers::init() {
-	connect( fTransfers->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+
+void WidgetTransfers::init()
+{
+	connect(fTransfers->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
 			 this, SLOT(transferListSelectionChanged(const QItemSelection &, const QItemSelection &)) );
 }

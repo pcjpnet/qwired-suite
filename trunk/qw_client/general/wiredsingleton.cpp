@@ -26,19 +26,20 @@
 	void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
-WiredSingleton::WiredSingleton() {
+WiredSingleton::WiredSingleton()
+{
 	pTrayMenu = new QMenu();
 }
 
-WiredSingleton::~ WiredSingleton() {
+WiredSingleton::~WiredSingleton()
+{
 	pTrayMenu->deleteLater();
 }
 
 
-/**
- * Return the default monospace font for the current operating system.
- */
-QString WiredSingleton::systemMonospaceFont() {
+/// Return the default monospace font for the current operating system.
+QString WiredSingleton::systemMonospaceFont()
+{
 	#ifdef Q_WS_X11
 		return "FreeMono";
 	#endif
@@ -50,12 +51,12 @@ QString WiredSingleton::systemMonospaceFont() {
 	#endif
 };
 
-/**
- * Return a color key from the preferences.
- * @param theKey The name of the key.
- * @param theDefault The default color, if nothing was found in the preferences.
- */
-QColor WiredSingleton::colorFromPrefs(QString theKey, QColor theDefault) {
+
+/// Return a color key from the preferences.
+/// @param theKey The name of the key.
+/// @param theDefault The default color, if nothing was found in the preferences.
+QColor WiredSingleton::colorFromPrefs(QString theKey, QColor theDefault)
+{
 	QSettings conf;
 	if(conf.contains(theKey)) {
 		return conf.value(theKey).value<QColor>();
@@ -64,18 +65,18 @@ QColor WiredSingleton::colorFromPrefs(QString theKey, QColor theDefault) {
 	}
 }
 
-/**
- * Notify all connected objects about the changed prefs, so they can reload.
- */
-void WiredSingleton::notifyPrefsChanged() {
+
+/// Notify all connected objects about the changed prefs, so they can reload.
+void WiredSingleton::notifyPrefsChanged()
+{
 	emit prefsChanged();
 }
 
-/**
- * Add a session object to the list of sessions and connect the destroyed() signal
- * if it gets removed.
- */
-void WiredSingleton::addSession(ClassWiredSession *session) {
+
+/// Add a session object to the list of sessions and connect the destroyed() signal
+/// if it gets removed.
+void WiredSingleton::addSession(ClassWiredSession *session)
+{
 	pSessions.append(session);
 	connect(session, SIGNAL(destroyed(QObject*)), this, SLOT(sessionDestroyed(QObject*)));
 
@@ -83,25 +84,24 @@ void WiredSingleton::addSession(ClassWiredSession *session) {
 	QMenu *tmpMenu = new QMenu(pTrayMenu);
 	session->setTrayMenuAction(tmpMenu);
 	pTrayMenu->addMenu(tmpMenu);
-
-	
 }
 
-/**
- * Called automatically when a session object is destroyed. Used to do some clean up work.
- */
-void WiredSingleton::sessionDestroyed(QObject *obj) {
+
+/// Called automatically when a session object is destroyed. Used to do some clean up work.
+void WiredSingleton::sessionDestroyed(QObject *obj)
+{
 	ClassWiredSession *session = static_cast<ClassWiredSession*>(obj);
-	if( pSessions.contains(session) ) {
+	if(pSessions.contains(session))
 		pSessions.removeAll(session);
-	}
+
 }
 
-void WiredSingleton::createTrayIcon() {
+
+void WiredSingleton::createTrayIcon()
+{
 #ifdef Q_WS_MAC
-	if(!pTrayIcon) {
+	if(!pTrayIcon)
 		qt_mac_set_dock_menu(pTrayMenu);
-	}
 #else
 	if(!pTrayIcon) {
 		pTrayIcon = new QSystemTrayIcon(this);
@@ -114,7 +114,9 @@ void WiredSingleton::createTrayIcon() {
 
 }
 
-void WiredSingleton::showTrayMenu(QSystemTrayIcon::ActivationReason reason) {
+
+void WiredSingleton::showTrayMenu(QSystemTrayIcon::ActivationReason reason)
+{
 	if(pTrayMenu && reason==QSystemTrayIcon::Trigger) {
 		pTrayMenu->exec(QCursor::pos());
 	}

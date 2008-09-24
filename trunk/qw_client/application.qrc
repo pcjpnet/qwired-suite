@@ -4,7 +4,21 @@
     <file alias="lang_it.qm">lang/lang_it.qm</file>
     <file alias="lang_pt.qm">lang/lang_pt.qm</file>
     <file alias="lang_fr.qm">lang/lang_fr.qm</file>
-  
+
+	<file>icons/32x32/network-server.png</file>
+	<file>icons/32x32/start-here.png</file>
+	<file>icons/32x32/go-down.png</file>
+	<file>icons/32x32/go-up.png</file>
+
+	<file>icons/16x16/process-stop.png</file>
+	<file>icons/16x16/system-search.png</file>
+	<file>icons/16x16/go-down.png</file>
+	<file>icons/16x16/go-first.png</file>
+	<file>icons/16x16/go-up.png</file>
+	<file>icons/16x16/folder-new.png</file>
+	<file>icons/16x16/view-refresh.png</file>
+	<file>icons/16x16/edit-delete.png</file>
+	
     <file>icons/about_sidebar.png</file>
     <file>general/tranzlator.txt</file>
     <file>icons/qwired_splash.png</file>

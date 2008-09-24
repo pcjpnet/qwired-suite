@@ -477,15 +477,6 @@ void ClassWiredSession::onSocketError(QAbstractSocket::SocketError error) {
 	
 }
 
-
-
-
-
-
-
-
-
-
 /// Enable/Disable connection-related toolbar items (true if connected)
 void ClassWiredSession::setConnectionToolButtonsEnabled(bool theEnable) {
 	pConnWindow->actionReconnect->setEnabled(!theEnable);
@@ -569,11 +560,6 @@ void ClassWiredSession::setTrayMenuAction(QMenu *action) {
 	pTrayMenuItem = action;
 	pTrayMenuItem->setTitle(pConnWindow->windowTitle());
 
-// 	pTrayMenuInfoLine = new QAction(this);
-// 	pTrayMenuInfoLine->setText(tr("Loading..."));
-// 	pTrayMenuInfoLine->setEnabled(false);
-// 	pTrayMenuItem->addAction(pTrayMenuInfoLine);
-
 	QAction* tmpShowHide = new QAction(QIcon(":icons/icn_showhide.png"), tr("Show/Hide"), this );
 	connect(tmpShowHide, SIGNAL(triggered(bool)), pConnWindow, SLOT(toggleVisible()) );
 	
@@ -643,56 +629,36 @@ void ClassWiredSession::triggerEvent(QString event, QStringList params) {
 
 void ClassWiredSession::userJoined(int theChat, ClassWiredUser theUser) {
 	if(theChat!=1) return;
-	QStringList tmpParams; tmpParams << theUser.pNick;
-	triggerEvent("UserJoined", tmpParams);
+	triggerEvent("UserJoined", QStringList() << theUser.pNick);
 }
 
 
 void ClassWiredSession::userLeft(int theChat, ClassWiredUser theUser) {
 	if(theChat!=1) return;
-	QStringList tmpParams; tmpParams << theUser.pNick;
-	triggerEvent("UserLeft", tmpParams);
+	triggerEvent("UserLeft", QStringList() << theUser.pNick);
 }
 
 
 void ClassWiredSession::userChanged(ClassWiredUser theOld, ClassWiredUser theNew) {
-	if(theOld.pNick != theNew.pNick) {
-		QStringList tmpParams;
-		tmpParams << theOld.pNick;
-		tmpParams << theNew.pNick;
-		triggerEvent("UserChangedNick", tmpParams);
-	}
-
-	if(theOld.pStatus != theNew.pStatus) {
-		QStringList tmpParams;
-		tmpParams << theNew.pNick;
-		tmpParams << theNew.pStatus;
-		triggerEvent("UserChangedStatus", tmpParams);
-	}
-
-	
+	if(theOld.pNick != theNew.pNick)
+		triggerEvent("UserChangedNick", QStringList() << theOld.pNick << theNew.pNick);
+	if(theOld.pStatus != theNew.pStatus)
+		triggerEvent("UserChangedStatus", QStringList() << theNew.pNick << theNew.pStatus);
 }
 
 
 void ClassWiredSession::newsPosted(QString theNick, QString, QString thePost) {
-	QStringList tmpParams;
-	tmpParams << theNick;
-	tmpParams << thePost;
-	triggerEvent("NewsPosted", tmpParams);
+	triggerEvent("NewsPosted", QStringList() << theNick << thePost);
 }
 
 
 void ClassWiredSession::transferStarted(ClassWiredTransfer transfer) {
-	QStringList tmpParams;
-	tmpParams << transfer.fileName();
-	triggerEvent("TransferStarted", tmpParams);
+	triggerEvent("TransferStarted", QStringList(transfer.fileName()));
 }
 
 
 void ClassWiredSession::transferDone(ClassWiredTransfer transfer) {
-	QStringList tmpParams;
-	tmpParams << transfer.fileName();
-	triggerEvent("TransferFinished", tmpParams);
+	triggerEvent("TransferFinished", QStringList(transfer.fileName()));
 }
 
 
@@ -900,7 +866,8 @@ void ClassWiredSession::doActionFileSearch() {
 		pFileSearch = new WidgetFileSearch(pConnWindow);
 		int tmpIdx = pMainTabWidget->addTab(pFileSearch, tr("File Search"));
 		pMainTabWidget->setCurrentIndex(tmpIdx);
-		connect( pWiredSocket, SIGNAL(fileSearchDone(QList<ClassWiredFile>)), pFileSearch, SLOT(updateResults(QList<ClassWiredFile>)) );
+		connect( pWiredSocket, SIGNAL(fileSearchDone(QList<ClassWiredFile>)),
+				 pFileSearch, SLOT(updateResults(QList<ClassWiredFile>)) );
 		connect( pFileSearch, SIGNAL(search(QString)), pWiredSocket, SLOT(searchFiles(QString)) );
 		connect( pFileSearch, SIGNAL(downloadFile(QString)), this, SLOT(search_download_file(QString)) );
 		connect( pFileSearch, SIGNAL(revealFile(QString)), this, SLOT(search_reveal_file(QString)) );
@@ -913,7 +880,6 @@ void ClassWiredSession::doActionFileSearch() {
 
 /// Show the list of transfers.
 void ClassWiredSession::doActionTransfers() {
-	// Display the transfers window
 	if( !pTranfersWindow ) {
 		pTranfersWindow = new WidgetTransfers(pConnWindow);
 		int tmpIdx = pMainTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
@@ -923,7 +889,8 @@ void ClassWiredSession::doActionTransfers() {
 		tmpModel->setSocket(pWiredSocket);
 		pTranfersWindow->fTransfers->setModel(tmpModel);
 		pTranfersWindow->init();
-		connect(pTranfersWindow, SIGNAL(transferCancelled(ClassWiredTransfer)), pWiredSocket, SLOT(cancelTransfer(ClassWiredTransfer)) );
+		connect(pTranfersWindow, SIGNAL(transferCancelled(ClassWiredTransfer)),
+				pWiredSocket, SLOT(cancelTransfer(ClassWiredTransfer)) );
 		
 	} else {
 		int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
