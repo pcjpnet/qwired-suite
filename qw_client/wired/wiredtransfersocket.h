@@ -29,7 +29,8 @@
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class WiredTransferSocket : public QThread
+class WiredTransferSocket
+	: public QThread
 {
 	
 Q_OBJECT
@@ -43,6 +44,7 @@ public:
     int pServerPort;
     void setServer(QString theServer, int thePort);
     int pTransferLimit;
+	bool isActive();
     
 private:
 	QPointer<QSslSocket> pSocket;
@@ -74,7 +76,7 @@ private slots:
     void onSocketDisconnected();
     void on_socket_sslErrors(const QList<QSslError> &errors);
 	void sendNextFileChunk(qint64 theOffset);
-	void onSocketError(const QAbstractSocket::SocketError error);
+	void onSocketError(QAbstractSocket::SocketError);
 };
 
 #endif

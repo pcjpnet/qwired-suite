@@ -93,7 +93,8 @@ private slots:
 		QMenu *menu = fBtnFavourites->menu();
 		if(!menu) {
 			menu = new QMenu(fBtnFavourites);
-			connect( menu, SIGNAL(triggered(QAction*)), this, SLOT(bookmarkSelected(QAction*)) );
+			connect( menu, SIGNAL(triggered(QAction*)),
+					 this, SLOT(bookmarkSelected(QAction*)) );
 			fBtnFavourites->setMenu(menu);
 		}
 		menu->clear();
@@ -109,6 +110,8 @@ private slots:
 			menu->addAction(action);
 		}
 		conf.endArray();
+
+		
 	};
 
 

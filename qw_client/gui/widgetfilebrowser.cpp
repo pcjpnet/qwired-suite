@@ -36,7 +36,9 @@ WidgetFileBrowser::WidgetFileBrowser(QWidget *parent)
 WidgetFileBrowser::~WidgetFileBrowser()
 { }
 
-void WidgetFileBrowser::initWithConnection(ClassWiredSession *theSession) {
+
+void WidgetFileBrowser::initWithConnection(ClassWiredSession *theSession)
+{
 	pModel = new ModelFileList(this);
 	pFilterProxy = new QSortFilterProxyModel(this);
 	pFilterProxy->setSourceModel(pModel);
@@ -44,28 +46,36 @@ void WidgetFileBrowser::initWithConnection(ClassWiredSession *theSession) {
 	pFilterProxy->setSortRole(Qt::UserRole);
 	
 	pSession = theSession;
-	connect( pSession->pWiredSocket, SIGNAL(onFilesListItem(ClassWiredFile)), pModel, SLOT(onServerFileListItem(ClassWiredFile)) );
-	connect( pSession->pWiredSocket, SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
-	connect( pSession->pWiredSocket, SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
-	connect( pSession->pWiredSocket, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SLOT(fileTransferDone(ClassWiredTransfer)) );
+	connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(ClassWiredFile)),
+			 pModel, SLOT(onServerFileListItem(ClassWiredFile)) );
+	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)),
+			 pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
+	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)),
+			 this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
+	connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(ClassWiredTransfer)),
+			 this, SLOT(fileTransferDone(ClassWiredTransfer)) );
 
 	fList->setModel(pFilterProxy);
 	fList->setAlternatingRowColors(true);
 	
-	fBtnNewFolder->setEnabled( pSession->pWiredSocket->sessionUser.privCreateFolders );
+	fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
 }
 
-void WidgetFileBrowser::on_fFilter_textEdited(QString theFilter) {
+
+void WidgetFileBrowser::on_fFilter_textEdited(QString theFilter)
+{
 	pFilterProxy->setFilterWildcard(theFilter);
 }
 
+
 // Item has been double-clicked; if it is a folder, browse it
-void WidgetFileBrowser::on_fList_doubleClicked(const QModelIndex &index) {
+void WidgetFileBrowser::on_fList_doubleClicked(const QModelIndex &index)
+{
 	if(pModel!=0 and pSession!=0) {
 		ClassWiredFile tmpFile = index.data(Qt::UserRole+1).value<ClassWiredFile>();
 		
 		if( tmpFile.type == 0 ) { // Files
-			if(!pSession->pWiredSocket->sessionUser.privDownload) return;
+			if(!pSession->wiredSocket()->sessionUser.privDownload) return;
 			downloadFile(tmpFile.path);
 					
 		} else if(tmpFile.type>0) { // Directories
@@ -74,20 +84,23 @@ void WidgetFileBrowser::on_fList_doubleClicked(const QModelIndex &index) {
 			pModel->clearList();
 			pModel->pWaitingForList = true;
 			pModel->pCurrentPath = tmpFile.path; // Load path from data
-			pSession->pWiredSocket->getFileList(tmpFile.path);
+			pSession->wiredSocket()->getFileList(tmpFile.path);
 			fBtnBack->setEnabled( tmpFile.path!="/" );
 		}
 	}
 }
 
-void WidgetFileBrowser::setPath(QString thePath) {
+
+void WidgetFileBrowser::setPath(QString thePath)
+{
 	if(pModel)
 		pModel->pCurrentPath = thePath;
 }
 
 
 // Navigate back
-void WidgetFileBrowser::on_fBtnBack_clicked(bool) {
+void WidgetFileBrowser::on_fBtnBack_clicked(bool)
+{
 	QString tmpPath = pModel->pCurrentPath.section("/",0,-2);
 	if(tmpPath.isEmpty()) tmpPath="/";
 	pModel->clearList();
@@ -95,21 +108,25 @@ void WidgetFileBrowser::on_fBtnBack_clicked(bool) {
 	pModel->pCurrentPath = tmpPath;
 	pFilterProxy->setFilterWildcard("");
 	fFilter->setText("");
-	pSession->pWiredSocket->getFileList(tmpPath);
-	fBtnBack->setEnabled( tmpPath!="/" );
+	pSession->wiredSocket()->getFileList(tmpPath);
+	fBtnBack->setEnabled(tmpPath!="/");
 }
 
-void WidgetFileBrowser::on_fBtnInfo_clicked(bool) {
+
+void WidgetFileBrowser::on_fBtnInfo_clicked(bool)
+{
 	QModelIndex tmpIdx = fList->currentIndex();
 	if(tmpIdx.isValid()) {
 		ClassWiredFile tmpFile = tmpIdx.data(Qt::UserRole+1).value<ClassWiredFile>();
-		pSession->pWiredSocket->statFile(tmpFile.path);
+		pSession->wiredSocket()->statFile(tmpFile.path);
 		fBtnInfo->setEnabled(false);
 	}
 }
 
+
 // Update the stats in the browser
-void WidgetFileBrowser::doUpdateBrowserStats(QString thePath, qlonglong theFree) {
+void WidgetFileBrowser::doUpdateBrowserStats(QString thePath, qlonglong theFree)
+{
 	Q_UNUSED(theFree)
 	if( thePath == pModel->pCurrentPath ) {
 		QString tmpStr;
@@ -130,7 +147,8 @@ void WidgetFileBrowser::doUpdateBrowserStats(QString thePath, qlonglong theFree)
 }
 
 
-void WidgetFileBrowser::downloadFile(QString theRemotePath) {
+void WidgetFileBrowser::downloadFile(QString theRemotePath)
+{
 	QSettings settings;
 	QString tmpName = theRemotePath.section("/",-1,-1);
 	QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
@@ -147,32 +165,36 @@ void WidgetFileBrowser::downloadFile(QString theRemotePath) {
 		if (messageBox.clickedButton()!=deleteButton)
 			return;
 	}
-	pSession->pWiredSocket->getFile(theRemotePath, tmpDir.fileName());
+	pSession->wiredSocket()->getFile(theRemotePath, tmpDir.fileName());
 	pSession->doActionTransfers();
 
 }
 
 
 // Download button pressed
-void WidgetFileBrowser::on_fBtnDownload_clicked(bool) {
+void WidgetFileBrowser::on_fBtnDownload_clicked(bool)
+{
 	QModelIndex tmpIdx = fList->currentIndex();
 	if(tmpIdx.isValid()) {
 		ClassWiredFile tmpFile = tmpIdx.data(Qt::UserRole+1).value<ClassWiredFile>();
-		if( !pSession->pWiredSocket->sessionUser.privDownload ) return;
+		if(!pSession->wiredSocket()->sessionUser.privDownload)
+			return;
 		downloadFile(tmpFile.path);
 	}
 }
 
+
 // Another file has been selected
-void WidgetFileBrowser::on_fList_clicked(const QModelIndex&) {
+void WidgetFileBrowser::on_fList_clicked(const QModelIndex&)
+{
 	QModelIndex tmpIdx = fList->currentIndex();
 	if(tmpIdx.isValid()) {
 		ClassWiredFile tmpFile = tmpIdx.data(Qt::UserRole+1).value<ClassWiredFile>();
-		fBtnDownload->setEnabled(tmpFile.type==0 && pSession->pWiredSocket->sessionUser.privDownload); // Only files can be downloaded now
+		fBtnDownload->setEnabled(tmpFile.type==0 && pSession->wiredSocket()->sessionUser.privDownload); // Only files can be downloaded now
 		fBtnInfo->setEnabled(true);
-		fBtnDelete->setEnabled( pSession->pWiredSocket->sessionUser.privDeleteFiles );
-		fBtnUpload->setEnabled( pSession->pWiredSocket->sessionUser.privUpload || pSession->pWiredSocket->sessionUser.privUploadAnywhere );
-		fBtnNewFolder->setEnabled( pSession->pWiredSocket->sessionUser.privCreateFolders );
+		fBtnDelete->setEnabled( pSession->wiredSocket()->sessionUser.privDeleteFiles );
+		fBtnUpload->setEnabled( pSession->wiredSocket()->sessionUser.privUpload || pSession->wiredSocket()->sessionUser.privUploadAnywhere );
+		fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
 		return;
 	}
 	
@@ -183,60 +205,70 @@ void WidgetFileBrowser::on_fList_clicked(const QModelIndex&) {
 	fBtnUpload->setEnabled(false);
 }
 
-void WidgetFileBrowser::on_fBtnUpload_clicked(bool) {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Upload File"), QDir::homePath());
+
+void WidgetFileBrowser::on_fBtnUpload_clicked(bool)
+{
+	QString fileName = QFileDialog::getOpenFileName(this,
+			tr("Upload File"), QDir::homePath());
 	if(!fileName.isEmpty()) {
 		QString tmpFileName = fileName.section("/",-1,-1);
 		QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
-		pSession->pWiredSocket->putFile(fileName, tmpRemote);
+		pSession->wiredSocket()->putFile(fileName, tmpRemote);
 		pSession->doActionTransfers();
 	}
 }
 
-void WidgetFileBrowser::on_fBtnDelete_clicked(bool) {
+
+void WidgetFileBrowser::on_fBtnDelete_clicked(bool)
+{
 	QModelIndex tmpIdx = fList->currentIndex();
 	if(tmpIdx.isValid()) {
 		ClassWiredFile tmpFile = tmpIdx.data(Qt::UserRole+1).value<ClassWiredFile>();
-
-		QMessageBox messageBox(this);
-		messageBox.setWindowTitle(tr("Delete File"));
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setText(tr("Are you sure you want to delete the item '%1'?\nThis can not be undone!").arg(tmpFile.fileName()) );
-		QAbstractButton *rejectButton = messageBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
-		Q_UNUSED(rejectButton)
-		QAbstractButton *deleteButton = messageBox.addButton(tr("Delete"), QMessageBox::AcceptRole);
-		messageBox.exec();
-		if (messageBox.clickedButton()==deleteButton) {
-			pModel->clearList();
-			pModel->pWaitingForList = true;
-			pSession->pWiredSocket->deleteFile(tmpFile.path);
-			pSession->pWiredSocket->getFileList(pModel->pCurrentPath);
-		}
+		QMessageBox::StandardButton button = QMessageBox::question(this,
+				tr("Delete File"),
+				tr("Are you sure you want to delete the item '%1'?\nThis can not be undone!").arg(tmpFile.fileName()),
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+		if (button != QMessageBox::Yes)
+			return;
+		pModel->clearList();
+		pModel->pWaitingForList = true;
+		pSession->wiredSocket()->deleteFile(tmpFile.path);
+		pSession->wiredSocket()->getFileList(pModel->pCurrentPath);
+		
 		this->raise();
 	}
 }
 
-void WidgetFileBrowser::on_fBtnNewFolder_clicked(bool) {
-	QString tmpFolderName = QInputDialog::getText(this, tr("Create Folder"), tr("Enter a name for the new folder:"));
+
+void WidgetFileBrowser::on_fBtnNewFolder_clicked(bool)
+{
+	QString tmpFolderName = QInputDialog::getText(this,
+			tr("Create Folder"), tr("Enter a name for the new folder:"));
 	if(!tmpFolderName.isEmpty()) {
 		tmpFolderName = tmpFolderName.replace("/","_");
-		pSession->pWiredSocket->createFolder( pModel->pCurrentPath+"/"+tmpFolderName );
+		pSession->wiredSocket()->createFolder( pModel->pCurrentPath+"/"+tmpFolderName );
 		pModel->clearList();
 		pModel->pWaitingForList = true;
-		pSession->pWiredSocket->getFileList( pModel->pCurrentPath );
+		pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
 	}
 }
+
 
 //
 // Drag And Drop
 //
-void WidgetFileBrowser::dragEnterEvent(QDragEnterEvent * event) {
-	if(event->mimeData()->hasUrls()) {
+
+/// Check if they got something we can handle.
+void WidgetFileBrowser::dragEnterEvent(QDragEnterEvent *event)
+{
+	if(event->mimeData()->hasUrls())
 		event->acceptProposedAction();
-	}
 }
 
-void WidgetFileBrowser::dropEvent(QDropEvent * event) {
+
+/// A file has been dropped, lets upload.
+void WidgetFileBrowser::dropEvent(QDropEvent *event)
+{
 	QList<QUrl> tmpUrls = event->mimeData()->urls();
 	QListIterator<QUrl> i(tmpUrls);
 	while(i.hasNext()) {
@@ -245,17 +277,19 @@ void WidgetFileBrowser::dropEvent(QDropEvent * event) {
 		if(tmpFile.exists()) {
 			QString tmpFileName = tmpFile.fileName().section("/",-1,-1);
 			QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
-			pSession->pWiredSocket->putFile(tmpFile.fileName(), tmpRemote);
+			pSession->wiredSocket()->putFile(tmpFile.fileName(), tmpRemote);
 			pSession->doActionTransfers();
 		}
 	}
 	event->acceptProposedAction();
 }
 
+
+/// File transfer completed. Refresh the view.
 void WidgetFileBrowser::fileTransferDone(ClassWiredTransfer ) {
 	pModel->clearList();
 	pModel->pWaitingForList = true;
-	pSession->pWiredSocket->getFileList( pModel->pCurrentPath );
+	pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
 }
 
 

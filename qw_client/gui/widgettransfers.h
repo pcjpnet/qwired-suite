@@ -29,9 +29,12 @@
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class WidgetTransfers : public QWidget, public Ui::WidgetTransfers
+class WidgetTransfers
+	: public QWidget, public Ui::WidgetTransfers
 {
+	
 Q_OBJECT
+		
 public:
     WidgetTransfers(QWidget *parent = 0);
     ~WidgetTransfers();

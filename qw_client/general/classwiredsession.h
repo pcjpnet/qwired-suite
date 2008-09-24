@@ -63,7 +63,7 @@ public:
 	ClassWiredSession(QObject *parent = 0);
 	~ClassWiredSession();
 
-	
+	WiredSocket* wiredSocket() { return pWiredSocket; };
 
 	// Main window widgets
 	void initMainWindow();
@@ -74,7 +74,7 @@ public:
 	// Wired Socket
 	void initWiredSocket();
 	
-	QPointer<WiredSocket> pWiredSocket;
+	
 	QPointer<ConnWindow> pConnWindow;
 	QPointer<WidgetNews> pWinNews;
 	QPointer<ModelUserList> pUserListModel;
@@ -96,6 +96,8 @@ public:
 	QHash<int,QPointer<WidgetSendPrivMsg> > pMsgWindows;
 	
 private:
+	QPointer<WiredSocket> pWiredSocket;
+	
 	void setupConnections();
 	void setConnectionToolButtonsEnabled(bool);
 

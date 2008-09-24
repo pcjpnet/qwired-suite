@@ -38,7 +38,7 @@ public:
     ClassWiredFile();
     ~ClassWiredFile();
     
-	static QString humanReadableSize(float theBytes);
+	static QString humanReadableSize(qlonglong theBytes);
     void setFromStat(QList<QByteArray> theParams);
 	
     

@@ -23,14 +23,21 @@
 #define WIREDTRANSFER_H
 
 #include <QtCore>
+#include <QMetaType>
 
 #include "classwiredtransfer.h"
 #include <QCryptographicHash>
 
+namespace WiredTransfer {
+	enum TransferStatus { StatusWaitingForStat, StatusQueued, StatusActive, StatusDone };
+	enum TransferType { TypeDownload, TypeUpload };
+}
+
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class ClassWiredTransfer{
+class ClassWiredTransfer
+{
 	
 public:
     ClassWiredTransfer()
@@ -71,7 +78,7 @@ public:
 		QFile tmpFile(pLocalPath);
 		if( tmpFile.open(QIODevice::ReadOnly) ) {
 		// If file exists, calculate the hash.
-			QByteArray tmpData = tmpFile.read(1048576); // 1MB for the hash
+			QByteArray tmpData = tmpFile.read(1024*1024); // 1MB for the hash
 			QByteArray tmpHash = QCryptographicHash::hash(tmpData, QCryptographicHash::Sha1);
 			pChecksum = tmpHash.toHex();
 			qDebug() << "Hash of"<<pLocalPath<<"="<<pChecksum<<"size"<<tmpFile.size();
@@ -86,7 +93,7 @@ public:
 	};
 
 
-	int pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running
+	int pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running, 3=done/end
 	QString pLocalPath; // path to file on local disk
 	QString pRemotePath; // path to file on server
 	QString pHash; // hash for the file transfer

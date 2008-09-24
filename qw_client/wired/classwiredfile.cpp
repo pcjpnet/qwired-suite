@@ -65,21 +65,24 @@ void ClassWiredFile::setFromStat(QList<QByteArray> theParams) {
  * @param theBytes The raw amount of octets.
  * @return A human readable string representing the number of bytes.
  */
-QString ClassWiredFile::humanReadableSize(float theBytes) {
+QString ClassWiredFile::humanReadableSize(qlonglong theBytes) {
+	qlonglong a=1024;
+	float b=1024;
+	
 	if(theBytes<0) {
 		return QString("-");
-	} else if(theBytes<1024) {
+	} else if(theBytes < a) {
 		return QString("%1").arg(theBytes);
-	} else if(theBytes<(1024*1024)) {
-		return QString("%1 KB").arg( theBytes/1024,0,'f',1);
-	} else if(theBytes<(1024*1024*1024)) {
-		return QString("%1 MB").arg(theBytes/1024/1024,0,'f',1);
-	} else if(theBytes<(1024*1024*1024*1024)) {
-		return QString("%1 GB").arg(theBytes/1024/1024/1024,0,'f',1);
-	} else if(theBytes<(1024*1024*1024*1024*1024)) {
-		return QString("%1 TB").arg(theBytes/1024/1024/1024,0,'f',2);
+	} else if(theBytes < a*a) {
+		return QString("%1 KB").arg(theBytes/b);
+	} else if(theBytes < a*a*a) {
+		return QString("%1 MB").arg(float(theBytes/b/b), 0, 'f', 2);
+	} else if(theBytes < a*a*a*a) {
+		return QString("%1 GB").arg(float(theBytes/b/b/b), 0, 'f', 2);
+	} else if(theBytes < a*a*a*a*a) {
+		return QString("%1 TB").arg(float(theBytes/b/b/b/b), 0, 'f', 2);
 	}
-	return QString("-");
+	return "?";
 }
 
 

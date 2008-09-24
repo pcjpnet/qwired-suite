@@ -49,8 +49,8 @@ void WidgetSendPrivMsg::on_fInput_returnPressed() {
 // void WidgetSendPrivMsg::setTarget ( ClassWiredSession *theSession, int theUserID )
 // {
 // 	pSession = theSession;
-// 	if ( pSession and pSession->pWiredSocket ) {
-// 		pUser = pSession->pWiredSocket->getUserByID ( theUserID );
+// 	if ( pSession and pSession->wiredSocket() ) {
+// 		pUser = pSession->wiredSocket()->getUserByID ( theUserID );
 // 	}
 // 	//fTitle->setText ( tr("Private Message To: %1").arg (pUser.pNick) );
 // }
@@ -60,8 +60,8 @@ void WidgetSendPrivMsg::on_fInput_returnPressed() {
 // 	if( fBtnSend->text()==tr("Dismiss") ) {
 // 		this->close();
 // 	} else {
-// 		if( pSession and pSession->pWiredSocket ) {
-// 			pSession->pWiredSocket->sendPrivateMessage(pUser.pUserID, fMsg->toPlainText());
+// 		if( pSession and pSession->wiredSocket() ) {
+// 			pSession->wiredSocket()->sendPrivateMessage(pUser.pUserID, fMsg->toPlainText());
 // 			this->close();
 // 		}
 // 	}

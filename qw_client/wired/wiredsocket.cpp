@@ -708,7 +708,7 @@ void WiredSocket::getFile(const QString thePath, const QString theLocalPath){
 	connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(fileTransferStarted(ClassWiredTransfer)), this, SIGNAL(fileTransferStarted(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-	
+
 	tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
 	tmpSock->pTransfer = tmpTrans;
 	pTransferSockets.append(tmpSock);
@@ -724,23 +724,24 @@ void WiredSocket::on_server_transfer_ready(QList<QByteArray> theParams) {
 	QString tmpPath = QString::fromUtf8(theParams.value(0));
 	qlonglong tmpOffset = theParams.value(1).toLongLong();
 	QString tmpHash = QString::fromUtf8(theParams.value(2));
+
+	qDebug() << this << "Transfer ready:"<<theParams;
 	
 	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
-	while( i.hasNext() ) {
+	while(i.hasNext()) {
 		WiredTransferSocket *tmpT = i.next();
-		if(tmpT) {
-			ClassWiredTransfer tmpTrans = tmpT->pTransfer;
-			if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==1 ) {
-				qDebug() << "Transfer Phase 2/3: Requesting transfer slot for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
-				tmpT->pTransfer.pOffset = tmpOffset;
-				tmpT->pTransfer.pHash = tmpHash;
-				tmpT->pTransfer.pQueuePosition = 0;
-				tmpT->pTransfer.pStatus = 2;
-				qDebug() << "Current thread is"<<QThread::currentThread()<<"starting"<<tmpT;
-				tmpT->start();
-				return;
-			}
+		if(!tmpT) continue;
+		ClassWiredTransfer tmpTrans = tmpT->pTransfer;
+		if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==1 ) {
+			qDebug() << this << "Transfer Phase 2/3: Transfer ready for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
+			tmpT->pTransfer.pOffset = tmpOffset;
+			tmpT->pTransfer.pHash = tmpHash;
+			tmpT->pTransfer.pQueuePosition = 0;
+			tmpT->pTransfer.pStatus = 2;
+			tmpT->start();
+			return;
 		}
+		
 	}
 	
 	// Duh! Something went wrong.
@@ -932,14 +933,14 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 			if(tmpT) {
 				ClassWiredTransfer tmpTrans = tmpT->pTransfer;
 				if( tmpTrans.pRemotePath==theRemotePath ) {
-					qDebug() << "Transfer Phase 1:"<<theRemotePath<<": already transferring, abort!";
+					qDebug() << "Transfer Phase 1:"<<theRemotePath<<": already transfering, abort!";
 					return;
 				}
 			}
 		}
 		
 		// Create a record for the status tracking
-		// We first set this to stauts 0 (waiting for stat) since we need the checksum of the file
+		// We first set this to status 0 (waiting for stat) since we need the checksum of the file
 		// for local comparisation!
 		ClassWiredTransfer tmpTrans;
 		tmpTrans.pStatus = 1; // waiting for slot (no stat required)
@@ -962,13 +963,14 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		pTransferSockets.append(tmpSock);
 		
 		// Request upload slot
-		qDebug() << "WiredSocket: Upload requested, hash"<<tmpTrans.pChecksum;
+		qDebug() << this << "Upload requested, hash"<<tmpTrans.pChecksum;
 		QByteArray tmpBuf("PUT ");
 		tmpBuf += theRemotePath.toUtf8();
 		tmpBuf += kFS;
 		tmpBuf += QByteArray::number(tmpFile.size());
 		tmpBuf += kFS;
 		tmpBuf += tmpTrans.pChecksum;
+		qDebug() << tmpBuf;
 		sendWiredCommand(tmpBuf);
 	}
 }
@@ -1319,6 +1321,7 @@ QList<QByteArray> WiredSocket::GetFieldArray(QByteArray theData) {
 }
 
 void WiredSocket::cleanTransfers() {
+	qDebug() << this << "Cleaning transfers";
 	QMutableListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
 	while(i.hasNext()) {
 		QPointer<WiredTransferSocket> tmpP = i.next();
