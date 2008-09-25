@@ -1,40 +1,26 @@
 TEMPLATE = app
-CONFIG += warn_on thread qt \
- debug
+CONFIG += warn_on thread qt debug_and_release
 TARGET = qwired
 RESOURCES = application.qrc
 QT += gui network
 DESTDIR = ../bin/
-
 MOC_DIR = build
 OBJECTS_DIR = build
 UI_DIR = build
-
 ICON = qwired.icns
 RC_FILE = qwired.rc
-
-
+INCLUDEPATH = .
 macx {
-    QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
-    QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
-    QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
+ QMAKE_CXXFLAGS_RELEASE +=  -fvisibility=hidden
+ QMAKE_CXXFLAGS_DEBUG +=  -fvisibility=hidden
+ QMAKE_MACOSX_DEPLOYMENT_TARGET =  10.3
+ QMAKE_MAC_SDK =  /Developer/SDKs/MacOSX10.4u.sdk
+ release {
+  CONFIG +=   x86   ppc
+ }
 }
-
-macx : release {
-        CONFIG += x86 ppc
-    }
-
-
-TRANSLATIONS += lang/lang_de.ts \
- lang/lang_pt.ts \
- lang/lang_it.ts \
- lang/lang_fr.ts
-
-
-
-SOURCES += \
- general/main.cpp \
+TRANSLATIONS += lang/lang_de.ts lang/lang_pt.ts lang/lang_it.ts lang/lang_fr.ts
+SOURCES += general/main.cpp \
  wired/wiredsocket.cpp \
  general/classwiredsession.cpp \
  gui/widgetforum.cpp \
@@ -57,8 +43,6 @@ SOURCES += \
  gui/WidgetTracker.cpp \
  general/wiredsingleton.cpp \
  gui/widgetserverinfo.cpp
-
-
 FORMS += gui/WinMain.ui \
  gui/WidgetForum.ui \
  gui/WidgetNews.ui \
@@ -76,7 +60,6 @@ FORMS += gui/WinMain.ui \
  gui/WidgetAboutQwired.ui \
  gui/WidgetAbout.ui \
  gui/WidgetNewsPost.ui
-
 HEADERS += general/classwiredsession.h \
  wired/classwireduser.h \
  gui/connwindow.h \
@@ -110,5 +93,3 @@ HEADERS += general/classwiredsession.h \
  wired/classtrackerserver.h \
  gui/widgetabout.h \
  gui/WidgetNewsPost.h
-CONFIG -= release
-

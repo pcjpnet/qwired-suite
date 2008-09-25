@@ -18,16 +18,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
  ***************************************************************************/
 
- 
+
 #include "wiredtransfersocket.h"
 
 void WiredTransferSocket::run() {
 // 	pSpeedList << 0 << 0 << 0 << 0 << 0; // some fake data for the average calculation
-	
+
 	pSocket = new QSslSocket;
 	pSocket->setProtocol(QSsl::TlsV1);
 	pSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
-	
+
 	startTransfer();
 }
 
@@ -59,24 +59,24 @@ void WiredTransferSocket::downloadData()
 	while(1) {
 		pSocket->waitForReadyRead();
 		QByteArray data = pSocket->readAll();
-		
+
 		if(!data.isEmpty()) {
 			pFile->write(data);
 			pTransfer.pDoneSize += data.size();
 		}
-		
+
 		if(pTransfer.pDoneSize == pTransfer.pTotalSize) {
 			qDebug() << this << "Transfer completed.";
 			pSocket->disconnectFromHost();
 			pSocket->waitForDisconnected();
-			
+
 			pSocket->close();
 			break;
 		}
-		
+
 		if(pTimer.elapsed()>=timerInterval)
 			calculateSpeed();
-		
+
 		if(!pSocket->isValid() && pTransfer.pDoneSize!=pTransfer.pTotalSize) {
 			emit fileTransferError(pTransfer);
 			return;
@@ -103,32 +103,48 @@ void WiredTransferSocket::uploadData()
 	qDebug() << this << "Starting upload of data.";
 	pTransfer.pStatus = WiredTransfer::StatusActive;
 	while(1) {
-		pSocket->waitForBytesWritten();
-		QByteArray data = pFile->read(1024*8);
+		//qDebug() << this << "X: Reading from file";
 		
-		if(!data.isEmpty()) {
-			pSocket->write(data);
-			pTransfer.pDoneSize += data.size();
-		}
-		
-		if(pTransfer.pDoneSize == pTransfer.pTotalSize || pFile->atEnd()) {
-			qDebug() << this << "Transfer completed.";
-			pSocket->waitForBytesWritten();
+		if(pFile->atEnd()) {
+			qDebug() << this << "Transfer completed. Wait by bytes written. FileAtEnd:"<<pFile->atEnd()<<"Wrote:"<<pTransfer.pDoneSize<<"of"<<pTransfer.pTotalSize;
+			
 			pSocket->disconnectFromHost();
+			qDebug() << this << "X: Wait for disconnected";
 			pSocket->waitForDisconnected();
+			qDebug() << this << "X: Close()";
 			pSocket->close();
 			break;
 		}
 		
+		QByteArray data = pFile->read(1024*100);
+		if(!data.isEmpty()) {
+			//qDebug() << this << "X: Writing to socket";
+			pSocket->write(data);
+			//pSocket->flush();
+			pTransfer.pDoneSize += data.size();
+			//if(pSocket->bytesToWrite()) {
+				//pSocket->waitForBytesWritten();
+				//qDebug() << this << "X: Waiting for bytes written";
+			//}
+				
+			
+		}
+		
+		
+
 		if(pTimer.elapsed()>=timerInterval)
 			calculateSpeed();
-		
+
 		if(!pSocket->isValid() && pTransfer.pDoneSize!=pTransfer.pTotalSize) {
 			emit fileTransferError(pTransfer);
 			return;
 		}
-	
+		
+		pSocket->waitForBytesWritten();
+
 	}
+	
+	qDebug() << this << "X: Transfer done";
 	pTransfer.pStatus = WiredTransfer::StatusDone;
 	qDebug() << this << "End of loop. Closing file.";
 
@@ -158,7 +174,7 @@ void WiredTransferSocket::startTransfer()
 			quit();
 			return;
 		}
-		
+
 	} else if(pTransfer.pTransferType == WiredTransfer::TypeUpload) {
 		pFile = new QFile(pTransfer.pLocalPath);
 		if(!pFile->open(QIODevice::ReadOnly) ) {
@@ -167,7 +183,7 @@ void WiredTransferSocket::startTransfer()
 			return;
 		}
 		pFile->seek(pTransfer.pOffset);
-		
+
 	}
 
 	if(!pTransfer.pEncryptTransfer)
@@ -183,7 +199,7 @@ void WiredTransferSocket::startTransfer()
 		killTransfer();
 		return;
 	}
-	
+
 	if(!pSocket->waitForEncrypted()) {
 		qDebug() << this << "Could not establish an encrypted connection.";
 		emit fileTransferError(pTransfer);
@@ -193,7 +209,7 @@ void WiredTransferSocket::startTransfer()
 
 	qDebug() << this << "Connected to remote host encrypted. Handshake follows.";
 	sendHandshake();
-	
+
 }
 
 
@@ -218,7 +234,7 @@ void WiredTransferSocket::cancelTransfer() {
 /// Update current speed
 void WiredTransferSocket::calculateSpeed()
 {
-	
+
 	qlonglong tmpDiff = pTransfer.pDoneSize-pLastDone; // difference between past and now
 	int tmpTime = pTimer.restart(); // time difference
 
