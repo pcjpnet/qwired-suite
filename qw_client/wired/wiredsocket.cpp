@@ -758,14 +758,12 @@ void WiredSocket::on_server_transfer_queued(QList< QByteArray > theParams) {
 	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
 	while( i.hasNext() ) {
 		WiredTransferSocket *tmpT = i.next();
-		if(tmpT) {
-			ClassWiredTransfer tmpTrans = tmpT->pTransfer;
-			if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==1 ) {
-				tmpT->pTransfer.pQueuePosition = tmpPosition;
-				tmpT->pTransfer.pStatus = 1;
-				emit fileTransferStatus(tmpTrans);
-				return;
-			}
+		if(!tmpT) continue;
+		ClassWiredTransfer &tmpTrans = tmpT->pTransfer;
+		if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==1 ) {
+			tmpT->pTransfer.pQueuePosition = tmpPosition;
+			emit fileTransferStatus(tmpTrans);
+			return;
 		}
 	}
 	

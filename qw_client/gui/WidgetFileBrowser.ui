@@ -30,10 +30,10 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="maximumSize" >
+       <property name="minimumSize" >
         <size>
-         <width>22</width>
-         <height>22</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="toolTip" >
@@ -45,6 +45,12 @@
        <property name="icon" >
         <iconset resource="../application.qrc" >
          <normaloff>:/icons/16x16/go-first.png</normaloff>:/icons/16x16/go-first.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
        <property name="shortcut" >
         <string>Ctrl+Up</string>
@@ -75,10 +81,10 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="maximumSize" >
+       <property name="minimumSize" >
         <size>
-         <width>22</width>
-         <height>22</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="toolTip" >
@@ -87,6 +93,12 @@
        <property name="icon" >
         <iconset resource="../application.qrc" >
          <normaloff>:/icons/16x16/go-down.png</normaloff>:/icons/16x16/go-down.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
        <property name="autoRaise" >
         <bool>true</bool>
@@ -98,10 +110,10 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="maximumSize" >
+       <property name="minimumSize" >
         <size>
-         <width>22</width>
-         <height>22</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="toolTip" >
@@ -110,6 +122,12 @@
        <property name="icon" >
         <iconset resource="../application.qrc" >
          <normaloff>:/icons/16x16/go-up.png</normaloff>:/icons/16x16/go-up.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
        <property name="autoRaise" >
         <bool>true</bool>
@@ -121,10 +139,10 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="maximumSize" >
+       <property name="minimumSize" >
         <size>
-         <width>22</width>
-         <height>22</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="toolTip" >
@@ -137,6 +155,12 @@
         <iconset resource="../application.qrc" >
          <normaloff>:/icons/16x16/system-search.png</normaloff>:/icons/16x16/system-search.png</iconset>
        </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
        <property name="autoRaise" >
         <bool>true</bool>
        </property>
@@ -147,10 +171,10 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="maximumSize" >
+       <property name="minimumSize" >
         <size>
-         <width>22</width>
-         <height>22</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="toolTip" >
@@ -159,6 +183,12 @@
        <property name="icon" >
         <iconset resource="../application.qrc" >
          <normaloff>:/icons/16x16/folder-new.png</normaloff>:/icons/16x16/folder-new.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
        <property name="autoRaise" >
         <bool>true</bool>
@@ -170,10 +200,10 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="maximumSize" >
+       <property name="minimumSize" >
         <size>
-         <width>22</width>
-         <height>22</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="toolTip" >
@@ -185,6 +215,12 @@
        <property name="icon" >
         <iconset resource="../application.qrc" >
          <normaloff>:/icons/16x16/view-refresh.png</normaloff>:/icons/16x16/view-refresh.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
        <property name="shortcut" >
         <string>F5</string>
@@ -215,10 +251,10 @@
        <property name="enabled" >
         <bool>false</bool>
        </property>
-       <property name="maximumSize" >
+       <property name="minimumSize" >
         <size>
-         <width>22</width>
-         <height>22</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="toolTip" >
@@ -230,6 +266,12 @@
        <property name="icon" >
         <iconset resource="../application.qrc" >
          <normaloff>:/icons/icn_delete.png</normaloff>:/icons/icn_delete.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
        <property name="autoRaise" >
         <bool>true</bool>

@@ -47,14 +47,19 @@ public:
 	bool isActive();
     
 private:
+	void sendHandshake();
+	void uploadData();
+	void downloadData();
+	void calculateSpeed();
+	QTime pTimer;
 	QPointer<QSslSocket> pSocket;
     QPointer<QFile> pFile;
-    QTime pTimer;
+    
 	qlonglong pLastDone; // amount of bytes transferrd since last measurement
 	int pTimerID;
 	void startTransfer();
 	void killTransfer();
-	void timerEvent(QTimerEvent *event);
+	
 	bool pSendingFile;
 	QList<int> pSpeedList;
 	
@@ -67,16 +72,7 @@ signals:
 	
 public slots:
     void cancelTransfer();
-		    
-		    
-private slots:
-	void onTheadFinished();
-    void onSocketConnected();	
-    void onSocketReady();
-    void onSocketDisconnected();
-    void on_socket_sslErrors(const QList<QSslError> &errors);
-	void sendNextFileChunk(qint64 theOffset);
-	void onSocketError(QAbstractSocket::SocketError);
+
 };
 
 #endif
