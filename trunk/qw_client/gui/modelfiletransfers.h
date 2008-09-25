@@ -45,7 +45,10 @@ public:
 	void setSocket(WiredSocket *theSocket);
 	
 	QPointer<WiredSocket> pSocket;
-		
+
+protected:
+// 	void timerEvent(QTimerEvent *event);
+	
 private slots:
 	void updateTransfers(const ClassWiredTransfer theTransfer);
 	void reloadTransfers();

@@ -1,5 +1,6 @@
 TEMPLATE = app
-CONFIG += warn_on thread qt release
+CONFIG += warn_on thread qt \
+ debug
 TARGET = qwired
 RESOURCES = application.qrc
 QT += gui network
@@ -8,10 +9,10 @@ DESTDIR = ../bin/
 MOC_DIR = build
 OBJECTS_DIR = build
 UI_DIR = build
-RCC_DIR = build
 
 ICON = qwired.icns
 RC_FILE = qwired.rc
+
 
 macx {
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
@@ -109,3 +110,5 @@ HEADERS += general/classwiredsession.h \
  wired/classtrackerserver.h \
  gui/widgetabout.h \
  gui/WidgetNewsPost.h
+CONFIG -= release
+

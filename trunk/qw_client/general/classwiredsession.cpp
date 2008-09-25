@@ -183,6 +183,7 @@ void ClassWiredSession::setupConnections() {
 	connect(pWiredSocket, SIGNAL(fileTransferDone(const ClassWiredTransfer)), this, SLOT(transferDone(ClassWiredTransfer)) );
 	connect(pWiredSocket, SIGNAL(fileTransferStarted(const ClassWiredTransfer)), this, SLOT(transferStarted(ClassWiredTransfer)) );
 	connect(pWiredSocket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
+	connect(pWiredSocket, SIGNAL(fileTransferError(const ClassWiredTransfer)), this, SLOT(transferError(ClassWiredTransfer)) );
 	
 	// Main Window actions
 	//
@@ -896,5 +897,11 @@ void ClassWiredSession::doActionTransfers() {
 		int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
 		pMainTabWidget->setCurrentIndex(tmpIdx);
 	}
+}
+
+void ClassWiredSession::transferError(ClassWiredTransfer transfer)
+{
+	QMessageBox::critical(pConnWindow, tr("File Transfer Error"),
+		tr("The transfer of file '%1' could not be completed because of an error.\nPossibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.").arg(transfer.fileName()));
 }
 

@@ -24,7 +24,9 @@
 
 ModelFileTransfers::ModelFileTransfers(QObject *parent)
 	: QAbstractListModel(parent)
-{ }
+{
+// 	startTimer(1000);
+}
 
 
 ModelFileTransfers::~ModelFileTransfers()
@@ -35,16 +37,6 @@ int ModelFileTransfers::rowCount(const QModelIndex &) const
 {
 	if(!pSocket) return 0;
 	return pSocket->pTransferSockets.count();
-	/*
-	int count=0;
-	QListIterator<WiredTransferSocket> i(pSocket->pTransferSockets);
-	while(i.hasNext()) {
-		WiredTransferSocket *socket = i.next();
-		if(!socket) continue;
-		if(socket->isActive()) count++;
-	}
-	return count; //*/
-
 }
 
 
@@ -94,5 +86,10 @@ void ModelFileTransfers::reloadTransfers()
 {
 	reset();
 }
+
+// void ModelFileTransfers::timerEvent(QTimerEvent *event)
+// {
+// 	reset();
+// }
 
 

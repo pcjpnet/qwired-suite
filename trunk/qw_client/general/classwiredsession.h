@@ -127,9 +127,12 @@ private slots:
 	void userLeft(int theChat, ClassWiredUser theUser);
 	void userChanged(ClassWiredUser theOld, ClassWiredUser theNew);
 	void newsPosted(QString theNick, QString theTime, QString thePost);
+
+	
 	void transferStarted(ClassWiredTransfer);
 	void transferDone(ClassWiredTransfer);
 	void transferSocketError(QAbstractSocket::SocketError);
+	void transferError(ClassWiredTransfer);
 	
 public slots:
 	void triggerEvent(QString event, QStringList parameters);

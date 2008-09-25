@@ -248,13 +248,9 @@ class WiredSocket : public QObject
 		/// A file information response. In response to STAT.
 		void onServerFileInfo(ClassWiredFile theFile);
 		
-		/// A file transfer is done.
 		void fileTransferDone(const ClassWiredTransfer theTransfer);
-		/// A file transfer started.
 		void fileTransferStarted(const ClassWiredTransfer theTransfer);
-		/// A error occoured during a file transfer.
 		void fileTransferError(const ClassWiredTransfer theTransfer);
-		/// New information is available on a file transfer.
 		void fileTransferStatus(const ClassWiredTransfer theTransfer);
 
 		/// A search has completed and theResults contains the list of results.
