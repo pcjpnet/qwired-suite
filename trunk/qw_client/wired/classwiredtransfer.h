@@ -29,8 +29,8 @@
 #include <QCryptographicHash>
 
 namespace WiredTransfer {
-	enum TransferStatus { StatusWaitingForStat, StatusQueued, StatusActive, StatusDone };
-	enum TransferType { TypeDownload, TypeUpload };
+	enum TransferStatus { StatusWaitingForStat, StatusQueued, StatusActive, StatusDone, StatusQueuedLocal };
+	enum TransferType { TypeDownload, TypeUpload, TypeFolderDownload, TypeFolderUpload };
 }
 
 /**
@@ -42,11 +42,11 @@ class ClassWiredTransfer
 public:
     ClassWiredTransfer()
 	{
-		pStatus = 0;
+		pStatus = WiredTransfer::StatusWaitingForStat;
 		pTotalSize = 0;
 		pDoneSize = 0;
 		pOffset = 0;
-		pTransferType = 0;
+		pTransferType = WiredTransfer::TypeDownload;
 		pQueuePosition = 0;
 		pEncryptTransfer = true;
 		pCurrentSpeed = 0;
@@ -93,12 +93,12 @@ public:
 	};
 
 
-	int pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running, 3=done/end
+	WiredTransfer::TransferStatus pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running, 3=done/end
 	QString pLocalPath; // path to file on local disk
 	QString pRemotePath; // path to file on server
 	QString pHash; // hash for the file transfer
 	QString pChecksum; // checksum for the file
-	int pTransferType; // 0=download, 1=upload
+	WiredTransfer::TransferType pTransferType; // 0=download, 1=upload
 	qlonglong pOffset; // first byte for transfer
 	qlonglong pTotalSize; // total length of file
 	qlonglong pDoneSize; // transferred size of data

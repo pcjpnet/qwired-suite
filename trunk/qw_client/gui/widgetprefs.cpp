@@ -127,8 +127,9 @@ void WidgetPrefs::initPrefs() {
 	
 	// FILES TAB
 	//
-	fFilesFolder->setText( conf.value("files/download_dir", QDir::homePath()).toString() );
-	fFilesEncrypt->setChecked( conf.value("files/encrypt", true).toBool() );
+	fFilesFolder->setText(conf.value("files/download_dir", QDir::homePath()).toString());
+	fFilesQueue->setChecked(conf.value("files/queue_local", false).toBool());
+	fFilesEncrypt->setChecked(conf.value("files/encrypt", true).toBool());
 
 	// INTERFACE TAB
 	//
@@ -219,6 +220,7 @@ void WidgetPrefs::savePrefs() {
 	
 	// FILES TAB
 	conf.setValue("files/download_dir", fFilesFolder->text());
+	conf.setValue("files/queue_local", fFilesQueue->isChecked());
 	conf.setValue("files/encrypt", fFilesEncrypt->checkState()==Qt::Checked );
 
 	// Trackers

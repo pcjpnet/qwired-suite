@@ -515,9 +515,8 @@ void ClassWiredSession::search_download_file(QString thePath) {
 	QSettings settings;
 	doActionTransfers();
 	QString tmpName = thePath.section("/",-1,-1);
-	
-	QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
-	pWiredSocket->getFile( thePath, tmpDownloadFolder.absoluteFilePath(tmpName) );;
+	QDir tmpDownloadFolder(settings.value("files/download_dir", QDir::homePath()).toString());
+	downloadFile(thePath, tmpDownloadFolder.absoluteFilePath(tmpName));
 }
 
 
@@ -659,6 +658,12 @@ void ClassWiredSession::transferStarted(ClassWiredTransfer transfer) {
 
 
 void ClassWiredSession::transferDone(ClassWiredTransfer transfer) {
+	QSettings s;
+	if(s.value("files/queue_local", false).toBool()) {
+		qDebug() << this<< "Transfer completed. Unfreezing next.";
+		pWiredSocket->runTransferQueue(transfer.pTransferType);
+	}
+				
 	triggerEvent("TransferFinished", QStringList(transfer.fileName()));
 }
 
@@ -902,6 +907,28 @@ void ClassWiredSession::doActionTransfers() {
 void ClassWiredSession::transferError(ClassWiredTransfer transfer)
 {
 	QMessageBox::critical(pConnWindow, tr("File Transfer Error"),
-		tr("The transfer of file '%1' could not be completed because of an error.\nPossibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.").arg(transfer.fileName()));
+		tr("The transfer of file '%1' could not be completed because of an error.\n"
+			"Possibly the file transfer TCP port is blocked by a firewall or the server "
+			"is configured incorrectly.").arg(transfer.fileName()));
+}
+
+void ClassWiredSession::downloadFile(const QString &remotePath, const QString &localPath)
+{
+	QSettings s;
+	pWiredSocket->getFile(remotePath, localPath, true);
+	bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeDownload);
+	bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
+	if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+		pWiredSocket->runTransferQueue(WiredTransfer::TypeDownload);
+}
+
+void ClassWiredSession::uploadFile(const QString &localPath, const QString &remotePath)
+{
+	QSettings s;
+	pWiredSocket->putFile(localPath, remotePath, true);
+	bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeUpload);
+	bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
+	if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+		pWiredSocket->runTransferQueue(WiredTransfer::TypeUpload);
 }
 

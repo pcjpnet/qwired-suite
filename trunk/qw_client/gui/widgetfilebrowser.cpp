@@ -165,7 +165,7 @@ void WidgetFileBrowser::downloadFile(QString theRemotePath)
 		if (messageBox.clickedButton()!=deleteButton)
 			return;
 	}
-	pSession->wiredSocket()->getFile(theRemotePath, tmpDir.fileName());
+	pSession->downloadFile(theRemotePath, tmpDir.fileName());
 	pSession->doActionTransfers();
 
 }
@@ -213,7 +213,7 @@ void WidgetFileBrowser::on_fBtnUpload_clicked(bool)
 	if(!fileName.isEmpty()) {
 		QString tmpFileName = fileName.section("/",-1,-1);
 		QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
-		pSession->wiredSocket()->putFile(fileName, tmpRemote);
+		pSession->uploadFile(fileName, tmpRemote);
 		pSession->doActionTransfers();
 	}
 }
@@ -271,16 +271,18 @@ void WidgetFileBrowser::dropEvent(QDropEvent *event)
 {
 	QList<QUrl> tmpUrls = event->mimeData()->urls();
 	QListIterator<QUrl> i(tmpUrls);
+	qDebug() << "File----";
 	while(i.hasNext()) {
+		qDebug() << "File.";
 		QUrl tmpUrl = i.next();
 		QFile tmpFile(tmpUrl.toLocalFile());
 		if(tmpFile.exists()) {
 			QString tmpFileName = tmpFile.fileName().section("/",-1,-1);
 			QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
-			pSession->wiredSocket()->putFile(tmpFile.fileName(), tmpRemote);
-			pSession->doActionTransfers();
+			pSession->uploadFile(tmpFile.fileName(), tmpRemote);
 		}
 	}
+	pSession->doActionTransfers();
 	event->acceptProposedAction();
 }
 

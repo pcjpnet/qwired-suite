@@ -1252,7 +1252,7 @@ max Größe 32x32 Pixel</translation>
     <message>
         <location filename="../gui/WidgetPrefs.ui" line="1473"/>
         <source>Queue Transfers</source>
-        <translation>Warteschlange</translation>
+        <translation>Übertragungen in lokale Warteschlange stellen</translation>
     </message>
     <message>
         <location filename="../gui/WidgetPrefs.ui" line="1508"/>
