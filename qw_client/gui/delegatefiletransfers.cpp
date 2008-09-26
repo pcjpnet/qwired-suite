@@ -61,7 +61,7 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	tmp.setRight(option.rect.width()-10);
 	tmp.setBottom(26);
 	tmp.setLeft(tmpX);
-	tmp.setTop(10);
+	tmp.setTop(8);
 	progressBarOption.rect = tmp;
 	progressBarOption.fontMetrics = QApplication::fontMetrics();
 	progressBarOption.minimum = 0;
@@ -71,7 +71,8 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	
 	
 	// File Name
-	QFont font("sans-serif", 11, QFont::Bold);
+	QFont font;
+	font.setBold(true);
 	font.setPixelSize(11);
 	QFontMetrics fontmetrics(font);
 	painter->setFont(font);
