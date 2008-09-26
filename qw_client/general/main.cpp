@@ -40,7 +40,7 @@ int main (int argc, char *argv[]) {
 #ifdef Q_WS_X11
 	QApplication::setStyle(new QCleanlooksStyle);
 #endif
-
+	
 	QCoreApplication::setOrganizationName("NeoSoftware");
 	QCoreApplication::setOrganizationDomain("neo.de");
 	QCoreApplication::setApplicationName("Qwired");

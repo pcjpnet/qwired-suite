@@ -24,9 +24,7 @@
 
 ModelFileTransfers::ModelFileTransfers(QObject *parent)
 	: QAbstractListModel(parent)
-{
-// 	startTimer(1000);
-}
+{ }
 
 
 ModelFileTransfers::~ModelFileTransfers()
@@ -86,10 +84,4 @@ void ModelFileTransfers::reloadTransfers()
 {
 	reset();
 }
-
-// void ModelFileTransfers::timerEvent(QTimerEvent *event)
-// {
-// 	reset();
-// }
-
 

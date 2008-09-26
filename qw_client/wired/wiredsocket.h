@@ -95,6 +95,9 @@ class WiredSocket : public QObject
 		// Tracker subsystem
 		//
 		void connectToTracker(QString theHostName, int thePort=2002);
+
+		// File Transfers
+		bool isTransferringFileOfType(WiredTransfer::TransferType type);
 		
 		
 	public slots:
@@ -117,7 +120,7 @@ class WiredSocket : public QObject
 		void editGroup(ClassWiredUser);
 		void editUser(ClassWiredUser);
 		void getClientInfo(int theUserID);
-		void getFile(const QString thePath, const QString theLocalPath);
+		void getFile(const QString thePath, const QString theLocalPath, const bool queueLocally);
 		void getFileList(QString thePath);
 		void getGroups();
 		void getNews();
@@ -130,7 +133,7 @@ class WiredSocket : public QObject
 		void leaveChat(int theChatID);
 		void moveFile(const QString thePath, const QString theDestination);
 		void postNews(QString thePost);
-		void putFile(const QString theLocalPath, const QString theRemotePath);
+		void putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
 		void readGroup(QString theName);
 		void readUser(QString theName);
 		void rejectChat(int theChatID);
@@ -142,6 +145,8 @@ class WiredSocket : public QObject
 		void setUserIcon(QPixmap theIcon);
 		void setUserStatus(QString theStatus);
 		void statFile(const QString thePath);
+
+		void runTransferQueue(WiredTransfer::TransferType type);
 
 
 	private slots:

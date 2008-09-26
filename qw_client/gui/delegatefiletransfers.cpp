@@ -44,7 +44,7 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 {
 	if(!index.isValid()) return;
 	if (option.state & QStyle::State_Selected)
-		painter->fillRect(0, 0, option.rect.width(), option.rect.height(), Qt::gray);
+		painter->fillRect(option.rect, Qt::gray);
 
 	painter->save();
 	painter->translate(0, option.rect.y());
@@ -81,14 +81,16 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	int progress = (float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100;
 	progressBarOption.progress = progress < 0 ? 0 : progress;
 
-	if(tmpT.pStatus==2) {
+	if(tmpT.pStatus == WiredTransfer::StatusActive) {
 		QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
-	
-		// Draw the speed info
 		painter->drawText(tmpX, 40, tr("%1/sec").arg(ClassWiredFile::humanReadableSize(tmpT.pCurrentSpeed)));
-	} else if(tmpT.pStatus==0) {
+	} else if(tmpT.pStatus==WiredTransfer::StatusQueuedLocal) {
+		painter->drawText(tmpX, 40, tr("Queued locally"));
+	} else if(tmpT.pStatus==WiredTransfer::StatusDone) {
+		painter->drawText(tmpX, 40, tr("Completed"));
+	} else if(tmpT.pStatus==WiredTransfer::StatusWaitingForStat) {
 		painter->drawText(tmpX, 40, tr("Requesting transfer slot..."));
-	} else if(tmpT.pStatus==1) {
+	} else if(tmpT.pStatus==WiredTransfer::StatusQueued) {
 		painter->drawText(tmpX, 40, tr("Queued (at position %1)").arg(tmpT.pQueuePosition));
 	}
 	
@@ -97,7 +99,11 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	painter->translate(10, 9);
 	if(tmpT.pStatus == WiredTransfer::StatusWaitingForStat) {
 		painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/network-server.png"));
+	} else if(tmpT.pStatus == WiredTransfer::StatusDone) {
+		painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/face-smile.png"));
 	} else if(tmpT.pStatus == WiredTransfer::StatusQueued) {
+		painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/start-here.png"));
+	} else if(tmpT.pStatus == WiredTransfer::StatusQueuedLocal) {
 		painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/start-here.png"));
 	} else if(tmpT.pStatus == WiredTransfer::StatusActive) {
 		if(tmpT.pTransferType == WiredTransfer::TypeDownload) {

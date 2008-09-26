@@ -19,31 +19,30 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex" >
-      <number>2</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="tab_general" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>618</width>
+        <height>328</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>General</string>
       </attribute>
       <layout class="QHBoxLayout" >
        <item>
         <layout class="QGridLayout" >
-         <property name="leftMargin" >
-          <number>4</number>
-         </property>
-         <property name="topMargin" >
-          <number>4</number>
-         </property>
-         <property name="rightMargin" >
-          <number>4</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>4</number>
-         </property>
          <property name="horizontalSpacing" >
           <number>6</number>
          </property>
          <property name="verticalSpacing" >
+          <number>4</number>
+         </property>
+         <property name="margin" >
           <number>4</number>
          </property>
          <item row="0" column="0" >
@@ -141,7 +140,7 @@
             </size>
            </property>
            <property name="frameShape" >
-            <enum>QFrame::Panel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow" >
             <enum>QFrame::Sunken</enum>
@@ -198,7 +197,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>40</width>
                <height>20</height>
@@ -227,7 +226,7 @@ max size 32x32 pixels</string>
            <property name="orientation" >
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>20</width>
              <height>40</height>
@@ -240,6 +239,14 @@ max size 32x32 pixels</string>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_interface" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>618</width>
+        <height>328</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Interface</string>
       </attribute>
@@ -250,6 +257,14 @@ max size 32x32 pixels</string>
           <number>5</number>
          </property>
          <widget class="QWidget" name="fTabUiChat" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>840</width>
+            <height>420</height>
+           </rect>
+          </property>
           <attribute name="title" >
            <string>Chat</string>
           </attribute>
@@ -259,7 +274,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -348,7 +363,7 @@ max size 32x32 pixels</string>
                  <property name="orientation" >
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>40</width>
                    <height>20</height>
@@ -391,7 +406,7 @@ max size 32x32 pixels</string>
                  <property name="orientation" >
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>40</width>
                    <height>20</height>
@@ -422,7 +437,7 @@ max size 32x32 pixels</string>
                  <property name="orientation" >
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>40</width>
                    <height>20</height>
@@ -474,7 +489,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -485,6 +500,14 @@ max size 32x32 pixels</string>
           </layout>
          </widget>
          <widget class="QWidget" name="fTabUiNews" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>840</width>
+            <height>420</height>
+           </rect>
+          </property>
           <attribute name="title" >
            <string>News</string>
           </attribute>
@@ -494,7 +517,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -565,7 +588,7 @@ max size 32x32 pixels</string>
                  <property name="orientation" >
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>40</width>
                    <height>20</height>
@@ -589,7 +612,7 @@ max size 32x32 pixels</string>
                  <property name="orientation" >
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>40</width>
                    <height>20</height>
@@ -616,7 +639,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -627,11 +650,27 @@ max size 32x32 pixels</string>
           </layout>
          </widget>
          <widget class="QWidget" name="fTabUiMessages" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>840</width>
+            <height>420</height>
+           </rect>
+          </property>
           <attribute name="title" >
            <string>Messages</string>
           </attribute>
          </widget>
          <widget class="QWidget" name="fTabUiFiles" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>840</width>
+            <height>420</height>
+           </rect>
+          </property>
           <attribute name="title" >
            <string>Files</string>
           </attribute>
@@ -641,7 +680,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -682,7 +721,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -693,6 +732,14 @@ max size 32x32 pixels</string>
           </layout>
          </widget>
          <widget class="QWidget" name="fTabUiPreview" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>840</width>
+            <height>420</height>
+           </rect>
+          </property>
           <attribute name="title" >
            <string>Preview</string>
           </attribute>
@@ -702,7 +749,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -763,7 +810,7 @@ max size 32x32 pixels</string>
                  <property name="orientation" >
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>40</width>
                    <height>20</height>
@@ -790,7 +837,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -801,6 +848,14 @@ max size 32x32 pixels</string>
           </layout>
          </widget>
          <widget class="QWidget" name="fTabUiTrackers" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>596</width>
+            <height>283</height>
+           </rect>
+          </property>
           <attribute name="title" >
            <string>Trackers</string>
           </attribute>
@@ -810,7 +865,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -830,7 +885,7 @@ max size 32x32 pixels</string>
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -845,6 +900,14 @@ max size 32x32 pixels</string>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_bookmarks" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>618</width>
+        <height>328</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Bookmarks</string>
       </attribute>
@@ -904,7 +967,7 @@ p, li { white-space: pre-wrap; }
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>40</width>
                <height>20</height>
@@ -1001,7 +1064,7 @@ p, li { white-space: pre-wrap; }
               <property name="orientation" >
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -1017,6 +1080,14 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="tab_chat" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>618</width>
+        <height>328</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Chat</string>
       </attribute>
@@ -1026,7 +1097,7 @@ p, li { white-space: pre-wrap; }
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -1039,7 +1110,7 @@ p, li { white-space: pre-wrap; }
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>40</width>
            <height>20</height>
@@ -1080,7 +1151,7 @@ p, li { white-space: pre-wrap; }
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>40</width>
                <height>20</height>
@@ -1119,7 +1190,7 @@ p, li { white-space: pre-wrap; }
                <property name="sizeType" >
                 <enum>QSizePolicy::Fixed</enum>
                </property>
-               <property name="sizeHint" >
+               <property name="sizeHint" stdset="0" >
                 <size>
                  <width>20</width>
                  <height>20</height>
@@ -1149,7 +1220,7 @@ p, li { white-space: pre-wrap; }
                <property name="orientation" >
                 <enum>Qt::Horizontal</enum>
                </property>
-               <property name="sizeHint" >
+               <property name="sizeHint" stdset="0" >
                 <size>
                  <width>40</width>
                  <height>20</height>
@@ -1167,7 +1238,7 @@ p, li { white-space: pre-wrap; }
              <property name="sizeType" >
               <enum>QSizePolicy::Fixed</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>10</height>
@@ -1200,7 +1271,7 @@ p, li { white-space: pre-wrap; }
                  <property name="sizeType" >
                   <enum>QSizePolicy::Fixed</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>20</width>
                    <height>16</height>
@@ -1243,7 +1314,7 @@ p, li { white-space: pre-wrap; }
                  <property name="orientation" >
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" >
+                 <property name="sizeHint" stdset="0" >
                   <size>
                    <width>40</width>
                    <height>20</height>
@@ -1265,7 +1336,7 @@ p, li { white-space: pre-wrap; }
            <property name="sizeType" >
             <enum>QSizePolicy::Fixed</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>20</width>
              <height>10</height>
@@ -1280,7 +1351,7 @@ p, li { white-space: pre-wrap; }
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>40</width>
            <height>20</height>
@@ -1293,7 +1364,7 @@ p, li { white-space: pre-wrap; }
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -1304,6 +1375,14 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="Seite" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>618</width>
+        <height>328</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Events</string>
       </attribute>
@@ -1334,7 +1413,7 @@ p, li { white-space: pre-wrap; }
            <property name="sizeType" >
             <enum>QSizePolicy::Expanding</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>20</width>
              <height>14</height>
@@ -1408,7 +1487,7 @@ p, li { white-space: pre-wrap; }
            <property name="orientation" >
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>191</width>
              <height>31</height>
@@ -1421,6 +1500,14 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="tab_files" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>618</width>
+        <height>328</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Files</string>
       </attribute>
@@ -1486,7 +1573,7 @@ p, li { white-space: pre-wrap; }
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>452</width>
            <height>31</height>
@@ -1504,6 +1591,14 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="tab_trackers" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>618</width>
+        <height>328</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Trackers</string>
       </attribute>
@@ -1547,7 +1642,7 @@ p, li { white-space: pre-wrap; }
              <property name="sizeType" >
               <enum>QSizePolicy::Minimum</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>40</width>
                <height>20</height>
@@ -1596,7 +1691,7 @@ p, li { white-space: pre-wrap; }
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -1618,7 +1713,7 @@ p, li { white-space: pre-wrap; }
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0" >
         <size>
          <width>40</width>
          <height>20</height>

@@ -181,6 +181,8 @@ public slots:
 	void setBannerView(const QPixmap theBanner);
 	void handleErrorOccoured(int theError);
 
+	void downloadFile(const QString &remotePath, const QString &localPath);
+	void uploadFile(const QString &localPath, const QString &remotePath);
 	
 	
 };

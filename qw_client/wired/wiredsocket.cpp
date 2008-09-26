@@ -676,7 +676,7 @@ void WiredSocket::on_socket_error(QAbstractSocket::SocketError error)
  * @param thePath The remote path of the file to be downloaded.
  * @param theLocalPath The destination path of the file on the local system.
  */
-void WiredSocket::getFile(const QString thePath, const QString theLocalPath){
+void WiredSocket::getFile(const QString thePath, const QString theLocalPath, const bool queueLocally){
 	
 	// Check for duplicate downloads
 	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
@@ -694,26 +694,39 @@ void WiredSocket::getFile(const QString thePath, const QString theLocalPath){
 	// Create a record for the status tracking
 	// We first set this to stauts 0 (waiting for stat) since we need the checksum of the file
 	// for local comparisation!
-	ClassWiredTransfer tmpTrans;
-	tmpTrans.pStatus = 0; // waiting for stat
-	tmpTrans.pTransferType = 0; // download
-	tmpTrans.pRemotePath = thePath;
-	tmpTrans.pLocalPath = theLocalPath;
+
 		
 	// And the socket...
 	WiredTransferSocket *tmpSock = new WiredTransferSocket;
+	pTransferSockets.append(tmpSock);
+
+// 	ClassWiredTransfer tmpTrans;
+	tmpSock->pTransfer.pTransferType = WiredTransfer::TypeDownload;
+	tmpSock->pTransfer.pRemotePath = thePath;
+	tmpSock->pTransfer.pLocalPath = theLocalPath;
+	
 	qDebug() << "Current creator thread:"<<QThread::currentThread();
 	connect(tmpSock, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SIGNAL(fileTransferDone(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SIGNAL(fileTransferError(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));
-	connect(tmpSock, SIGNAL(fileTransferStarted(ClassWiredTransfer)), this, SIGNAL(fileTransferStarted(ClassWiredTransfer)));
+// 	connect(tmpSock, SIGNAL(fileTransferStarted(ClassWiredTransfer)), this, SIGNAL(fileTransferStarted(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 
 	tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
-	tmpSock->pTransfer = tmpTrans;
-	pTransferSockets.append(tmpSock);
-	statFile(thePath);
-	qDebug() << "Transfer Phase 1/3: STAT'ing "<<thePath<<"to"<<theLocalPath;
+	
+// 	if(!queueLocally) {
+// 		tmpSock->pTransfer.pStatus = WiredTransfer::StatusWaitingForStat; // waiting for stat
+// 		statFile(thePath);
+// 		qDebug() << "Transfer Phase 1/3: STATing:"<<thePath<<"to"<<theLocalPath;
+// 	} /*else {
+		tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal; // waiting for stat
+// 		tmpSock->pTransfer = tmpTrans;
+
+		qDebug() << "Transfer Phase 1/3: LocalQueued:"<<thePath<<"to"<<theLocalPath;
+// 	}
+	emit fileTransferStarted(tmpSock->pTransfer);
+
+	
 }
 
 
@@ -732,12 +745,15 @@ void WiredSocket::on_server_transfer_ready(QList<QByteArray> theParams) {
 		WiredTransferSocket *tmpT = i.next();
 		if(!tmpT) continue;
 		ClassWiredTransfer tmpTrans = tmpT->pTransfer;
-		if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==1 ) {
+		qDebug() << "CHECKING FILE"<<tmpTrans.pRemotePath<<"with status"<<tmpTrans.pStatus;
+		if( tmpTrans.pRemotePath==tmpPath &&
+				     (tmpTrans.pTransferType==WiredTransfer::TypeUpload && tmpTrans.pStatus==WiredTransfer::StatusWaitingForStat)
+				  || (tmpTrans.pTransferType==WiredTransfer::TypeDownload && tmpTrans.pStatus==WiredTransfer::StatusQueued) ) {
 			qDebug() << this << "Transfer Phase 2/3: Transfer ready for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
 			tmpT->pTransfer.pOffset = tmpOffset;
 			tmpT->pTransfer.pHash = tmpHash;
 			tmpT->pTransfer.pQueuePosition = 0;
-			tmpT->pTransfer.pStatus = 2;
+			tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
 			tmpT->start();
 			return;
 		}
@@ -760,7 +776,7 @@ void WiredSocket::on_server_transfer_queued(QList< QByteArray > theParams) {
 		WiredTransferSocket *tmpT = i.next();
 		if(!tmpT) continue;
 		ClassWiredTransfer &tmpTrans = tmpT->pTransfer;
-		if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==1 ) {
+		if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==WiredTransfer::StatusQueued ) {
 			tmpT->pTransfer.pQueuePosition = tmpPosition;
 			emit fileTransferStatus(tmpTrans);
 			return;
@@ -894,7 +910,7 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 				// Set some more info
 				tmpT->pTransfer.pChecksum = tmpChecksum;
 				tmpT->pTransfer.pTotalSize = tmpSize;
-				tmpT->pTransfer.pStatus = 1; // waiting for transfer
+				tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
 				
 				// Request a file download from the server
 				QByteArray buf("GET ");
@@ -920,7 +936,7 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 }
 
 // Request uploading of a file to the server
-void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePath) {
+void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally) {
 	QFile tmpFile(theLocalPath);
 	if(tmpFile.exists() && !theRemotePath.isEmpty()) {
 
@@ -940,16 +956,11 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		// Create a record for the status tracking
 		// We first set this to status 0 (waiting for stat) since we need the checksum of the file
 		// for local comparisation!
-		ClassWiredTransfer tmpTrans;
-		tmpTrans.pStatus = 1; // waiting for slot (no stat required)
-		tmpTrans.pTransferType = 1; // upload
-		tmpTrans.pRemotePath = theRemotePath;
-		tmpTrans.pLocalPath = theLocalPath;
-		tmpTrans.pTotalSize = tmpFile.size();
-		tmpTrans.calcLocalChecksum();
+	
 		
 		// And the socket...
 		WiredTransferSocket *tmpSock = new WiredTransferSocket;
+		pTransferSockets.append(tmpSock);
 		connect(tmpSock, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SIGNAL(fileTransferDone(ClassWiredTransfer)));
 		connect(tmpSock, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SIGNAL(fileTransferError(ClassWiredTransfer)));
 		connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));
@@ -957,19 +968,32 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		connect(tmpSock, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)));
 		connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 		tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
-		tmpSock->pTransfer = tmpTrans;
-		pTransferSockets.append(tmpSock);
+		tmpSock->pTransfer.pTransferType = WiredTransfer::TypeUpload;
+		tmpSock->pTransfer.pRemotePath = theRemotePath;
+		tmpSock->pTransfer.pLocalPath = theLocalPath;
+		tmpSock->pTransfer.pTotalSize = tmpFile.size();
+		tmpSock->pTransfer.calcLocalChecksum();
 		
 		// Request upload slot
-		qDebug() << this << "Upload requested, hash"<<tmpTrans.pChecksum;
-		QByteArray tmpBuf("PUT ");
-		tmpBuf += theRemotePath.toUtf8();
-		tmpBuf += kFS;
-		tmpBuf += QByteArray::number(tmpFile.size());
-		tmpBuf += kFS;
-		tmpBuf += tmpTrans.pChecksum;
-		qDebug() << tmpBuf;
-		sendWiredCommand(tmpBuf);
+		if(queueLocally) {
+			tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
+			qDebug() << this << "Queued transfer locally:"<<tmpSock->pTransfer.pRemotePath;
+			
+		} /*else {
+			qDebug() << this << "Upload requested, hash"<<tmpTrans.pChecksum;
+			tmpTrans.pStatus = WiredTransfer::StatusWaitingForStat; // waiting for slot (no stat required)
+			tmpSock->pTransfer = tmpTrans;
+			
+			QByteArray ba("PUT ");
+			ba += tmpTrans.pRemotePath.toUtf8() + char(kFS);
+			ba += QByteArray::number(tmpTrans.pTotalSize) + char(kFS);
+			ba += tmpTrans.pChecksum;
+			sendWiredCommand(ba);
+		}*/
+
+		emit fileTransferStarted(tmpSock->pTransfer);
+		
+
 	}
 }
 
@@ -1378,8 +1402,47 @@ void WiredSocket::disconnectSocketFromServer()
 }
 
 
+/// Activate/start the next locally queued transfer of type
+/// type. If a transfer is already running, this will start
+/// the next.
+void WiredSocket::runTransferQueue(WiredTransfer::TransferType type)
+{
+	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
+	while(i.hasNext()) {
+		WiredTransferSocket *tmpT = i.next();
+		if(!tmpT) continue;
+		ClassWiredTransfer tmpTrans = tmpT->pTransfer;
+		if( tmpTrans.pTransferType==type && tmpTrans.pStatus==WiredTransfer::StatusQueuedLocal ) {
+			qDebug() << this << "Unfreezing transfer"<<tmpTrans.pRemotePath;
+			tmpT->pTransfer.pStatus = WiredTransfer::StatusWaitingForStat;
+			if(tmpTrans.pTransferType==WiredTransfer::TypeDownload) {
+				statFile(tmpT->pTransfer.pRemotePath);
+			} else if(tmpTrans.pTransferType==WiredTransfer::TypeUpload) {
+				QByteArray ba("PUT ");
+				ba += tmpTrans.pRemotePath.toUtf8() + char(kFS);
+				ba += QByteArray::number(tmpTrans.pTotalSize) + char(kFS);
+				ba += tmpTrans.pChecksum;
+				sendWiredCommand(ba);
+			}
+			
+			emit fileTransferStarted(tmpT->pTransfer);
+			return;
+		}
+		
+	}
+}
 
-
-
-
+bool WiredSocket::isTransferringFileOfType(WiredTransfer::TransferType type)
+{
+	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
+	while(i.hasNext()) {
+		WiredTransferSocket *tmpT = i.next();
+		if(!tmpT) continue;
+		if(tmpT->pTransfer.pTransferType==type
+				 && (tmpT->pTransfer.pStatus==WiredTransfer::StatusActive || tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat))
+			return true;
+		
+	}
+	return false;
+}
 
