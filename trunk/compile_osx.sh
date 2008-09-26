@@ -4,6 +4,7 @@ echo "Qwired Build Script 1.0"
 echo "-----------------------"
 
 echo "- Preparing to build Qwired using:"
+cd qw_client
 qmake -version
 
 echo ""
