@@ -824,12 +824,6 @@ void ClassWiredSession::doActionFiles(QString thePath) {
 		int tmpIdx = pMainTabWidget->indexOf(pWinFileBrowser);
 		pMainTabWidget->setCurrentIndex(tmpIdx);
 	}
-// 	browser->move( pConnWindow->pos() );
-	
-	
-	
-// 	browser->show();
-	 // Request the root list of files
 }
 
 

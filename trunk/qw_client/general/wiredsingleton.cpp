@@ -122,6 +122,13 @@ void WiredSingleton::showTrayMenu(QSystemTrayIcon::ActivationReason reason)
 	}
 }
 
+void WiredSingleton::cleanUp()
+{
+	if(pTrayIcon)
+		pTrayIcon->deleteLater();
+// 	this->deleteLater();
+}
+
 
 
 
