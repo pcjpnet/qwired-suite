@@ -75,6 +75,12 @@
            <property name="enabled" >
             <bool>false</bool>
            </property>
+           <property name="minimumSize" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="toolTip" >
             <string>Send a private message</string>
            </property>
@@ -84,8 +90,8 @@
            </property>
            <property name="iconSize" >
             <size>
-             <width>16</width>
-             <height>16</height>
+             <width>18</width>
+             <height>18</height>
             </size>
            </property>
            <property name="autoRaise" >
@@ -98,6 +104,12 @@
            <property name="enabled" >
             <bool>false</bool>
            </property>
+           <property name="minimumSize" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="toolTip" >
             <string>Start a private chat</string>
            </property>
@@ -107,8 +119,8 @@
            </property>
            <property name="iconSize" >
             <size>
-             <width>16</width>
-             <height>16</height>
+             <width>18</width>
+             <height>18</height>
             </size>
            </property>
            <property name="autoRaise" >
@@ -121,6 +133,12 @@
            <property name="enabled" >
             <bool>false</bool>
            </property>
+           <property name="minimumSize" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="toolTip" >
             <string>Show information about user</string>
            </property>
@@ -130,8 +148,8 @@
            </property>
            <property name="iconSize" >
             <size>
-             <width>16</width>
-             <height>16</height>
+             <width>18</width>
+             <height>18</height>
             </size>
            </property>
            <property name="autoRaise" >
@@ -157,6 +175,12 @@
            <property name="enabled" >
             <bool>false</bool>
            </property>
+           <property name="minimumSize" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="toolTip" >
             <string>Ban from server</string>
            </property>
@@ -166,8 +190,8 @@
            </property>
            <property name="iconSize" >
             <size>
-             <width>16</width>
-             <height>16</height>
+             <width>18</width>
+             <height>18</height>
             </size>
            </property>
            <property name="autoRaise" >
@@ -179,6 +203,12 @@
           <widget class="QToolButton" name="fBtnKick" >
            <property name="enabled" >
             <bool>false</bool>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
            </property>
            <property name="toolTip" >
             <string>Kick from server</string>
@@ -192,8 +222,8 @@
            </property>
            <property name="iconSize" >
             <size>
-             <width>16</width>
-             <height>16</height>
+             <width>18</width>
+             <height>18</height>
             </size>
            </property>
            <property name="autoRaise" >
@@ -203,6 +233,12 @@
          </item>
          <item>
           <widget class="QToolButton" name="fBtnInvite" >
+           <property name="minimumSize" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="toolTip" >
             <string>Invite to chat...</string>
            </property>
@@ -212,8 +248,8 @@
            </property>
            <property name="iconSize" >
             <size>
-             <width>16</width>
-             <height>16</height>
+             <width>18</width>
+             <height>18</height>
             </size>
            </property>
            <property name="popupMode" >

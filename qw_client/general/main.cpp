@@ -71,13 +71,12 @@ int main (int argc, char *argv[]) {
 	}
 
 	// Create the inital connection
-	WiredSingleton *tmpS = &WSINGLETON::Instance();
-	
-
 	ClassWiredSession *tmpConn = new ClassWiredSession();
-	tmpS->addSession(tmpConn);
 
-	tmpS->createTrayIcon();
+	// Singleton
+	QObject::connect(&app, SIGNAL(aboutToQuit()), &WSINGLETON::Instance(), SLOT(cleanUp()));
+	WSINGLETON::Instance().addSession(tmpConn);
+	WSINGLETON::Instance().createTrayIcon();
 
 	return app.exec();
 }

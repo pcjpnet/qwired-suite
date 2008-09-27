@@ -22,7 +22,6 @@
 #ifndef WIREDSINGLETON_H
 #define WIREDSINGLETON_H
 
-// #include "general/classwiredsession.h"
 #include <QObject>
 #include <QPointer>
 #include <QColor>
@@ -36,19 +35,18 @@ class ClassWiredSession;
 A basic singleton to handle global notification within the app.
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class WiredSingleton : public QObject
+class WiredSingleton
+	: public QObject
 {
+	
 Q_OBJECT
+
 public:
     WiredSingleton();
     ~WiredSingleton();
-
 	void addSession(ClassWiredSession *session);
-
 	void createTrayIcon();
-	
 	QList<ClassWiredSession*> pSessions;
-
 	QPointer<QMenu> pTrayMenu;
 	QPointer<QSystemTrayIcon> pTrayIcon;
 
@@ -65,6 +63,7 @@ signals:
 
 public slots:
 	void notifyPrefsChanged();
+	void cleanUp();
 	
 };
 
