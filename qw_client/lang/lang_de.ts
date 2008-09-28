@@ -4,61 +4,61 @@
 <context>
     <name>ClassWiredSession</name>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="290"/>
+        <location filename="../general/classwiredsession.cpp" line="291"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation>Thema: %1
 Gesetzt von: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="346"/>
+        <location filename="../general/classwiredsession.cpp" line="347"/>
         <source>Broadcast Message</source>
         <translation>Rundsendung</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="382"/>
+        <location filename="../general/classwiredsession.cpp" line="383"/>
         <source>Private Chat Invitation</source>
         <translation>Private Chateinladung</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="383"/>
+        <location filename="../general/classwiredsession.cpp" line="384"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation>%1 hat Sie zu einem privaten Chat eingeladen.
 Klicken Sie &lt;Beitreten&gt; um diesem Chat mit %1 beizutreten.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="385"/>
+        <location filename="../general/classwiredsession.cpp" line="386"/>
         <source>Ignore</source>
         <translation>Ignorieren</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="386"/>
+        <location filename="../general/classwiredsession.cpp" line="387"/>
         <source>Reject</source>
         <translation>Ablehnen</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="387"/>
+        <location filename="../general/classwiredsession.cpp" line="388"/>
         <source>Join</source>
         <translation>Beitreten</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="770"/>
+        <location filename="../general/classwiredsession.cpp" line="776"/>
         <source>News</source>
         <translation>Neuigkeiten</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="373"/>
+        <location filename="../general/classwiredsession.cpp" line="374"/>
         <source>Info: %1</source>
         <translation>Informationen: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="414"/>
+        <location filename="../general/classwiredsession.cpp" line="415"/>
         <source>Private Chat</source>
         <translation>Privatchat</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="788"/>
+        <location filename="../general/classwiredsession.cpp" line="794"/>
         <source>Server Info</source>
         <translation>Serverinformationen</translation>
     </message>
@@ -90,7 +90,7 @@ Grund: %1 (%2).</translation>
         <translation>Suche</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="734"/>
+        <location filename="../general/classwiredsession.cpp" line="740"/>
         <source>Accounts</source>
         <translation>Benutzerkonten</translation>
     </message>
@@ -258,44 +258,55 @@ Grund: %1 (%2).</translation>
         <translation>Transfer abgeschlossen: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="667"/>
+        <location filename="../general/classwiredsession.cpp" line="673"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation>Der Dateitransfer ist aufgrund eines Fehlers unterbrochen worden. Fehlerkennung: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="430"/>
+        <location filename="../general/classwiredsession.cpp" line="431"/>
         <source>Connecting. Starting session...</source>
         <translation>Verbunden. Sitzung starten...</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="459"/>
+        <location filename="../general/classwiredsession.cpp" line="460"/>
         <source>Connection Refused</source>
         <translation>Verbindung abgelehnt</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="460"/>
+        <location filename="../general/classwiredsession.cpp" line="461"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation>Die Verbindung wurde von der Gegenstelle abgelehnt. Normalerweise bedeutet dies, dass auf der Gegenseite kein Wired-Dienst läuft.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="463"/>
+        <location filename="../general/classwiredsession.cpp" line="464"/>
         <source>Host not found</source>
         <translation>Host nicht gefunden</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="463"/>
+        <location filename="../general/classwiredsession.cpp" line="464"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation>Konnte nicht zur Gegenstelle verbinden weil die Name nicht aufgelöst werden konnte.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="676"/>
+        <location filename="../general/classwiredsession.cpp" line="682"/>
         <source>Receiving user list...</source>
         <translation>Benutzerliste empfangen...</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="815"/>
+        <location filename="../general/classwiredsession.cpp" line="821"/>
         <source>Files</source>
         <translation>Dateien</translation>
+    </message>
+    <message>
+        <location filename="../general/classwiredsession.cpp" line="903"/>
+        <source>File Transfer Error</source>
+        <translation>Dateiübertragungsfehler</translation>
+    </message>
+    <message>
+        <location filename="../general/classwiredsession.cpp" line="906"/>
+        <source>The transfer of file &apos;%1&apos; could not be completed because of an error.
+Possibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -314,24 +325,34 @@ Grund: %1 (%2).</translation>
 <context>
     <name>DelegateFileTransfers</name>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="88"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="87"/>
         <source>%1/sec</source>
         <translation>%1/Sek</translation>
     </message>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="118"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="125"/>
         <source>%1 of %2 completed (%3%)</source>
         <translation>%1 von %2 fertig (%3%)</translation>
     </message>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="90"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="93"/>
         <source>Requesting transfer slot...</source>
         <translation>Transfer anfragen...</translation>
     </message>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="92"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="95"/>
         <source>Queued (at position %1)</source>
         <translation>Wartet (an Position %1)</translation>
+    </message>
+    <message>
+        <location filename="../gui/delegatefiletransfers.cpp" line="89"/>
+        <source>Queued locally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/delegatefiletransfers.cpp" line="91"/>
+        <source>Completed</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -849,7 +870,7 @@ p, li { white-space: pre-wrap; }
         <translation>Dateien</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="279"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="298"/>
         <source>0 items, 0 bytes total, 0 GB available</source>
         <translation>0 Objekte, 0 Bytes gesamt, 0 GB verfügbar</translation>
     </message>
@@ -859,73 +880,73 @@ p, li { white-space: pre-wrap; }
         <translation>Dateien - %1</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="37"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="40"/>
         <source>Back</source>
         <translation>Zurück</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="79"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="82"/>
         <source>Download File...</source>
         <translation>Datei Herunterladen...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="102"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="105"/>
         <source>Upload File...</source>
         <translation>Datei Hochladen...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="125"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="144"/>
         <source>Get Info</source>
         <translation>Informationen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="151"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="170"/>
         <source>New Folder...</source>
         <translation>Neuer Ordner...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="174"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="193"/>
         <source>Refresh</source>
         <translation>Aktualisieren</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="219"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="238"/>
         <source>Delete...</source>
         <translation>Löschen...</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="212"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="211"/>
         <source>Upload File</source>
         <translation>Datei Hochladen</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="229"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="230"/>
         <source>Delete File</source>
         <translation>Datei Löschen</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="232"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="161"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
         <location filename="../gui/widgetfilebrowser.cpp" line="234"/>
         <source>Delete</source>
-        <translation>Löschen</translation>
+        <translation type="obsolete">Löschen</translation>
     </message>
     <message>
         <location filename="../gui/widgetfilebrowser.cpp" line="231"/>
         <source>Are you sure you want to delete the item &apos;%1&apos;?
 This can not be undone!</source>
-        <translation>Soll das Objekt &apos;%1&apos; wirklich gelöscht werden?Dieser Vorgang ist nicht wiederrufbar!</translation>
+        <translation type="obsolete">Soll das Objekt &apos;%1&apos; wirklich gelöscht werden?Dieser Vorgang ist nicht wiederrufbar!</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="250"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="254"/>
         <source>Create Folder</source>
         <translation>Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="250"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="254"/>
         <source>Enter a name for the new folder:</source>
         <translation>Geben Sie einen Namen für den meuen Ordner ein:</translation>
     </message>
@@ -945,12 +966,12 @@ This can not be undone!</source>
         <translation>Überschreiben</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="50"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="53"/>
         <source>Ctrl+Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="190"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="209"/>
         <source>F5</source>
         <translation type="unfinished"></translation>
     </message>
@@ -958,6 +979,17 @@ This can not be undone!</source>
         <location filename="../gui/widgetfilebrowser.cpp" line="134"/>
         <source>%1 items, %2 total, %3 available</source>
         <translation>%1 Objekte, %2 gesamt, %3 verfügbar</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../gui/widgetfilebrowser.cpp" line="230"/>
+        <source>Are you sure you want to delete the selected %n item(s)?
+This can not be undone!</source>
+        <translation>
+            <numerusform>Soll das ausgewählte Element wirklich gelöscht werden?
+Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
+            <numerusform>Sollen die ausgewählten %n Elemente wirklich gelöscht werden?
+Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1083,32 +1115,32 @@ Please enter a reason and press OK.</source>
 Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetForum.ui" line="79"/>
+        <location filename="../gui/WidgetForum.ui" line="85"/>
         <source>Send a private message</source>
         <translation>Private Nachricht senden</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetForum.ui" line="102"/>
+        <location filename="../gui/WidgetForum.ui" line="114"/>
         <source>Start a private chat</source>
         <translation>Privaten Chat starten</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetForum.ui" line="125"/>
+        <location filename="../gui/WidgetForum.ui" line="143"/>
         <source>Show information about user</source>
         <translation>Informationen über Benutzer anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetForum.ui" line="161"/>
+        <location filename="../gui/WidgetForum.ui" line="185"/>
         <source>Ban from server</source>
         <translation>Vom Server verbannen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetForum.ui" line="184"/>
+        <location filename="../gui/WidgetForum.ui" line="214"/>
         <source>Kick from server</source>
         <translation>Vom Server trennen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetForum.ui" line="207"/>
+        <location filename="../gui/WidgetForum.ui" line="243"/>
         <source>Invite to chat...</source>
         <translation>Zum Chat einladen...</translation>
     </message>
@@ -1121,17 +1153,17 @@ Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
         <translation>Neuigkeiten</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetNews.ui" line="33"/>
+        <location filename="../gui/WidgetNews.ui" line="28"/>
         <source>Refresh</source>
         <translation>Aktualisieren</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetNews.ui" line="63"/>
+        <location filename="../gui/WidgetNews.ui" line="58"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetNews.ui" line="70"/>
+        <location filename="../gui/WidgetNews.ui" line="65"/>
         <source>Post...</source>
         <translation>Veröffentlichen...</translation>
     </message>
@@ -1183,269 +1215,269 @@ Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
         <translation>Voreinstellungen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="26"/>
+        <location filename="../gui/WidgetPrefs.ui" line="34"/>
         <source>General</source>
         <translation>Generell</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="58"/>
+        <location filename="../gui/WidgetPrefs.ui" line="57"/>
         <source>Nickname:</source>
         <translation>Spitzname:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="87"/>
+        <location filename="../gui/WidgetPrefs.ui" line="86"/>
         <source>Status:</source>
         <translation>Status:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="116"/>
+        <location filename="../gui/WidgetPrefs.ui" line="115"/>
         <source>Icon:</source>
         <translation>Icon:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="165"/>
+        <location filename="../gui/WidgetPrefs.ui" line="164"/>
         <source>Drag&amp;Drop any Image
 max size 32x32 pixels</source>
         <translation>Drag&amp;Drop beliebiges Bild
 max Größe 32x32 Pixel</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="180"/>
+        <location filename="../gui/WidgetPrefs.ui" line="179"/>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1456"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1543"/>
         <source>Set...</source>
         <translation>Auswählen...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="244"/>
+        <location filename="../gui/WidgetPrefs.ui" line="251"/>
         <source>Interface</source>
         <translation>Erscheinungsbild</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="849"/>
+        <location filename="../gui/WidgetPrefs.ui" line="912"/>
         <source>Bookmarks</source>
         <translation>Favouriten</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1021"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1092"/>
         <source>Chat</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1425"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1512"/>
         <source>Files</source>
         <translation>Dateien</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1431"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1518"/>
         <source>Download Folder:</source>
         <translation>Downloadverzeichnis:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1463"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1550"/>
         <source>Transfers:</source>
         <translation>Übertragungen:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1473"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1560"/>
         <source>Queue Transfers</source>
         <translation>Übertragungen in lokale Warteschlange stellen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1508"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1603"/>
         <source>Trackers</source>
         <translation>Tracker</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1528"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1623"/>
         <source>New</source>
         <translation>Neu</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1538"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1633"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="939"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1002"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="952"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1015"/>
         <source>Address:</source>
         <translation>Adresse:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="965"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1028"/>
         <source>Login:</source>
         <translation>Login:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="978"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1041"/>
         <source>Password:</source>
         <translation>Passwort:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="995"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1058"/>
         <source>Auto-Connect at Startup</source>
         <translation>Automatisch Verbinden beim Start</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="272"/>
+        <location filename="../gui/widgetprefs.cpp" line="274"/>
         <source>Select Icon</source>
         <translation>Icon auswählen</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="272"/>
+        <location filename="../gui/widgetprefs.cpp" line="274"/>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Bilder (*.png *.xpm *.jpg)</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="301"/>
+        <location filename="../gui/widgetprefs.cpp" line="303"/>
         <source>Select Download Directory</source>
         <translation>Download-Verzeichnis auswählen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="718"/>
+        <location filename="../gui/WidgetPrefs.ui" line="765"/>
         <source>Text:</source>
         <translation>Text:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="285"/>
+        <location filename="../gui/WidgetPrefs.ui" line="300"/>
         <source>URLs:</source>
         <translation>URLs:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="295"/>
+        <location filename="../gui/WidgetPrefs.ui" line="310"/>
         <source>Chat Font:</source>
         <translation>Chat:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="305"/>
+        <location filename="../gui/WidgetPrefs.ui" line="320"/>
         <source>User List Font:</source>
         <translation>Benutzerliste:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="315"/>
+        <location filename="../gui/WidgetPrefs.ui" line="330"/>
         <source>Icon Size:</source>
         <translation>Icon Größe:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="747"/>
+        <location filename="../gui/WidgetPrefs.ui" line="794"/>
         <source>Background:</source>
         <translation>Hintergrund:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="379"/>
+        <location filename="../gui/WidgetPrefs.ui" line="394"/>
         <source>Events:</source>
         <translation>Ereignisse:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="409"/>
+        <location filename="../gui/WidgetPrefs.ui" line="424"/>
         <source>Large</source>
         <translation>Groß</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="438"/>
+        <location filename="../gui/WidgetPrefs.ui" line="453"/>
         <source>Alternating Row Background</source>
         <translation>Abwechselnde Hintergrundfarbe</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="631"/>
+        <location filename="../gui/WidgetPrefs.ui" line="662"/>
         <source>Messages</source>
         <translation>Nachrichten</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="489"/>
+        <location filename="../gui/WidgetPrefs.ui" line="512"/>
         <source>News</source>
         <translation>Neuigkeiten</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="520"/>
+        <location filename="../gui/WidgetPrefs.ui" line="543"/>
         <source>Titles:</source>
         <translation>Titel:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="530"/>
+        <location filename="../gui/WidgetPrefs.ui" line="553"/>
         <source>News Font:</source>
         <translation>News:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="657"/>
+        <location filename="../gui/WidgetPrefs.ui" line="696"/>
         <source>Files Font:</source>
         <translation>Dateien:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="824"/>
+        <location filename="../gui/WidgetPrefs.ui" line="879"/>
         <source>Use Alternating Row Background</source>
         <translation>Abwelchselnde Hintergrundfarbe verwenden</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="697"/>
+        <location filename="../gui/WidgetPrefs.ui" line="744"/>
         <source>Preview</source>
         <translation>Vorschau</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="728"/>
+        <location filename="../gui/WidgetPrefs.ui" line="775"/>
         <source>Preview Font:</source>
         <translation>Vorschauschrift:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1480"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1567"/>
         <source>Encrypt Transfers (slower on local networks)</source>
         <translation>Dateitransfers Verschlüsseln (langsamer im lokalen Netzwerk)</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1500"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1587"/>
         <source>Always Open Folders In New Windows</source>
         <translation>Ordner immer in neuem Fenster öffnen</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="281"/>
+        <location filename="../gui/widgetprefs.cpp" line="283"/>
         <source>Invalid File</source>
         <translation>Ungültige Datei</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="281"/>
+        <location filename="../gui/widgetprefs.cpp" line="283"/>
         <source>Could not open the selected image.</source>
         <translation>Konnte ausgewähltes Bild nicht öffnen.</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="416"/>
+        <location filename="../gui/WidgetPrefs.ui" line="431"/>
         <source>Small</source>
         <translation>Klein</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1565"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1660"/>
         <source>Tracker Settings</source>
         <translation>Tracker Einstellungen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1571"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1666"/>
         <source>Tracker Name:</source>
         <translation>Tracker-Name:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1584"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1679"/>
         <source>Tracker Address:</source>
         <translation>Tracker-Adresse:</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="399"/>
+        <location filename="../gui/widgetprefs.cpp" line="401"/>
         <source>New Tracker</source>
         <translation>Neuer Tracker</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="401"/>
+        <location filename="../gui/widgetprefs.cpp" line="403"/>
         <source>my.tracker.com</source>
         <translation>mein.tracker.de</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="217"/>
+        <location filename="../gui/WidgetPrefs.ui" line="216"/>
         <source>Application Language:
 (requires restart)</source>
         <translation>Programmsprache:
@@ -1457,7 +1489,7 @@ max Größe 32x32 Pixel</translation>
         <translation>Automatisch (Standard)</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="874"/>
+        <location filename="../gui/WidgetPrefs.ui" line="937"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -1465,7 +1497,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="892"/>
+        <location filename="../gui/WidgetPrefs.ui" line="955"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -1473,72 +1505,72 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1055"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1126"/>
         <source>Style:</source>
         <translation>Stil:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1067"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1138"/>
         <source>Qwired</source>
         <translation>Qwired</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1074"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1145"/>
         <source>IRC</source>
         <translation>IRC-Stil</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1096"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1167"/>
         <source>Settings:</source>
         <translation>Einstellungen:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1108"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1179"/>
         <source>Timestamp Every Line</source>
         <translation>Zeitstempel für jede Chat-Zeile</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1133"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1204"/>
         <source>Color:</source>
         <translation>Farbe:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1186"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1257"/>
         <source>Show Emoticons</source>
         <translation>Emoticons zeigen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1308"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1387"/>
         <source>Events</source>
         <translation>Ereignisse</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1350"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1429"/>
         <source>Play Sound:</source>
         <translation>Sound abspielen:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1369"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1448"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1378"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1457"/>
         <source>Display System Tray Message (requires Growl on Mac OS X)</source>
         <translation>Nachricht in der Task-Leiste zeigen (benötigt Growl auf Mac OS X)</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1385"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1464"/>
         <source>Post Event in Chat</source>
         <translation>Ereignis im Chat erwähnen</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1397"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1476"/>
         <source>Execute System Command:</source>
         <translation>Systembefehl/Skript ausführen:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1632"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1727"/>
         <source>Apply Changes</source>
         <translation>Anwenden</translation>
     </message>
@@ -1608,17 +1640,17 @@ p, li { white-space: pre-wrap; }
         <translation>Transfer abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="433"/>
+        <location filename="../gui/widgetprefs.cpp" line="435"/>
         <source>New Bookmark</source>
         <translation>Neues Lesezeichen</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="556"/>
+        <location filename="../gui/widgetprefs.cpp" line="558"/>
         <source>(none)</source>
         <translation>(kein)</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="551"/>
+        <location filename="../gui/widgetprefs.cpp" line="553"/>
         <source>Select WAV Sound File</source>
         <translation>WAV-Sound auswählen</translation>
     </message>

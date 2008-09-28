@@ -1352,7 +1352,6 @@ void WiredSocket::on_server_filelist_item(QList<QByteArray> params)
 	} else {
 		file.isIndexed = false;
 		pRecursiveFileListing.append(file);
-// 		qDebug() << "File listing:"<<file.path;
 	}
 }
 
