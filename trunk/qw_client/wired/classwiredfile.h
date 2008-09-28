@@ -25,14 +25,16 @@
 #include <QtCore>
 #include <QtGui>
 
-namespace Wired {
+namespace WiredTransfer {
 	enum FileType { RegularFile, Directory, Uploads, DropBox };
 }
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class ClassWiredFile {
+class ClassWiredFile
+{
+
 public:
     ClassWiredFile(QList<QByteArray> theParams);
     ClassWiredFile();
@@ -44,7 +46,7 @@ public:
     
     // Default parameters
     QString path;
-    int type;
+	WiredTransfer::FileType type;
     qlonglong size;
     QDateTime created;
     QDateTime modified;
@@ -52,6 +54,8 @@ public:
     // STAT parameters
     QString checksum;
     QString comment;
+
+	bool isIndexed; // used for recursive downloads
     
     QString fileName() const;
 	QIcon fileIcon() const;

@@ -23,8 +23,8 @@
 #define WIDGETFILEBROWSER_H
 
 //#include <QWidget>
-#include <QtCore>
-#include <QtGui>
+// #include <QtCore>
+// #include <QtGui>
 #include "ui_WidgetFileBrowser.h"
 #include "modelfilelist.h"
 #include "../wired/classwiredtransfer.h"

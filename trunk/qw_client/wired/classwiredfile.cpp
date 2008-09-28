@@ -25,7 +25,7 @@
 // Load data from the server file listing responses.
 ClassWiredFile::ClassWiredFile(QList<QByteArray> theParams) {
 	path = QString::fromUtf8( theParams.value(0) );
-	type = theParams.value(1).toInt();
+	type = (WiredTransfer::FileType)theParams.value(1).toInt();
 	size = theParams.value(2).toInt();
 	created = QDateTime::fromString( theParams.value(3), Qt::ISODate );
 	modified = QDateTime::fromString( theParams.value(4), Qt::ISODate );
@@ -38,9 +38,10 @@ ClassWiredFile::~ClassWiredFile()
 
 
 ClassWiredFile::ClassWiredFile() {
-	path="";
-	type=0;
-	size=0;
+	path = "";
+	type = WiredTransfer::RegularFile;
+	size = 0;
+	isIndexed = false;
 }
 
 // Return the name of the file without all the slashes.
@@ -50,7 +51,7 @@ QString ClassWiredFile::fileName() const {
 
 void ClassWiredFile::setFromStat(QList<QByteArray> theParams) {
 	path = QString::fromUtf8( theParams.value(0) );
-	type = theParams.value(1).toInt();
+	type = (WiredTransfer::FileType)theParams.value(1).toInt();
 	size = theParams.value(2).toInt();
 	created = QDateTime::fromString( theParams.value(3), Qt::ISODate );
 	modified = QDateTime::fromString( theParams.value(4), Qt::ISODate );
@@ -142,16 +143,16 @@ QIcon ClassWiredFile::fileIcon() const {
 	
 	QString tmpSuffix = this->fileName().section(".",-1,-1);
 	switch(this->type) {
-		case Wired::Directory:
+		case WiredTransfer::Directory:
 			return QIcon(":/icons/files/files-folder.png"); break;
 			
-		case Wired::DropBox:
+		case WiredTransfer::DropBox:
 			return QIcon(":/icons/files/files-dropbox.png"); break;
 			
-		case Wired::Uploads:
+		case WiredTransfer::Uploads:
 			return QIcon(":/icons/files/files-uploads.png"); break;
 
-		case Wired::RegularFile:
+		case WiredTransfer::RegularFile:
 		default:
 			if(tmpTypes.contains(tmpSuffix)) {
 				return QIcon(tmpTypes[tmpSuffix]);

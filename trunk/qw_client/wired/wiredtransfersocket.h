@@ -45,6 +45,7 @@ public:
     void setServer(QString theServer, int thePort);
     int pTransferLimit;
 	bool isActive();
+
     
 private:
 	void sendHandshake();
@@ -66,6 +67,7 @@ private:
 signals:
     void fileTransferStarted(const ClassWiredTransfer);
     void fileTransferDone(const ClassWiredTransfer);
+	void fileTransferFileDone(const ClassWiredTransfer);
     void fileTransferError(const ClassWiredTransfer);
     void fileTransferStatus(const ClassWiredTransfer);  
 	void fileTransferSocketError(QAbstractSocket::SocketError);

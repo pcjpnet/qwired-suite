@@ -26,6 +26,7 @@
 #include <QMetaType>
 
 #include "classwiredtransfer.h"
+#include "classwiredfile.h"
 #include <QCryptographicHash>
 
 namespace WiredTransfer {
@@ -50,6 +51,8 @@ public:
 		pQueuePosition = 0;
 		pEncryptTransfer = true;
 		pCurrentSpeed = 0;
+		pFilesDone = 0;
+		pFilesCount = 0;
 	};
 	
     ~ClassWiredTransfer()
@@ -67,33 +70,37 @@ public:
 		pTotalSize = orig.pTotalSize;
 		pDoneSize = orig.pDoneSize;
 		pQueuePosition = orig.pQueuePosition;
-    
+
+		pRemoteFolder = orig.pRemoteFolder;
+		pLocalRoot = orig.pLocalRoot;
+		fileList = orig.fileList;
+		pFileStatus = orig.pFileStatus;
+		pFilesDone = orig.pFilesDone;
+		pFilesCount = orig.pFilesCount;
+		
 		pEncryptTransfer = orig.pEncryptTransfer;
 		pCurrentSpeed = orig.pCurrentSpeed;
 	};
 
 	
-    void calcLocalChecksum()
-	{
+    void calcLocalChecksum() {
 		QFile tmpFile(pLocalPath);
-		if( tmpFile.open(QIODevice::ReadOnly) ) {
+		if(!tmpFile.open(QIODevice::ReadOnly) ) return;
 		// If file exists, calculate the hash.
-			QByteArray tmpData = tmpFile.read(1024*1024); // 1MB for the hash
-			QByteArray tmpHash = QCryptographicHash::hash(tmpData, QCryptographicHash::Sha1);
-			pChecksum = tmpHash.toHex();
-			qDebug() << "Hash of"<<pLocalPath<<"="<<pChecksum<<"size"<<tmpFile.size();
-			tmpFile.close();
-		}
+		QByteArray tmpData = tmpFile.read(1024*1024); // 1MB for the hash
+		QByteArray tmpHash = QCryptographicHash::hash(tmpData, QCryptographicHash::Sha1);
+		pChecksum = tmpHash.toHex();
+		tmpFile.close();
 	};
 
 	
-	QString fileName() const
-	{
+	QString fileName() const {
 		return pRemotePath.section("/", -1);
 	};
 
 
 	WiredTransfer::TransferStatus pStatus; // 0=waiting for stat, 1=queued/waiting, 2=running, 3=done/end
+	
 	QString pLocalPath; // path to file on local disk
 	QString pRemotePath; // path to file on server
 	QString pHash; // hash for the file transfer
@@ -105,11 +112,23 @@ public:
 	int pQueuePosition; // position within the queue
 	bool pEncryptTransfer; // if true, transfer will be encrypted
 	int pCurrentSpeed; // the current speed, updated during transfer, otherwise 0
-    
+
+	QString pRemoteFolder; // remote folder path for folder transfers
+	QString pLocalRoot; // local root dir for folder transfers
+	QList<ClassWiredFile> fileList; // for folder downloads
+	WiredTransfer::TransferStatus pFileStatus; // Status for folder transfers
+
+	int pFilesCount; // finished file counter for folder transfers
+	int pFilesDone; // total number of files for folder transfer
+
+	
+
+	
     
 };
 
 Q_DECLARE_METATYPE(ClassWiredTransfer)
+
 
 
 #endif

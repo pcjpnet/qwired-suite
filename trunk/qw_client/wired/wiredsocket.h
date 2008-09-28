@@ -97,7 +97,13 @@ class WiredSocket : public QObject
 		void connectToTracker(QString theHostName, int thePort=2002);
 
 		// File Transfers
+		bool pIndexingFiles; // true if the client is indexing server fails
+		QList<ClassWiredFile> pRecursiveFileListing;
+		QString pRecursivePath;
+		
 		bool isTransferringFileOfType(WiredTransfer::TransferType type);
+
+		void proceedFolderDownload(WiredTransferSocket *);
 		
 		
 	public slots:
@@ -121,7 +127,9 @@ class WiredSocket : public QObject
 		void editUser(ClassWiredUser);
 		void getClientInfo(int theUserID);
 		void getFile(const QString thePath, const QString theLocalPath, const bool queueLocally);
+		void getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally);
 		void getFileList(QString thePath);
+		void getFileListRecusive(const QString &path);
 		void getGroups();
 		void getNews();
 		void getPrivileges();
@@ -157,6 +165,8 @@ class WiredSocket : public QObject
 		void on_socket_encrypted();
 		void on_socket_readyRead();
 		void on_socket_sslErrors(const QList<QSslError> &errors);
+		void on_server_filelist_item(QList<QByteArray>);
+		void on_server_filelist_done(QList<QByteArray>);
 		void on_server_userlist_item(QList<QByteArray>);
 		void on_server_userlist_changed(QList<QByteArray>);
 		void on_server_userlist_imagechanged(QList<QByteArray>);
@@ -187,134 +197,77 @@ class WiredSocket : public QObject
 		//
 		void on_tracker_listing_item(QList<QByteArray> theParams);
 		void on_tracker_listing_done();
+
+		// Transfers
+		//
+		void fileTransferFileDone(const ClassWiredTransfer);
 		
 	signals:
 		void onSocketError(QAbstractSocket::SocketError);
 		void onServerInformation();
 		
 		void onServerLoginSuccessful();
-		/// This signal is emitted if the server has sent a server banner.
 		void onServerBanner(const QPixmap);
-		/// This signal is emitted once of every registered user in the chat identified by theChatID.
-		/// After all users have been transmitted, a onServerUserlistDone() signal is emitted.
+		
 		void onServerUserlistItem(int theChatID, const ClassWiredUser);
-		/// This signal is emitted once all users of a chat have been transmitted.
 		void onServerUserlistDone(int theChatID);
-		/// This signal is emitted if the status of a user changes on the server.
-		/// theOld contains the old user record, theNew contains the new one.
 		void onServerUserChanged(const ClassWiredUser theOld, const ClassWiredUser theNew);
-		/// This signal is emitted everytime a user joins a specific chat or the server.
 		void onServerUserJoined(int theChatID, const ClassWiredUser theUser);
-		/// This signal is emitted everytime a user leaves a specific chat or the server.
 		void onServerUserLeft(int theChatID, const ClassWiredUser theUser);
-		/// This signal is emitted everytime a user writes into the chat idenitified by
-		/// theChatID.
+		void onServerUserKicked(ClassWiredUser theVictim, ClassWiredUser theKiller, QString theReason);
+		void onServerUserBanned(ClassWiredUser theVictim, ClassWiredUser theKiller, QString theReason);
+		void onServerUserInfo(ClassWiredUser theUser);
+		
 		void onServerChat(int theChatID, int theUserID, QString theText, bool theIsAction);
+		void onChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
+		void onPrivateMessage(ClassWiredUser theUser, QString theMessage);
+		void onServerBroadcast(ClassWiredUser theUser, QString theMessage);
+		
+		void onServerPrivateChatCreated(int theChatID);
+		void onServerPrivateChatInvitation(int theChatID, ClassWiredUser theUser);
+		
 		void onServerNews(QString theNick, QString theTime, QString thePost);
-		/// This signal is emitted for each news item in the server's news list.
-		/// A onServerNewsDone() signal will follow once all items have been transmitted.
 		void onServerNewsPosted(QString theNick, QString theTime, QString thePost);
-		/// This signal is emitted after the complete list of news items has been transmitted.
 		void onServerNewsDone();
 
-		/// This signal is emitted after receiving the topic of a chat from the server.
-		/// This usually happens after a successful chatJoin command or after logging in.
-		void onChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
-		/// This signal is emitted whenever a user sends a private message.
-		void onPrivateMessage(ClassWiredUser theUser, QString theMessage);
-		/// This signal is emitted if a user has been kicked off the server.
-		void onServerUserKicked(ClassWiredUser theVictim, ClassWiredUser theKiller, QString theReason);
-		/// This signal is emitted if a user has been banned from the server.
-		void onServerUserBanned(ClassWiredUser theVictim, ClassWiredUser theKiller, QString theReason);
-		
-		/// This signal is emitted in response to the the Get User Info request. It provides a fully blown user
-		/// object with all available user information.
-		void onServerUserInfo(ClassWiredUser theUser);
-		/// This signal is emitted if another user has invited this user to a private chat.
-		/// Provided is the new chat ID and the reference of the inviting user.
-		/// The client should respond with a doAcceptPrivateChat() or rejectChat()
-		/// command. Another possibility is to ignore the event.
-		void onServerPrivateChatInvitation(int theChatID, ClassWiredUser theUser);
-		/// This signal is emitted after the server has successfully created a private chat for us.
-		void onServerPrivateChatCreated(int theChatID);
-		/// This signal is emitted everytime an administrator broadcasts a message to all users on
-		/// the server.
-		void onServerBroadcast(ClassWiredUser theUser, QString theMessage);
-		/// This signal is emitted for each file in a directory after the LIST command.
-		void onFilesListItem(ClassWiredFile file);
-		/// This signal is emitted after all items of a directory have been listed.
-		void onFilesListDone(QString thePath, qlonglong theFreeSpace);
 
-		
-		/// A file transfer is ready. In response to PUT and GET.
+		void fileSearchDone(QList<ClassWiredFile> theResults);
+		void onFilesListItem(ClassWiredFile file);
+		void onFilesListDone(QString thePath, qlonglong theFreeSpace);
+		void onFilesListRecursiveDone(const QList<ClassWiredFile>);
 		void onServerFileTransferReady(ClassWiredTransfer theTransfer);
-		/// A file transfer request has been queued or changed it's position in the queue.
 		void onServerFileTransferQueued(ClassWiredTransfer theTransfer);
-		/// A file information response. In response to STAT.
 		void onServerFileInfo(ClassWiredFile theFile);
-		
+
 		void fileTransferDone(const ClassWiredTransfer theTransfer);
 		void fileTransferStarted(const ClassWiredTransfer theTransfer);
 		void fileTransferError(const ClassWiredTransfer theTransfer);
 		void fileTransferStatus(const ClassWiredTransfer theTransfer);
 
-		/// A search has completed and theResults contains the list of results.
-		void fileSearchDone(QList<ClassWiredFile> theResults);
-
-		/// All groups have been received from the server (admin mode) and can be displayed
-		/// to the user.
 		void groupsListingDone(QStringList theGroups);
-
-		/// All account names have been received from the server (admin mode) and can be displayed
-		/// to the user.
 		void usersListingDone(QStringList theAccounts);
 
 		/// Received the details of a group.
 		void userSpecReceived(ClassWiredUser);
 
-		/// Received the details of a user account.
 		void groupSpecReceived(ClassWiredUser);
-
-		
-		/// Emitted after a failed attempt to log into the Wired server because the user was banned.
 		void errorBanned();
-		/// Login failed. The user provided the wrong name or password.
 		void errorLoginFailed();
-		/// This signal is emitted on 516 Permission Denied.
 		void errorPermissionDenied();
-		/// The specified file was not found on the server.
 		void errorFileNotFound();
-		/// This signal is emitted if a command has been sent to the server, but the target client is not
-		/// connected to the server anymore.
 		void errorClientNotFound();
-		/// The server file transfer queue has been exceeded.
 		void errorQueueLimitExceeded();
-		/// Undefined internal error caused the last command to fail.
 		void errorCommandFailed();
-		/// The last command was unknown to the server.
 		void errorCommandNotRecognized();
-		/// The last command was known, but not implemented in the server. (Version mismatch?)
 		void errorCommandNotImplemented();
-		/// The command is known by the server, but it has the wrong syntax.
 		void errorCommandSyntaxError();
-		/// Last request for account specs failed, the account was not found.
 		void errorAccountNotFound();
-		/// The account could not be created because it already exists.
 		void errorAccountExists();
-		/// Can not be disconnected (Ban or Kick response)
 		void errorCanNotBeDisconnected();
-		/// Can not put file, the file already exists.
 		void errorFileExists();
-		/// The checksums of a file do not match.
 		void errorChecksumMismatch();
-		/// This signal is emitted whenever a protocol-level error occours (5xx messages) before the
-		/// dedicated signal is fired (errorXY). A error number is provided.
 		void errorOccoured(int theError);
-
-		/// Emitted when the server sends the privileges of the current session.
 		void userPrivileges(const ClassWiredUser theSession);
-
-		/// Emitted when a file transfer socket fails to connect to the remote host.
 		void fileTransferSocketError(QAbstractSocket::SocketError);
 		
 		// TRACKER

@@ -29,35 +29,28 @@ void WiredTransferSocket::run() {
 }
 
 
-
-
 /// Send the TRANSFER handshake.
 void WiredTransferSocket::sendHandshake()
 {
 	qDebug() << this << "Sending handshake for TRANSFER"<<pTransfer.pHash;;
 	QByteArray tmpCmd("TRANSFER ");
-	tmpCmd += pTransfer.pHash;
-	tmpCmd += 0x04; // EOT
+	tmpCmd += pTransfer.pHash + char(0x04);
 	pSocket->write(tmpCmd);
 	pSocket->waitForBytesWritten();
 
-	if(pTransfer.pTransferType == WiredTransfer::TypeUpload)
+	if(pTransfer.pTransferType==WiredTransfer::TypeUpload)
 			uploadData();
-	else	downloadData();
+	  else	downloadData();
 
-	emit fileTransferDone(pTransfer);
+	if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
+			emit fileTransferFileDone(pTransfer);
+	  else	emit fileTransferDone(pTransfer);
+	  
 	killTransfer();
 }
 
 
-void WiredTransferSocket::killTransfer() {
-	if(pSocket && pSocket->state()==QAbstractSocket::ConnectedState ) {
-		qDebug() << this << "Disconnecting thread";
-		pSocket->close();
-	}
-	qDebug() << this << "Thread finished.";
-//  	this->deleteLater();
-}
+
 
 
 /// Begin to download the data
@@ -65,8 +58,13 @@ void WiredTransferSocket::downloadData()
 {
 	int timerInterval = 500;
 	pTimer.start();
+	
 	qDebug() << this << "Starting download of data.";
-	pTransfer.pStatus = WiredTransfer::StatusActive;
+	
+	if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
+			pTransfer.pFileStatus = WiredTransfer::StatusActive;
+	else	pTransfer.pStatus = WiredTransfer::StatusActive;
+	
 	while(1) {
 		pSocket->waitForReadyRead();
 		QByteArray data = pSocket->readAll();
@@ -80,8 +78,14 @@ void WiredTransferSocket::downloadData()
 			qDebug() << this << "Transfer completed.";
 			pSocket->disconnectFromHost();
 			pSocket->waitForDisconnected();
-
 			pSocket->close();
+
+			if(pTransfer.pTransferType==WiredTransfer::TypeDownload
+				|| pTransfer.pTransferType==WiredTransfer::TypeFolderDownload) {
+				QFile tmpFile(pTransfer.pLocalPath+QString(".WiredTransfer"));
+				if(tmpFile.exists())
+					tmpFile.rename(pTransfer.pLocalPath);
+			}
 			break;
 		}
 
@@ -94,17 +98,29 @@ void WiredTransferSocket::downloadData()
 		}
 
 	}
-	pTransfer.pStatus = WiredTransfer::StatusDone;
+
+	
+
+	if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
+			pTransfer.pFileStatus = WiredTransfer::StatusDone;
+	else	pTransfer.pStatus == WiredTransfer::StatusDone;
+	
 	qDebug() << this << "End of loop. Closing file.";
 
 	// Close file
 	pFile->flush();
-	pFile->close();
-
-// 	emit fileTransferDone(pTransfer);
-	
+	pFile->close();	
  	
 	killTransfer();
+}
+
+
+void WiredTransferSocket::killTransfer() {
+	if(pSocket && pSocket->state()==QAbstractSocket::ConnectedState ) {
+		qDebug() << this << "Disconnecting thread";
+		pSocket->close();
+	}
+	qDebug() << this << "Thread finished.";
 }
 
 
@@ -113,21 +129,14 @@ void WiredTransferSocket::uploadData()
 {
 	int timerInterval = 500;
 	pTimer.start();
-// 	qDebug() << this << "Starting upload of data.";
 	pTransfer.pStatus = WiredTransfer::StatusActive;
 	while(1) {
-		//qDebug() << this << "X: Reading from file";
-		
 		if(pFile->atEnd()) {
-// 			qDebug() << this << "Transfer completed. Wait by bytes written. FileAtEnd:"<<pFile->atEnd()<<"Wrote:"<<pTransfer.pDoneSize<<"of"<<pTransfer.pTotalSize;
 			pSocket->disconnectFromHost();
-// 			qDebug() << this << "X: Wait for disconnected";
 			pSocket->waitForDisconnected();
-// 			qDebug() << this << "X: Close()";
 			pSocket->close();
 			break;
 		}
-		
 		QByteArray data = pFile->read(1024*100);
 		if(!data.isEmpty()) {
 			pSocket->write(data);
@@ -159,18 +168,18 @@ WiredTransferSocket::~WiredTransferSocket() {
 void WiredTransferSocket::startTransfer()
 {
 	emit fileTransferStarted(pTransfer);
-	if( pTransfer.pTransferType == WiredTransfer::TypeDownload) {
+	if( pTransfer.pTransferType == WiredTransfer::TypeDownload || pTransfer.pTransferType == WiredTransfer::TypeFolderDownload ) {
 		QString tmpPath = pTransfer.pLocalPath+QString(".WiredTransfer");
 		pFile = new QFile(tmpPath);
 		if( !pFile->open(QIODevice::Append) ) {
-			qDebug() << this << " Unable to open the file:"<<tmpPath<<":"<<pFile->errorString();
+			qDebug() << this << "Unable to open the file:"<<tmpPath<<":"<<pFile->errorString();
 			return;
 		}
 
 	} else if(pTransfer.pTransferType == WiredTransfer::TypeUpload) {
 		pFile = new QFile(pTransfer.pLocalPath);
 		if(!pFile->open(QIODevice::ReadOnly) ) {
-			qDebug() << this << " Unable to open the file:"<<pTransfer.pLocalPath<<":"<<pFile->errorString();
+			qDebug() << this << "Unable to open the file:"<<pTransfer.pLocalPath<<":"<<pFile->errorString();
 			return;
 		}
 		pFile->seek(pTransfer.pOffset);
@@ -203,8 +212,7 @@ void WiredTransferSocket::startTransfer()
 
 
 /// Set the server address and port.
-void WiredTransferSocket::setServer(QString theServer, int thePort)
-{
+void WiredTransferSocket::setServer(QString theServer, int thePort) {
 	pServerHost = theServer;
 	pServerPort = thePort+1; // n+1 for file transfers
 }
@@ -220,8 +228,7 @@ void WiredTransferSocket::cancelTransfer() {
 
 
 /// Update current speed
-void WiredTransferSocket::calculateSpeed()
-{
+void WiredTransferSocket::calculateSpeed() {
 	qlonglong tmpDiff = pTransfer.pDoneSize-pLastDone; // difference between past and now
 	int tmpTime = pTimer.restart(); // time difference
 
@@ -237,5 +244,7 @@ void WiredTransferSocket::calculateSpeed()
 	pLastDone = pTransfer.pDoneSize;
 	emit fileTransferStatus(pTransfer);
 }
+
+
 
 

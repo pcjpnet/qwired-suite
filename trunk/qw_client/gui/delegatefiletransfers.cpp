@@ -76,11 +76,17 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	font.setPixelSize(11);
 	QFontMetrics fontmetrics(font);
 	painter->setFont(font);
-	painter->drawText( 10+32+8, 10+fontmetrics.ascent(), tmpT.fileName());
+	if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
+			painter->drawText( 10+32+8, 10+fontmetrics.ascent(), tmpT.pRemoteFolder.section("/",-1,-1) );
+	else	painter->drawText( 10+32+8, 10+fontmetrics.ascent(), tmpT.fileName());
 	
 	// Set up the progressbar
-	int progress = (float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100;
-	progressBarOption.progress = progress < 0 ? 0 : progress;
+	int progress=0;
+	if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
+			progress = (float(tmpT.pFilesDone)/float(tmpT.pFilesCount))*100;
+	else	progress = (float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100;
+	
+	progressBarOption.progress = progress<0 ? 0 : progress;
 
 	if(tmpT.pStatus == WiredTransfer::StatusActive) {
 		QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
@@ -90,7 +96,9 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	} else if(tmpT.pStatus==WiredTransfer::StatusDone) {
 		painter->drawText(tmpX, 40, tr("Completed"));
 	} else if(tmpT.pStatus==WiredTransfer::StatusWaitingForStat) {
-		painter->drawText(tmpX, 40, tr("Requesting transfer slot..."));
+		if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
+				painter->drawText(tmpX, 40, tr("Indexing files and directories..."));
+		else	painter->drawText(tmpX, 40, tr("Requesting transfer slot..."));
 	} else if(tmpT.pStatus==WiredTransfer::StatusQueued) {
 		painter->drawText(tmpX, 40, tr("Queued (at position %1)").arg(tmpT.pQueuePosition));
 	}
@@ -109,6 +117,9 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	} else if(tmpT.pStatus == WiredTransfer::StatusActive) {
 		if(tmpT.pTransferType == WiredTransfer::TypeDownload) {
 			painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/go-down.png"));
+		} else if(tmpT.pTransferType == WiredTransfer::TypeFolderDownload) {
+			painter->drawPixmap(-3, -3, QPixmap(":/icons/32x32/go-down.png"));
+			painter->drawPixmap(3, 3, QPixmap(":/icons/32x32/go-down.png"));
 		} else if(tmpT.pTransferType == WiredTransfer::TypeUpload) {
 			painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/go-up.png"));
 		}
@@ -119,12 +130,16 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	font.setBold(false);
 	painter->setFont(font);
 
-	if(tmpT.pStatus==2) {
+	if(tmpT.pStatus==WiredTransfer::StatusActive) {
+		QString moreInfo;
+		if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
+			moreInfo += tr(" [%2 files remaining]").arg(tmpT.pFilesCount-tmpT.pFilesDone);
+		
 		painter->drawText( 10+32+8, 10+fontmetrics.height()+fontmetrics.ascent(),
-						tr("%1 of %2 completed (%3%)")
-							.arg(ClassWiredFile::humanReadableSize(tmpT.pDoneSize))
-							.arg(ClassWiredFile::humanReadableSize(tmpT.pTotalSize))
-							.arg(progress) );
+			tr("%1 of %2 completed (%3%) %4")
+				.arg(ClassWiredFile::humanReadableSize(tmpT.pDoneSize))
+				.arg(ClassWiredFile::humanReadableSize(tmpT.pTotalSize))
+				.arg(progress).arg(moreInfo) );
 	}
 	
 	// Bottom Line

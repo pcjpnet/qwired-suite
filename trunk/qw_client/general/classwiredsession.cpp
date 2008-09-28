@@ -184,6 +184,7 @@ void ClassWiredSession::setupConnections() {
 	connect(pWiredSocket, SIGNAL(fileTransferStarted(const ClassWiredTransfer)), this, SLOT(transferStarted(ClassWiredTransfer)) );
 	connect(pWiredSocket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
 	connect(pWiredSocket, SIGNAL(fileTransferError(const ClassWiredTransfer)), this, SLOT(transferError(ClassWiredTransfer)) );
+	connect(pWiredSocket, SIGNAL(onFilesListRecursiveDone(const QList<ClassWiredFile>)), this, SLOT(fileListingRecursiveDone(const QList<ClassWiredFile>)));
 	
 	// Main Window actions
 	//
@@ -916,6 +917,17 @@ void ClassWiredSession::downloadFile(const QString &remotePath, const QString &l
 		pWiredSocket->runTransferQueue(WiredTransfer::TypeDownload);
 }
 
+void ClassWiredSession::downloadFolder(const QString &remotePath, const QString &localPath)
+{
+	QSettings s;
+	pWiredSocket->getFolder(remotePath, localPath, true);
+	bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeFolderDownload);
+	bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
+	if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+		pWiredSocket->runTransferQueue(WiredTransfer::TypeFolderDownload);
+}
+
+
 void ClassWiredSession::uploadFile(const QString &localPath, const QString &remotePath)
 {
 	QSettings s;
@@ -925,4 +937,29 @@ void ClassWiredSession::uploadFile(const QString &localPath, const QString &remo
 	if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
 		pWiredSocket->runTransferQueue(WiredTransfer::TypeUpload);
 }
+
+
+void ClassWiredSession::fileListingRecursiveDone(const QList<ClassWiredFile> items)
+{
+	qlonglong totalSize = 0;
+	int totalFolders = 0;
+	int totalFiles = 0;
+	QListIterator<ClassWiredFile> i(items);
+	while(i.hasNext()) {
+		ClassWiredFile file = i.next();
+		totalSize += file.size;
+		totalFolders += file.type==WiredTransfer::Directory || file.type==WiredTransfer::Uploads
+				|| file.type==WiredTransfer::DropBox ? 1 : 0;
+		totalFiles += file.type==WiredTransfer::RegularFile ? 1 : 0;
+	}
+
+	QMessageBox::StandardButton button = QMessageBox::question(0,
+		tr("Folder Download"),
+		tr("You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.\nDo you want to begin the transfer?")
+				.arg(totalFiles).arg(totalFolders).arg(ClassWiredFile::humanReadableSize(totalSize)),
+			   QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+	if(button == QMessageBox::No) return;
+	
+}
+
 
