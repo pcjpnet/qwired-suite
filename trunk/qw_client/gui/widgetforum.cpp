@@ -219,7 +219,7 @@ void WidgetForum::writeToChat(QString theUser, QString theText, bool theEmote) {
 			if(!tmpSpace.isNull()) {
 				tmpTC.setPosition(tmpSpace.position()-1, QTextCursor::KeepAnchor);
 			} else {
-				tmpTC.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+				tmpTC.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 			}
 			QString tmpUrl = tmpTC.selectedText();
 			tmpTC.insertHtml(QString("<a href=\"%1\">%1</a>").arg(tmpUrl));
