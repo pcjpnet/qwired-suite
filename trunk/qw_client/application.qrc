@@ -3,6 +3,7 @@
     <file alias="lang_de.qm">lang/lang_de.qm</file>
     <file alias="lang_it.qm">lang/lang_it.qm</file>
     <file alias="lang_pt.qm">lang/lang_pt.qm</file>
+    <file alias="lang_es.qm">lang/lang_es.qm</file>
     <file alias="lang_fr.qm">lang/lang_fr.qm</file>
 
 	<file>icons/32x32/network-server.png</file>
