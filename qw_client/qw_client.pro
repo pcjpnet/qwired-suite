@@ -46,7 +46,8 @@ SOURCES += general/main.cpp \
  gui/widgetaccounts.cpp \
  gui/WidgetTracker.cpp \
  general/wiredsingleton.cpp \
- gui/widgetserverinfo.cpp
+ gui/widgetserverinfo.cpp \
+ gui/widgetmessages.cpp
 FORMS += gui/WinMain.ui \
  gui/WidgetForum.ui \
  gui/WidgetNews.ui \
@@ -63,7 +64,8 @@ FORMS += gui/WinMain.ui \
  gui/WidgetTracker.ui \
  gui/WidgetAboutQwired.ui \
  gui/WidgetAbout.ui \
- gui/WidgetNewsPost.ui
+ gui/WidgetNewsPost.ui \
+ gui/WidgetMessages.ui
 HEADERS += general/classwiredsession.h \
  wired/classwireduser.h \
  gui/connwindow.h \
@@ -96,4 +98,5 @@ HEADERS += general/classwiredsession.h \
  gui/WidgetTracker.h \
  wired/classtrackerserver.h \
  gui/widgetabout.h \
- gui/WidgetNewsPost.h
+ gui/WidgetNewsPost.h \
+ gui/widgetmessages.h
