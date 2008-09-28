@@ -30,6 +30,7 @@ WiredSocket::WiredSocket(QObject *parent)
 	pSocket->setProtocol(QSsl::TlsV1);
 	pClientName = "Qwired SVN";
 	pClientVersion = QWIRED_VERSION;
+	pIndexingFiles = false;
 	connect( pSocket, SIGNAL(encrypted()), this, SLOT(on_socket_encrypted()) );
 	connect( pSocket, SIGNAL(readyRead()), this, SLOT(on_socket_readyRead()) );
 	connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>))); 
@@ -156,8 +157,8 @@ void WiredSocket::do_handle_wiredmessage(QByteArray theData) {
 		case 400: on_server_transfer_ready(tmpParams); break; // File transfer ready
 		case 401: on_server_transfer_queued(tmpParams); break; // File transfer queued/status
 		case 402: on_server_file_info(tmpParams); break; // File Information
-		case 410: emit onFilesListItem( ClassWiredFile(tmpParams) ); break; // File listing item
-		case 411: emit onFilesListDone( QString::fromUtf8( tmpParams.value(0) ), tmpParams.value(1).toLongLong() ); break;
+		case 410: on_server_filelist_item(tmpParams); break;
+		case 411: on_server_filelist_done(tmpParams); break;
 
 		case 420: on_server_search_listing(tmpParams); break;
 		case 421: on_server_search_done(tmpParams); break;
@@ -489,40 +490,22 @@ void WiredSocket::sendPrivateMessage(int theUserID, QString theMessage) {
 	if(pIzCaturday)
 		theMessage = tranzlate(theMessage);
 	
-	if( theUserID==0 ) {
-		// Broadcast Message
-		QByteArray buf("BROADCAST ");
-		buf += theMessage.toUtf8();
-		sendWiredCommand(buf);
-	} else {
-		// Send a private message to a user.
+	if(theUserID==0) { // Broadcast Message
+		sendWiredCommand(QByteArray("BROADCAST ")+theMessage.toUtf8());
+	} else { // Send a private message to a user.
 		QByteArray buf("MSG ");
 		buf += QByteArray::number(theUserID).append(kFS).append(theMessage.toUtf8());
 		sendWiredCommand(buf);
 	}
 }
 
-
-
-
-
-void WiredSocket::leaveChat(int theChatID)
-{
-	// Leave a private chat.
-	QByteArray buf("LEAVE ");
-	buf += QByteArray::number(theChatID);
-	sendWiredCommand(buf);
-	
-	// Remove chat array
+void WiredSocket::leaveChat(int theChatID) {
+	sendWiredCommand(QByteArray("LEAVE ")+QByteArray::number(theChatID));
 	if( pUsers.contains(theChatID) )
 		pUsers.remove(theChatID);
 }
 
-
-
-
-void WiredSocket::on_server_userlist_kicked(QList<QByteArray> theParams)
-{
+void WiredSocket::on_server_userlist_kicked(QList<QByteArray> theParams) {
 	// A user got kicked from the server.
 	ClassWiredUser tmpVictim = getUserByID(theParams.value(0).toInt());
 	ClassWiredUser tmpKiller = getUserByID(theParams.value(1).toInt());
@@ -545,8 +528,7 @@ void WiredSocket::on_server_userlist_kicked(QList<QByteArray> theParams)
 	emit onServerUserKicked(tmpVictim, tmpKiller, tmpReason);
 }
 
-void WiredSocket::on_server_userlist_banned(QList< QByteArray > theParams)
-{
+void WiredSocket::on_server_userlist_banned(QList<QByteArray> theParams) {
 	// A user got kicked from the server.
 	ClassWiredUser tmpVictim = getUserByID(theParams.value(0).toInt());
 	ClassWiredUser tmpKiller = getUserByID(theParams.value(1).toInt());
@@ -569,24 +551,19 @@ void WiredSocket::on_server_userlist_banned(QList< QByteArray > theParams)
 	emit onServerUserBanned(tmpVictim, tmpKiller, tmpReason);
 }
 
-void WiredSocket::on_server_userinfo(QList< QByteArray > theParams)
-{
+void WiredSocket::on_server_userinfo(QList<QByteArray> theParams) {
 	// Received user info from the server.
 	ClassWiredUser usr = ClassWiredUser::fromUserInfo(theParams);
 	emit onServerUserInfo(usr);
-	
-	
 }
 
-void WiredSocket::createChatWithClient(int theUserID)
-{
+void WiredSocket::createChatWithClient(int theUserID) {
 	// Initiate a new private chat with a specific user.
 	pInvitedUserID = theUserID;
 	sendWiredCommand("PRIVCHAT");
 }
 
-void WiredSocket::on_server_new_chat_created(QList<QByteArray> theParams)
-{
+void WiredSocket::on_server_new_chat_created(QList<QByteArray> theParams) {
 	// Server opened a new private chat for us. We now invite the user we have stored in pInvitedUserID before.
 	int tmpChatID = theParams.value(0).toInt();
 	
@@ -602,16 +579,12 @@ void WiredSocket::on_server_new_chat_created(QList<QByteArray> theParams)
 // Invite a user to a private chat.
 void WiredSocket::inviteClientToChat(int theChatID, int theUserID) {
 	QByteArray buf("INVITE ");
-	buf += QByteArray::number(theUserID);
-	buf += kFS;
+	buf += QByteArray::number(theUserID) + char(kFS);
 	buf += QByteArray::number(theChatID);
 	sendWiredCommand(buf);
 }
 
-// Request the server banner.
-void WiredSocket::getServerBanner() {
-	 sendWiredCommand("BANNER");
-}
+void WiredSocket::getServerBanner() { sendWiredCommand("BANNER"); }
 
 void WiredSocket::on_server_banner(QList< QByteArray > theParams) {
 	QPixmap banner;
@@ -631,16 +604,10 @@ void WiredSocket::on_server_broadcast(QList< QByteArray > theParams)
 }
 
 // Request to clear the news from the server's database
-void WiredSocket::clearNews() {
-	sendWiredCommand("CLEARNEWS");
-}
+void WiredSocket::clearNews() { sendWiredCommand("CLEARNEWS"); }
 
 void WiredSocket::getFileList(QString thePath) {
-	// Request a file listing of all files at thePath.
-	// Results in a number of 410 and one 411 responses.
-	QByteArray buf("LIST ");
-	buf += thePath.toUtf8();
-	sendWiredCommand(buf);
+	sendWiredCommand(QByteArray("LIST ")+thePath.toUtf8());
 }
 
 void WiredSocket::setUserIcon(QPixmap theIcon) {
@@ -669,13 +636,38 @@ void WiredSocket::on_socket_error(QAbstractSocket::SocketError error)
 	emit onSocketError(error);
 }
 
-/**
- * Request a file download slot from the server. WiredSocket checks if the file already exists, 
- * calculates a checksum for it and resumes it, if possible. Internally WiredSocket will request
- * a STAT on the file before starting the transfer.
- * @param thePath The remote path of the file to be downloaded.
- * @param theLocalPath The destination path of the file on the local system.
- */
+
+void WiredSocket::getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally)
+{
+	// Check for duplicate downloads
+	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
+	while(i.hasNext()) {
+		WiredTransferSocket *tmpT = i.next();
+		if(!tmpT) continue;
+		if(tmpT->pTransfer.pRemotePath==remotePath) return;
+	}
+	
+	WiredTransferSocket *tmpSock = new WiredTransferSocket;
+	pTransferSockets.append(tmpSock);
+
+	tmpSock->pTransfer.pTransferType = WiredTransfer::TypeFolderDownload;
+	tmpSock->pTransfer.pRemotePath = remotePath;
+// 	tmpSock->pTransfer.pLocalPath = localPath;
+	tmpSock->pTransfer.pLocalRoot = localPath;
+	
+	connect(tmpSock, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SIGNAL(fileTransferDone(ClassWiredTransfer)));
+	connect(tmpSock, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SIGNAL(fileTransferError(ClassWiredTransfer)));
+	connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));
+	connect(tmpSock, SIGNAL(fileTransferFileDone(ClassWiredTransfer)), this, SLOT(fileTransferFileDone(ClassWiredTransfer))); // for folder transfers
+	connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
+
+	tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
+	tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
+	qDebug() << "Transfer Phase 1/3: LocalQueued:"<<remotePath<<"to"<<localPath;
+	emit fileTransferStarted(tmpSock->pTransfer);
+}
+
+
 void WiredSocket::getFile(const QString thePath, const QString theLocalPath, const bool queueLocally){
 	
 	// Check for duplicate downloads
@@ -694,13 +686,10 @@ void WiredSocket::getFile(const QString thePath, const QString theLocalPath, con
 	// Create a record for the status tracking
 	// We first set this to stauts 0 (waiting for stat) since we need the checksum of the file
 	// for local comparisation!
-
 		
-	// And the socket...
 	WiredTransferSocket *tmpSock = new WiredTransferSocket;
 	pTransferSockets.append(tmpSock);
 
-// 	ClassWiredTransfer tmpTrans;
 	tmpSock->pTransfer.pTransferType = WiredTransfer::TypeDownload;
 	tmpSock->pTransfer.pRemotePath = thePath;
 	tmpSock->pTransfer.pLocalPath = theLocalPath;
@@ -709,24 +698,12 @@ void WiredSocket::getFile(const QString thePath, const QString theLocalPath, con
 	connect(tmpSock, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SIGNAL(fileTransferDone(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SIGNAL(fileTransferError(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(fileTransferStatus(ClassWiredTransfer)), this, SIGNAL(fileTransferStatus(ClassWiredTransfer)));
-// 	connect(tmpSock, SIGNAL(fileTransferStarted(ClassWiredTransfer)), this, SIGNAL(fileTransferStarted(ClassWiredTransfer)));
 	connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 
 	tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
-	
-// 	if(!queueLocally) {
-// 		tmpSock->pTransfer.pStatus = WiredTransfer::StatusWaitingForStat; // waiting for stat
-// 		statFile(thePath);
-// 		qDebug() << "Transfer Phase 1/3: STATing:"<<thePath<<"to"<<theLocalPath;
-// 	} /*else {
-		tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal; // waiting for stat
-// 		tmpSock->pTransfer = tmpTrans;
-
-		qDebug() << "Transfer Phase 1/3: LocalQueued:"<<thePath<<"to"<<theLocalPath;
-// 	}
+	tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
+	qDebug() << "Transfer Phase 1/3: LocalQueued:"<<thePath<<"to"<<theLocalPath;
 	emit fileTransferStarted(tmpSock->pTransfer);
-
-	
 }
 
 
@@ -739,21 +716,25 @@ void WiredSocket::on_server_transfer_ready(QList<QByteArray> theParams) {
 	QString tmpHash = QString::fromUtf8(theParams.value(2));
 
 	qDebug() << this << "Transfer ready:"<<theParams;
-	
+
 	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
 	while(i.hasNext()) {
 		WiredTransferSocket *tmpT = i.next();
 		if(!tmpT) continue;
 		ClassWiredTransfer tmpTrans = tmpT->pTransfer;
-		qDebug() << "CHECKING FILE"<<tmpTrans.pRemotePath<<"with status"<<tmpTrans.pStatus;
-		if( tmpTrans.pRemotePath==tmpPath &&
-				     (tmpTrans.pTransferType==WiredTransfer::TypeUpload && tmpTrans.pStatus==WiredTransfer::StatusWaitingForStat)
-				  || (tmpTrans.pTransferType==WiredTransfer::TypeDownload && tmpTrans.pStatus==WiredTransfer::StatusQueued) ) {
+		qDebug() << "CHECKING FILE"<<tmpTrans.pRemotePath<<"with main status"<<tmpTrans.pStatus<<"file status"<<tmpTrans.pFileStatus;
+
+		if( tmpTrans.pRemotePath==tmpPath && (
+			   (tmpTrans.pTransferType==WiredTransfer::TypeUpload && tmpTrans.pStatus==WiredTransfer::StatusWaitingForStat)
+			|| (tmpTrans.pTransferType==WiredTransfer::TypeDownload && tmpTrans.pStatus==WiredTransfer::StatusQueued)
+		    || (tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued) ) ) {
 			qDebug() << this << "Transfer Phase 2/3: Transfer ready for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
 			tmpT->pTransfer.pOffset = tmpOffset;
 			tmpT->pTransfer.pHash = tmpHash;
 			tmpT->pTransfer.pQueuePosition = 0;
-			tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
+			if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload)
+					tmpT->pTransfer.pFileStatus = WiredTransfer::StatusActive;
+			else	tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
 			tmpT->start();
 			return;
 		}
@@ -789,7 +770,7 @@ void WiredSocket::on_server_transfer_queued(QList< QByteArray > theParams) {
 void WiredSocket::on_server_search_listing(QList<QByteArray> theParams) {
 	ClassWiredFile tmpFile;
 	tmpFile.path = QString::fromUtf8(theParams.value(0));
-	tmpFile.type = theParams.value(1).toInt();
+	tmpFile.type = (WiredTransfer::FileType)theParams.value(1).toInt();
 	tmpFile.size = theParams.value(2).toLongLong();
 	tmpFile.created = QDateTime::fromString( QString::fromUtf8(theParams.value(3)), Qt::ISODate );
 	tmpFile.modified = QDateTime::fromString( QString::fromUtf8(theParams.value(4)), Qt::ISODate );
@@ -859,13 +840,6 @@ void WiredSocket::on_tracker_listing_done() {
 	this->disconnectFromServer();
 }
 
-
-
-
-
-
-
-
 void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 	// Received file information. This can be the response to a file in the
 	// transfer queue or a user request. Let's see...
@@ -882,51 +856,60 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 	int tmpIdx=0;
 	while( i.hasNext() ) {
 		WiredTransferSocket *tmpT = i.next();
-		if(tmpT) {
-			if( tmpT->pTransfer.pStatus==0 && tmpT->pTransfer.pRemotePath==tmpPath ) {
-				qDebug() << "Transfer Phase 1/3:"<<tmpPath<<": received stat, requesting transfer:"<<tmpPath<<tmpChecksum;
-				
-				// Check if we need to resume
-				QString tmpFilePath = tmpT->pTransfer.pLocalPath+".WiredTransfer";
-				QFile tmpFile(tmpFilePath);
-				if(tmpFile.exists()) {
-					if(tmpFile.open(QIODevice::ReadOnly)) {
-						QByteArray tmpDat = tmpFile.read(1024*1024);
-						QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
-						qDebug() << "WiredSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
-						if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
-							qDebug() << "WiredSocket: Checksums are identical. Offset is"<<tmpFile.size();
-							tmpT->pTransfer.pOffset = tmpFile.size();
-							tmpT->pTransfer.pDoneSize = tmpFile.size();
-						} else {
-							qDebug() << "WiredSocket: Checksums are NOT identical, deleting file.";
-							tmpFile.close();
-							tmpFile.remove();
-							tmpT->pTransfer.pOffset = 0;
-						}
+		if(!tmpT) continue;
+
+		
+		if( (tmpT->pTransfer.pTransferType==WiredTransfer::TypeDownload
+				 && tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat
+				 && tmpT->pTransfer.pRemotePath==tmpPath)
+			|| (tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
+				 && tmpT->pTransfer.pFileStatus==WiredTransfer::StatusWaitingForStat
+				 && tmpT->pTransfer.pRemotePath==tmpPath) ) {
+
+			qDebug() << "Transfer Phase 1/3:"<<tmpPath<<": received stat, requesting transfer:"<<tmpPath<<tmpChecksum;
+
+			// Check if we need to resume
+			tmpT->pTransfer.pOffset = 0;
+			tmpT->pTransfer.pDoneSize = 0;
+			
+			QString tmpFilePath = tmpT->pTransfer.pLocalPath+".WiredTransfer";
+			QFile tmpFile(tmpFilePath);
+			if(tmpFile.exists()) {
+				if(tmpFile.open(QIODevice::ReadOnly)) {
+					QByteArray tmpDat = tmpFile.read(1024*1024);
+					QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
+					qDebug() << "WiredSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
+					if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
+						qDebug() << "WiredSocket: Checksums are identical. Offset is"<<tmpFile.size();
+						tmpT->pTransfer.pOffset = tmpFile.size();
+						tmpT->pTransfer.pDoneSize = tmpFile.size();
+					} else {
+						qDebug() << "WiredSocket: Checksums are NOT identical, deleting file.";
+						tmpFile.close();
+						tmpFile.remove();
 					}
 				}
-				
-				// Set some more info
-				tmpT->pTransfer.pChecksum = tmpChecksum;
-				tmpT->pTransfer.pTotalSize = tmpSize;
-				tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
-				
-				// Request a file download from the server
-				QByteArray buf("GET ");
-				buf += tmpPath.toUtf8();
-				buf += kFS;
-				buf += QByteArray::number(tmpT->pTransfer.pOffset);
-				sendWiredCommand(buf);
-				
-				qDebug() << "WiredSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset;
-				
-				return;
 			}
 
+			// Set some more info
+			tmpT->pTransfer.pChecksum = tmpChecksum;
+			tmpT->pTransfer.pTotalSize = tmpSize;
+
+			if(tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
+					tmpT->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
+			else	tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
+
+			// Request a file download from the server
+			QByteArray buf("GET ");
+			buf += tmpPath.toUtf8() + char(kFS);
+			buf += QByteArray::number(tmpT->pTransfer.pOffset);
+			sendWiredCommand(buf);
+			qDebug() << "WiredSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset<<"main status"<<tmpT->pTransfer.pStatus<<"file status"<<tmpT->pTransfer.pFileStatus;
+			return;
 		}
-		tmpIdx++;
 	}
+	tmpIdx++;
+	
 	
 	// Not in the transfer queue, pass the event to the user code.
 	ClassWiredFile tmpFile;
@@ -938,20 +921,18 @@ void WiredSocket::on_server_file_info(QList<QByteArray> theParams) {
 // Request uploading of a file to the server
 void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally) {
 	QFile tmpFile(theLocalPath);
-	if(tmpFile.exists() && !theRemotePath.isEmpty()) {
+	QString remotePath = theRemotePath;
+	if(remotePath.left(2)=="//") remotePath.remove(0,1);
+	if(tmpFile.exists() && !remotePath.isEmpty()) {
 
 		// Check for duplicate uploads
 		QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
 		while( i.hasNext() ) {
 			WiredTransferSocket *tmpT = i.next();
-			if(tmpT) {
-				ClassWiredTransfer tmpTrans = tmpT->pTransfer;
-				if( tmpTrans.pRemotePath==theRemotePath ) {
-					qDebug() << "Transfer Phase 1:"<<theRemotePath<<": already transfering, abort!";
-					return;
-				}
-			}
+			if(!tmpT) continue;
+			if(tmpT->pTransfer.pRemotePath==remotePath) return;
 		}
+		
 		
 		// Create a record for the status tracking
 		// We first set this to status 0 (waiting for stat) since we need the checksum of the file
@@ -969,7 +950,7 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 		tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
 		tmpSock->pTransfer.pTransferType = WiredTransfer::TypeUpload;
-		tmpSock->pTransfer.pRemotePath = theRemotePath;
+		tmpSock->pTransfer.pRemotePath = remotePath;
 		tmpSock->pTransfer.pLocalPath = theLocalPath;
 		tmpSock->pTransfer.pTotalSize = tmpFile.size();
 		tmpSock->pTransfer.calcLocalChecksum();
@@ -978,22 +959,8 @@ void WiredSocket::putFile(const QString theLocalPath, const QString theRemotePat
 		if(queueLocally) {
 			tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
 			qDebug() << this << "Queued transfer locally:"<<tmpSock->pTransfer.pRemotePath;
-			
-		} /*else {
-			qDebug() << this << "Upload requested, hash"<<tmpTrans.pChecksum;
-			tmpTrans.pStatus = WiredTransfer::StatusWaitingForStat; // waiting for slot (no stat required)
-			tmpSock->pTransfer = tmpTrans;
-			
-			QByteArray ba("PUT ");
-			ba += tmpTrans.pRemotePath.toUtf8() + char(kFS);
-			ba += QByteArray::number(tmpTrans.pTotalSize) + char(kFS);
-			ba += tmpTrans.pChecksum;
-			sendWiredCommand(ba);
-		}*/
-
+		}
 		emit fileTransferStarted(tmpSock->pTransfer);
-		
-
 	}
 }
 
@@ -1025,39 +992,30 @@ void WiredSocket::do_send_user_login() {
 // Set the nickname of the current user session.
 void WiredSocket::setUserNick(QString theNick) {
 	sessionUser.pNick = theNick;
-	QByteArray tmpCmd("NICK ");
-	tmpCmd += theNick.toUtf8();
-	sendWiredCommand(tmpCmd);
+	sendWiredCommand(QByteArray("NICK ")+theNick.toUtf8());
 }
 
 // Update the user status for the session
 void WiredSocket::setUserStatus(QString theStatus) {
 	sessionUser.pStatus = theStatus;
-	QByteArray buf("STATUS ");
-	buf += sessionUser.pStatus.toUtf8();
-	sendWiredCommand(buf);
+	sendWiredCommand(QByteArray("STATUS ")+sessionUser.pStatus.toUtf8());
 }
 
 // Reject/Decline a private chat.
 void WiredSocket::rejectChat(int theChatID) {
-	QByteArray buf("DECLINE ");
-	buf += QByteArray::number(theChatID);
-	sendWiredCommand(buf);
+	sendWiredCommand(QByteArray("DECLINE ")+QByteArray::number(theChatID));
 }
 
 // Join a private chat.
 void WiredSocket::joinChat(int theChatID) {
-	QByteArray buf("JOIN ");
-	buf += QByteArray::number(theChatID);
-	sendWiredCommand(buf);
+	sendWiredCommand(QByteArray("JOIN ")+QByteArray::number(theChatID));
 	do_request_user_list(theChatID);
 }
 
 // Set a chat topic.
 void WiredSocket::setChatTopic(int theChatID, QString theTopic) {
 	QByteArray buf("TOPIC ");
-	buf += QByteArray::number(theChatID);
-	buf += kFS;
+	buf += QByteArray::number(theChatID) + (char)kFS;
 	buf += theTopic.toUtf8();
 	sendWiredCommand(buf);
 }
@@ -1065,40 +1023,28 @@ void WiredSocket::setChatTopic(int theChatID, QString theTopic) {
 // Ban a user from the server.
 void WiredSocket::banClient(int theUserID, QString theReason) {
 	QByteArray tmpBuf("BAN ");
-	tmpBuf += QByteArray::number(theUserID);
-	tmpBuf += kFS;
+	tmpBuf += QByteArray::number(theUserID) + (char)kFS;
 	tmpBuf += theReason.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
 
 
 // Request the list of users for a specific channel.
-void WiredSocket::do_request_user_list(int theChannel) {	
-	QByteArray tmpCmd("WHO ");
-	tmpCmd += QByteArray::number(theChannel);
-	sendWiredCommand(tmpCmd);
+void WiredSocket::do_request_user_list(int theChannel) {
+	sendWiredCommand(QByteArray("WHO ")+QByteArray::number(theChannel));
 }
 
-// Request news from the server (reponse will be 320s and one 321)
-void WiredSocket::getNews() {
-	sendWiredCommand("NEWS");
-}
-
-// Request current privileges from the server
+void WiredSocket::getNews() { sendWiredCommand("NEWS"); }
 void WiredSocket::getPrivileges() { sendWiredCommand("PRIVILEGES"); }
 
 // Post news to the news board
 void WiredSocket::postNews(QString thePost) {
-	QByteArray data("POST ");
-	data += thePost;
-	sendWiredCommand(data);
+	sendWiredCommand(QByteArray("POST ")+thePost.toUtf8());
 }
 
 // Request info for a user
 void WiredSocket::getClientInfo(int theUserID) {
-	QByteArray buf("INFO ");
-	buf += QByteArray::number(theUserID);
-	sendWiredCommand(buf);
+	sendWiredCommand(QByteArray("INFO "+QByteArray::number(theUserID)));
 }
 
 // Send a chat message to the server.
@@ -1108,31 +1054,25 @@ void WiredSocket::sendChat(int theChatID, QString theText, bool theIsAction) {
 		theText = tranzlate(theText);
 	
 	if(!theIsAction) buf+="SAY "; else buf+="ME ";
-	buf += QByteArray::number(theChatID);
-	buf += kFS;
+	buf += QByteArray::number(theChatID) + (char)kFS;
 	buf += theText.toUtf8();
 	sendWiredCommand(buf);
 }
 
 // Request some file information.
 void WiredSocket::statFile(const QString thePath) {
-	QByteArray buf("STAT ");
-	buf += thePath.toUtf8();
-	sendWiredCommand(buf);
+	sendWiredCommand(QByteArray("STAT ")+thePath.toUtf8());
 }
 
 // Request to create a folder at the specified path
 void WiredSocket::createFolder(const QString thePath) {
-	QByteArray tmpBuf("FOLDER ");
-	tmpBuf += thePath.toUtf8();
-	sendWiredCommand(tmpBuf);
+	sendWiredCommand(QByteArray("FOLDER ")+thePath.toUtf8());
 }
 
 // Kick a user off the server.
 void WiredSocket::kickClient(int theUserID, QString theReason) {
 	QByteArray tmpBuf("KICK ");
-	tmpBuf += QByteArray::number(theUserID);
-	tmpBuf += kFS;
+	tmpBuf += QByteArray::number(theUserID) + (char)kFS;
 	tmpBuf += theReason.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
@@ -1140,8 +1080,7 @@ void WiredSocket::kickClient(int theUserID, QString theReason) {
 // Request to move a file on the server
 void WiredSocket::moveFile(const QString thePath, const QString theDestination) {
 	QByteArray tmpBuf("MOVE ");
-	tmpBuf += thePath.toUtf8();
-	tmpBuf += kFS;
+	tmpBuf += thePath.toUtf8() + (char)kFS;
 	tmpBuf += theDestination.toUtf8();
 	sendWiredCommand(tmpBuf);
 }
@@ -1149,30 +1088,18 @@ void WiredSocket::moveFile(const QString thePath, const QString theDestination) 
 // Delete a file or folder from the server.
 void WiredSocket::deleteFile(const QString thePath) {
 	if(thePath=="/" || thePath.isEmpty()) return;
-	QByteArray tmpBuf("DELETE ");
-	tmpBuf += thePath.toUtf8();
-	sendWiredCommand(tmpBuf);
+	sendWiredCommand(QByteArray("DELETE ")+thePath.toUtf8());
 }
 
-// Request a list of groups.
-void WiredSocket::getGroups() {
-	 sendWiredCommand("GROUPS");
-}
-
-// Request a list of users.
-void WiredSocket::getUsers() {
-	sendWiredCommand("USERS");
-}
+void WiredSocket::getGroups() { sendWiredCommand("GROUPS"); }
+void WiredSocket::getUsers() { sendWiredCommand("USERS"); }
 
 // Create a user account on the server.
 void WiredSocket::createUser(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("CREATEUSER ");
-	tmpBuf += tmpUser.pLogin.toUtf8();
-	tmpBuf += kFS;
-	tmpBuf += tmpUser.pPassword.toUtf8();
-	tmpBuf += kFS;
-	tmpBuf += tmpUser.pGroupName.toUtf8();
-	tmpBuf += kFS;
+	tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
+	tmpBuf += tmpUser.pPassword.toUtf8() + (char)kFS;
+	tmpBuf += tmpUser.pGroupName.toUtf8() + (char)kFS;
 	tmpBuf += tmpUser.privilegesFlags();
 	sendWiredCommand(tmpBuf);
 }
@@ -1180,12 +1107,9 @@ void WiredSocket::createUser(ClassWiredUser tmpUser) {
 // Modify a user account on the server.
 void WiredSocket::editUser(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("EDITUSER ");
-	tmpBuf += tmpUser.pLogin.toUtf8();
-	tmpBuf += kFS;
-	tmpBuf += tmpUser.pPassword.toUtf8();
-	tmpBuf += kFS;
-	tmpBuf += tmpUser.pGroupName.toUtf8();
-	tmpBuf += kFS;
+	tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
+	tmpBuf += tmpUser.pPassword.toUtf8() + (char)kFS;
+	tmpBuf += kFS;	tmpBuf += tmpUser.pGroupName.toUtf8() + (char)kFS;
 	tmpBuf += tmpUser.privilegesFlags();
 	sendWiredCommand(tmpBuf);
 }
@@ -1193,8 +1117,7 @@ void WiredSocket::editUser(ClassWiredUser tmpUser) {
 // Create a group on the server.
 void WiredSocket::createGroup(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("CREATEGROUP ");
-	tmpBuf += tmpUser.pLogin.toUtf8();
-	tmpBuf += kFS;
+	tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
 	tmpBuf += tmpUser.privilegesFlags();
 	sendWiredCommand(tmpBuf);
 }
@@ -1202,64 +1125,39 @@ void WiredSocket::createGroup(ClassWiredUser tmpUser) {
 // Modify a user account on the server.
 void WiredSocket::editGroup(ClassWiredUser tmpUser) {
 	QByteArray tmpBuf("EDITGROUP ");
-	tmpBuf += tmpUser.pLogin.toUtf8();
-	tmpBuf += kFS;
+	tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
 	tmpBuf += tmpUser.privilegesFlags();
 	sendWiredCommand(tmpBuf);
 }
 
 void WiredSocket::deleteGroup(QString theName) {
-	QByteArray tmpBuf("DELETEGROUP ");
-	tmpBuf += theName.toUtf8();
-	sendWiredCommand(tmpBuf);
+	sendWiredCommand(QByteArray("DELETEGROUP ")+theName.toUtf8());
 }
 
 void WiredSocket::deleteUser(QString theName) {
-	QByteArray tmpBuf("DELETEUSER ");
-	tmpBuf += theName.toUtf8();
-	sendWiredCommand(tmpBuf);
+	sendWiredCommand(QByteArray("DELETEUSER ")+theName.toUtf8());
 }
 
 void WiredSocket::readUser(QString theName) {
-	QByteArray tmpBuf("READUSER ");
-	tmpBuf += theName.toUtf8();
-	sendWiredCommand(tmpBuf);
+	sendWiredCommand(QByteArray("READUSER ")+theName.toUtf8());
 }
 
 void WiredSocket::readGroup(QString theName) {
-	QByteArray tmpBuf("READGROUP ");
-	tmpBuf += theName.toUtf8();
-	sendWiredCommand(tmpBuf);
+	sendWiredCommand(QByteArray("READGROUP ")+theName.toUtf8());
 }
 
-// Tracker - request servers
-void WiredSocket::tracker_request_servers() {
-	sendWiredCommand("SERVERS");
-}
+void WiredSocket::tracker_request_servers() { sendWiredCommand("SERVERS"); }
 
-
-
-
-
-/**
- * Search the server for files.
- * @param theSearch The search term.
- */
 void WiredSocket::searchFiles(const QString theSearch) {
-	QByteArray tmpBuf("SEARCH ");
-	tmpBuf += theSearch.toUtf8();
-	sendWiredCommand(tmpBuf);
+	sendWiredCommand(QByteArray("SEARCH ")+theSearch.toUtf8());
 }
 
 
 void WiredSocket::sendClientInfo() {
 	QString tmpV("%1/%2 (%3; %4; %5)");
-
-QString tmpOsVersion("Unknown");
-QString tmpOsName("Unknown");
-QString tmpOsArch("Unknown");
-
-
+	QString tmpOsVersion("Unknown");
+	QString tmpOsName("Unknown");
+	QString tmpOsArch("Unknown");
 #ifdef Q_WS_MAC
 	tmpOsName = "Mac OS X";
 	switch(QSysInfo::MacintoshVersion) {
@@ -1316,10 +1214,6 @@ QString tmpOsArch("Unknown");
 	sendWiredCommand(tmpBuf);
 }
 
-
-
-
-
 // ///
 // /// SESSION PROTOCOL SUPPORT
 // ///
@@ -1327,10 +1221,7 @@ QString tmpOsArch("Unknown");
 // Send a Wired message
 void WiredSocket::sendWiredCommand(const QByteArray theData) {
 	if(!pSocket->isOpen()) return;
-	QByteArray tmpBuffer;
-	tmpBuffer += theData;
-	tmpBuffer += kEOF;
-	pSocket->write(tmpBuffer);
+	pSocket->write(theData + char(kEOF));
 }
 
 // Return a list of parameters from the message, automatically skipping the command identifier.
@@ -1366,9 +1257,7 @@ void WiredSocket::cancelTransfer(ClassWiredTransfer theTransfer) {
 				qDebug() << "Deleted transfer socket"<<tmpTS->pTransfer.pHash;
 				return;
 			}
-
 		}
-
 	}
 }
 
@@ -1417,6 +1306,8 @@ void WiredSocket::runTransferQueue(WiredTransfer::TransferType type)
 			tmpT->pTransfer.pStatus = WiredTransfer::StatusWaitingForStat;
 			if(tmpTrans.pTransferType==WiredTransfer::TypeDownload) {
 				statFile(tmpT->pTransfer.pRemotePath);
+			} else if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload) {
+				getFileListRecusive(tmpTrans.pRemotePath);
 			} else if(tmpTrans.pTransferType==WiredTransfer::TypeUpload) {
 				QByteArray ba("PUT ");
 				ba += tmpTrans.pRemotePath.toUtf8() + char(kFS);
@@ -1432,8 +1323,7 @@ void WiredSocket::runTransferQueue(WiredTransfer::TransferType type)
 	}
 }
 
-bool WiredSocket::isTransferringFileOfType(WiredTransfer::TransferType type)
-{
+bool WiredSocket::isTransferringFileOfType(WiredTransfer::TransferType type) {
 	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
 	while(i.hasNext()) {
 		WiredTransferSocket *tmpT = i.next();
@@ -1441,8 +1331,136 @@ bool WiredSocket::isTransferringFileOfType(WiredTransfer::TransferType type)
 		if(tmpT->pTransfer.pTransferType==type
 				 && (tmpT->pTransfer.pStatus==WiredTransfer::StatusActive || tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat))
 			return true;
-		
 	}
 	return false;
 }
+
+void WiredSocket::getFileListRecusive(const QString & path) {
+	qDebug() << this << "Starting recursive indexing of" << path;
+	pRecursiveFileListing.clear();
+	pRecursivePath = path;
+	pIndexingFiles = true;
+	getFileList(path);
+}
+
+
+void WiredSocket::on_server_filelist_item(QList<QByteArray> params)
+{
+	ClassWiredFile file(params);
+	if(!pIndexingFiles) {
+		emit onFilesListItem(file);
+	} else {
+		file.isIndexed = false;
+		pRecursiveFileListing.append(file);
+// 		qDebug() << "File listing:"<<file.path;
+	}
+}
+
+void WiredSocket::on_server_filelist_done(QList<QByteArray> params)
+{
+	if(!pIndexingFiles) {
+		emit onFilesListDone(QString::fromUtf8(params.value(0)), params.value(1).toLongLong() );
+	} else {
+		// Listing of directory complete. Continue the listing.
+		int maxIndexingDepth = 16;
+		QMutableListIterator<ClassWiredFile> i(pRecursiveFileListing);
+		while(i.hasNext()) {
+			ClassWiredFile &file = i.next();
+			if(file.type==WiredTransfer::Directory && !file.isIndexed && file.size && file.path.count("/")<=maxIndexingDepth ) {
+// 				qDebug() << this << "Indexing next directory:" << file.path;
+				file.isIndexed = true;
+				getFileList(file.path);
+				return;
+			}
+		}
+
+		// Find a transfer socket
+		QListIterator<QPointer<WiredTransferSocket> > j(pTransferSockets);
+		while(j.hasNext()) {
+			WiredTransferSocket *tmpT = j.next();
+			if(!tmpT) continue;
+			ClassWiredTransfer &transfer = tmpT->pTransfer;
+			if(transfer.pRemotePath==pRecursivePath
+				&& transfer.pTransferType==WiredTransfer::TypeFolderDownload
+				&& transfer.pStatus==WiredTransfer::StatusWaitingForStat) {
+				qDebug() << this << "Waiting folder transfer socket found.";
+				transfer.fileList = pRecursiveFileListing;
+				transfer.pFilesCount = pRecursiveFileListing.count();
+				transfer.pFilesDone = 0;
+				transfer.pRemoteFolder = pRecursivePath;
+				transfer.pStatus = WiredTransfer::StatusActive;
+				proceedFolderDownload(tmpT);
+				return;
+			}
+		}
+
+		// Finished, if we are here.
+		pIndexingFiles = false;
+		pRecursivePath.clear();
+// 		emit onFilesListRecursiveDone(pRecursiveFileListing);
+
+	}
+}
+
+void WiredSocket::proceedFolderDownload(WiredTransferSocket *socket)
+{
+	// Take the next item in the folder download and handle it
+	if(!socket) return;
+	while(1) {
+		if(socket->pTransfer.fileList.count()==0) {
+			qDebug() << this << "Folder download done.";
+			socket->pTransfer.pStatus = WiredTransfer::StatusDone;
+			emit fileTransferDone(socket->pTransfer);
+			return;
+		};
+		ClassWiredFile file = socket->pTransfer.fileList.takeFirst();
+		qDebug() << this << "Proceeding download:"<<file.path;
+		
+		QString remoteRootName = socket->pTransfer.pRemoteFolder.section("/",-1,-1); // the name only of the remote root
+		
+		QString relativeRemotePath(file.path); // complete path on server (/Server/Files/file.a)
+		relativeRemotePath.remove(socket->pTransfer.pRemoteFolder); // path from remote root to contained file (/Files/file.a)
+		relativeRemotePath.prepend(remoteRootName); // prepend local root
+		
+		QDir dir(socket->pTransfer.pLocalRoot);
+
+		
+		dir.mkpath(remoteRootName); // Ensure the local root folder exists
+		
+		
+		if(file.type == WiredTransfer::Directory || file.type == WiredTransfer::DropBox || file.type == WiredTransfer::Uploads ) { // create the directory
+			dir.mkpath(relativeRemotePath);
+			socket->pTransfer.pFilesDone++;
+			qDebug() << "Creating directory:" << relativeRemotePath;
+			
+		} else if(file.type == WiredTransfer::RegularFile) {
+			socket->pTransfer.pFileStatus = WiredTransfer::StatusWaitingForStat;
+			socket->pTransfer.pQueuePosition = 0;
+			socket->pTransfer.pRemotePath = file.path;
+			socket->pTransfer.pLocalPath = dir.absoluteFilePath(relativeRemotePath);
+			socket->pTransfer.pFilesDone++;
+			if(!QFile(socket->pTransfer.pLocalPath).exists()) {
+				statFile(file.path);
+				qDebug() << "STATing:"<<file.path;
+				return;
+			}
+		}
+	}
+}
+
+void WiredSocket::fileTransferFileDone(const ClassWiredTransfer transfer)
+{
+	QListIterator<QPointer<WiredTransferSocket> > i(pTransferSockets);
+	while(i.hasNext()) {
+		WiredTransferSocket *socket = i.next();
+		if(!socket) continue;
+		if(socket->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
+			&& socket->pTransfer.pStatus==WiredTransfer::StatusActive) {
+			proceedFolderDownload(socket);
+			return;
+		}
+	}
+	
+}
+
 

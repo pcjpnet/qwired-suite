@@ -133,6 +133,8 @@ private slots:
 	void transferDone(ClassWiredTransfer);
 	void transferSocketError(QAbstractSocket::SocketError);
 	void transferError(ClassWiredTransfer);
+
+	void fileListingRecursiveDone(const QList<ClassWiredFile>);
 	
 public slots:
 	void triggerEvent(QString event, QStringList parameters);
@@ -182,6 +184,7 @@ public slots:
 	void handleErrorOccoured(int theError);
 
 	void downloadFile(const QString &remotePath, const QString &localPath);
+	void downloadFolder(const QString &remotePath, const QString &localPath);
 	void uploadFile(const QString &localPath, const QString &remotePath);
 	
 	

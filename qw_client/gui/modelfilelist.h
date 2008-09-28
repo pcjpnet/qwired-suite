@@ -28,8 +28,12 @@
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class ModelFileList : public QStandardItemModel {
+class ModelFileList
+	: public QStandardItemModel
+{
+
 Q_OBJECT
+
 public:
 	ModelFileList(QObject *parent = 0);
 	~ModelFileList();

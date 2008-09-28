@@ -58,6 +58,7 @@ void ModelFileTransfers::setSocket(WiredSocket *theSocket)
 	if(!theSocket) return;
 	pSocket = theSocket;
 	connect(pSocket, SIGNAL(fileTransferStatus(ClassWiredTransfer)),  this, SLOT(updateTransfers(ClassWiredTransfer)) );
+	connect(pSocket, SIGNAL(fileTransferFileDone(ClassWiredTransfer)), this, SLOT(updateTransfers(ClassWiredTransfer)) );
 	connect(pSocket, SIGNAL(fileTransferStarted(ClassWiredTransfer)), this, SLOT(reloadTransfers()) );
 	connect(pSocket, SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SLOT(reloadTransfers()) );
 	connect(pSocket, SIGNAL(fileTransferError(ClassWiredTransfer)), this, SLOT(reloadTransfers()) );

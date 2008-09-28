@@ -24,6 +24,8 @@
 
 #include <math.h>
 
+#include <QMessageBox>
+
 WidgetFileBrowser::WidgetFileBrowser(QWidget *parent)
 	: QWidget(parent)
 {
@@ -46,14 +48,10 @@ void WidgetFileBrowser::initWithConnection(ClassWiredSession *theSession)
 	pFilterProxy->setSortRole(Qt::UserRole);
 	
 	pSession = theSession;
-	connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(ClassWiredFile)),
-			 pModel, SLOT(onServerFileListItem(ClassWiredFile)) );
-	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)),
-			 pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
-	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)),
-			 this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
-	connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(ClassWiredTransfer)),
-			 this, SLOT(fileTransferDone(ClassWiredTransfer)) );
+	connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(ClassWiredFile)), pModel, SLOT(onServerFileListItem(ClassWiredFile)) );
+	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
+	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
+	connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SLOT(fileTransferDone(ClassWiredTransfer)) );
 
 	fList->setModel(pFilterProxy);
 	fList->setAlternatingRowColors(true);
@@ -74,9 +72,10 @@ void WidgetFileBrowser::on_fList_doubleClicked(const QModelIndex &index)
 	if(pModel!=0 and pSession!=0) {
 		ClassWiredFile tmpFile = index.data(Qt::UserRole+1).value<ClassWiredFile>();
 		
-		if( tmpFile.type == 0 ) { // Files
+		if( tmpFile.type == WiredTransfer::RegularFile ) {
 			if(!pSession->wiredSocket()->sessionUser.privDownload) return;
 			downloadFile(tmpFile.path);
+			pSession->doActionTransfers();
 					
 		} else if(tmpFile.type>0) { // Directories
 			pFilterProxy->setFilterWildcard("");
@@ -154,33 +153,34 @@ void WidgetFileBrowser::downloadFile(QString theRemotePath)
 	QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
 	QFile tmpDir( tmpDownloadFolder.absoluteFilePath(tmpName) );
 	if(tmpDir.exists()) {
-		QMessageBox messageBox(this);
-		messageBox.setWindowTitle(tr("File Exists"));
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setText(tr("The file you are trying to download already exists in your download directory. Overwrite it?") );
-		QAbstractButton *rejectButton = messageBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
-		Q_UNUSED(rejectButton)
-		QAbstractButton *deleteButton = messageBox.addButton(tr("Overwrite"), QMessageBox::AcceptRole);
-		messageBox.exec();
-		if (messageBox.clickedButton()!=deleteButton)
-			return;
+		QMessageBox::StandardButton button = QMessageBox::question(this, tr("File Exists"),
+			tr("The file '%1' already exists in your download directory. Overwrite it?").arg(tmpName),
+			QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+		if (button==QMessageBox::No) return;
 	}
 	pSession->downloadFile(theRemotePath, tmpDir.fileName());
-	pSession->doActionTransfers();
-
 }
 
 
 // Download button pressed
 void WidgetFileBrowser::on_fBtnDownload_clicked(bool)
 {
-	QModelIndex tmpIdx = fList->currentIndex();
-	if(tmpIdx.isValid()) {
-		ClassWiredFile tmpFile = tmpIdx.data(Qt::UserRole+1).value<ClassWiredFile>();
-		if(!pSession->wiredSocket()->sessionUser.privDownload)
-			return;
-		downloadFile(tmpFile.path);
+	if(!pSession->wiredSocket()->sessionUser.privDownload) return;
+	QListIterator<QModelIndex> i(fList->selectionModel()->selectedRows(0));
+	while(i.hasNext()) {
+		QModelIndex index = i.next();
+		if(!index.isValid()) continue;
+		ClassWiredFile tmpFile = index.data(Qt::UserRole+1).value<ClassWiredFile>();
+		if(tmpFile.type==WiredTransfer::Directory || tmpFile.type==WiredTransfer::DropBox || tmpFile.type==WiredTransfer::Uploads) {
+			// Folder download
+			QSettings settings;
+			QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
+			pSession->downloadFolder(tmpFile.path, tmpDownloadFolder.path());
+		} else { // Regular file
+			downloadFile(tmpFile.path);
+		}
 	}
+ 	pSession->doActionTransfers();
 }
 
 
@@ -190,7 +190,7 @@ void WidgetFileBrowser::on_fList_clicked(const QModelIndex&)
 	QModelIndex tmpIdx = fList->currentIndex();
 	if(tmpIdx.isValid()) {
 		ClassWiredFile tmpFile = tmpIdx.data(Qt::UserRole+1).value<ClassWiredFile>();
-		fBtnDownload->setEnabled(tmpFile.type==0 && pSession->wiredSocket()->sessionUser.privDownload); // Only files can be downloaded now
+		fBtnDownload->setEnabled(pSession->wiredSocket()->sessionUser.privDownload); // Only files can be downloaded now
 		fBtnInfo->setEnabled(true);
 		fBtnDelete->setEnabled( pSession->wiredSocket()->sessionUser.privDeleteFiles );
 		fBtnUpload->setEnabled( pSession->wiredSocket()->sessionUser.privUpload || pSession->wiredSocket()->sessionUser.privUploadAnywhere );
@@ -208,35 +208,41 @@ void WidgetFileBrowser::on_fList_clicked(const QModelIndex&)
 
 void WidgetFileBrowser::on_fBtnUpload_clicked(bool)
 {
-	QString fileName = QFileDialog::getOpenFileName(this,
-			tr("Upload File"), QDir::homePath());
-	if(!fileName.isEmpty()) {
-		QString tmpFileName = fileName.section("/",-1,-1);
+	QStringList files = QFileDialog::getOpenFileNames(this, tr("Upload File"), QDir::homePath());
+	QStringListIterator i(files);
+	while(i.hasNext()) {
+		QString file = i.next();
+		if(file.isEmpty()) continue;
+		QString tmpFileName = file.section("/",-1,-1);
 		QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
-		pSession->uploadFile(fileName, tmpRemote);
-		pSession->doActionTransfers();
+		pSession->uploadFile(file, tmpRemote);
+
 	}
+	pSession->doActionTransfers();
 }
 
 
 void WidgetFileBrowser::on_fBtnDelete_clicked(bool)
 {
-	QModelIndex tmpIdx = fList->currentIndex();
-	if(tmpIdx.isValid()) {
-		ClassWiredFile tmpFile = tmpIdx.data(Qt::UserRole+1).value<ClassWiredFile>();
-		QMessageBox::StandardButton button = QMessageBox::question(this,
-				tr("Delete File"),
-				tr("Are you sure you want to delete the item '%1'?\nThis can not be undone!").arg(tmpFile.fileName()),
-				QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-		if (button != QMessageBox::Yes)
-			return;
-		pModel->clearList();
-		pModel->pWaitingForList = true;
+	QModelIndexList list = fList->selectionModel()->selectedRows(0);
+
+	QMessageBox::StandardButton button = QMessageBox::question(this,
+			tr("Delete File"), tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", list.count()),
+			QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+	if (button != QMessageBox::Yes) return;
+	
+	QListIterator<QModelIndex> i(list);
+	while(i.hasNext()) {
+		QModelIndex index = i.next();
+		if(!index.isValid()) continue;
+		ClassWiredFile tmpFile = index.data(Qt::UserRole+1).value<ClassWiredFile>();
 		pSession->wiredSocket()->deleteFile(tmpFile.path);
-		pSession->wiredSocket()->getFileList(pModel->pCurrentPath);
-		
-		this->raise();
 	}
+
+	// Request an updated list
+	pModel->clearList();
+	pModel->pWaitingForList = true;
+	pSession->wiredSocket()->getFileList(pModel->pCurrentPath);
 }
 
 
@@ -271,9 +277,7 @@ void WidgetFileBrowser::dropEvent(QDropEvent *event)
 {
 	QList<QUrl> tmpUrls = event->mimeData()->urls();
 	QListIterator<QUrl> i(tmpUrls);
-	qDebug() << "File----";
 	while(i.hasNext()) {
-		qDebug() << "File.";
 		QUrl tmpUrl = i.next();
 		QFile tmpFile(tmpUrl.toLocalFile());
 		if(tmpFile.exists()) {

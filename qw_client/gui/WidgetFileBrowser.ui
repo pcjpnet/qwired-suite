@@ -79,7 +79,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip" >
-        <string>Download File...</string>
+        <string>Download</string>
        </property>
        <property name="icon" >
         <iconset resource="../application.qrc" >
@@ -102,7 +102,8 @@
         <bool>false</bool>
        </property>
        <property name="toolTip" >
-        <string>Upload File...</string>
+        <string>Upload
+(hold Option/Alt to upload a folder)</string>
        </property>
        <property name="icon" >
         <iconset resource="../application.qrc" >
@@ -275,8 +276,8 @@
    </item>
    <item>
     <widget class="QTreeView" name="fList" >
-     <property name="dragEnabled" >
-      <bool>true</bool>
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
      <property name="rootIsDecorated" >
       <bool>false</bool>
