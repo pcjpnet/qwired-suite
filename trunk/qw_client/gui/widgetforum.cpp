@@ -25,6 +25,7 @@
 #include "../general/wiredcommon.h"
 #include "widgetsendprivmsg.h"
 
+
 WidgetForum::WidgetForum(QWidget *parent)
 	: QWidget (parent)
 {
@@ -222,7 +223,7 @@ void WidgetForum::writeToChat(QString theUser, QString theText, bool theEmote) {
 				tmpTC.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 			}
 			QString tmpUrl = tmpTC.selectedText();
-			tmpTC.insertHtml(QString("<a href=\"%1\">%1</a>").arg(tmpUrl));
+			tmpTC.insertHtml(QString("<a href=\"%1\"><font style=\"font-family: %2; font-size: %3pt\">%1</font></a>").arg(tmpUrl).arg(fChatLog->currentFont().family()).arg(QString::number(fChatLog->currentFont().pointSize())));
 			tc = tmpTC;
 		}
 	}
