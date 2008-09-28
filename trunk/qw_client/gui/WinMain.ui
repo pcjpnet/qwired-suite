@@ -21,7 +21,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQwired" >
@@ -71,6 +71,7 @@
    <addaction name="actionFiles" />
    <addaction name="actionSearch" />
    <addaction name="actionTransfers" />
+   <addaction name="actionMessages" />
    <addaction name="actionAccounts" />
    <addaction name="separator" />
    <addaction name="actionDisconnect" />
@@ -88,7 +89,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="../application.qrc" >:/icons/disconnect.png</iconset>
+    <iconset resource="../application.qrc" >
+     <normaloff>:/icons/disconnect.png</normaloff>:/icons/disconnect.png</iconset>
    </property>
    <property name="text" >
     <string>Disconnect...</string>
@@ -135,7 +137,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="../application.qrc" >:/icons/tb_news.png</iconset>
+    <iconset resource="../application.qrc" >
+     <normaloff>:/icons/tb_news.png</normaloff>:/icons/tb_news.png</iconset>
    </property>
    <property name="text" >
     <string>News</string>
@@ -145,6 +148,13 @@
    </property>
   </action>
   <action name="actionMessages" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="../application.qrc" >
+     <normaloff>:/icons/32x32/mail-message-new.png</normaloff>:/icons/32x32/mail-message-new.png</iconset>
+   </property>
    <property name="text" >
     <string>Messages</string>
    </property>
@@ -157,7 +167,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="../application.qrc" >:/icons/files.png</iconset>
+    <iconset resource="../application.qrc" >
+     <normaloff>:/icons/files.png</normaloff>:/icons/files.png</iconset>
    </property>
    <property name="text" >
     <string>Files</string>
@@ -171,7 +182,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="../application.qrc" >:/icons/transfers.png</iconset>
+    <iconset resource="../application.qrc" >
+     <normaloff>:/icons/transfers.png</normaloff>:/icons/transfers.png</iconset>
    </property>
    <property name="text" >
     <string>Transfers</string>
@@ -185,7 +197,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="../application.qrc" >:/icons/accounts.png</iconset>
+    <iconset resource="../application.qrc" >
+     <normaloff>:/icons/accounts.png</normaloff>:/icons/accounts.png</iconset>
    </property>
    <property name="text" >
     <string>Accounts</string>
@@ -234,7 +247,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="../application.qrc" >:/icons/filesearch.png</iconset>
+    <iconset resource="../application.qrc" >
+     <normaloff>:/icons/filesearch.png</normaloff>:/icons/filesearch.png</iconset>
    </property>
    <property name="text" >
     <string>Search</string>
