@@ -41,6 +41,7 @@
 #include "gui/WidgetTracker.h"
 #include "gui/WidgetFileInfo.h"
 #include "gui/widgetserverinfo.h"
+#include "gui/widgetmessages.h"
 
 
 
@@ -89,6 +90,7 @@ public:
 	QPointer<WidgetAccounts> pWinAccounts;
 	QPointer<WidgetTracker> pWinTrackers;
 	QPointer<WidgetFileBrowser> pWinFileBrowser;
+	QPointer<WidgetMessages> pWinMessages;
 
 	QPointer<QMenu> pTrayMenuItem;
 	
@@ -146,6 +148,7 @@ public slots:
 	void doActionAccounts();
 	void doActionDisconnect();
 	void doActionNews();
+	void doActionMessages();
 	void doActionServerInfo();
 	void doActionNewConnection();
 	void doActionBroadcast();
