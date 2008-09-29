@@ -74,37 +74,40 @@ void WiredTransferSocket::downloadData()
 			pTransfer.pDoneSize += data.size();
 		}
 
-		if(pTransfer.pDoneSize == pTransfer.pTotalSize) {
+		if(pTransfer.pDoneSize==pTransfer.pTotalSize) {
 			qDebug() << this << "Transfer completed.";
 			pSocket->disconnectFromHost();
 			pSocket->waitForDisconnected();
 			pSocket->close();
 
 			if(pTransfer.pTransferType==WiredTransfer::TypeDownload
-				|| pTransfer.pTransferType==WiredTransfer::TypeFolderDownload) {
+					|| pTransfer.pTransferType==WiredTransfer::TypeFolderDownload) {
 				QFile tmpFile(pTransfer.pLocalPath+QString(".WiredTransfer"));
-				if(tmpFile.exists())
-					tmpFile.rename(pTransfer.pLocalPath);
+				if(tmpFile.exists()) tmpFile.rename(pTransfer.pLocalPath);
 			}
+
+			if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
+				pTransfer.pFileStatus = WiredTransfer::StatusDone;
+			else	pTransfer.pStatus == WiredTransfer::StatusDone;
+			
 			break;
 		}
 
-		if(pTimer.elapsed()>=timerInterval)
-			calculateSpeed();
+		if(pTimer.elapsed()>=timerInterval) calculateSpeed();
 
-		if(!pSocket->isValid() && pTransfer.pDoneSize!=pTransfer.pTotalSize) {
-			emit fileTransferError(pTransfer);
-			return;
+		if(!pSocket->isValid()) {
+			if(pTransfer.pStatus==WiredTransfer::StatusStopping) {
+				return;
+			} else if(pTransfer.pDoneSize!=pTransfer.pTotalSize) {
+				qDebug() << this << "ERROR:"<<pSocket->error();
+				emit fileTransferError(pTransfer);
+				return;
+			}
 		}
 
 	}
 
-	
 
-	if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
-			pTransfer.pFileStatus = WiredTransfer::StatusDone;
-	else	pTransfer.pStatus == WiredTransfer::StatusDone;
-	
 	qDebug() << this << "End of loop. Closing file.";
 
 	// Close file
@@ -222,7 +225,7 @@ void WiredTransferSocket::setServer(QString theServer, int thePort) {
 void WiredTransferSocket::cancelTransfer() {
 	qDebug() << this << "Stopping transfer"<<pTransfer.pHash;
 	if(pSocket) pSocket->close();
-	pTransfer.pStatus = WiredTransfer::StatusDone;
+	pTransfer.pStatus = WiredTransfer::StatusStopping;
 	killTransfer();
 }
 

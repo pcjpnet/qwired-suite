@@ -30,7 +30,7 @@
 #include <QCryptographicHash>
 
 namespace WiredTransfer {
-	enum TransferStatus { StatusWaitingForStat, StatusQueued, StatusActive, StatusDone, StatusQueuedLocal };
+	enum TransferStatus { StatusWaitingForStat, StatusQueued, StatusActive, StatusDone, StatusQueuedLocal, StatusStopping };
 	enum TransferType { TypeDownload, TypeUpload, TypeFolderDownload, TypeFolderUpload };
 }
 
@@ -53,6 +53,8 @@ public:
 		pCurrentSpeed = 0;
 		pFilesDone = 0;
 		pFilesCount = 0;
+		pFolderSize = 0;
+		pFolderDone = 0;
 	};
 	
     ~ClassWiredTransfer()
@@ -77,7 +79,9 @@ public:
 		pFileStatus = orig.pFileStatus;
 		pFilesDone = orig.pFilesDone;
 		pFilesCount = orig.pFilesCount;
-		
+		pFolderSize = orig.pFolderSize;
+		pFolderDone = orig.pFolderDone;
+				
 		pEncryptTransfer = orig.pEncryptTransfer;
 		pCurrentSpeed = orig.pCurrentSpeed;
 	};
@@ -120,6 +124,8 @@ public:
 
 	int pFilesCount; // finished file counter for folder transfers
 	int pFilesDone; // total number of files for folder transfer
+	qlonglong pFolderSize; // total size of all files in the folder
+	qlonglong pFolderDone; // size of finished files of the folder
 
 	
 
