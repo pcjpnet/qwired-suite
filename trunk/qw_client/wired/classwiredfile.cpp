@@ -73,7 +73,7 @@ QString ClassWiredFile::humanReadableSize(qlonglong theBytes) {
 	if(theBytes<0) {
 		return QString("-");
 	} else if(theBytes < a) {
-		return QString("%1").arg(float(theBytes), 0, 'f', 2);
+		return QString("%1").arg(theBytes);
 	} else if(theBytes < a*a) {
 		return QString("%1 KB").arg(float(theBytes/b), 0, 'f', 2);
 	} else if(theBytes < a*a*a) {
