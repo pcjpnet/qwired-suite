@@ -83,7 +83,7 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	// Set up the progressbar
 	int progress=0;
 	if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
-			progress = (float(tmpT.pFilesDone)/float(tmpT.pFilesCount))*100;
+			progress = (float(tmpT.pFolderDone)/float(tmpT.pFolderSize))*100;
 	else	progress = (float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100;
 	
 	progressBarOption.progress = progress<0 ? 0 : progress;
@@ -91,14 +91,20 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	if(tmpT.pStatus == WiredTransfer::StatusActive) {
 		QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
 		painter->drawText(tmpX, 40, tr("%1/sec").arg(ClassWiredFile::humanReadableSize(tmpT.pCurrentSpeed)));
+		
 	} else if(tmpT.pStatus==WiredTransfer::StatusQueuedLocal) {
 		painter->drawText(tmpX, 40, tr("Queued locally"));
+		
 	} else if(tmpT.pStatus==WiredTransfer::StatusDone) {
-		painter->drawText(tmpX, 40, tr("Completed"));
+		if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
+				painter->drawText(tmpX, 40, tr("Completed - %1 items - %2").arg(tmpT.pFilesCount).arg(ClassWiredFile::humanReadableSize(tmpT.pFolderSize)));
+		else	painter->drawText(tmpX, 40, tr("Completed - %1").arg(ClassWiredFile::humanReadableSize(tmpT.pTotalSize)));
+		
 	} else if(tmpT.pStatus==WiredTransfer::StatusWaitingForStat) {
 		if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
 				painter->drawText(tmpX, 40, tr("Indexing files and directories..."));
-		else	painter->drawText(tmpX, 40, tr("Requesting transfer slot..."));
+		  else	painter->drawText(tmpX, 40, tr("Requesting transfer slot..."));
+		
 	} else if(tmpT.pStatus==WiredTransfer::StatusQueued) {
 		painter->drawText(tmpX, 40, tr("Queued (at position %1)").arg(tmpT.pQueuePosition));
 	}
@@ -131,15 +137,23 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	painter->setFont(font);
 
 	if(tmpT.pStatus==WiredTransfer::StatusActive) {
-		QString moreInfo;
-		if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
-			moreInfo += tr(" [%2 files remaining]").arg(tmpT.pFilesCount-tmpT.pFilesDone);
-		
-		painter->drawText( 10+32+8, 10+fontmetrics.height()+fontmetrics.ascent(),
-			tr("%1 of %2 completed (%3%) %4")
+		if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload) {
+			painter->drawText( 10+32+8, 10+fontmetrics.height()+fontmetrics.ascent(),
+				tr("%1 (%2 items) of %3 (%4 items) completed")
+				.arg(ClassWiredFile::humanReadableSize(tmpT.pFolderDone))
+				.arg(tmpT.pFilesDone)
+				.arg(ClassWiredFile::humanReadableSize(tmpT.pFolderSize))
+				.arg(tmpT.pFilesCount));
+		} else {
+			painter->drawText( 10+32+8, 10+fontmetrics.height()+fontmetrics.ascent(),
+				tr("%1 of %2 completed (%3%) %4")
 				.arg(ClassWiredFile::humanReadableSize(tmpT.pDoneSize))
 				.arg(ClassWiredFile::humanReadableSize(tmpT.pTotalSize))
-				.arg(progress).arg(moreInfo) );
+				.arg(progress) );
+		}
+// 			moreInfo += tr(" [%2 files remaining]").arg(tmpT.pFilesCount-tmpT.pFilesDone);
+		
+		
 	}
 	
 	// Bottom Line

@@ -42,6 +42,7 @@ void WidgetTransfers::on_fBtnCancel_clicked(bool )
 	ClassWiredTransfer tmpT = idx.data(Qt::UserRole).value<ClassWiredTransfer>();
 	qDebug() << "Cancelling transfer"<<tmpT.pHash<<tmpT.pRemotePath;
 	emit transferCancelled(tmpT);
+	fTransfers->reset();
 	fBtnCancel->setEnabled(false);
 }
 

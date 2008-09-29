@@ -292,7 +292,8 @@ void WidgetFileBrowser::dropEvent(QDropEvent *event)
 
 
 /// File transfer completed. Refresh the view.
-void WidgetFileBrowser::fileTransferDone(ClassWiredTransfer ) {
+void WidgetFileBrowser::fileTransferDone(ClassWiredTransfer transfer) {
+	if(transfer.pTransferType!=WiredTransfer::TypeUpload) return;
 	pModel->clearList();
 	pModel->pWaitingForList = true;
 	pSession->wiredSocket()->getFileList( pModel->pCurrentPath );

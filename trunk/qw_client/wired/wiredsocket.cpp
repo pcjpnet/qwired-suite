@@ -1386,6 +1386,11 @@ void WiredSocket::on_server_filelist_done(QList<QByteArray> params)
 				transfer.fileList = pRecursiveFileListing;
 				transfer.pFilesCount = pRecursiveFileListing.count();
 				transfer.pFilesDone = 0;
+				transfer.pFolderDone = 0;
+				transfer.pFolderSize = 0;
+				QListIterator<ClassWiredFile> k(pRecursiveFileListing);
+				while(k.hasNext()) { transfer.pFolderSize+=k.next().size; }
+				
 				transfer.pRemoteFolder = pRecursivePath;
 				transfer.pStatus = WiredTransfer::StatusActive;
 				proceedFolderDownload(tmpT);
@@ -1455,6 +1460,7 @@ void WiredSocket::fileTransferFileDone(const ClassWiredTransfer transfer)
 		if(!socket) continue;
 		if(socket->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
 			&& socket->pTransfer.pStatus==WiredTransfer::StatusActive) {
+			socket->pTransfer.pFolderDone += transfer.pTotalSize;
 			proceedFolderDownload(socket);
 			return;
 		}
