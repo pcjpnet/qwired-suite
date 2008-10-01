@@ -28,34 +28,8 @@ void WiredTransferSocket::run() {
 	startTransfer();
 }
 
-
-/// Send the TRANSFER handshake.
-void WiredTransferSocket::sendHandshake()
-{
-	qDebug() << this << "Sending handshake for TRANSFER"<<pTransfer.pHash;;
-	QByteArray tmpCmd("TRANSFER ");
-	tmpCmd += pTransfer.pHash + char(0x04);
-	pSocket->write(tmpCmd);
-	pSocket->waitForBytesWritten();
-
-	if(pTransfer.pTransferType==WiredTransfer::TypeUpload)
-			uploadData();
-	  else	downloadData();
-
-	if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
-			emit fileTransferFileDone(pTransfer);
-	  else	emit fileTransferDone(pTransfer);
-	  
-	killTransfer();
-}
-
-
-
-
-
 /// Begin to download the data
-void WiredTransferSocket::downloadData()
-{
+void WiredTransferSocket::downloadData() {
 	int timerInterval = 500;
 	pTimer.start();
 	
@@ -87,8 +61,8 @@ void WiredTransferSocket::downloadData()
 			}
 
 			if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
-				pTransfer.pFileStatus = WiredTransfer::StatusDone;
-			else	pTransfer.pStatus == WiredTransfer::StatusDone;
+					pTransfer.pFileStatus = WiredTransfer::StatusDone;
+			else	pTransfer.pStatus = WiredTransfer::StatusDone;
 			
 			break;
 		}
@@ -113,7 +87,6 @@ void WiredTransferSocket::downloadData()
 	// Close file
 	pFile->flush();
 	pFile->close();	
- 	
 	killTransfer();
 }
 
@@ -128,11 +101,14 @@ void WiredTransferSocket::killTransfer() {
 
 
 /// Begin to upload the data
-void WiredTransferSocket::uploadData()
-{
+void WiredTransferSocket::uploadData() {
 	int timerInterval = 500;
 	pTimer.start();
-	pTransfer.pStatus = WiredTransfer::StatusActive;
+
+	if(pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
+			pTransfer.pFileStatus = WiredTransfer::StatusActive;
+	else	pTransfer.pStatus = WiredTransfer::StatusActive;
+	
 	while(1) {
 		if(pFile->atEnd()) {
 			pSocket->disconnectFromHost();
@@ -156,7 +132,11 @@ void WiredTransferSocket::uploadData()
 		
 		pSocket->waitForBytesWritten();
 	}
-	pTransfer.pStatus = WiredTransfer::StatusDone;
+
+	if(pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
+			pTransfer.pFileStatus = WiredTransfer::StatusActive;
+	else	pTransfer.pStatus = WiredTransfer::StatusActive;
+	
 	pFile->close();
 }
 
@@ -168,9 +148,9 @@ WiredTransferSocket::~WiredTransferSocket() {
 
 
 /// Connect and do some magic stuff.
-void WiredTransferSocket::startTransfer()
-{
+void WiredTransferSocket::startTransfer() {
 	emit fileTransferStarted(pTransfer);
+
 	if( pTransfer.pTransferType == WiredTransfer::TypeDownload || pTransfer.pTransferType == WiredTransfer::TypeFolderDownload ) {
 		QString tmpPath = pTransfer.pLocalPath+QString(".WiredTransfer");
 		pFile = new QFile(tmpPath);
@@ -179,14 +159,13 @@ void WiredTransferSocket::startTransfer()
 			return;
 		}
 
-	} else if(pTransfer.pTransferType == WiredTransfer::TypeUpload) {
+	} else if(pTransfer.pTransferType == WiredTransfer::TypeUpload || pTransfer.pTransferType == WiredTransfer::TypeFolderUpload) {
 		pFile = new QFile(pTransfer.pLocalPath);
 		if(!pFile->open(QIODevice::ReadOnly) ) {
 			qDebug() << this << "Unable to open the file:"<<pTransfer.pLocalPath<<":"<<pFile->errorString();
 			return;
 		}
 		pFile->seek(pTransfer.pOffset);
-
 	}
 
 	if(!pTransfer.pEncryptTransfer)
@@ -211,6 +190,26 @@ void WiredTransferSocket::startTransfer()
 	qDebug() << this << "Connected to remote host encrypted. Handshake follows.";
 	sendHandshake();
 
+}
+
+
+/// Send the TRANSFER handshake.
+void WiredTransferSocket::sendHandshake(){
+	qDebug() << this << "Sending handshake for TRANSFER"<<pTransfer.pHash;;
+	QByteArray tmpCmd("TRANSFER ");
+	tmpCmd += pTransfer.pHash + char(0x04);
+	pSocket->write(tmpCmd);
+ 	pSocket->waitForBytesWritten();
+
+	if(pTransfer.pTransferType==WiredTransfer::TypeUpload || pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
+			uploadData();
+	else	downloadData();
+
+	if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload || pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
+			emit fileTransferFileDone(pTransfer);
+	else	emit fileTransferDone(pTransfer);
+	  
+	killTransfer();
 }
 
 

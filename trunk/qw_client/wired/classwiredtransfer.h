@@ -81,6 +81,7 @@ public:
 		pFilesCount = orig.pFilesCount;
 		pFolderSize = orig.pFolderSize;
 		pFolderDone = orig.pFolderDone;
+		fileListLocal = orig.fileListLocal;
 				
 		pEncryptTransfer = orig.pEncryptTransfer;
 		pCurrentSpeed = orig.pCurrentSpeed;
@@ -120,6 +121,7 @@ public:
 	QString pRemoteFolder; // remote folder path for folder transfers
 	QString pLocalRoot; // local root dir for folder transfers
 	QList<ClassWiredFile> fileList; // for folder downloads
+	QStringList fileListLocal; // for folder uploads
 	WiredTransfer::TransferStatus pFileStatus; // Status for folder transfers
 
 	int pFilesCount; // finished file counter for folder transfers

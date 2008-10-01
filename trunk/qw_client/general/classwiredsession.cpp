@@ -961,6 +961,16 @@ void ClassWiredSession::uploadFile(const QString &localPath, const QString &remo
 }
 
 
+void ClassWiredSession::uploadFolder(const QString &localPath, const QString &remotePath) {
+	QSettings s;
+	pWiredSocket->putFolder(localPath, remotePath, true);
+	bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeFolderUpload);
+	bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
+	if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+		pWiredSocket->runTransferQueue(WiredTransfer::TypeFolderUpload);
+}
+
+
 void ClassWiredSession::fileListingRecursiveDone(const QList<ClassWiredFile> items)
 {
 	qlonglong totalSize = 0;
@@ -983,5 +993,6 @@ void ClassWiredSession::fileListingRecursiveDone(const QList<ClassWiredFile> ite
 	if(button == QMessageBox::No) return;
 	
 }
+
 
 

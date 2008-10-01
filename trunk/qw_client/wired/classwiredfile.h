@@ -55,10 +55,11 @@ public:
     QString checksum;
     QString comment;
 
-	bool isIndexed; // used for recursive downloads
-    
     QString fileName() const;
 	QIcon fileIcon() const;
+
+	bool isIndexed; // used for recursive downloads
+	QString localPath; // local path for folder uploads
 
 };
 

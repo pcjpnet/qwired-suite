@@ -189,6 +189,7 @@ public slots:
 	void downloadFile(const QString &remotePath, const QString &localPath);
 	void downloadFolder(const QString &remotePath, const QString &localPath);
 	void uploadFile(const QString &localPath, const QString &remotePath);
+	void uploadFolder(const QString &localPath, const QString &remotePath);
 	
 	
 };

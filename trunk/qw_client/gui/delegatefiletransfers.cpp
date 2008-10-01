@@ -83,7 +83,7 @@ void DelegateFileTransfers::paint(QPainter* painter, const QStyleOptionViewItem&
 	// Set up the progressbar
 	int progress=0;
 	if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
-			progress = (float(tmpT.pFolderDone)/float(tmpT.pFolderSize))*100;
+			progress = (float(tmpT.pFolderDone+tmpT.pDoneSize)/float(tmpT.pFolderSize))*100;
 	else	progress = (float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100;
 	
 	progressBarOption.progress = progress<0 ? 0 : progress;

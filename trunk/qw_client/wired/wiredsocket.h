@@ -104,7 +104,7 @@ class WiredSocket : public QObject
 		bool isTransferringFileOfType(WiredTransfer::TransferType type);
 
 		void proceedFolderDownload(WiredTransferSocket *);
-		
+		void proceedFolderUpload(WiredTransferSocket *);
 		
 	public slots:
 
@@ -142,6 +142,7 @@ class WiredSocket : public QObject
 		void moveFile(const QString thePath, const QString theDestination);
 		void postNews(QString thePost);
 		void putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
+		void putFolder(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
 		void readGroup(QString theName);
 		void readUser(QString theName);
 		void rejectChat(int theChatID);
