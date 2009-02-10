@@ -23,7 +23,8 @@ TRANSLATIONS += lang/lang_de.ts \
  lang/lang_pt.ts \
  lang/lang_it.ts \
  lang/lang_fr.ts \
- lang/lang_es.ts
+ lang/lang_es.ts \
+ lang/lang_jp.ts
 SOURCES += general/main.cpp \
  wired/wiredsocket.cpp \
  general/classwiredsession.cpp \
