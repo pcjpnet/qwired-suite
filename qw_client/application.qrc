@@ -5,6 +5,7 @@
     <file alias="lang_pt.qm">lang/lang_pt.qm</file>
     <file alias="lang_es.qm">lang/lang_es.qm</file>
     <file alias="lang_fr.qm">lang/lang_fr.qm</file>
+    <file alias="lang_jp.qm">lang/lang_jp.qm</file>
 
 	<file>icons/32x32/network-server.png</file>
 	<file>icons/32x32/start-here.png</file>

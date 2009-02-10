@@ -43,6 +43,7 @@ WidgetPrefs::WidgetPrefs(QWidget *parent)
 	fLanguage->addItem("Italian", QString("it"));
 	fLanguage->addItem("Portuguese", QString("pt"));
 	fLanguage->addItem("Spanish", QString("es"));
+    fLanguage->addItem("Japanese", QString("jp"));
 	
 	initEventsMenu();
 	initPrefs();

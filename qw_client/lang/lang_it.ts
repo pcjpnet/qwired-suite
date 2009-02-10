@@ -3,354 +3,355 @@
 <context>
     <name>ClassWiredSession</name>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="776"/>
+        <location filename="../general/classwiredsession.cpp" line="799"/>
         <source>News</source>
         <translation>Notizie</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="291"/>
+        <location filename="../general/classwiredsession.cpp" line="293"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation>Argomento: %1
 Inserito da: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="347"/>
+        <location filename="../general/classwiredsession.cpp" line="349"/>
         <source>Broadcast Message</source>
         <translation>Annuncio</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="374"/>
+        <location filename="../general/classwiredsession.cpp" line="376"/>
         <source>Info: %1</source>
         <translation>Informazioni: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="383"/>
+        <location filename="../general/classwiredsession.cpp" line="385"/>
         <source>Private Chat Invitation</source>
         <translation>Invito Chat Privata</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="384"/>
+        <location filename="../general/classwiredsession.cpp" line="386"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation>%1 ti ha invitato in una chat privata.
 Entra per aprire separatamente una chat privata con %1.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="386"/>
+        <location filename="../general/classwiredsession.cpp" line="388"/>
         <source>Ignore</source>
         <translation>Ignora</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="387"/>
+        <location filename="../general/classwiredsession.cpp" line="389"/>
         <source>Reject</source>
         <translation>Rifiuta</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="388"/>
+        <location filename="../general/classwiredsession.cpp" line="390"/>
         <source>Join</source>
         <translation>Entra</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="415"/>
+        <location filename="../general/classwiredsession.cpp" line="417"/>
         <source>Private Chat</source>
         <translation>Chat Privata</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="794"/>
+        <location filename="../general/classwiredsession.cpp" line="817"/>
         <source>Server Info</source>
         <translation>Informazioni Server</translation>
     </message>
     <message>
-        <location filename="general/classwiredsession.cpp" line="495"/>
-        <source> [Disconnected]</source>
-        <translation type="obsolete"> [Disconnesso]</translation>
-    </message>
-    <message>
-        <location filename="general/classwiredsession.cpp" line="500"/>
-        <source>Socket Error</source>
-        <translation type="obsolete">Errore di Comunicazione</translation>
-    </message>
-    <message>
-        <location filename="general/classwiredsession.cpp" line="500"/>
-        <source>A socket error occoured.
-Reason: %1 (%2).</source>
-        <translation type="obsolete">E&apos; avvenuto un errore di comunicazione .
-Motivo: %1 (%2).</translation>
-    </message>
-    <message>
-        <location filename="../general/classwiredsession.cpp" line="885"/>
+        <location filename="../general/classwiredsession.cpp" line="908"/>
         <source>Transfers</source>
         <translation>Trasferimenti</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="867"/>
+        <location filename="../general/classwiredsession.cpp" line="890"/>
         <source>File Search</source>
         <translation>Ricerca Documento</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="740"/>
+        <location filename="../general/classwiredsession.cpp" line="743"/>
         <source>Accounts</source>
         <translation>Profili d&apos;accesso</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="531"/>
+        <location filename="../general/classwiredsession.cpp" line="534"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation>Comando Fallito. E&apos; avvenuto un errore all&apos;interno del server impossibile da determinare.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="532"/>
+        <location filename="../general/classwiredsession.cpp" line="535"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation>Comando Non Trovato. Qwired ha inviato un comando non conosciuto dal server.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="533"/>
+        <location filename="../general/classwiredsession.cpp" line="536"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation>Comando Non Supportato. Quest&apos;ultimo comando non è supportato dal server.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="534"/>
+        <location filename="../general/classwiredsession.cpp" line="537"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation>Errore di Sintassi. Quest&apos;ultimo comando non è stato inserito correttamente.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="535"/>
+        <location filename="../general/classwiredsession.cpp" line="538"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation>Accesso Fallito. Il nome utente e la chiave d&apos;accesso non sono stati accettati dal server.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="536"/>
+        <location filename="../general/classwiredsession.cpp" line="539"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation>Esiliato. Tu sei stato bandito dal server. Per favore riprova a connetterti in seguito.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="537"/>
+        <location filename="../general/classwiredsession.cpp" line="540"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation>Utente Non Trovato. Il server non può contattare l&apos;utente da te richiesto.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="538"/>
+        <location filename="../general/classwiredsession.cpp" line="541"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation>Profilo d&apos;Accesso Non Trovato. Il server non riesce a trovare il profilo d&apos;accesso da te richiesto.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="539"/>
+        <location filename="../general/classwiredsession.cpp" line="542"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation>Il Profilo d&apos;Accesso Esiste. Non posso creare il profilo d&apos;accesso specificato.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="540"/>
+        <location filename="../general/classwiredsession.cpp" line="543"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation>L&apos;Utente non può essere disconnesso. Questo particolare utente non può essere disconnesso.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="541"/>
+        <location filename="../general/classwiredsession.cpp" line="544"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation>Permesso Negato. Tu non hai i privilegi necessari per eseguire questo comando.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="542"/>
+        <location filename="../general/classwiredsession.cpp" line="545"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation>Il Documento o il Percorso non è stato Trovato. Quest&apos;ultimo comando non può essere completato perchè il documento o il percorso non possono essere trovati.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="543"/>
+        <location filename="../general/classwiredsession.cpp" line="546"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation>Quest&apos;ultimo comando non può essere completato perchè il documento o il percorso sono già esistenti.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="544"/>
+        <location filename="../general/classwiredsession.cpp" line="547"/>
         <source>Checksum Mismatch.</source>
         <translation>Verifica del Segmento Incorretta.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="545"/>
+        <location filename="../general/classwiredsession.cpp" line="548"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation>Limite Coda Ecceduto. Non posso completare l&apos;ultimo comando perchè gli utenti in coda raggiungono il limite.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="552"/>
+        <location filename="../general/classwiredsession.cpp" line="555"/>
         <source>Server Error</source>
         <translation>Errore Server</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="529"/>
+        <location filename="../general/classwiredsession.cpp" line="532"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation>Un errore impossibile da determinare è avvenuto. Il codice errore è %1.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="563"/>
+        <location filename="../general/classwiredsession.cpp" line="566"/>
         <source>Show/Hide</source>
         <translation>Mostra/Nascondi</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="586"/>
+        <location filename="../general/classwiredsession.cpp" line="589"/>
         <source>Connected</source>
         <translation>Connesso</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="587"/>
+        <location filename="../general/classwiredsession.cpp" line="590"/>
         <source>Disconnected</source>
         <translation>Disconnesso</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="588"/>
+        <location filename="../general/classwiredsession.cpp" line="591"/>
         <source>Server Error: %1</source>
         <translation>Errore Server: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="589"/>
+        <location filename="../general/classwiredsession.cpp" line="592"/>
         <source>%1 joined</source>
         <translation>%1 entra</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="590"/>
+        <location filename="../general/classwiredsession.cpp" line="593"/>
         <source>%1 is now known as %2</source>
         <translation>%1 è ora conosciuto come %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="591"/>
+        <location filename="../general/classwiredsession.cpp" line="594"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation>%1 ha cambiato la descrizione in &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="592"/>
+        <location filename="../general/classwiredsession.cpp" line="595"/>
         <source>%1 left</source>
         <translation>%1 esce</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="593"/>
+        <location filename="../general/classwiredsession.cpp" line="596"/>
         <source>Chat from %1:
 %2</source>
         <translation>Chat da %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="594"/>
+        <location filename="../general/classwiredsession.cpp" line="597"/>
         <source>Message from %1:
 %2</source>
         <translation>Messaggio da %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="595"/>
+        <location filename="../general/classwiredsession.cpp" line="598"/>
         <source>News Posted from %1:
 %2</source>
         <translation>Notizia Inserita da %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="596"/>
+        <location filename="../general/classwiredsession.cpp" line="599"/>
         <source>Broadcast from %1:
 %2</source>
         <translation>Annuncio da %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="597"/>
+        <location filename="../general/classwiredsession.cpp" line="600"/>
         <source>Transfer Started: %1</source>
         <translation>Trasferimento Iniziato: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="598"/>
+        <location filename="../general/classwiredsession.cpp" line="601"/>
         <source>Transfer Finished: %1</source>
         <translation>Trasferimento Completato: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="673"/>
+        <location filename="../general/classwiredsession.cpp" line="676"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="431"/>
+        <location filename="../general/classwiredsession.cpp" line="433"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="460"/>
+        <location filename="../general/classwiredsession.cpp" line="462"/>
         <source>Connection Refused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="461"/>
+        <location filename="../general/classwiredsession.cpp" line="463"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="464"/>
+        <location filename="../general/classwiredsession.cpp" line="466"/>
         <source>Host not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="464"/>
+        <location filename="../general/classwiredsession.cpp" line="466"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="682"/>
+        <location filename="../general/classwiredsession.cpp" line="685"/>
         <source>Receiving user list...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="821"/>
+        <location filename="../general/classwiredsession.cpp" line="844"/>
         <source>Files</source>
         <translation type="unfinished">Documenti</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="903"/>
+        <location filename="../general/classwiredsession.cpp" line="926"/>
         <source>File Transfer Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="906"/>
+        <location filename="../general/classwiredsession.cpp" line="929"/>
         <source>The transfer of file &apos;%1&apos; could not be completed because of an error.
 Possibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ConnWindow</name>
     <message>
-        <location filename="gui/connwindow.cpp" line="72"/>
-        <source>Qwired %1</source>
-        <translation type="obsolete">Qwired %1</translation>
+        <location filename="../general/classwiredsession.cpp" line="778"/>
+        <source>Messages</source>
+        <translation type="unfinished">Messaggi</translation>
     </message>
     <message>
-        <location filename="gui/connwindow.cpp" line="73"/>
-        <source>&lt;h2&gt;Qwired %1&lt;/h2&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;A free Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.&lt;br&gt;&lt;br&gt;Copyright (c) 2008 Bastian Bense.&lt;br&gt;&lt;br&gt;Web: &lt;a href=&quot;http://qwired-client.sourceforge.net/&quot;&gt;http://qwired-client.sourceforge.net/&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;h2&gt;Qwired %1&lt;/h2&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Un libero Wired client per Linux, Windows e Mac OS X scritto in C++ usando Qt4 framework.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Qwired è usufruibile sottostando ai termini della GPL (General Public License) Versione 2 o successiva. Per cortesia dai uno sguardo al codice sorgente per avere maggiori delucidazioni.&lt;br&gt;&lt;br&gt;Copyright (c) 2008 Bastian Bense.&lt;br&gt;&lt;br&gt;Web: &lt;a href=&quot;http://qwired-client.sourceforge.net/&quot;&gt;http://qwired-client.sourceforge.net/&lt;/a&gt;</translation>
+        <location filename="../general/classwiredsession.cpp" line="979"/>
+        <source>Folder Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/classwiredsession.cpp" line="981"/>
+        <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
+Do you want to begin the transfer?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DelegateFileTransfers</name>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="87"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="93"/>
         <source>%1/sec</source>
         <translation>%1/sec</translation>
     </message>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="93"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="106"/>
         <source>Requesting transfer slot...</source>
         <translation>Richiesta per il trasferimento in corso...</translation>
     </message>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="95"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="109"/>
         <source>Queued (at position %1)</source>
         <translation>In coda (alla posizione %1)</translation>
     </message>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="125"/>
-        <source>%1 of %2 completed (%3%)</source>
-        <translation>%1 di %2 completo (%3%)</translation>
-    </message>
-    <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="89"/>
+        <location filename="../gui/delegatefiletransfers.cpp" line="96"/>
         <source>Queued locally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/delegatefiletransfers.cpp" line="91"/>
-        <source>Completed</source>
+        <location filename="../gui/delegatefiletransfers.cpp" line="100"/>
+        <source>Completed - %1 items - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/delegatefiletransfers.cpp" line="101"/>
+        <source>Completed - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/delegatefiletransfers.cpp" line="105"/>
+        <source>Indexing files and directories...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/delegatefiletransfers.cpp" line="143"/>
+        <source>%1 (%2 items) of %3 (%4 items) completed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/delegatefiletransfers.cpp" line="150"/>
+        <source>%1 of %2 completed (%3%) %4</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -367,157 +368,157 @@ Possibly the file transfer TCP port is blocked by a firewall or the server is co
         <translation>Barra degli strumenti</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="80"/>
+        <location filename="../gui/WinMain.ui" line="81"/>
         <source>New Connection...</source>
         <translation>Nuova Connessione...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="83"/>
+        <location filename="../gui/WinMain.ui" line="84"/>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="94"/>
+        <location filename="../gui/WinMain.ui" line="96"/>
         <source>Disconnect...</source>
         <translation>Disconnetti...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="97"/>
+        <location filename="../gui/WinMain.ui" line="99"/>
         <source>Ctrl+D</source>
         <translation>Ctrl+D</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="105"/>
+        <location filename="../gui/WinMain.ui" line="107"/>
         <source>Reconnect</source>
         <translation>Riconnetti</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="108"/>
+        <location filename="../gui/WinMain.ui" line="110"/>
         <source>Ctrl+Shift+K</source>
         <translation>Ctrl+Shift+K</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="116"/>
+        <location filename="../gui/WinMain.ui" line="118"/>
         <source>Server Information</source>
         <translation>Informazioni Server</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="119"/>
+        <location filename="../gui/WinMain.ui" line="121"/>
         <source>Ctrl+Shift+I</source>
         <translation>Ctrl+Shift+I</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="127"/>
+        <location filename="../gui/WinMain.ui" line="129"/>
         <source>Chat</source>
         <translation>Chat</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="130"/>
+        <location filename="../gui/WinMain.ui" line="132"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="141"/>
+        <location filename="../gui/WinMain.ui" line="144"/>
         <source>News</source>
         <translation>Notizie</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="144"/>
+        <location filename="../gui/WinMain.ui" line="147"/>
         <source>Ctrl+N</source>
         <translation>Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="149"/>
+        <location filename="../gui/WinMain.ui" line="159"/>
         <source>Messages</source>
         <translation>Messaggi</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="152"/>
+        <location filename="../gui/WinMain.ui" line="162"/>
         <source>Ctrl+E</source>
         <translation>Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="163"/>
+        <location filename="../gui/WinMain.ui" line="174"/>
         <source>Files</source>
         <translation>Documenti</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="243"/>
+        <location filename="../gui/WinMain.ui" line="257"/>
         <source>Ctrl+F</source>
         <translation>Ctrl+F</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="177"/>
+        <location filename="../gui/WinMain.ui" line="189"/>
         <source>Transfers</source>
         <translation>Trasferimenti</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="180"/>
+        <location filename="../gui/WinMain.ui" line="192"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="191"/>
+        <location filename="../gui/WinMain.ui" line="204"/>
         <source>Accounts</source>
         <translation>Profili d&apos;accesso</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="194"/>
+        <location filename="../gui/WinMain.ui" line="207"/>
         <source>Ctrl+U</source>
         <translation>Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="202"/>
+        <location filename="../gui/WinMain.ui" line="215"/>
         <source>Get Information</source>
         <translation>Ottieni Informazioni</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="210"/>
+        <location filename="../gui/WinMain.ui" line="223"/>
         <source>Set Topic...</source>
         <translation>Definisci l&apos;argomento...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="218"/>
+        <location filename="../gui/WinMain.ui" line="231"/>
         <source>Post News...</source>
         <translation>Pubblica Notizie...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="226"/>
+        <location filename="../gui/WinMain.ui" line="239"/>
         <source>Broadcast Message...</source>
         <translation>Annuncio...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="229"/>
+        <location filename="../gui/WinMain.ui" line="242"/>
         <source>Ctrl+Shift+B</source>
         <translation>Ctrl+Shift+B</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="240"/>
+        <location filename="../gui/WinMain.ui" line="254"/>
         <source>Search</source>
         <translation>Cerca</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="248"/>
+        <location filename="../gui/WinMain.ui" line="262"/>
         <source>Preferences...</source>
         <translation>Preferenze...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="253"/>
+        <location filename="../gui/WinMain.ui" line="267"/>
         <source>About QWired...</source>
         <translation>Riguardo QWired...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="258"/>
+        <location filename="../gui/WinMain.ui" line="272"/>
         <source>Trackers</source>
         <translation>Nodi diffusori</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="261"/>
+        <location filename="../gui/WinMain.ui" line="275"/>
         <source>Show a list of configured trackers and servers registered with them.</source>
         <translation>Mostra una lista dei nodi diffusori configurati e dei server in essi registrati.</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="264"/>
+        <location filename="../gui/WinMain.ui" line="278"/>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
@@ -898,64 +899,39 @@ p, li { white-space: pre-wrap; }
         <translation>Indietro</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="82"/>
-        <source>Download File...</source>
-        <translation>Scarica Documento...</translation>
-    </message>
-    <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="105"/>
-        <source>Upload File...</source>
-        <translation>Invia Documento...</translation>
-    </message>
-    <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="144"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="145"/>
         <source>Get Info</source>
         <translation>Ottieni Informazioni</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="170"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="171"/>
         <source>New Folder...</source>
         <translation>Nuova Cartella...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="193"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="194"/>
         <source>Refresh</source>
         <translation>Aggiorna</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="238"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="239"/>
         <source>Delete...</source>
         <translation>Elimina...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="298"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="299"/>
         <source>0 items, 0 bytes total, 0 GB available</source>
         <translation>0 elementi, 0 bytes totali, 0 GB disponibili</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="140"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="139"/>
         <source>Files - %1</source>
         <translation>Documenti - %1</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="158"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="156"/>
         <source>File Exists</source>
         <translation>Documento Esistente</translation>
-    </message>
-    <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="160"/>
-        <source>The file you are trying to download already exists in your download directory. Overwrite it?</source>
-        <translation>Il documento che stai cercando di scaricare è già presente nella tua cartella di destinazione. Vuoi sovrascriverlo?</translation>
-    </message>
-    <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="161"/>
-        <source>Cancel</source>
-        <translation>Cancella</translation>
-    </message>
-    <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="163"/>
-        <source>Overwrite</source>
-        <translation>Sovrascrivi</translation>
     </message>
     <message>
         <location filename="../gui/widgetfilebrowser.cpp" line="211"/>
@@ -968,24 +944,12 @@ p, li { white-space: pre-wrap; }
         <translation>Elimina Documento</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="231"/>
-        <source>Are you sure you want to delete the item &apos;%1&apos;?
-This can not be undone!</source>
-        <translation type="obsolete">Sei sicuro di voler eliminare l&apos;elemento &apos;%1&apos;?
-Una volta eseguita, l&apos;operazione non può essere annullata!</translation>
-    </message>
-    <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="234"/>
-        <source>Delete</source>
-        <translation type="obsolete">Elimina</translation>
-    </message>
-    <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="254"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="252"/>
         <source>Create Folder</source>
         <translation>Crea Cartella</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="254"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="252"/>
         <source>Enter a name for the new folder:</source>
         <translation>Inserisci un nome per la nuova cartella:</translation>
     </message>
@@ -995,12 +959,12 @@ Una volta eseguita, l&apos;operazione non può essere annullata!</translation>
         <translation>Ctrl+Up</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="209"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="210"/>
         <source>F5</source>
         <translation>F5</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="134"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="133"/>
         <source>%1 items, %2 total, %3 available</source>
         <translation>%1 elementi, %2 totali, %3 disponibili</translation>
     </message>
@@ -1012,6 +976,22 @@ This can not be undone!</source>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <location filename="../gui/WidgetFileBrowser.ui" line="82"/>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/WidgetFileBrowser.ui" line="105"/>
+        <source>Upload
+(hold Option/Alt to upload a folder)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/widgetfilebrowser.cpp" line="157"/>
+        <source>The file &apos;%1&apos; already exists in your download directory. Overwrite it?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1118,19 +1098,19 @@ This can not be undone!</source>
         <translation>Argomento: (nessuno)</translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="323"/>
+        <location filename="../gui/widgetforum.cpp" line="324"/>
         <source>Kick</source>
         <translation>Caccia</translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="311"/>
+        <location filename="../gui/widgetforum.cpp" line="312"/>
         <source>You are about to disconnect &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation>Stai provando a disconnettere &apos;%1&apos;.
 Gentilmente inserisci una motivazione e premi OK.</translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="324"/>
+        <location filename="../gui/widgetforum.cpp" line="325"/>
         <source>You are about to ban &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation>Stai provando a bandire &apos;%1&apos;.
@@ -1165,6 +1145,14 @@ Gentilmente inserisci una motivazione e premi OK.</translation>
         <location filename="../gui/WidgetForum.ui" line="243"/>
         <source>Invite to chat...</source>
         <translation>Invita nella chat...</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetMessages</name>
+    <message>
+        <location filename="../gui/WidgetMessages.ui" line="13"/>
+        <source>Files</source>
+        <translation type="unfinished">Documenti</translation>
     </message>
 </context>
 <context>
@@ -1464,37 +1452,37 @@ massima dimensione 32x32 pixels</translation>
         <translation>Indirizzo Nodo Diffusore:</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="274"/>
+        <location filename="../gui/widgetprefs.cpp" line="276"/>
         <source>Select Icon</source>
         <translation>Seleziona Icona</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="274"/>
+        <location filename="../gui/widgetprefs.cpp" line="276"/>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Immagini (*.png *.xpm *.jpg)</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="283"/>
+        <location filename="../gui/widgetprefs.cpp" line="285"/>
         <source>Invalid File</source>
         <translation>Documento Non Valido</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="283"/>
+        <location filename="../gui/widgetprefs.cpp" line="285"/>
         <source>Could not open the selected image.</source>
         <translation>Non posso aprire l&apos;immagine selezionata.</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="303"/>
+        <location filename="../gui/widgetprefs.cpp" line="305"/>
         <source>Select Download Directory</source>
         <translation>Seleziona il Percorso per la Ricezione</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="401"/>
+        <location filename="../gui/widgetprefs.cpp" line="403"/>
         <source>New Tracker</source>
         <translation>Nuovo Nodo Diffusore</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="403"/>
+        <location filename="../gui/widgetprefs.cpp" line="405"/>
         <source>my.tracker.com</source>
         <translation>my.tracker.com</translation>
     </message>
@@ -1603,82 +1591,82 @@ p, li { white-space: pre-wrap; }
         <translation>Applica i Cambiamenti</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="61"/>
+        <location filename="../gui/widgetprefs.cpp" line="63"/>
         <source>Server Connected</source>
         <translation>Server Connesso</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="63"/>
+        <location filename="../gui/widgetprefs.cpp" line="65"/>
         <source>Server Disconnected</source>
         <translation>Server Disconnesso</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="65"/>
+        <location filename="../gui/widgetprefs.cpp" line="67"/>
         <source>Server Error</source>
         <translation>Errore Server</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="67"/>
+        <location filename="../gui/widgetprefs.cpp" line="69"/>
         <source>User Joined</source>
         <translation>L&apos;Utente Entra</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="69"/>
+        <location filename="../gui/widgetprefs.cpp" line="71"/>
         <source>User Changed Nick</source>
         <translation>L&apos;Utente ha Cambiato il Nome</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="71"/>
+        <location filename="../gui/widgetprefs.cpp" line="73"/>
         <source>User Changed Status</source>
         <translation>L&apos;Utente ha Cambiato la Descrizione</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="73"/>
+        <location filename="../gui/widgetprefs.cpp" line="75"/>
         <source>User Left</source>
         <translation>L&apos;Utente Esce</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="75"/>
+        <location filename="../gui/widgetprefs.cpp" line="77"/>
         <source>Chat Received</source>
         <translation>Chat Ricevuta</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="77"/>
+        <location filename="../gui/widgetprefs.cpp" line="79"/>
         <source>Message Received</source>
         <translation>Messaggio Ricevuto</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="79"/>
+        <location filename="../gui/widgetprefs.cpp" line="81"/>
         <source>News Posted</source>
         <translation>Notizia Inserita</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="81"/>
+        <location filename="../gui/widgetprefs.cpp" line="83"/>
         <source>Broadcast Received</source>
         <translation>Annuncio Ricevuto</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="83"/>
+        <location filename="../gui/widgetprefs.cpp" line="85"/>
         <source>Transfer Started</source>
         <translation>Trasferimento Iniziato</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="85"/>
+        <location filename="../gui/widgetprefs.cpp" line="87"/>
         <source>Transfer Finished</source>
         <translation>Trasferimento Completato</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="435"/>
+        <location filename="../gui/widgetprefs.cpp" line="437"/>
         <source>New Bookmark</source>
         <translation>Nuovo Preferito</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="558"/>
+        <location filename="../gui/widgetprefs.cpp" line="560"/>
         <source>(none)</source>
         <translation>(non specificato)</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="553"/>
+        <location filename="../gui/widgetprefs.cpp" line="555"/>
         <source>Select WAV Sound File</source>
         <translation>Seleziona un Documento Audio WAV</translation>
     </message>
@@ -1832,18 +1820,6 @@ p, li { white-space: pre-wrap; }
         <translation>Indirizzo</translation>
     </message>
     <message>
-        <location filename="gui/WidgetTracker.cpp" line="149"/>
-        <source>Socket Error</source>
-        <translation type="obsolete">Errore di Comunicazione</translation>
-    </message>
-    <message>
-        <location filename="gui/WidgetTracker.cpp" line="149"/>
-        <source>A socket error occoured while trying to connect to the tracker.
-Reason: %1 (%2).</source>
-        <translation type="obsolete">Un errore di comunicazione è avvenuto al momento di contattare il nodo diffusore.
-Motivo: %1 (%2).</translation>
-    </message>
-    <message>
         <location filename="../gui/WidgetTracker.ui" line="120"/>
         <source>%1 servers registered with tracker</source>
         <translation>%1 servers registrati sul nodo diffusore</translation>
@@ -1969,12 +1945,12 @@ Reason: %1</source>
 <context>
     <name>WiredSocket</name>
     <message>
-        <location filename="../wired/wiredsocket.cpp" line="219"/>
+        <location filename="../wired/wiredsocket.cpp" line="220"/>
         <source>(invalid user)</source>
         <translation>(utente non valido)</translation>
     </message>
     <message>
-        <location filename="../wired/wiredsocket.cpp" line="248"/>
+        <location filename="../wired/wiredsocket.cpp" line="249"/>
         <source>kittehday nait fevrar</source>
         <translation>kittehday nait fevrar</translation>
     </message>
