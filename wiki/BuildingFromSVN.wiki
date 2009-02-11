@@ -10,7 +10,8 @@ The best way to stay up-to-date during heavy development phases is SVN. This can
 ==Installing SVN and Checking out Qwired==
 In order to compile Qwired, you have to check out the latest source code from the Subversion/SVN tree. This might look rather complex at first but really is the most easy way to stay up to date.
 
-===Linux/Ubuntu 7.10 (or later)===
+===Linux/Ubuntu 7.10, 8.04, 8.10===
+
 Subversion is provided in the standard repositories.
 
  # Open a Terminal and type the following commands:
