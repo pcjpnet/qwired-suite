@@ -49,7 +49,7 @@ WidgetTracker::WidgetTracker(QWidget *parent)
 	tmpHeaders << tr("Download") << tr("Files") << tr("Size") << tr("Description") << tr("Address");
 	pModel->setHorizontalHeaderLabels(tmpHeaders);
 	
-	
+	connect(fList, SIGNAL(doubleClicked ( const QModelIndex &)), this, SLOT(doubleclickedListItem(QModelIndex)));
 	
 	updateTrackerList();
 	if(fServers->count()) {
@@ -146,11 +146,18 @@ void WidgetTracker::trackerServersReceived(QList< ClassTrackerServer > theList) 
 }
 
 void WidgetTracker::handleSocketError(QAbstractSocket::SocketError error) {
-	QMessageBox::critical(this, tr("Connection Error"), tr("A connection error occoured while trying to connect to the tracker.\nReason: %1").arg(error));
+	QMessageBox::critical(this, tr("Connection Error"), tr("A connection error occured while trying to connect to the tracker.\nReason: %1").arg(error));
 	fBtnRefresh->setEnabled(true);
 	fProgress->setVisible(false);
 }
 
+void WidgetTracker::doubleclickedListItem(QModelIndex index )
+{
+    int row = index.row();
+    QString address = index.model()->index(row,8).data().toString();
+    //qDebug(address.mid(8,address.length()-9).toAscii());
+    emit(newConnectionRequested(address.mid(8,address.length()-9)));
+}
 
 
 

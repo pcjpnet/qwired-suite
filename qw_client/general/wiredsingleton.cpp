@@ -28,7 +28,7 @@
 
 WiredSingleton::WiredSingleton()
 {
-	pTrayMenu = new QMenu();
+        pTrayMenu = new QMenu();
 }
 
 WiredSingleton::~WiredSingleton()
@@ -83,7 +83,7 @@ void WiredSingleton::addSession(ClassWiredSession *session)
 	// Tray menu
 	QMenu *tmpMenu = new QMenu(pTrayMenu);
 	session->setTrayMenuAction(tmpMenu);
-	pTrayMenu->addMenu(tmpMenu);
+        pTrayMenu->addMenu(tmpMenu);
 }
 
 
@@ -129,6 +129,13 @@ void WiredSingleton::cleanUp()
 // 	this->deleteLater();
 }
 
-
+void WiredSingleton::makeNewConnection(QString address)     // <-- Very basic functionality
+{
+    ClassWiredSession *tmpConn = new ClassWiredSession();
+    addSession(tmpConn);
+    tmpConn->onDoConnect(address, QString(""), QString(""));
+    tmpConn->pConnectWindow->fContainer->setCurrentIndex(1);
+    tmpConn->pConnectWindow->fStatus->setText(tr("Connecting..."));
+}
 
 
