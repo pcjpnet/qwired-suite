@@ -199,8 +199,7 @@ void ClassWiredSession::setupConnections() {
 	connect( pConnWindow->actionPreferences, SIGNAL(triggered(bool)), this, SLOT(doActionPreferences()));
 	connect( pConnWindow->actionTrackers, SIGNAL(triggered(bool)), this, SLOT(doActionTrackers()) );
 	connect( pConnWindow->actionSearch, SIGNAL(triggered(bool)), this, SLOT(doActionFileSearch()) );
-	connect( pConnWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(doActionTransfers()) );
-	connect( pConnWindow->actionMessages, SIGNAL(triggered(bool)), this, SLOT(doActionMessages()) );
+        connect( pConnWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(doActionTransfers()) );
 	//connect( pConnWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
 
 	// Notification manager
@@ -493,8 +492,7 @@ void ClassWiredSession::setConnectionToolButtonsEnabled(bool theEnable) {
 	pConnWindow->actionInformation->setEnabled(theEnable);
 	pConnWindow->actionNewsPost->setEnabled(theEnable);
 	pConnWindow->actionBroadcast->setEnabled(theEnable);
-	pConnWindow->actionSearch->setEnabled(theEnable);
-	pConnWindow->actionMessages->setEnabled(theEnable);
+        pConnWindow->actionSearch->setEnabled(theEnable);
 }
 
 
@@ -759,26 +757,6 @@ void ClassWiredSession::doActionAccounts() {
 		pWiredSocket->getUsers();
 	} else {
 		int tmpIdx = pMainTabWidget->indexOf(pWinAccounts);
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-	}
-}
-
-/// Show private messages tab.
-void ClassWiredSession::doActionMessages() {
-	if( !pWinMessages ) {
-		pWinMessages = new WidgetMessages();
-		/*connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
-		connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
-		connect( pWiredSocket, SIGNAL(onServerNewsDone()), pWinNews, SLOT(onServerNewsDone()) );
-		connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
-		connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
-		connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(deleteNews()) );*/
-		
-		// Display the widget using a Tab
-		int tmpIdx = pMainTabWidget->addTab(pWinMessages, QIcon(), tr("Messages"));
-		pMainTabWidget->setCurrentIndex(tmpIdx);
-	} else {
-		int tmpIdx = pMainTabWidget->indexOf(pWinMessages);
 		pMainTabWidget->setCurrentIndex(tmpIdx);
 	}
 }

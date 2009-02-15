@@ -355,7 +355,7 @@ Do you want to begin the transfer?</source>
     <message>
         <location filename="../gui/delegatefiletransfers.cpp" line="150"/>
         <source>%1 of %2 completed (%3%) %4</source>
-        <translation>%1 de %2 completado (%3%) %4</translation>
+        <translation type="unfinished">%1 de %2 completado (%3%) %4</translation>
     </message>
 </context>
 <context>
