@@ -49,8 +49,12 @@ void WidgetTransfers::on_fBtnCancel_clicked(bool )
 
 void WidgetTransfers::on_fBtnReveal_clicked(bool )
 {
-	QModelIndex item = fTransfers->currentIndex();
-	
+    if(fTransfers->selectionModel()->hasSelection()) {
+        QModelIndex item = fTransfers->currentIndex();
+        ClassWiredTransfer tmpT = item.data(Qt::UserRole).value<ClassWiredTransfer>();
+        QDesktopServices::openUrl(QUrl(tr("file://%1").arg(tmpT.pLocalPath.left(tmpT.pLocalPath.lastIndexOf("/")),"")));
+        qDebug() << "Revealing '" << tr("file://%1").arg(tmpT.pLocalPath) << "'...";
+    }
 }
 
 
