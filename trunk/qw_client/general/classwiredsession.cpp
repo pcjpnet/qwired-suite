@@ -874,8 +874,10 @@ void ClassWiredSession::doActionPreferences() {
 /// Show the list of trackers and their servers.
 void ClassWiredSession::doActionTrackers() {
 	if(!pWinTrackers) {
+                WiredSingleton *tmpS = &WSINGLETON::Instance();
 		pWinTrackers = new WidgetTracker();
 		pWinTrackers->setParent(pConnWindow, Qt::Window);
+                connect(pWinTrackers, SIGNAL(newConnectionRequested(QString)), tmpS, SLOT(makeNewConnection(QString)));
 		pWinTrackers->show();
 	} else {
 		pWinTrackers->raise();

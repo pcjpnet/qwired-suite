@@ -59,11 +59,12 @@ private slots:
 	void showTrayMenu(QSystemTrayIcon::ActivationReason);
 	
 signals:
-	void prefsChanged();
+        void prefsChanged();
 
 public slots:
 	void notifyPrefsChanged();
 	void cleanUp();
+        void makeNewConnection(QString address);
 	
 };
 

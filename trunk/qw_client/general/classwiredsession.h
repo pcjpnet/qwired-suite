@@ -64,7 +64,7 @@ public:
 	ClassWiredSession(QObject *parent = 0);
 	~ClassWiredSession();
 
-	WiredSocket* wiredSocket() { return pWiredSocket; };
+        WiredSocket* wiredSocket() { return pWiredSocket; }
 
 	// Main window widgets
 	void initMainWindow();

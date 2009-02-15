@@ -44,12 +44,20 @@ void WidgetTransfers::on_fBtnCancel_clicked(bool )
 	emit transferCancelled(tmpT);
 	fTransfers->reset();
 	fBtnCancel->setEnabled(false);
+	fBtnReveal->setEnabled(false);
+}
+
+void WidgetTransfers::on_fBtnReveal_clicked(bool )
+{
+	QModelIndex item = fTransfers->currentIndex();
+	
 }
 
 
 void WidgetTransfers::transferListSelectionChanged(const QItemSelection &, const QItemSelection &)
 {
 	fBtnCancel->setEnabled(fTransfers->selectionModel()->hasSelection());
+	fBtnReveal->setEnabled(fTransfers->selectionModel()->hasSelection());
 }
 
 

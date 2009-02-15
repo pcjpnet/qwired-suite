@@ -45,6 +45,7 @@ signals:
 	
 private slots:
 	void on_fBtnCancel_clicked(bool);
+	void on_fBtnReveal_clicked(bool);
 	void transferListSelectionChanged(const QItemSelection &, const QItemSelection &);
 
 };

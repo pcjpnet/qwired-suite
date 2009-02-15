@@ -43,11 +43,15 @@ private:
 	QPointer<QSortFilterProxyModel> pSortModel;
 	void updateTrackerList();
 
+signals:
+        void newConnectionRequested(QString address);
+
 private slots:
 	
 	void on_fBtnRefresh_clicked();
 	void trackerServersReceived(QList<ClassTrackerServer> theList);
 	void handleSocketError(QAbstractSocket::SocketError);
+	void doubleclickedListItem(QModelIndex index );
 
 };
 
