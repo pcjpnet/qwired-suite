@@ -17,18 +17,34 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "qwclassprivatechat.h"
+#ifndef QWSROOM_H
+#define QWSROOM_H
 
-QWClassPrivateChat::QWClassPrivateChat()
+#include <QList>
+#include <QString>
+#include <QDateTime>
+
+#include "QwsRoom.h"
+#include "QwMessage.h"
+#include "classwireduser.h"
+
+/**
+	@author Bastian Bense <bb@bense.de>
+*/
+class QwsRoom
 {
-	pChatId = 0;
-	pTopic = "No topic.";
-	pTopicDate = QDateTime::currentDateTime();
-	pTopicSetter.pNick = "Qwired Server";
-}
+public:
+    QwsRoom();
+    ~QwsRoom();
+
+    int pChatId;
+    QList<int> pUsers;
+    QList<int> pInvitedUsers;
+    QString pTopic;
+    ClassWiredUser pTopicSetter;
+    QDateTime pTopicDate;
 
 
-QWClassPrivateChat::~QWClassPrivateChat()
-{}
+};
 
-
+#endif

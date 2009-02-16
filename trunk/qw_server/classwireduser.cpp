@@ -62,11 +62,11 @@ ClassWiredUser::ClassWiredUser(QList<QByteArray> theParams) {
 	pIdle = theParams.value(2,"").toInt()==1;
 	pAdmin = theParams.value(3,"").toInt()==1;
 	pIcon = theParams.value(4,"").toInt();
-	pNick = QString::fromUtf8(theParams.value(5,""));
-	pLogin = QString::fromUtf8(theParams.value(6,""));
-	pIP = theParams.value(7,"");
-	pHost = theParams.value(8,"");
-	pStatus = QString::fromUtf8(theParams.value(9,""));
+        userNickname = QString::fromUtf8(theParams.value(5,""));
+        userLogin = QString::fromUtf8(theParams.value(6,""));
+        userIpAddress = theParams.value(7,"");
+        userHostName = theParams.value(8,"");
+        userStatus = QString::fromUtf8(theParams.value(9,""));
 	pImage = QByteArray::fromBase64(theParams.value(10,""));
 	pAccountType = 0;
 	//qDebug() << "ClassWiredUser: Created "<<pUserID<<pNick<<pIP<<pStatus<<pIdle<<pAdmin<<pIcon;
@@ -84,10 +84,10 @@ ClassWiredUser ClassWiredUser::fromUserInfo(QList<QByteArray> theParams) {
 	usr.pIdle = theParams.value(1,"").toInt()==1;
 	usr.pAdmin = theParams.value(2,"").toInt()==1;
 	usr.pIcon = theParams.value(3,"").toInt();
-	usr.pNick = QString::fromUtf8(theParams.value(4,""));
-	usr.pLogin = QString::fromUtf8(theParams.value(5,""));
-	usr.pIP = theParams.value(6,"");
-	usr.pHost = theParams.value(7,"");
+        usr.userNickname = QString::fromUtf8(theParams.value(4,""));
+        usr.userLogin = QString::fromUtf8(theParams.value(5,""));
+        usr.userIpAddress = theParams.value(6,"");
+        usr.userHostName = theParams.value(7,"");
 	usr.pClientVersion = QString::fromUtf8(theParams.value(8,""));
 	usr.pCipherName = theParams.value(9,"");
 	usr.pCipherBits = theParams.value(10,"").toInt();
@@ -95,63 +95,60 @@ ClassWiredUser ClassWiredUser::fromUserInfo(QList<QByteArray> theParams) {
 	usr.pIdleTime = QDateTime::fromString( theParams.value(12,""), Qt::ISODate);
 	usr.pDownloads = theParams.value(13,"");
 	usr.pUploads = theParams.value(14,"");
-	usr.pStatus = theParams.value(15,"");
+        usr.userStatus = theParams.value(15,"");
 	usr.pImage = QByteArray::fromBase64(theParams.value(16,""));
 	return usr;
 	
 }
 
-QByteArray ClassWiredUser::userInfoEntry() const {
-	QByteArray ba;
-	ba += QByteArray::number(pUserID); ba += 0x1C;
-	ba += pIdle ? "1" : "0"; ba += 0x1C;
-	ba += pAdmin ? "1" : "0"; ba += 0x1C;
-	ba += QByteArray::number(pIcon); ba += 0x1C;
-	ba += pNick.toUtf8(); ba += 0x1C;
-	ba += pLogin.toUtf8(); ba += 0x1C;
-	ba += pIP.toUtf8(); ba += 0x1C;
-	ba += pHost.toUtf8(); ba += 0x1C;
+void ClassWiredUser::userInfoEntry(QwMessage &message) const
+{
+    message.appendArg(QString::number(pUserID));
+    message.appendArg(pIdle ? "1" : "0");
+    message.appendArg(pAdmin ? "1" : "0");
+    message.appendArg(QString::number(pIcon));
+    message.appendArg(userNickname);
+    message.appendArg(userLogin);
+    message.appendArg(userIpAddress);
+    message.appendArg(userHostName);
 
-	ba += pClientVersion.toUtf8(); ba += 0x1C;
-	ba += pCipherName.toUtf8(); ba += 0x1C;
-	ba += QByteArray::number(pCipherBits); ba += 0x1C;
-	ba += pLoginTime.toString(Qt::ISODate); ba += "+00:00"; ba += 0x1C;
-	ba += pIdleTime.toString(Qt::ISODate); ba += "+00:00"; ba += 0x1C;
-	ba += 0x1C; // downloads
-	ba += 0x1C; // uploads
-	ba += pStatus.toUtf8(); ba += 0x1C;
-	ba += pImage; ba += 0x1C;
-	
-	
-	return ba;
+    message.appendArg(pClientVersion);
+    message.appendArg(pCipherName);
+    message.appendArg(QString::number(pCipherBits));
+    message.appendArg(pLoginTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    message.appendArg(pIdleTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    message.appendArg(""); // downloads
+    message.appendArg(""); // uploads
+    message.appendArg(userStatus);
+    message.appendArg(pImage);
+
 }
 
-QByteArray ClassWiredUser::privilegesFlags() const {
-	QByteArray tmpPrivs;
-	tmpPrivs += QByteArray::number(privGetUserInfo); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privBroadcast); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privPostNews); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privClearNews); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privDownload); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privUpload); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privUploadAnywhere); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privCreateFolders); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privAlterFiles); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privDeleteFiles); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privViewDropboxes); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privCreateAccounts); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privEditAccounts); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privDeleteAccounts); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privElevatePrivileges); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privKickUsers); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privBanUsers); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privCannotBeKicked); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privDownloadSpeed); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privUploadSpeed); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privDownloadLimit); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privUploadLimit); tmpPrivs += 0x1C;
-	tmpPrivs += QByteArray::number(privChangeTopic);
-	return tmpPrivs;
+void ClassWiredUser::privilegesFlags(QwMessage &message) const
+{
+    message.appendArg(QString::number(privGetUserInfo));
+    message.appendArg(QString::number(privBroadcast));
+    message.appendArg(QString::number(privPostNews));
+    message.appendArg(QString::number(privClearNews));
+    message.appendArg(QString::number(privDownload));
+    message.appendArg(QString::number(privUpload));
+    message.appendArg(QString::number(privUploadAnywhere));
+    message.appendArg(QString::number(privCreateFolders));
+    message.appendArg(QString::number(privAlterFiles));
+    message.appendArg(QString::number(privDeleteFiles));
+    message.appendArg(QString::number(privViewDropboxes));
+    message.appendArg(QString::number(privCreateAccounts));
+    message.appendArg(QString::number(privEditAccounts));
+    message.appendArg(QString::number(privDeleteAccounts));
+    message.appendArg(QString::number(privElevatePrivileges));
+    message.appendArg(QString::number(privKickUsers));
+    message.appendArg(QString::number(privBanUsers));
+    message.appendArg(QString::number(privCannotBeKicked));
+    message.appendArg(QString::number(privDownloadSpeed));
+    message.appendArg(QString::number(privUploadSpeed));
+    message.appendArg(QString::number(privDownloadLimit));
+    message.appendArg(QString::number(privUploadLimit));
+    message.appendArg(QString::number(privChangeTopic));
 }
 
 
@@ -160,7 +157,8 @@ QByteArray ClassWiredUser::privilegesFlags() const {
  * used internally by WiredSocket to manage the privileges of a user and session.
  * @param theParams A list of flags representing the privileges.
  */
-void ClassWiredUser::setFromPrivileges(const QList<QByteArray> theParams) {
+void ClassWiredUser::setFromPrivileges(const QList<QByteArray> theParams)
+{
 	if( theParams.count()>=23 ) {
 		privGetUserInfo = theParams.value(0).toInt();
 		privBroadcast = theParams.value(1).toInt();
@@ -196,45 +194,42 @@ void ClassWiredUser::setFromPrivileges(const QList<QByteArray> theParams) {
  * no crypting will be done.
  * @return The SHA-1 hash of the password.
  */
-QString ClassWiredUser::cryptedPassword() {
+QString ClassWiredUser::cryptedPassword()
+{
 	if( pPassword.isEmpty() )
 		return QString("");
 	QByteArray tmpDat = QCryptographicHash::hash(pPassword.toUtf8(), QCryptographicHash::Sha1);
 	return QString::fromUtf8(tmpDat.toHex());
 }
 
-/**
- * Return a ByteArray specially formatted for the user listing responses (310)
- * @return 
- */
-QByteArray ClassWiredUser::userListEntry() const {
-	QByteArray ba;
-	ba += QByteArray::number(pUserID); ba += 0x1C;
-	ba += QByteArray::number(pIdle); ba += 0x1C;
-	ba += QByteArray::number(privKickUsers | privBanUsers); ba += 0x1C;
-	ba += QByteArray::number(0); ba += 0x1C; // icon, unused since 1.1
-	ba += pNick.toUtf8(); ba += 0x1C;
-	ba += pLogin.toUtf8(); ba += 0x1C;
-	ba += pIP.toUtf8(); ba += 0x1C;
-	ba += pHost.toUtf8(); ba += 0x1C;
-	ba += pStatus.toUtf8(); ba += 0x1C;
-	ba += pImage;
-	
-	return ba;
+
+/*! Complete a message specially formatted for the user listing responses (310)
+*/
+void ClassWiredUser::userListEntry(QwMessage &message) const
+{
+    message.appendArg(QString::number(pUserID));
+    message.appendArg(QString::number(pIdle));
+    message.appendArg(QString::number(privKickUsers | privBanUsers));
+    message.appendArg(QString::number(pIcon));
+    message.appendArg(userNickname);
+    message.appendArg(userLogin);
+    message.appendArg(userIpAddress);
+    message.appendArg(userHostName);
+    message.appendArg(userStatus);
+    message.appendArg(pImage);
 }
 
-/**
- * Return a ByteArray specially formatted for the User Status Change messages.
- */
-QByteArray ClassWiredUser::userStatusEntry() const {
-	QByteArray ba;
-	ba += QByteArray::number(pUserID); ba += 0x1C;
-	ba += QByteArray::number(pIdle); ba += 0x1C;
-	ba += QByteArray::number(privKickUsers | privBanUsers); ba += 0x1C;
-	ba += QByteArray::number(0); ba += 0x1C; // icon, unused since 1.1
-	ba += pNick.toUtf8(); ba += 0x1C;
-	ba += pStatus.toUtf8();
-	return ba;
+
+/* Complete a message specially formatted for the User Status Change messages.
+*/
+void ClassWiredUser::userStatusEntry(QwMessage &message) const
+{
+    message.appendArg(QString::number(pUserID));
+    message.appendArg(QString::number(pIdle));
+    message.appendArg(QString::number(privKickUsers | privBanUsers));
+    message.appendArg(QString::number(pIcon)); // icon, unused since 1.1
+    message.appendArg(userNickname);
+    message.appendArg(userStatus);
 }
 
 /**

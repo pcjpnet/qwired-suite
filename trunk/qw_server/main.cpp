@@ -18,21 +18,28 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
  ***************************************************************************/
 
+/* This is the source code of the Qwired server. It is basically a Wired 1.1 server that also
+   implements some nice extensions.
+*/
 
 #include <QtCore>
-#include "qwservercontroller.h"
+#include "QwsServerController.h"
 
 const QString QWSERVER_VERSION("1.0.0");
 
-int main (int argc, char *argv[]) {
-	QCoreApplication app(argc, argv);
-	
-	QWServerController *controller = new QWServerController();
-	controller->reloadConfig();
-	controller->reloadDatabase();
-	controller->startServer();
-	
-	return app.exec();
+int main (int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+
+    QwsServerController controller;
+    if (!controller.loadConfiguration()) {
+        return 1;
+    }
+    if (!controller.startServer()) {
+        return 1;
+    }
+
+    return app.exec();
 }
 
 

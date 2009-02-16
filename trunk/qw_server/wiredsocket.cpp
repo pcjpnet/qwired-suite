@@ -20,22 +20,29 @@
 
 
 #include "wiredsocket.h"
-#include "qwservercontroller.h"
+#include "QwsServerController.h"
 
-WiredSocket::WiredSocket(QObject *parent)
-	: QObject(parent)
+#include "QwMessage.h"
+
+#include <QDateTime>
+
+WiredSocket::WiredSocket(QObject *parent) : QwSocket(parent)
 {
-	pHandshakeOK = false;
-	pLoggedIn = false;
-	
-	pIdleTimer = new QTimer(this);
-	pIdleTimer->setInterval(1000*60*10);
-	pIdleTimer->setSingleShot(true);
-	connect(pIdleTimer, SIGNAL(timeout()), this, SLOT(idleTimerTriggered()));
+    connect(this, SIGNAL(messageReceived(QwMessage)),
+            this, SLOT(handleIncomingMessage(QwMessage)), Qt::QueuedConnection);
+
+    sessionState = Qws::StateInactive;
+
+
+    pIdleTimer = new QTimer(this);
+    pIdleTimer->setInterval(1000*60*10);
+    pIdleTimer->setSingleShot(true);
+    connect(pIdleTimer, SIGNAL(timeout()), this, SLOT(idleTimerTriggered()));
 }
 
+
 WiredSocket::~WiredSocket() {
-	qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
+    qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
 }
 
 
@@ -44,25 +51,23 @@ WiredSocket::~WiredSocket() {
  * as idle. Afterwards a signal will be emitted so that other clients get updated.
  */
 void WiredSocket::idleTimerTriggered() {
-	if(!pSessionUser.pIdle) {
-		pSessionUser.pIdle = true;
-		emit userStatusChanged(pSessionUser);
-	}
+    if(!pSessionUser.pIdle) {
+        pSessionUser.pIdle = true;
+        emit userStatusChanged();
+    }
 }
 
 
-
-
-/**
- * The user shows some activity. Check if he/she is idle and un-idle.
- */
+/*!  The user shows some activity. Check if he/she is idle and un-idle.
+*/
 void WiredSocket::resetIdleTimer() {
-	pIdleTimer->start();
-	if(pSessionUser.pIdle) {
-		pSessionUser.pIdle = false;
-		emit userStatusChanged(pSessionUser);
-	}
+    pIdleTimer->start();
+    if(pSessionUser.pIdle) {
+        pSessionUser.pIdle = false;
+        emit userStatusChanged();
+    }
 }
+
 
 // Called by the socket and indicates the an SSL error has occoured.
 void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
@@ -70,19 +75,439 @@ void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
 	pSocket->ignoreSslErrors();
 }
 
+
+/*! A socket error ocurred.
+*/
+void WiredSocket::on_socket_error() {
+    qDebug() << "[qws] socket error:"<<pSocket->errorString()<<pSocket->error();
+    disconnectClient();
+}
+
+ void WiredSocket::handleIncomingMessage(QwMessage message)
+ {
+     qDebug() << "RECEIVED:" << message.commandName;
+
+     // Handshaking/Protocol
+     if (message.commandName == "HELLO") {
+         handleMessageHELLO(message);
+     } else if (message.commandName == "CLIENT") {
+         handleMessageCLIENT(message);
+     } else if (message.commandName == "NICK") { /* TODO: broadcast update */
+         handleMessageNICK(message);
+     } else if (message.commandName == "PASS") { /* TODO: broadcast update */
+         handleMessagePASS(message);
+     } else if (message.commandName == "USER") {
+         handleMessageUSER(message);
+     } else if (message.commandName == "PING") {
+         handleMessagePING(message);
+     } else if (message.commandName == "STATUS") { /* TODO: broadcast update */
+         handleMessageSTATUS(message);
+     } else if (message.commandName == "WHO") {
+         handleMessageWHO(message);
+     } else if (message.commandName == "ICON") {
+         handleMessageICON(message);
+     } else if (message.commandName == "BANNER") {
+         handleMessageBANNER(message);
+     } else if (message.commandName == "INFO") {
+         handleMessageINFO(message);
+
+
+     // Communication
+     } else if (message.commandName == "SAY") {
+         handleMessageSAY(message);
+     } else if (message.commandName == "ME") {
+         handleMessageME(message);
+     } else if (message.commandName == "MSG") {
+         handleMessageMSG(message);
+     } else if (message.commandName == "BROADCAST") {
+         handleMessageBROADCAST(message);
+     } else if (message.commandName == "TOPIC") {
+         handleMessageTOPIC(message);
+     } else if (message.commandName == "PRIVCHAT") {
+         handleMessagePRIVCHAT(message);
+     } else if (message.commandName == "INVITE") {
+         handleMessageINVITE(message);
+     } else if (message.commandName == "JOIN") {
+         handleMessageJOIN(message);
+
+     // News
+     } else if (message.commandName == "NEWS") {
+         handleMessageNEWS(message);
+     } else if (message.commandName == "POST") {
+         handleMessagePOST(message);
+     } else if (message.commandName == "CLEARNEWS") {
+         handleMessageCLEARNEWS(message);
+     }
+
+ }
+
+
+
+ /*! HELLO command (Handshake request)
+ */
+ void WiredSocket::handleMessageHELLO(QwMessage &message)
+ {
+     Q_UNUSED(message);
+     qDebug() << this << "Received a HELLO handshake request.";
+     sessionState = Qws::StateConnected;
+     emit sessionStateChanged(sessionState);
+     sendServerInfo();
+ }
+
+
+ /*! CLIENT command (Client software version and name)
+ */
+ void WiredSocket::handleMessageCLIENT(QwMessage &message)
+ {
+     qDebug() << this << "Received client information.";
+     user.pClientVersion = message.getStringArgument(0);
+ }
+
+
+ /*! NICK command (User nickname)
+ */
+ void WiredSocket::handleMessageNICK(QwMessage &message)
+ {
+     qDebug() << this << "Received user nickname.";
+     user.userNickname = message.getStringArgument(0);
+     if (sessionState == Qws::StateActive) {
+         emit userStatusChanged();
+     }
+ }
+
+
+ /*! PASS command (User password). During handshake/connecting this actually triggers the user
+     authentication and causes the server to check the password and login, also load the specific
+     account information from the database and tell all other clients that a user has logged in.
+ */
+ void WiredSocket::handleMessagePASS(QwMessage &message)
+ {
+     if (sessionState == Qws::StateConnected && !user.userNickname.isEmpty()) {
+         // We need a handshake first and a nickname. Send the client the session id of its own
+         // session and proceed.
+         user.pPassword = message.getStringArgument(0);
+
+         QwMessage reply("201");
+         reply.appendArg(QString::number(user.pUserID));
+         sendMessage(reply);
+         sessionState = Qws::StateActive;
+         emit sessionStateChanged(sessionState);
+         emit requestedRoomTopic(1);
+
+     } else {
+         // No handshake before or some information was missing.
+         sendMessage(QwMessage("510 Login Failed"));
+         disconnectClient();
+     }
+ }
+
+
+ /*! USER command (User login name)
+ */
+ void WiredSocket::handleMessageUSER(QwMessage &message)
+ {
+     qDebug() << this << "Received user login name:" << message.getStringArgument(0);
+     user.userLogin = message.getStringArgument(0);
+ }
+
+
+ /*! PING command (Keep-alive request)
+ */
+ void WiredSocket::handleMessagePING(QwMessage &message)
+ {
+     Q_UNUSED(message);
+     sendMessage(QwMessage("202 Pong"));
+ }
+
+
+ /*! STATUS command (Keep-alive request)
+ */
+ void WiredSocket::handleMessageSTATUS(QwMessage &message)
+ {
+     qDebug() << this << "Received user status:" << message.getStringArgument(0);
+     user.userStatus = message.getStringArgument(0);
+     if (sessionState == Qws::StateActive) {
+         emit userStatusChanged();
+     }
+ }
+
+
+ /*! WHO command (User list request)
+ */
+ void WiredSocket::handleMessageWHO(QwMessage &message)
+ {
+     int roomId = message.getStringArgument(0).toInt();
+     qDebug() << this << "Requested user list for room #" << roomId;
+     emit requestedUserlist(roomId);
+ }
+
+
+/*! ICON command (Set user icon)
+*/
+void WiredSocket::handleMessageICON(QwMessage &message)
+{
+    qDebug() << this << "Received icon and image";
+    if (user.pIcon != message.getStringArgument(0).toInt()) {
+        user.pIcon = message.getStringArgument(0).toInt();
+        if (sessionState == Qws::StateActive) {
+            emit userStatusChanged();
+        }
+    }
+
+    // Check if the user image changed
+    if (message.arguments.value(1) != user.pImage) {
+        user.pImage = message.arguments.value(1).toAscii();
+        QwMessage reply("340");
+        reply.appendArg(QString::number(user.pUserID));
+        reply.appendArg(message.arguments.value(1));
+        if (sessionState == Qws::StateActive) {
+            emit broadcastedMessage(reply, 1, true);
+        }
+    }
+
+}
+
+
+/*! BANNER command (banner data request)
+*/
+void WiredSocket::handleMessageBANNER(QwMessage &message)
+{
+    Q_UNUSED(message);
+    QSqlQuery query("SELECT conf_value FROM qws_config WHERE conf_key='server/banner'");
+    query.first();
+    QwMessage reply("203");
+    if (query.isValid()) {
+        reply.appendArg(query.value(0).toString());
+    } else {
+        qDebug() << this << "Unable to load banner from database:" << query.lastError().text();
+        reply.appendArg("");
+    }
+    sendMessage(reply);
+}
+
+
+/*! INFO command (Get user info)
+*/
+void WiredSocket::handleMessageINFO(QwMessage &message)
+{
+    emit requestedClientInfo(message.getStringArgument(0).toInt());
+}
+
+
+/* === Communication == */
+
+
+/*! SAY command (Relay chat to room)
+*/
+void WiredSocket::handleMessageSAY(QwMessage &message)
+{
+     emit requestedChatRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1), false);
+}
+
+
+/*! ME command (Relay chat to room as emote)
+*/
+ void WiredSocket::handleMessageME(QwMessage &message)
+{
+     emit requestedChatRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1), true);
+}
+
+
+/*! MSG command (Relay private message to other user)
+*/
+void WiredSocket::handleMessageMSG(QwMessage &message)
+{
+     emit requestedMessageRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1));
+}
+
+
+/*! BROADCAST command (Relay broadcast message to other users)
+*/
+void WiredSocket::handleMessageBROADCAST(QwMessage &message)
+{
+    QwMessage reply("309");
+    reply.appendArg(QString::number(user.pUserID));
+    reply.appendArg(message.getStringArgument(0));
+    emit broadcastedMessage(reply, 1, true);
+}
+
+
+/*! TOPIC command (Change topic of chat)
+*/
+void WiredSocket::handleMessageTOPIC(QwMessage &message)
+{
+    qDebug() << this << "Changing topic of chat" << message.getStringArgument(0);
+    emit requestedRoomTopicChange(message.getStringArgument(0).toInt(), message.getStringArgument(1));
+}
+
+
+/*! PRIVCHAT command (Create a new chat room)
+*/
+void WiredSocket::handleMessagePRIVCHAT(QwMessage &message)
+{
+    Q_UNUSED(message);
+    qDebug() << this << "Requested new chat room" << message.getStringArgument(1);
+    emit requestedNewRoom();
+}
+
+
+/*! INVITE command (Invite a user to a room)
+*/
+void WiredSocket::handleMessageINVITE(QwMessage &message)
+{
+    qDebug() << this << "Invited user to chat room" << message.getStringArgument(0);
+    emit requestedUserInviteToRoom(message.getStringArgument(0).toInt(),
+                                   message.getStringArgument(1).toInt());
+}
+
+
+/*! JOIN command (Join a previously invited room)
+*/
+void WiredSocket::handleMessageJOIN(QwMessage &message)
+{
+    qDebug() << this << "Joining chat room" << message.getStringArgument(0);
+    emit requestedUserJoinRoom(message.getStringArgument(0).toInt());
+}
+
+
+
+/* === NEWS === */
+
+ /*! NEWS command (News list request)
+ */
+ void WiredSocket::handleMessageNEWS(QwMessage &message)
+ {
+     Q_UNUSED(message);
+     qDebug() << this << "Requested news";
+     QSqlQuery query;
+     query.prepare("SELECT id, news_username, news_date, news_text FROM qws_news ORDER BY id DESC");
+     if (query.exec()) {
+         while (query.next()) {
+             QwMessage reply("320");
+             reply.appendArg(query.value(1).toString());
+             reply.appendArg(query.value(2).toString());
+             reply.appendArg(query.value(3).toString());
+             sendMessage(reply);
+         }
+     } else {
+         qDebug() << this << "Could not send news:" << query.lastError().text();
+         sendError(Qws::ErrorComandFailed);
+         return;
+     }
+     sendMessage(QwMessage("321 News Done"));
+ }
+
+
+ /*! POST command (News list request)
+ */
+ void WiredSocket::handleMessagePOST(QwMessage &message)
+ {
+     qDebug() << this << "Posted news";
+     QSqlQuery query;
+     query.prepare("INSERT INTO qws_news (news_username, news_date, news_text) "
+                   "VALUES (:_login, :_date, :_text)");
+     query.bindValue(":_login", QString("%1 [%2]").arg(user.userNickname).arg(user.userLogin));
+     query.bindValue(":_date", QDateTime::currentDateTime().toTimeSpec(Qt::UTC).toString(Qt::ISODate));
+     query.bindValue(":_text", message.getStringArgument(0));
+
+     if (query.exec()) {
+         // Send all clients a notification.
+         QwMessage reply("322");
+         reply.appendArg(query.boundValue(":_login").toString());
+         reply.appendArg(query.boundValue(":_date").toString()+"+00:00");
+         reply.appendArg(query.boundValue(":_text").toString());
+         emit broadcastedMessage(reply, 1, true);
+     } else {
+         qDebug() << this << "Could not post news:" << query.lastError().text();
+         sendError(Qws::ErrorComandFailed);
+         return;
+     }
+
+ }
+
+
+ /*! CLEARNEWS command (clear news list request)
+ */
+ void WiredSocket::handleMessageCLEARNEWS(QwMessage &message)
+ {
+     Q_UNUSED(message);
+     qDebug() << this << "Cleared news";
+     QSqlQuery query;
+     query.prepare("DELETE FROM qws_news");
+     if (!query.exec()) {
+         qDebug() << this << "Could not clear news:" << query.lastError().text();
+         sendError(Qws::ErrorComandFailed);
+     }
+ }
+
+
+ /* === PRIVATE SLOTS === */
+
+/*! Send a userlist item to the client. This includes some information about the client. The whole
+     request is completed with the sendUserlistDone() call.
+*/
+void WiredSocket::sendUserlistItem(const int roomId, const ClassWiredUser &item)
+{
+     QwMessage reply("310");
+     reply.appendArg(QByteArray::number(roomId));
+     item.userListEntry(reply);
+     sendMessage(reply);
+}
+
+
+/*! See sendUserlistItem() for more information.
+*/
+void WiredSocket::sendUserlistDone(const int roomId)
+{
+    QwMessage reply("311");
+    reply.appendArg(QByteArray::number(roomId));
+    sendMessage(reply);
+}
+
+
+/*! Sends a 303-type message (client left).
+*/
+void WiredSocket::sendClientLeave(const int chatId, const int id)
+{
+    QwMessage reply("303");
+    reply.appendArg(QByteArray::number(chatId));
+    reply.appendArg(QByteArray::number(id));
+    sendMessage(reply);
+}
+
+
+/*! Send information about the server. Happens during handshake or asynchronously.
+*/
+void WiredSocket::sendServerInfo()
+{
+     QwMessage response("200");
+     response.appendArg("1.0"); // app-version
+     response.appendArg("1.1"); // proto-version
+     response.appendArg("Qwired Server");
+     response.appendArg("A very early Qwired Server build.");
+     response.appendArg(""); // start time
+     response.appendArg(0); // file count
+     response.appendArg(0); // total size
+     sendMessage(response);
+}
+
+
 // Called by readDataFromSocket() after splitting a message off the internal
 // buffer. We have to extract the command ID here and decide what to do with
 // the message.
-void WiredSocket::handleWiredMessage(QByteArray theData) {
+void WiredSocket::handleWiredMessage(QByteArray theData)
+{
 	int tmpPos = theData.indexOf(" ");
 	QString tmpCmd = tmpPos>-1 ? QString::fromUtf8(theData.left(tmpPos)) : QString::fromUtf8(theData);
-	QList<QByteArray> tmpParams = splitMessageFields(theData);
+        QList<QByteArray> tmpParams; //= splitMessageFields(theData);
 
 	qDebug() << userId()<<"| Incoming command:"<<tmpCmd;
-	if(!pHandshakeOK) { // No handshake received yet. The only thing we accept is a HELLO.
-		pHandshakeOK = tmpCmd=="HELLO";
-		if(!pHandshakeOK) {
-			QWServerController::qwLog("Fatal: Handshake failed. Dropping connection.");
+        if (sessionState == Qws::StateInactive) {
+            // No handshake received yet. The only thing we accept is a HELLO.
+
+                //pHandshakeOK = tmpCmd=="HELLO";
+                if(sessionState==Qws::StateInactive) {
+                        QwsServerController::qwLog("Fatal: Handshake failed. Dropping connection.");
 			pSocket->disconnectFromHost();
 		} else {
 			emit handshakeComplete(userId());
@@ -92,49 +517,21 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 		// Handshake exists, handle the command.
 
 
-		if(tmpCmd=="BROADCAST") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privBroadcast) { sendErrorPermissionDenied(); return; }
-			emit receivedBroadcastMessage(userId(), QString::fromUtf8(tmpParams.value(0)));
-			resetIdleTimer();
-
-		} else if(tmpCmd=="BAN") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privBanUsers) { sendErrorPermissionDenied(); return; }
+                if(tmpCmd=="BAN") {
 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
 			resetIdleTimer();
-			
-		} else if(tmpCmd=="BANNER") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			emit requestedBanner(userId());
 
-		} else if(tmpCmd=="CLEARNEWS") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privClearNews) { sendErrorPermissionDenied(); return; }
-			emit clearedNews(userId());
+
 
 		} else if(tmpCmd=="DELETEUSER") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privDeleteAccounts) { sendErrorPermissionDenied(); return; }
 			emit deletedUser(userId(), QString::fromUtf8(tmpParams.value(0)));
 
 		} else if(tmpCmd=="DELETEGROUP") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privDeleteAccounts) { sendErrorPermissionDenied(); return; }
 			emit deletedGroup(userId(), QString::fromUtf8(tmpParams.value(0)));
 
 		} else if(tmpCmd=="CREATEUSER") {
-			if(tmpParams.count()!=26) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privCreateAccounts) { sendErrorPermissionDenied(); return; }
 			ClassWiredUser tmpUser;
-			tmpUser.pLogin = QString::fromUtf8(tmpParams.value(0));
+                        tmpUser.userLogin = QString::fromUtf8(tmpParams.value(0));
 			tmpUser.pPassword = QString::fromUtf8(tmpParams.value(1));
 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(2));
 			tmpParams.removeAt(0);
@@ -144,30 +541,19 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			emit createdUser(userId(), tmpUser);
 
 		} else if(tmpCmd=="CREATEGROUP") {
-			if(tmpParams.count()!=24) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privCreateAccounts) { sendErrorPermissionDenied(); return; }
 			ClassWiredUser tmpUser;
 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(0));
 			tmpParams.removeAt(0);
 			tmpUser.setFromPrivileges(tmpParams);
 			emit createdGroup(userId(), tmpUser);
 			
-		} else if(tmpCmd=="CLIENT") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			emit receivedClientInfo(userId(), QString::fromUtf8(tmpParams.value(0)) );
 			
 		} else if(tmpCmd=="DECLINE") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit declinedPrivateChat(userId(), tmpParams.value(0).toInt() );
 
 		} else if(tmpCmd=="EDITUSER") {
-			if(tmpParams.count()!=26) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
 			ClassWiredUser tmpUser;
-			tmpUser.pLogin = QString::fromUtf8(tmpParams.value(0));
+                        tmpUser.userLogin = QString::fromUtf8(tmpParams.value(0));
 			tmpUser.pPassword = QString::fromUtf8(tmpParams.value(1));
 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(2));
 			tmpParams.removeAt(0);
@@ -178,179 +564,51 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 			emit editedUser(userId(), tmpUser);
 
 		} else if(tmpCmd=="EDITGROUP") {
-			if(tmpParams.count()!=24) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
 			ClassWiredUser tmpUser;
 			tmpUser.pGroupName = QString::fromUtf8(tmpParams.value(0));
 			tmpParams.removeAt(0);
 			tmpUser.setFromPrivileges(tmpParams);
 			emit editedGroup(userId(), tmpUser);
-			
-		} else if(tmpCmd=="PING") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			sendWiredCommand("202 Pong");
 
 		} else if(tmpCmd=="GROUPS") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
 			emit requestedGroupsList(userId());
 			resetIdleTimer();
-			
-		} else if(tmpCmd=="INFO") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privGetUserInfo) { sendErrorPermissionDenied(); return; }
-			emit requestedUserInfo(userId(), tmpParams.value(0).toInt() );
-			resetIdleTimer();
 
-		} else if(tmpCmd=="INVITE") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			emit invitedUserToChat(userId(), tmpParams.value(0).toInt(), tmpParams.value(1).toInt() );
-			resetIdleTimer();
-			
-		} else if(tmpCmd=="JOIN") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			emit joinedPrivateChat(userId(), tmpParams.value(0).toInt() );
-			resetIdleTimer();
 
 		} else if(tmpCmd=="KICK") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			if(!pSessionUser.privKickUsers) { sendErrorPermissionDenied(); return; }
 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
 			resetIdleTimer();
 			
 		} else if(tmpCmd=="LEAVE") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit privateChatLeft(userId(), tmpParams.value(0).toInt());
 			resetIdleTimer();
 
 		} else if(tmpCmd=="LIST") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
 			emit requestedFileList(userId(), QString::fromUtf8(tmpParams.value(0)));
 			resetIdleTimer();
-			
-		} else if(tmpCmd=="NEWS") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			emit requestedNews(userId());
-			resetIdleTimer();
-			
-		} else if(tmpCmd=="NICK") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			pSessionUser.pNick = QString::fromUtf8(tmpParams.value(0));
-			if(isLoggedIn()) emit userStatusChanged(pSessionUser);
-			resetIdleTimer();
 
-		} else if(tmpCmd=="ME") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			emit receivedChat(pSessionUser.pUserID, tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
-			resetIdleTimer();
-			
-		} else if(tmpCmd=="MSG") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorPermissionDenied(); return; }
-			emit privateMessageReceived(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)));
-			resetIdleTimer();
 
-		} else if(tmpCmd=="ICON") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			pSessionUser.pIcon = tmpParams.value(0).toInt();
-			pSessionUser.pImage = tmpParams.value(1);
-			if(isLoggedIn()) {
-				emit userStatusChanged(pSessionUser);
-				emit userImageChanged(pSessionUser);
-				resetIdleTimer();
-			}
-			
-		} else if(tmpCmd=="PASS") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(isLoggedIn()) { sendErrorCommandFailed(); return; }
-			pSessionUser.pPassword = QString::fromUtf8(tmpParams.value(0));
-			emit loginReceived(pSessionUser.pUserID, pSessionUser.pLogin, pSessionUser.pPassword);
-
-		} else if(tmpCmd=="POST") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			if(!pSessionUser.privPostNews) { sendErrorPermissionDenied(); return; }
-			resetIdleTimer();
-			emit newsPosted(userId(), QString::fromUtf8(tmpParams.value(0)));
-			
-		} else if(tmpCmd=="PRIVCHAT") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			emit requestedPrivateChat(userId());
-			resetIdleTimer();
 
 		} else if(tmpCmd=="PRIVILEGES") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
 			sendPrivileges();
 			
 		} else if(tmpCmd=="STAT") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
 			emit requestedFileStat(userId(), QString::fromUtf8(tmpParams.value(0)));
 			resetIdleTimer();
-			
-			
-		} else if(tmpCmd=="STATUS") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			pSessionUser.pStatus = tmpParams.value(0);
-			if(isLoggedIn()) {
-				emit userStatusChanged(pSessionUser);
-				resetIdleTimer();
-			}
-			
-		} else if(tmpCmd=="TOPIC") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			if(!pSessionUser.privChangeTopic) { sendErrorPermissionDenied(); return; }
-			emit topicChanged(sessionUser(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)) );
-			resetIdleTimer();
+
 
 		} else if(tmpCmd=="READUSER") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
 			emit requestedReadUser(userId(), QString::fromUtf8(tmpParams.value(0)) );
 			resetIdleTimer();
 
 		} else if(tmpCmd=="READGROUP") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
 			emit requestedReadGroup(userId(), QString::fromUtf8(tmpParams.value(0)) );
 			resetIdleTimer();
-		
-		} else if(tmpCmd=="SAY") {
-			if(tmpParams.count()!=2) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			emit receivedChat(pSessionUser.pUserID, tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
-			resetIdleTimer();
-			
-		} else if(tmpCmd=="USER") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(isLoggedIn()) { sendErrorCommandFailed(); return; }
-			pSessionUser.pLogin = tmpParams.value(0);
 
 		} else if(tmpCmd=="USERS") {
-			if(tmpParams.count()!=0) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			if(!pSessionUser.privEditAccounts) { sendErrorPermissionDenied(); return; }
 			emit requestedAccountsList(userId());
 			resetIdleTimer();
-			
-		} else if(tmpCmd=="WHO") {
-			if(tmpParams.count()!=1) { sendErrorSyntaxError(); return; }
-			if(!isLoggedIn()) { sendErrorCommandFailed(); return; }
-			emit requestedUserlist(pSessionUser.pUserID, tmpParams.value(0).toInt());
+
 
 		} else {
 			qDebug() << "Unknown Command |"<<userId()<<"|"<<tmpCmd;
@@ -361,213 +619,46 @@ void WiredSocket::handleWiredMessage(QByteArray theData) {
 
 }
 
-/**
- * A socket error occoured.
- */
-void WiredSocket::on_socket_error() {
-	qDebug() << "[qws] socket error:"<<pSocket->errorString()<<pSocket->error();
-	disconnectClient();
-}
 
 
-/**
- * Send a Wired-formatted message block to the peer.
- * @param theData The payload of the message.
- */
-void WiredSocket::sendWiredCommand(const QByteArray theData) {
-	if(!pSocket->isOpen()) return;
- 	qDebug() << userId()<<"|"<<"Sending: "<<theData;
-	QByteArray tmpBuffer;
-	tmpBuffer += pSendBuffer;
-	tmpBuffer += theData;
-	tmpBuffer += kEOF;
-	pSendBuffer.clear();
-	pSocket->write(tmpBuffer);
-}
 
-void WiredSocket::sendWiredCommandBuffer(const QByteArray theData) {
-	qDebug() << userId()<<"|"<<"Sending (buffer): "<<theData;
-	pSendBuffer += theData;
-	pSendBuffer += kEOF;
-}
-
-/**
- * Connected to the readyRead() signal of the SslSocket. Reads data from the
- * TCP buffer and appends it to the local buffer for further processing.
- */
-void WiredSocket::readDataFromSocket() {
-	pBuffer += pSocket->readAll();
-	int tmpPos = pBuffer.indexOf("\x04");
-	while( tmpPos != -1 ) {
-		QByteArray tmpLine = pBuffer.left(tmpPos);
-		pBuffer = pBuffer.mid(tmpPos+1);
-		handleWiredMessage(tmpLine);
-		tmpPos = pBuffer.indexOf("\x04");
-	}
-}
-
-/**
- * Return a list of parameters from the message, automatically skipping the command identifier.
- */
-QList<QByteArray> WiredSocket::splitMessageFields(QByteArray theData) {
-	QByteArray tmpData(theData);
-	int tmpPos = theData.indexOf(" "); // Remove the identifier
-	if(tmpPos!=-1) {
-		tmpData=tmpData.mid(tmpPos+1);
-		return tmpData.split(28);
-	}
-	return QList<QByteArray>();
-}
-
-/**
- * Accept an established and handshaken SSL socket.
- * @param socket The socket to be taken over.
- */
-void WiredSocket::setWiredSocket(QSslSocket *socket) {
-	pSocket = socket;
-	pSocket->setParent(this);
-	connect(pSocket, SIGNAL(readyRead()), this, SLOT(readDataFromSocket()) );
-	connect(pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>)));
-	connect(pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(on_socket_error()) );
-}
-
-void WiredSocket::sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize) {
-	QByteArray ba("200 ");
-	ba += "Qwired Server/1.0.0 (Unknown; Unknown; Unknown)"; ba += kFS;
-	ba += "1.1"; ba += kFS;
-	ba += serverName.toUtf8(); ba += kFS;
-	ba += serverDescr.toUtf8(); ba += kFS;
-	ba += startTime.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
-	ba += QByteArray::number(fileCount); ba += kFS;
-	ba += QByteArray::number(fileTotalSize); ba += kFS;
-	sendWiredCommand(ba);
-}
-
-void WiredSocket::setUserId(int userId) {
-	pSessionUser.pUserID = userId;
-}
-
-
-void WiredSocket::sendUserlistItem(const int chat, const ClassWiredUser item) {
-	QByteArray ba("310 ");
-	ba += QByteArray::number(chat);
-	ba += kFS;
-	ba += item.userListEntry();
-	sendWiredCommand(ba);
-}
-
-void WiredSocket::sendUserlistDone(const int chat) {
-	QByteArray ba("311 ");
-	ba += QByteArray::number(chat);
-	sendWiredCommand(ba);
-}
-
-/**
- * The server accepted the sent login and password.
- */
-void WiredSocket::sendLoginSuccessful() {
-	pSessionUser.pLoginTime = QDateTime::currentDateTime();
-	pLoggedIn = true;
-	QByteArray ba("201 ");
-	ba += QByteArray::number(pSessionUser.pUserID);
-	sendWiredCommand(ba);
-}
-
-/**
- * The client needs to be removed from the server. Delete the socket and this object.
- */
+/*! The client needs to be removed from the server. Delete the socket and this object.
+*/
 void WiredSocket::disconnectClient() {
 	emit clientDisconnected(pSessionUser.pUserID);
 	pSocket->disconnectFromHost();
 	this->deleteLater();
 }
 
-/**
- * Send a broadcast message to the client.
- * @param userId The ID of the originator.
- * @param text The text of the broadcast message.
- */
-void WiredSocket::sendBroadcastMessage(const int userId, const QString text) {
-	QByteArray ba("309 ");
-	ba += QByteArray::number(userId); ba += kFS;
-	ba += text.toUtf8();
-	sendWiredCommand(ba);
+
+
+
+/*! Send a chat message for a specific room to the client. If \a isEmote is true, the message will
+    be sent as a 301-emote message, otherwise as 300-normal chat.
+*/
+void WiredSocket::sendChat(const int chatId, const int userId, const QString text, const bool isEmote)
+{
+    QwMessage reply(isEmote ? "301 " : "300 ");
+    reply.appendArg(QByteArray::number(chatId));
+    reply.appendArg(QByteArray::number(userId));
+    reply.appendArg(text.toUtf8());
+    sendMessage(reply);
 }
 
 
-/**
- * Send a line of text chat to the connected client.
- * @param chatId The ID of the chat this message was sent in.
- * @param userId The ID of the user who originated the chat text.
- * @param text The text of the chat.
- */
-void WiredSocket::sendChat(const int chatId, const int userId, const QString text, const bool emote) {
-	QByteArray ba(emote ? "301 " : "300 " );
-	ba += QByteArray::number(chatId); ba += kFS;
-	ba += QByteArray::number(userId); ba += kFS;
-	ba += text.toUtf8();
-	sendWiredCommand(ba);
-}
-
-/**
- * Notify that client that a user has joined the server (if chatId=1) or
- * a private chat (if chatId>1).
- * @param chat The chat ID (1 for server).
- * @param user The user information to be sent.
- */
-void WiredSocket::sendClientJoin(const int chatId, const ClassWiredUser user) {
-	if(user.pUserID==pSessionUser.pUserID) return;
-	QByteArray ba("302 ");
-	ba += QByteArray::number(chatId); ba += kFS;
-	ba += user.userListEntry();
-	sendWiredCommand(ba);
-}
-
-/**
- * A client left the server (or private chat).
- * @param chatId The ID of the chat. 1 is public chat.
- * @param id The ID of the user who left.
- */
-void WiredSocket::sendClientLeave(const int chatId, const int id) {
-	if(id==pSessionUser.pUserID) return;
-	QByteArray ba("303 ");
-	ba += QByteArray::number(chatId); ba += kFS;
-	ba += QByteArray::number(id);
-	sendWiredCommand(ba);
-}
-
-/**
- * Send a server banner to the client.
- * @param banner The PNG data of the banner.
- */
-void WiredSocket::sendBanner(const QByteArray banner) {
-	QByteArray ba("203 ");
-	ba += banner.toBase64();
-	sendWiredCommand(ba);
-}
-
-/**
- * The user changed his/her user image (seen in the user list).
- * @param user The user object with the new information.
- */
-void WiredSocket::sendUserImageChanged(const ClassWiredUser user) {
-	QByteArray ba("340 ");
-	ba += QByteArray::number(user.pIcon);
-	ba += kFS;
-	ba += user.pImage;
-	sendWiredCommand(ba);
+/*! Notify that client that a user has joined the server (if chatId=1) o  a private chat.
+*/
+void WiredSocket::sendClientJoin(const int chatId, const ClassWiredUser &user)
+{
+    QwMessage reply("302");
+    reply.appendArg(QByteArray::number(chatId));
+    user.userListEntry(reply);
+    sendMessage(reply);
 }
 
 
-/**
- * The user changed his/her nick, status, icon id or idle flags.
- * @param user The user object with the new information.
- */
-void WiredSocket::sendUserStatusChanged(const ClassWiredUser user) {
-	QByteArray ba("304 ");
-	ba += user.userStatusEntry();
-	sendWiredCommand(ba);
-}
+
+
 
 /**
  * The new private chat has been created and the user has been automatically
@@ -577,7 +668,7 @@ void WiredSocket::sendUserStatusChanged(const ClassWiredUser user) {
 void WiredSocket::sendPrivateChatCreated(const int chatId) {
 	QByteArray ba("330 ");
 	ba += QByteArray::number(chatId);
-	sendWiredCommand(ba);
+//	sendWiredCommand(ba);
 }
 
 /**
@@ -589,20 +680,18 @@ void WiredSocket::sendInviteToChat(const int chatId, const int id) {
 	QByteArray ba("331 ");
 	ba += QByteArray::number(chatId); ba += kFS;
 	ba += QByteArray::number(id);
-	sendWiredCommand(ba);
+//	sendWiredCommand(ba);
 }
 
 
-/**
- * Deliver a private message to this user.
- * @param userId The ID of the originator.
- * @param text The text of the message.
- */
-void WiredSocket::sendPrivateMessage(const int userId, const QString text) {
-	QByteArray ba("305 ");
-	ba += QByteArray::number(userId); ba += kFS;
-	ba += text.toUtf8();
-	sendWiredCommand(ba);
+/*! Deliver a private message to this user.
+*/
+void WiredSocket::sendPrivateMessage(const int userId, const QString text)
+{
+    QwMessage reply("305");
+    reply.appendArg(QByteArray::number(userId));
+    reply.appendArg(text.toUtf8());
+    sendMessage(reply);
 }
 
 /**
@@ -610,24 +699,25 @@ void WiredSocket::sendPrivateMessage(const int userId, const QString text) {
  * @param user The user object containing the requested information.
  */
 void WiredSocket::sendUserInfo(const ClassWiredUser user) {
-	QByteArray ba("308 ");
-	ba += user.userInfoEntry();
-	sendWiredCommand(ba);
+//	QByteArray ba("308 ");
+//	ba += user.userInfoEntry();
+//	sendWiredCommand(ba);
 }
 
 /**
  * The topic changed (or was requested) of a specific chat.
  * @param chat The object containing the chat information.
  */
-void WiredSocket::sendChatTopic(const QWClassPrivateChat chat) {
+void WiredSocket::sendChatTopic(const QwsRoom chat)
+{
 	QByteArray ba("341 ");
 	ba += QByteArray::number(chat.pChatId); ba += kFS;
-	ba += chat.pTopicSetter.pNick.toUtf8(); ba += kFS;
-	ba += chat.pTopicSetter.pLogin.toUtf8(); ba += kFS;
-	ba += chat.pTopicSetter.pIP.toUtf8(); ba += kFS;
+        ba += chat.pTopicSetter.userNickname.toUtf8(); ba += kFS;
+        ba += chat.pTopicSetter.userLogin.toUtf8(); ba += kFS;
+        ba += chat.pTopicSetter.userIpAddress.toUtf8(); ba += kFS;
 	ba += chat.pTopicDate.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
 	ba += chat.pTopic.toUtf8();
-	sendWiredCommand(ba);
+//	sendWiredCommand(ba);
 }
 
 /**
@@ -639,7 +729,7 @@ void WiredSocket::sendClientDeclinedChat(const int chatId, const int userId) {
 	QByteArray ba("332 ");
 	ba += QByteArray::number(chatId); ba += kFS;
 	ba += QByteArray::number(userId);
-	sendWiredCommand(ba);
+//	sendWiredCommand(ba);
 }
 
 /**
@@ -656,8 +746,8 @@ void WiredSocket::setClientInfo(const QString info) {
  */
 void WiredSocket::sendPrivileges() {
 	QByteArray ba("602 ");
-	ba += pSessionUser.privilegesFlags();
-	sendWiredCommand(ba);
+//	ba += pSessionUser.privilegesFlags();
+//	sendWiredCommand(ba);
 }
 
 
@@ -673,41 +763,11 @@ void WiredSocket::sendClientKicked(const int killerId, const int victimId, const
 	ba += QByteArray::number(victimId); ba += kFS;
 	ba += QByteArray::number(killerId); ba += kFS;
 	ba += reason.toUtf8();
-	sendWiredCommand(ba);
-}
-
-/**
- * A user just posted a news item. Send a notification to this client.
- * @param nickname The nickname of the user who posted the news item.
- * @param news The text of the news item.
- */
-void WiredSocket::sendNewsPosted(const QString nickname, const QString news) {
-	QByteArray ba("322 ");
-	ba += nickname.toUtf8(); ba += kFS;
-	ba += QDateTime::currentDateTime().toUTC().toString(Qt::ISODate).append("+00:00"); ba += kFS;
-	ba += news.toUtf8();
-	sendWiredCommand(ba);
-}
-
-/**
- * Transmit a news entry.
- * @param nickname The nickname of the user who posted the news item.
- * @param date The date this news item was posted.
- * @param news The text of the news item.
- */
-void WiredSocket::sendNews(const QString nickname, const QDateTime date, const QString news) {
-	QByteArray ba("320 ");
-	ba += nickname.toUtf8(); ba += kFS;
-	ba += date.toUTC().toString(Qt::ISODate).append("+00:00"); ba += kFS;
-	ba += news.toUtf8();
-	sendWiredCommandBuffer(ba);
+//	sendWiredCommand(ba);
 }
 
 
-/**
- * The list of news has been transmitted.
- */
-void WiredSocket::sendNewsDone() { sendWiredCommand("321 Done"); }
+
 
 /**
  * Send a account listing item to the client.
@@ -716,13 +776,15 @@ void WiredSocket::sendNewsDone() { sendWiredCommand("321 Done"); }
 void WiredSocket::sendAccountListing(const QString name) {
 	QByteArray ba("610 ");
 	ba += name.toUtf8();
-	sendWiredCommandBuffer(ba);
+//	sendWiredCommandBuffer(ba);
 }
 
 /**
  * The list of accounts has been transmitted.
  */
-void WiredSocket::sendAccountListingDone() { sendWiredCommand("611 Done"); }
+void WiredSocket::sendAccountListingDone() {
+//    sendWiredCommand("611 Done");
+}
 
 /**
  * Send a account listing item to the client.
@@ -731,13 +793,15 @@ void WiredSocket::sendAccountListingDone() { sendWiredCommand("611 Done"); }
 void WiredSocket::sendGroupListing(const QString name) {
 	QByteArray ba("620 ");
 	ba += name.toUtf8();
-	sendWiredCommandBuffer(ba);
+//	sendWiredCommandBuffer(ba);
 }
 
 /**
  * The list of accounts has been transmitted.
  */
-void WiredSocket::sendGroupListingDone() { sendWiredCommand("621 Done"); }
+void WiredSocket::sendGroupListingDone() {
+//    sendWiredCommand("621 Done");
+}
 
 
 
@@ -746,12 +810,12 @@ void WiredSocket::sendGroupListingDone() { sendWiredCommand("621 Done"); }
  * @param account The object holding the account data.
  */
 void WiredSocket::sendUserSpec(const ClassWiredUser account) {
-	QByteArray ba("600 ");
-	ba += account.pLogin.toUtf8(); ba += kFS;
-	ba += account.pPassword.toUtf8(); ba += kFS;
-	ba += account.pGroupName.toUtf8(); ba += kFS;
-	ba += account.privilegesFlags();
-	sendWiredCommand(ba);
+//	QByteArray ba("600 ");
+//        ba += account.userLogin.toUtf8(); ba += kFS;
+//	ba += account.pPassword.toUtf8(); ba += kFS;
+//	ba += account.pGroupName.toUtf8(); ba += kFS;
+//	ba += account.privilegesFlags();
+//	sendWiredCommand(ba);
 }
 
 /**
@@ -759,10 +823,10 @@ void WiredSocket::sendUserSpec(const ClassWiredUser account) {
  * @param account The object holding the group data.
  */
 void WiredSocket::sendGroupSpec(const ClassWiredUser group) {
-	QByteArray ba("601 ");
-	ba += group.pGroupName.toUtf8(); ba += kFS;
-	ba += group.privilegesFlags();
-	sendWiredCommand(ba);
+//	QByteArray ba("601 ");
+//	ba += group.pGroupName.toUtf8(); ba += kFS;
+//	ba += group.privilegesFlags();
+//	sendWiredCommand(ba);
 }
 
 
@@ -775,7 +839,7 @@ void WiredSocket::sendFileListing(const ClassWiredFile file) {
 	ba += file.modified.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
 	ba += file.checksum.toUtf8(); ba += kFS;
 	ba += file.comment.toUtf8();
-	sendWiredCommandBuffer(ba);
+//	sendWiredCommandBuffer(ba);
 }
 
 void WiredSocket::sendFileStat(const ClassWiredFile file) {
@@ -787,30 +851,43 @@ void WiredSocket::sendFileStat(const ClassWiredFile file) {
 	ba += file.modified.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
 	ba += file.checksum.toUtf8(); ba += kFS;
 	ba += file.comment.toUtf8();
-	sendWiredCommandBuffer(ba);
+//	sendWiredCommandBuffer(ba);
 }
 
 void WiredSocket::sendFileListingDone(const QString path, const int free) {
 	QByteArray ba("411 ");
 	ba += path.toUtf8(); ba += kFS;
 	ba += QByteArray::number(free);
-	sendWiredCommand(ba);
+//	sendWiredCommand(ba);
 }
 
 
-
-void WiredSocket::sendErrorClientNotFound() { sendWiredCommand("512 Client Not Found"); }
-void WiredSocket::sendErrorPermissionDenied() { sendWiredCommand("516 Permission Denied"); }
-void WiredSocket::sendErrorSyntaxError() { sendWiredCommand("503 Syntax Error"); }
-void WiredSocket::sendErrorLoginFailed() { sendWiredCommand("510 Login Failed"); }
-void WiredSocket::sendErrorCommandNotImplemented() { sendWiredCommand("502 Command Not Implemented"); }
-void WiredSocket::sendErrorCommandFailed() { sendWiredCommand("500 Command Failed"); }
-void WiredSocket::sendErrorCannotBeDisconnected() { sendWiredCommand("515 Cannot Be Disconnected"); }
-void WiredSocket::sendErrorAccountNotFound() { sendWiredCommand("513 Account Not Found"); }
-void WiredSocket::sendErrorAccountExists() { sendWiredCommand("514 Account Exists"); }
-void WiredSocket::sendErrorFileNotFound() { sendWiredCommand("520 File or Directory Not Found"); }
-
-
+/*! Send an error message to the client if something goes wrong.
+*/
+void WiredSocket::sendError(const Qws::ProtocolError error)
+{
+    QByteArray errorString;
+    switch (error) {
+        case Qws::ErrorComandFailed: errorString = "500 Command Failed"; break;
+        case Qws::ErrorCommandNotRecognized: errorString = "501 Command Not Recognized"; break;
+        case Qws::ErrorCommandNotImplemented: errorString = "502 Command Not Implemented"; break;
+        case Qws::ErrorSyntaxError: errorString = "503 Syntax Error"; break;
+        case Qws::ErrorLoginFailed: errorString = "510 Login Failed"; break;
+        case Qws::ErrorBanned: errorString = "511 Banned"; break;
+        case Qws::ErrorClientNotFound: errorString = "512 Client Not Found"; break;
+        case Qws::ErrorAccountNotFound: errorString = "513 Account Not Found"; break;
+        case Qws::ErrorAccountExists: errorString = "514 Account Exists"; break;
+        case Qws::ErrorCannotBeDisconnected: errorString = "515 Cannot Be Disconnected"; break;
+        case Qws::ErrorPermissionDenied: errorString = "516 Permission Denied"; break;
+        case Qws::ErrorFileOrDirectoryNotFound: errorString = "520 File or Directory Not Found"; break;
+        case Qws::ErrorFileOrDirectoryExists: errorString = "521 File or Directory Exists"; break;
+        case Qws::ErrorChecksumMismatch: errorString = "522 Checksum Mismatch"; break;
+        case Qws::ErrorQueueLimitExceeded: errorString = "523 Queue Limit Exceeded"; break;
+        default: errorString = "500 Command Failed"; break;
+    }
+    QwMessage reply(errorString);
+    sendMessage(reply);
+}
 
 
 
