@@ -24,48 +24,98 @@
 
 #include "classwireduser.h"
 #include "classwiredfile.h"
-#include "qwclassprivatechat.h"
+
 #include <QtCore>
 #include <QtNetwork>
 
+#include "QwSocket.h"
+#include "QwsRoom.h"
 
-/**
-	@author Bastian Bense <bastibense@gmail.com>
- */
+#include "classwireduser.h"
 
-namespace Wired {
+namespace Qws {
+    enum SessionState { StateInactive /*! TCP-unknown, no handshake, not logged in */,
+                        StateConnected /*! TCP connected, handshake OK, not logged in */,
+                        StateActive /*! TCP connected, handshake OK, logged in (ready) */
+                      };
 
+    enum ProtocolError { ErrorComandFailed = 500,
+                         ErrorCommandNotRecognized,
+                         ErrorCommandNotImplemented,
+                         ErrorSyntaxError,
+                         ErrorLoginFailed = 510,
+                         ErrorBanned,
+                         ErrorClientNotFound,
+                         ErrorAccountNotFound,
+                         ErrorAccountExists,
+                         ErrorCannotBeDisconnected,
+                         ErrorPermissionDenied,
+                         ErrorFileOrDirectoryNotFound = 520,
+                         ErrorFileOrDirectoryExists,
+                         ErrorChecksumMismatch,
+                         ErrorQueueLimitExceeded
+                        };
 }
+
+
+
+/*! \class WiredSocket
+    \author Bastian Bense <bb@bense.de>
+
+*/
 
 const int kEOF = 0x04;
 const int kFS = 0x1C;
 
-class WiredSocket
-	: public QObject
+class WiredSocket : public QwSocket
 {
-	Q_OBJECT
+    friend class QwsServerController;
 
-	public:
-		WiredSocket(QObject *parent = 0);
-		~WiredSocket();
-		void setWiredSocket(QSslSocket *socket);
+    Q_OBJECT
 
-		ClassWiredUser sessionUser() { return pSessionUser; };
-		int userId() { return pSessionUser.pUserID; }
-		bool pLoggedIn;
-		bool isLoggedIn() { return pLoggedIn; };
-		ClassWiredUser pSessionUser;
-		QTimer* pIdleTimer;
+public:
+    WiredSocket(QObject *parent = 0);
+    ~WiredSocket();
+
+    ClassWiredUser sessionUser() { return pSessionUser; };
+    int userId() { return pSessionUser.pUserID; }
+    bool pLoggedIn;
+    bool isLoggedIn() { return pLoggedIn; };
+    ClassWiredUser pSessionUser;
+    QTimer* pIdleTimer;
+
+    ClassWiredUser user;
 		
 		
-	signals:
-		/**
-		 * The client has sent the login and password and the server should now check if these are correct.
-		 * Call sendLoginSuccessful() or sendErrorLoginFailed() to accept or reject the connection.
-		 * @param id The ID of the connection.
-		 * @param login The login name.
-		 * @param password The password.
-		 */
+signals:
+    /*! This signal is emitted when a message must be sent to all users in a specific room, but
+        there is no further action from QwsServerController required. */
+    void broadcastedMessage(const QwMessage message, const int roomId, const bool sendToSelf);
+    /*! This signal is emitted when the client issues a WHO command. */
+    void requestedUserlist(const int roomId);
+    /*! This signal is emitted whenever the session state changes. */
+    void sessionStateChanged(const Qws::SessionState state);
+    /*! This signal is emitted when there is chat text received from the client for a room. */
+    void requestedChatRelay(const int roomId, const QString text, const bool isEmote);
+    /*! This signal is emitted when the client wants to send a private message to another user. */
+    void requestedMessageRelay(const int userId, const QString text);
+    /*! This signal is emitted when the user information changes. This includes status, idle state,
+        nickname, icon, image and the admin flag. */
+    void userStatusChanged();
+    /*! This signal is emitted if the user wants to change the topic of a chat. */
+    void requestedRoomTopicChange(const int roomId, const QString topic);
+    /*! This signal is emitted if the client needs to be sent the topic of a room. (After login) */
+    void requestedRoomTopic(const int roomId);
+    /*! This signal is emitted when the client requests information about a client. */
+    void requestedClientInfo(const int userId);
+    /*! This signal is emitted when the client wants to create a new chat room. */
+    void requestedNewRoom();
+    /*! This signal is emitted when the client invites a user to a room. */
+    void requestedUserInviteToRoom(const int userId, const int roomId);
+    /*! This signal is emitted when a client decides to join a room by invitation. */
+    void requestedUserJoinRoom(const int roomId);
+
+
 		void clearedNews(const int id);
 		void clientDisconnected(const int id);
 		void createdUser(const int id, const ClassWiredUser user);
@@ -82,9 +132,9 @@ class WiredSocket
 		void newsPosted(const int id, const QString news);
 		void privateChatLeft(const int id, const int chatId);
 		void receivedClientInfo(const int id, const QString info);
-		void receivedChat(const int id, const int chatId, const QString text, const bool emote);
-		void receivedBroadcastMessage(const int id, const QString text);
-		void requestedAccountsList(const int id);
+
+
+                void requestedAccountsList(const int id);
 		void requestedBanner(const int id);
 		void requestedFileList(const int id, const QString path);
 		void requestedFileStat(const int id, const QString path);
@@ -94,22 +144,27 @@ class WiredSocket
 		void requestedReadUser(const int id, const QString name);
 		void requestedReadGroup(const int id, const QString name);
 		void requestedUserInfo(const int id, const int userId);
-		void requestedUserlist(const int id, const int chat);
+
 		void topicChanged(const ClassWiredUser user, const int chatId, const QString topic);
 		void userImageChanged(const ClassWiredUser user);
 		void userKicked(const int id, const int userId, const QString reason, const bool banned);
-		void userStatusChanged(const ClassWiredUser user);
+
 		
-		void privateMessageReceived(const int id, const int targetId, const QString text);
+
 		
-	public slots:
+public slots:
+    void sendUserlistItem(const int roomId, const ClassWiredUser &item);
+    void sendUserlistDone(const int roomId);
+    void sendClientJoin(const int chatId, const ClassWiredUser &user);
+    void sendChat(const int chatId, const int userId, const QString text, const bool isEmote);
+    void sendError(const Qws::ProtocolError error);
+    void sendServerInfo();
+
+
+
 		void disconnectClient();
-		void sendLoginSuccessful();
-		void sendErrorLoginFailed();
 		
-		void sendServerInformation(const QString serverName, const QString serverDescr, const QDateTime startTime, const int fileCount, const int fileTotalSize);
 		void setClientInfo(const QString info);
-		void setUserId(int userId);
 
 		void sendAccountListing(const QString name);
 		void sendAccountListingDone();
@@ -122,74 +177,83 @@ class WiredSocket
 		void sendFileListingDone(const QString path, const int free);
 		void sendFileStat(const ClassWiredFile file);
 		
-		void sendBanner(const QByteArray banner);
-		void sendBroadcastMessage(const int userId, const QString text);
-		void sendChat(const int chatId, const int userId, const QString text, const bool emote);
-		void sendChatTopic(const QWClassPrivateChat chat);
+
+                void sendChatTopic(const QwsRoom chat);
 		void sendClientKicked(const int killerId, const int victimId, const QString reason, const bool banned);
 		void sendClientDeclinedChat(const int chatId, const int userId);
-		void sendClientJoin(const int chatId, const ClassWiredUser user);
+
 		void sendClientLeave(const int chatId, const int id);
 		void sendInviteToChat(const int chatId, const int id);
-		void sendNews(const QString nickname, const QDateTime date, const QString news);
-		void sendNewsDone();
-		void sendNewsPosted(const QString nickname, const QString news);
+
 		void sendPrivateMessage(const int userId, const QString text);
 		void sendPrivateChatCreated(const int chatId);
 		void sendPrivileges();
-		void sendUserlistItem(const int chatId, const ClassWiredUser item);
-		void sendUserlistDone(const int chatId);
+
 		
-		void sendUserImageChanged(const ClassWiredUser user);
 		void sendUserInfo(const ClassWiredUser user);
-		void sendUserStatusChanged(const ClassWiredUser user);
 		
 		void idleTimerTriggered();
 
-		void sendErrorAccountNotFound();
-		void sendErrorAccountExists();
-		void sendErrorPermissionDenied();
-		void sendErrorClientNotFound();
-		void sendErrorCommandFailed();
-		void sendErrorSyntaxError();
-		void sendErrorCannotBeDisconnected();
-		void sendErrorFileNotFound();
 
 
 		
 	private slots:
-		void readDataFromSocket();
+
+                void handleIncomingMessage(QwMessage message);
+
+                // Protocol
+                void handleMessageHELLO(QwMessage &message);
+                void handleMessageCLIENT(QwMessage &message);
+                void handleMessageNICK(QwMessage &message);
+                void handleMessagePASS(QwMessage &message);
+                void handleMessageUSER(QwMessage &message);
+                void handleMessagePING(QwMessage &message);
+                void handleMessageSTATUS(QwMessage &message);
+                void handleMessageWHO(QwMessage &message);
+                void handleMessageICON(QwMessage &message);
+                void handleMessageBANNER(QwMessage &message);
+                void handleMessageINFO(QwMessage &message);
+
+                // Communication
+                void handleMessageSAY(QwMessage &message);
+                void handleMessageME(QwMessage &message);
+                void handleMessageMSG(QwMessage &message);
+                void handleMessageBROADCAST(QwMessage &message);
+                void handleMessageTOPIC(QwMessage &message);
+                void handleMessagePRIVCHAT(QwMessage &message);
+                void handleMessageINVITE(QwMessage &message);
+                void handleMessageJOIN(QwMessage &message);
+
+                // News
+                void handleMessageNEWS(QwMessage &message);
+                void handleMessagePOST(QwMessage &message);
+                void handleMessageCLEARNEWS(QwMessage &message);
+
 		void on_socket_sslErrors(const QList<QSslError> & errors);
 		void handleWiredMessage(QByteArray theData);
 		void on_socket_error();
 
 
-		// Protocol Stack
-		void sendErrorCommandNotImplemented();
+		
+private:
+    /*! Defines the current state of the session/socket. */
+    Qws::SessionState sessionState;
 
-		
-	private:
-		// Session state parameters
-		//
 
-		
-		bool pHandshakeOK;
-		
-		void resetIdleTimer();
-		
-		/// Our function that formats a Wired message and sends it to the server.
-		void sendWiredCommand(const QByteArray);
-		void sendWiredCommandBuffer(const QByteArray);
-		
-		/// This is our TCP buffer. Could possibly be optimized, but works for now.
-		QByteArray pBuffer;
+    void resetIdleTimer();
 
-		/// This is the send TCP buffer. It is used when sending lists and to prevent the event loop
-		/// from fireing command handling during list sending.
-		QByteArray pSendBuffer;
-		
-		QPointer<QSslSocket> pSocket;
-		QList<QByteArray> splitMessageFields(QByteArray theData);
+    /// Our function that formats a Wired message and sends it to the server.
+    void sendWiredCommand(const QByteArray);
+    void sendWiredCommandBuffer(const QByteArray);
+
+    /// This is our TCP buffer. Could possibly be optimized, but works for now.
+    QByteArray pBuffer;
+
+    /// This is the send TCP buffer. It is used when sending lists and to prevent the event loop
+    /// from fireing command handling during list sending.
+    QByteArray pSendBuffer;
+
+    QPointer<QSslSocket> pSocket;
 		
 		
     
