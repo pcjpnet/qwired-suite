@@ -41,22 +41,22 @@ WidgetFileBrowser::~WidgetFileBrowser()
 
 void WidgetFileBrowser::initWithConnection(ClassWiredSession *theSession)
 {
-	pModel = new ModelFileList(this);
-	pFilterProxy = new QSortFilterProxyModel(this);
-	pFilterProxy->setSourceModel(pModel);
-	pFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	pFilterProxy->setSortRole(Qt::UserRole);
-	
-	pSession = theSession;
-	connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(ClassWiredFile)), pModel, SLOT(onServerFileListItem(ClassWiredFile)) );
-	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
-	connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
-	connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SLOT(fileTransferDone(ClassWiredTransfer)) );
+    pModel = new ModelFileList(this);
+    pFilterProxy = new QSortFilterProxyModel(this);
+    pFilterProxy->setSourceModel(pModel);
+    pFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    pFilterProxy->setSortRole(Qt::UserRole);
 
-	fList->setModel(pFilterProxy);
-	fList->setAlternatingRowColors(true);
-	
-	fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
+    pSession = theSession;
+    connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(ClassWiredFile)), pModel, SLOT(onServerFileListItem(ClassWiredFile)) );
+    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
+    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
+    connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(ClassWiredTransfer)), this, SLOT(fileTransferDone(ClassWiredTransfer)) );
+
+    fList->setModel(pFilterProxy);
+    fList->setAlternatingRowColors(true);
+
+    fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
 }
 
 

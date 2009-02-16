@@ -149,16 +149,36 @@ void WidgetForum::writeToChat(QString theUser, QString theText, bool theEmote) {
 	tc.setCharFormat(f);
 
 	const int tmpNameLength = 20;
-	if(pChatStyle==0) { // Qwired style
+	if(pChatStyle==0) { // Wired style
 		if(theEmote)
 			 tmpData = QString("%1 %2\n").arg(QString("*** %1").arg(theUser), tmpNameLength-tmpTimestamp.size()).arg(theText);
 		else tmpData = QString("%1: %2\n").arg(theUser.left(tmpNameLength-tmpTimestamp.count() ), tmpNameLength-tmpTimestamp.size()).arg(theText);
+		tc.insertText(tmpData);
+		
 	} else if(pChatStyle==1) { // IRC style
 		if(theEmote)
 			 tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
 		else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
+		tc.insertText(tmpData);
+		
+	} else if(pChatStyle==2) { // Qwired style
+// 		QString nick = theUser;
+// 		nick.replace("<", "&lt;");
+// 		nick.replace(">", "&gt;");
+		
+		if(theEmote) {
+			tc.insertHtml(QString("<b>&#9787; %1</b> %2<br>")
+				.arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
+				.arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
+		} else {
+			tc.insertHtml(QString("<b>%1:</b> %2<br>")
+				.arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
+				.arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
+		}
+// 			tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
+// 		else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
 	}
-	tc.insertText(tmpData);
+	
 	tc.setPosition(tmpStart);
 
 	if(pEmoticonsEnabled) {

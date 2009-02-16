@@ -55,9 +55,9 @@ class WidgetFileBrowser;
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class ClassWiredSession
-	: public QObject
+class ClassWiredSession : public QObject
 {
+
 Q_OBJECT
 public:
 	ClassWiredSession(QObject *parent = 0);

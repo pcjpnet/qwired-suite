@@ -28,10 +28,12 @@
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class WidgetPrefs : public QWidget, private Ui::WidgetPrefs
+class WidgetPrefs
+	: public QWidget, private Ui::WidgetPrefs
 {
 
 Q_OBJECT
+		
 public:
     WidgetPrefs(QWidget *parent = 0);
     ~WidgetPrefs();
