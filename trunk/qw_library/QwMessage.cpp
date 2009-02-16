@@ -6,7 +6,7 @@ QwMessage::QwMessage()
 }
 
 
-QwMessage::QwMessage(const QByteArray frameData) : QObject(0)
+QwMessage::QwMessage(const QByteArray frameData)
 {
     QString frameArguments;
     int spacePosition = frameData.indexOf('\x20');
