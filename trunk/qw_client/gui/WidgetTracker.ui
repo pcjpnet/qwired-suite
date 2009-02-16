@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>WidgetTracker</class>
- <widget class="QWidget" name="WidgetTracker" >
-  <property name="geometry" >
+ <widget class="QWidget" name="WidgetTracker">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,43 +10,46 @@
     <height>406</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Trackers</string>
   </property>
-  <layout class="QVBoxLayout" >
-   <property name="spacing" >
+  <layout class="QVBoxLayout">
+   <property name="spacing">
     <number>4</number>
    </property>
-   <property name="margin" >
+   <property name="margin">
     <number>14</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" >
-     <property name="spacing" >
+    <layout class="QHBoxLayout">
+     <property name="spacing">
       <number>6</number>
      </property>
      <item>
-      <widget class="QComboBox" name="fServers" >
-       <property name="font" >
+      <widget class="QComboBox" name="fServers">
+       <property name="font">
         <font>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="fBtnRefresh" >
-       <property name="text" >
+      <widget class="QToolButton" name="fBtnRefresh">
+       <property name="text">
         <string>Refresh</string>
        </property>
       </widget>
      </item>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -54,23 +58,23 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="label" >
-       <property name="font" >
+      <widget class="QLabel" name="label">
+       <property name="font">
         <font>
          <pointsize>11</pointsize>
         </font>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>Filter:</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="fFilter" >
-       <property name="font" >
+      <widget class="QLineEdit" name="fFilter">
+       <property name="font">
         <font>
          <pointsize>11</pointsize>
         </font>
@@ -80,40 +84,40 @@
     </layout>
    </item>
    <item>
-    <widget class="QTreeView" name="fList" >
-     <property name="font" >
+    <widget class="QTreeView" name="fList">
+     <property name="font">
       <font>
        <pointsize>11</pointsize>
       </font>
      </property>
-     <property name="focusPolicy" >
+     <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>
-     <property name="editTriggers" >
+     <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
-     <property name="rootIsDecorated" >
+     <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
-     <property name="itemsExpandable" >
+     <property name="itemsExpandable">
       <bool>false</bool>
      </property>
-     <property name="sortingEnabled" >
+     <property name="sortingEnabled">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="fProgress" >
-     <property name="font" >
+    <widget class="QLabel" name="fProgress">
+     <property name="font">
       <font>
        <pointsize>11</pointsize>
       </font>
      </property>
-     <property name="text" >
+     <property name="text">
       <string>%1 servers registered with tracker</string>
      </property>
-     <property name="alignment" >
+     <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
     </widget>

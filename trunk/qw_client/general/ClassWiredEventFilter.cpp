@@ -14,10 +14,10 @@ bool ClassWiredEventFilter::eventFilter(QObject *obj, QEvent *event)
         // Issue a confirmation dialog
         QMessageBox msgBox;
         msgBox.setWindowTitle(pWiredSocket->pServerName);
-        msgBox.setText("Are you sure you want to disconnect?");
-        msgBox.setInformativeText(QString("If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n").arg(pWiredSocket->pServerName));
-        msgBox.addButton(QMessageBox::Abort);
+        msgBox.setText(tr("Are you sure you want to disconnect?"));
+        msgBox.setInformativeText(QString(tr("If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n")).arg(pWiredSocket->pServerName));
         QPushButton *disconnectButton = msgBox.addButton(tr("Disconnect"), QMessageBox::ActionRole);
+        msgBox.addButton(tr("Abort"), QMessageBox::ActionRole);
         msgBox.setDefaultButton(disconnectButton);
         msgBox.exec();
 

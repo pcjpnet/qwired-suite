@@ -1,310 +1,350 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="ja">
 <context>
+    <name>ClassWiredEventFilter</name>
+    <message>
+        <location filename="../general/ClassWiredEventFilter.cpp" line="19"/>
+        <source>Disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/ClassWiredEventFilter.cpp" line="17"/>
+        <source>Are you sure you want to disconnect?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/ClassWiredEventFilter.cpp" line="18"/>
+        <source>If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/ClassWiredEventFilter.cpp" line="20"/>
+        <source>Abort</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ClassWiredSession</name>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="293"/>
+        <location filename="../general/classwiredsession.cpp" line="302"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation>話題 : %1
 提案者 : %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="349"/>
+        <location filename="../general/classwiredsession.cpp" line="358"/>
         <source>Broadcast Message</source>
         <translation>一斉通知</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="385"/>
+        <location filename="../general/classwiredsession.cpp" line="394"/>
         <source>Private Chat Invitation</source>
         <translation>プライベートチャットに招待</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="386"/>
+        <location filename="../general/classwiredsession.cpp" line="395"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation>%1 があなたをプライベートチャットに招待しました。
 「参加」ボタンで %1 とのチャットを開始します。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="388"/>
+        <location filename="../general/classwiredsession.cpp" line="397"/>
         <source>Ignore</source>
         <translation>無視</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="389"/>
+        <location filename="../general/classwiredsession.cpp" line="398"/>
         <source>Reject</source>
         <translation>辞退</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="390"/>
+        <location filename="../general/classwiredsession.cpp" line="399"/>
         <source>Join</source>
         <translation>参加</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="799"/>
+        <location filename="../general/classwiredsession.cpp" line="826"/>
         <source>News</source>
         <translation>ニュース</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="376"/>
+        <location filename="../general/classwiredsession.cpp" line="385"/>
         <source>Info: %1</source>
         <translation>情報: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="417"/>
+        <location filename="../general/classwiredsession.cpp" line="426"/>
         <source>Private Chat</source>
         <translation>プライベートチャット</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="817"/>
+        <location filename="../general/classwiredsession.cpp" line="844"/>
         <source>Server Info</source>
         <translation>サーバの情報</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="908"/>
+        <location filename="../general/classwiredsession.cpp" line="937"/>
         <source>Transfers</source>
         <translation>転送</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="890"/>
+        <location filename="../general/classwiredsession.cpp" line="919"/>
         <source>File Search</source>
         <translation>検索</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="743"/>
+        <location filename="../general/classwiredsession.cpp" line="790"/>
         <source>Accounts</source>
         <translation>アカウント</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="534"/>
+        <location filename="../general/classwiredsession.cpp" line="556"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation>コマンドに失敗しました。未知のサーバエラーです。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="535"/>
+        <location filename="../general/classwiredsession.cpp" line="557"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation>コマンドが認識されません。Qwiredはサーバが未知のコマンドを送信しました。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="536"/>
+        <location filename="../general/classwiredsession.cpp" line="558"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation>直前のコマンドはサーバに実装されていません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="537"/>
+        <location filename="../general/classwiredsession.cpp" line="559"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation>シンタックスエラーです。直前のコマンドは正しいフォーマットではありません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="538"/>
+        <location filename="../general/classwiredsession.cpp" line="560"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation>ログインに失敗しました。ログインネームとパスワードが許可されませんでした。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="539"/>
+        <location filename="../general/classwiredsession.cpp" line="561"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation>バンされました。サーバーの管理者によって禁止されているので接続が拒否されました。しばらくしてから再接続してみてください。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="540"/>
+        <location filename="../general/classwiredsession.cpp" line="562"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation>クライアントが見つかりません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="541"/>
+        <location filename="../general/classwiredsession.cpp" line="563"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation>アカウントが見つかりません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="542"/>
+        <location filename="../general/classwiredsession.cpp" line="564"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation>同名のアカウントが存在します。指定したアカウントを作成できませんでした。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="543"/>
+        <location filename="../general/classwiredsession.cpp" line="565"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation>指定したユーザを切断できません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="544"/>
+        <location filename="../general/classwiredsession.cpp" line="566"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation>アクセスが拒否されました。直前のコマンドを実行するのに十分な権限がありません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="545"/>
+        <location filename="../general/classwiredsession.cpp" line="567"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation>ファイルまたはディレクトリが見つかりません。直前のコマンドに失敗しました。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="546"/>
+        <location filename="../general/classwiredsession.cpp" line="568"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation>同名のディレクトリが既に存在します。直前のコマンドは完了しませんでした。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="547"/>
+        <location filename="../general/classwiredsession.cpp" line="569"/>
         <source>Checksum Mismatch.</source>
         <translation>チェックサムが一致しません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="548"/>
+        <location filename="../general/classwiredsession.cpp" line="570"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation>サーバで設定されているキューの上限を超えるので、直前のコマンドは完了しませんでした。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="555"/>
+        <location filename="../general/classwiredsession.cpp" line="577"/>
         <source>Server Error</source>
         <translation>サーバエラー</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="532"/>
+        <location filename="../general/classwiredsession.cpp" line="554"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation>未知のサーバエラーが起きました。エラーコード %1.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="566"/>
+        <location filename="../general/classwiredsession.cpp" line="588"/>
         <source>Show/Hide</source>
         <translation>表示 / 隠す</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="589"/>
+        <location filename="../general/classwiredsession.cpp" line="611"/>
         <source>Connected</source>
         <translation>接続しました</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="590"/>
+        <location filename="../general/classwiredsession.cpp" line="612"/>
         <source>Disconnected</source>
         <translation>切断しました</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="591"/>
+        <location filename="../general/classwiredsession.cpp" line="613"/>
         <source>Server Error: %1</source>
         <translation>サーバエラー : %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="592"/>
+        <location filename="../general/classwiredsession.cpp" line="614"/>
         <source>%1 joined</source>
         <translation>%1 が参加しました</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="593"/>
+        <location filename="../general/classwiredsession.cpp" line="615"/>
         <source>%1 is now known as %2</source>
         <translation>%1 が %2 に改名しました</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="594"/>
+        <location filename="../general/classwiredsession.cpp" line="616"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation>%1 の状況が &apos;%2&apos; になりました</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="595"/>
+        <location filename="../general/classwiredsession.cpp" line="617"/>
         <source>%1 left</source>
         <translation>%1 が退室しました</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="596"/>
+        <location filename="../general/classwiredsession.cpp" line="618"/>
         <source>Chat from %1:
 %2</source>
         <translation>%1: からのチャット
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="597"/>
+        <location filename="../general/classwiredsession.cpp" line="619"/>
         <source>Message from %1:
 %2</source>
         <translation>%1: からのプライベートメッセージ
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="598"/>
+        <location filename="../general/classwiredsession.cpp" line="620"/>
         <source>News Posted from %1:
 %2</source>
         <translation>%1 が投稿したニュース :
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="599"/>
+        <location filename="../general/classwiredsession.cpp" line="621"/>
         <source>Broadcast from %1:
 %2</source>
         <translation>%1 からの一斉通知 :
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="600"/>
+        <location filename="../general/classwiredsession.cpp" line="622"/>
         <source>Transfer Started: %1</source>
         <translation>転送が始まりました : %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="601"/>
+        <location filename="../general/classwiredsession.cpp" line="623"/>
         <source>Transfer Finished: %1</source>
         <translation>転送が終了しました : %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="676"/>
+        <location filename="../general/classwiredsession.cpp" line="698"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation>転送はコネクションエラーで失敗しました。エラーID : %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="433"/>
+        <location filename="../general/classwiredsession.cpp" line="442"/>
         <source>Connecting. Starting session...</source>
         <translation>接続しています。セッションを開始しています...</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="462"/>
+        <location filename="../general/classwiredsession.cpp" line="471"/>
         <source>Connection Refused</source>
         <translation>コネクションが拒絶されました。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="463"/>
+        <location filename="../general/classwiredsession.cpp" line="472"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation>コネクションはリモートホストに拒絶されました。サーバが起動していないようです。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="466"/>
+        <location filename="../general/classwiredsession.cpp" line="475"/>
         <source>Host not found</source>
         <translation>ホストが見つかりません。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="466"/>
+        <location filename="../general/classwiredsession.cpp" line="475"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation>ホスト名を解決できなかったので、サーバに接続できませんでした。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="685"/>
+        <location filename="../general/classwiredsession.cpp" line="707"/>
         <source>Receiving user list...</source>
         <translation>ユーザリストを受信しています...</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="844"/>
+        <location filename="../general/classwiredsession.cpp" line="871"/>
         <source>Files</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="926"/>
+        <location filename="../general/classwiredsession.cpp" line="955"/>
         <source>File Transfer Error</source>
         <translation>ファイル転送エラー</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="929"/>
+        <location filename="../general/classwiredsession.cpp" line="958"/>
         <source>The transfer of file &apos;%1&apos; could not be completed because of an error.
 Possibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.</source>
         <translation>ファイル &apos;%1&apos; の転送はエラーにより完了できませんでした。
 TCPのポートがブロックされているか、サーバの設定が間違っている可能性があります。</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="778"/>
-        <source>Messages</source>
-        <translation type="unfinished">メッセージ</translation>
-    </message>
-    <message>
-        <location filename="../general/classwiredsession.cpp" line="979"/>
+        <location filename="../general/classwiredsession.cpp" line="1018"/>
         <source>Folder Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="981"/>
+        <location filename="../general/classwiredsession.cpp" line="1020"/>
         <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
 Do you want to begin the transfer?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/classwiredsession.cpp" line="755"/>
+        <source>Disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/classwiredsession.cpp" line="752"/>
+        <source>Are you sure you want to disconnect?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/classwiredsession.cpp" line="753"/>
+        <source>If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../general/classwiredsession.cpp" line="754"/>
+        <source>Abort</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -359,92 +399,87 @@ Do you want to begin the transfer?</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../gui/WinMain.ui" line="29"/>
+        <location filename="../gui/WinMain.ui" line="30"/>
         <source>Qwired</source>
         <translation>Qwired</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="81"/>
+        <location filename="../gui/WinMain.ui" line="80"/>
         <source>New Connection...</source>
         <translation>新規接続...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="96"/>
+        <location filename="../gui/WinMain.ui" line="95"/>
         <source>Disconnect...</source>
         <translation>切断...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="107"/>
+        <location filename="../gui/WinMain.ui" line="106"/>
         <source>Reconnect</source>
         <translation>再接続</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="118"/>
+        <location filename="../gui/WinMain.ui" line="117"/>
         <source>Server Information</source>
         <translation>サーバ情報</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="129"/>
+        <location filename="../gui/WinMain.ui" line="128"/>
         <source>Chat</source>
         <translation>チャット</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="144"/>
+        <location filename="../gui/WinMain.ui" line="143"/>
         <source>News</source>
         <translation>ニュース</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="159"/>
-        <source>Messages</source>
-        <translation>メッセージ</translation>
-    </message>
-    <message>
-        <location filename="../gui/WinMain.ui" line="174"/>
+        <location filename="../gui/WinMain.ui" line="158"/>
         <source>Files</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="215"/>
+        <location filename="../gui/WinMain.ui" line="199"/>
         <source>Get Information</source>
         <translation>情報を見る</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="223"/>
+        <location filename="../gui/WinMain.ui" line="207"/>
         <source>Set Topic...</source>
         <translation>話題を設定...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="231"/>
+        <location filename="../gui/WinMain.ui" line="215"/>
         <source>Post News...</source>
         <translation>ニュースを投稿...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="239"/>
+        <location filename="../gui/WinMain.ui" line="223"/>
         <source>Broadcast Message...</source>
         <translation>メッセージを一斉送信...</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="189"/>
+        <location filename="../gui/WinMain.ui" line="173"/>
         <source>Transfers</source>
         <translation>転送</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="204"/>
+        <location filename="../gui/WinMain.ui" line="188"/>
         <source>Accounts</source>
         <translation>アカウント</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="254"/>
+        <location filename="../gui/WinMain.ui" line="238"/>
         <source>Search</source>
         <translation>検索</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="257"/>
+        <location filename="../gui/WinMain.ui" line="241"/>
         <source>Ctrl+F</source>
         <translation>Ctrl+F</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="262"/>
+        <location filename="../gui/WinMain.ui" line="246"/>
         <source>Preferences...</source>
         <translation>環境設定...</translation>
     </message>
@@ -454,72 +489,67 @@ Do you want to begin the transfer?</source>
         <translation>ツールバー</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="84"/>
+        <location filename="../gui/WinMain.ui" line="83"/>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="99"/>
+        <location filename="../gui/WinMain.ui" line="98"/>
         <source>Ctrl+D</source>
         <translation>Ctrl+D</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="110"/>
+        <location filename="../gui/WinMain.ui" line="109"/>
         <source>Ctrl+Shift+K</source>
         <translation>Ctrl+Shift+K</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="121"/>
+        <location filename="../gui/WinMain.ui" line="120"/>
         <source>Ctrl+Shift+I</source>
         <translation>Ctrl+Shift+I</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="132"/>
+        <location filename="../gui/WinMain.ui" line="131"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="147"/>
+        <location filename="../gui/WinMain.ui" line="146"/>
         <source>Ctrl+N</source>
         <translation>Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="162"/>
-        <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
-    </message>
-    <message>
-        <location filename="../gui/WinMain.ui" line="192"/>
+        <location filename="../gui/WinMain.ui" line="176"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="207"/>
+        <location filename="../gui/WinMain.ui" line="191"/>
         <source>Ctrl+U</source>
         <translation>Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="242"/>
+        <location filename="../gui/WinMain.ui" line="226"/>
         <source>Ctrl+Shift+B</source>
         <translation>Ctrl+Shift+B</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="267"/>
+        <location filename="../gui/WinMain.ui" line="251"/>
         <source>About QWired...</source>
         <translation>Qwired について</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="272"/>
+        <location filename="../gui/WinMain.ui" line="256"/>
         <source>Trackers</source>
         <translation>トラッカー</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="275"/>
+        <location filename="../gui/WinMain.ui" line="259"/>
         <source>Show a list of configured trackers and servers registered with them.</source>
         <translation>設定して登録されたトラッカーのリストを表示します。</translation>
     </message>
     <message>
-        <location filename="../gui/WinMain.ui" line="278"/>
+        <location filename="../gui/WinMain.ui" line="262"/>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
@@ -866,87 +896,87 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>WidgetFileBrowser</name>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="13"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="14"/>
         <source>Files</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="299"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="303"/>
         <source>0 items, 0 bytes total, 0 GB available</source>
         <translation>アイテム数 0、合計 0 バイト、空き容量 0 GB</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="139"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="133"/>
         <source>Files - %1</source>
         <translation>ファイル - %1</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="40"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="41"/>
         <source>Back</source>
         <translation>戻る</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="145"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="146"/>
         <source>Get Info</source>
         <translation>情報を見る</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="171"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="172"/>
         <source>New Folder...</source>
         <translation>新規フォルダ...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="194"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="195"/>
         <source>Refresh</source>
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="239"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="240"/>
         <source>Delete...</source>
         <translation>削除...</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="211"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="201"/>
         <source>Upload File</source>
         <translation>ファイルをアップロード</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="230"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="219"/>
         <source>Delete File</source>
         <translation>ファイルを削除</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="252"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="240"/>
         <source>Create Folder</source>
         <translation>フォルダを作成</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="252"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="240"/>
         <source>Enter a name for the new folder:</source>
         <translation>新しいフォルダの名前を入力してください :</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="156"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="149"/>
         <source>File Exists</source>
         <translation>ファイルが存在します。</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="53"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="54"/>
         <source>Ctrl+Up</source>
         <translation>Ctrl+↑</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="210"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="211"/>
         <source>F5</source>
         <translation>F5</translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="133"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="127"/>
         <source>%1 items, %2 total, %3 available</source>
         <translation>アイテム数 %1、合計  %2、%3 の空き</translation>
     </message>
     <message numerus="yes">
-        <location filename="../gui/widgetfilebrowser.cpp" line="230"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="219"/>
         <source>Are you sure you want to delete the selected %n item(s)?
 This can not be undone!</source>
         <translation>
@@ -955,18 +985,18 @@ This can not be undone!</source>
         </translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="82"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="83"/>
         <source>Download</source>
         <translation type="unfinished">ダウンロード</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetFileBrowser.ui" line="105"/>
+        <location filename="../gui/WidgetFileBrowser.ui" line="106"/>
         <source>Upload
 (hold Option/Alt to upload a folder)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/widgetfilebrowser.cpp" line="157"/>
+        <location filename="../gui/widgetfilebrowser.cpp" line="150"/>
         <source>The file &apos;%1&apos; already exists in your download directory. Overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1075,19 +1105,19 @@ This can not be undone!</source>
         <translation>話題 :（なし）</translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="324"/>
+        <location filename="../gui/widgetforum.cpp" line="344"/>
         <source>Kick</source>
         <translation>キック</translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="312"/>
+        <location filename="../gui/widgetforum.cpp" line="332"/>
         <source>You are about to disconnect &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation>%1 を切断しようとしています。
 理由を入力してOKを押してください。</translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="325"/>
+        <location filename="../gui/widgetforum.cpp" line="345"/>
         <source>You are about to ban &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation>&apos;%1&apos; をバンしようとしています。
@@ -1122,14 +1152,6 @@ Please enter a reason and press OK.</source>
         <location filename="../gui/WidgetForum.ui" line="243"/>
         <source>Invite to chat...</source>
         <translation>チャットに招待...</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetMessages</name>
-    <message>
-        <location filename="../gui/WidgetMessages.ui" line="13"/>
-        <source>Files</source>
-        <translation type="unfinished">ファイル</translation>
     </message>
 </context>
 <context>
@@ -1197,286 +1219,286 @@ Please enter a reason and press OK.</source>
 <context>
     <name>WidgetPrefs</name>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="13"/>
+        <location filename="../gui/WidgetPrefs.ui" line="14"/>
         <source>Preferences</source>
         <translation>環境設定</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="34"/>
+        <location filename="../gui/WidgetPrefs.ui" line="27"/>
         <source>General</source>
         <translation>一般</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="57"/>
+        <location filename="../gui/WidgetPrefs.ui" line="50"/>
         <source>Nickname:</source>
         <translation>ニックネーム :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="86"/>
+        <location filename="../gui/WidgetPrefs.ui" line="79"/>
         <source>Status:</source>
         <translation>状況 :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="115"/>
+        <location filename="../gui/WidgetPrefs.ui" line="108"/>
         <source>Icon:</source>
         <translation>アイコン :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="164"/>
+        <location filename="../gui/WidgetPrefs.ui" line="157"/>
         <source>Drag&amp;Drop any Image
 max size 32x32 pixels</source>
         <translation>画像をドロップ
 最大サイズ 32x32 ピクセル</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="179"/>
+        <location filename="../gui/WidgetPrefs.ui" line="172"/>
         <source>Default</source>
         <translation>デフォルト</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1543"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1455"/>
         <source>Set...</source>
         <translation>セット...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="251"/>
+        <location filename="../gui/WidgetPrefs.ui" line="236"/>
         <source>Interface</source>
         <translation>インターフェイス</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="912"/>
+        <location filename="../gui/WidgetPrefs.ui" line="841"/>
         <source>Bookmarks</source>
         <translation>ブックマーク</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1092"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1013"/>
         <source>Chat</source>
         <translation>チャット</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1512"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1424"/>
         <source>Files</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1518"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1430"/>
         <source>Download Folder:</source>
         <translation>ダウンロードフォルダ :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1550"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1462"/>
         <source>Transfers:</source>
         <translation>転送 :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1560"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1472"/>
         <source>Queue Transfers</source>
         <translation>順番に転送する</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1603"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1507"/>
         <source>Trackers</source>
         <translation>トラッカー</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1623"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1527"/>
         <source>New</source>
         <translation>新規</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1633"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1537"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1002"/>
+        <location filename="../gui/WidgetPrefs.ui" line="931"/>
         <source>Name:</source>
         <translation>名前 :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1015"/>
+        <location filename="../gui/WidgetPrefs.ui" line="944"/>
         <source>Address:</source>
         <translation>アドレス :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1028"/>
+        <location filename="../gui/WidgetPrefs.ui" line="957"/>
         <source>Login:</source>
         <translation>ログイン :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1041"/>
+        <location filename="../gui/WidgetPrefs.ui" line="970"/>
         <source>Password:</source>
         <translation>パスワード :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1058"/>
+        <location filename="../gui/WidgetPrefs.ui" line="987"/>
         <source>Auto-Connect at Startup</source>
         <translation>起動時に自動接続</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="276"/>
+        <location filename="../gui/widgetprefs.cpp" line="279"/>
         <source>Select Icon</source>
         <translation>アイコンを選択</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="276"/>
+        <location filename="../gui/widgetprefs.cpp" line="279"/>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>画像（*.png、*.xpm、*.jpg）</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="305"/>
+        <location filename="../gui/widgetprefs.cpp" line="308"/>
         <source>Select Download Directory</source>
         <translation>ダウンロードフォルダを選択</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="765"/>
+        <location filename="../gui/WidgetPrefs.ui" line="710"/>
         <source>Text:</source>
         <translation>テキスト :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="300"/>
+        <location filename="../gui/WidgetPrefs.ui" line="277"/>
         <source>URLs:</source>
         <translation>URL :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="310"/>
+        <location filename="../gui/WidgetPrefs.ui" line="287"/>
         <source>Chat Font:</source>
         <translation>チャット :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="320"/>
+        <location filename="../gui/WidgetPrefs.ui" line="297"/>
         <source>User List Font:</source>
         <translation>ユーザリスト :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="330"/>
+        <location filename="../gui/WidgetPrefs.ui" line="307"/>
         <source>Icon Size:</source>
         <translation>アイコンサイズ :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="794"/>
+        <location filename="../gui/WidgetPrefs.ui" line="739"/>
         <source>Background:</source>
         <translation>背景 :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="394"/>
+        <location filename="../gui/WidgetPrefs.ui" line="371"/>
         <source>Events:</source>
         <translation>イベント :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="424"/>
+        <location filename="../gui/WidgetPrefs.ui" line="401"/>
         <source>Large</source>
         <translation>大きい</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="453"/>
+        <location filename="../gui/WidgetPrefs.ui" line="430"/>
         <source>Alternating Row Background</source>
         <translation>背景色を交互に塗り分ける</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="662"/>
+        <location filename="../gui/WidgetPrefs.ui" line="623"/>
         <source>Messages</source>
         <translation>メッセージ</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="512"/>
+        <location filename="../gui/WidgetPrefs.ui" line="481"/>
         <source>News</source>
         <translation>ニュース</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="543"/>
+        <location filename="../gui/WidgetPrefs.ui" line="512"/>
         <source>Titles:</source>
         <translation>タイトル :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="553"/>
+        <location filename="../gui/WidgetPrefs.ui" line="522"/>
         <source>News Font:</source>
         <translation>ニュースのフォント :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="696"/>
+        <location filename="../gui/WidgetPrefs.ui" line="649"/>
         <source>Files Font:</source>
         <translation>ファイルのフォント :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="879"/>
+        <location filename="../gui/WidgetPrefs.ui" line="816"/>
         <source>Use Alternating Row Background</source>
         <translation>背景色を交互に塗り分ける</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="744"/>
+        <location filename="../gui/WidgetPrefs.ui" line="689"/>
         <source>Preview</source>
         <translation>プレビュー</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="775"/>
+        <location filename="../gui/WidgetPrefs.ui" line="720"/>
         <source>Preview Font:</source>
         <translation>プレビューのフォント :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1567"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1479"/>
         <source>Encrypt Transfers (slower on local networks)</source>
         <translation>転送を暗号化する（高速な回線では速度が低下）</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1587"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1499"/>
         <source>Always Open Folders In New Windows</source>
         <translation>フォルダを常に新規ウインドウで開く</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="285"/>
+        <location filename="../gui/widgetprefs.cpp" line="288"/>
         <source>Invalid File</source>
         <translation>無効なファイル</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="285"/>
+        <location filename="../gui/widgetprefs.cpp" line="288"/>
         <source>Could not open the selected image.</source>
         <translation>選択された画像を開けませんでした。</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="431"/>
+        <location filename="../gui/WidgetPrefs.ui" line="408"/>
         <source>Small</source>
         <translation>小さい</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1660"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1564"/>
         <source>Tracker Settings</source>
         <translation>トラッカーの設定</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1666"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1570"/>
         <source>Tracker Name:</source>
         <translation>名前 :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1679"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1583"/>
         <source>Tracker Address:</source>
         <translation>アドレス :</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="403"/>
+        <location filename="../gui/widgetprefs.cpp" line="406"/>
         <source>New Tracker</source>
         <translation>新規トラッカー</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="405"/>
+        <location filename="../gui/widgetprefs.cpp" line="408"/>
         <source>my.tracker.com</source>
         <translation>KeinAlcohol.istauch.keineLoesung</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="216"/>
+        <location filename="../gui/WidgetPrefs.ui" line="209"/>
         <source>Application Language:
 (requires restart)</source>
         <translation>使用する言語 :
 （再起動が必要）</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="39"/>
+        <location filename="../gui/widgetprefs.cpp" line="38"/>
         <source>Automatic (default)</source>
         <translation>自動（デフォルト）</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="937"/>
+        <location filename="../gui/WidgetPrefs.ui" line="866"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -1484,7 +1506,7 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="955"/>
+        <location filename="../gui/WidgetPrefs.ui" line="884"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -1492,77 +1514,77 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1126"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1047"/>
         <source>Style:</source>
         <translation>スタイル :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1138"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1059"/>
         <source>Qwired</source>
         <translation>Qwired</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1145"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1073"/>
         <source>IRC</source>
         <translation>IRC風</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1167"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1095"/>
         <source>Settings:</source>
         <translation>設定 :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1179"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1107"/>
         <source>Timestamp Every Line</source>
         <translation>行ごとにタイムスタンプを表示</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1204"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1132"/>
         <source>Color:</source>
         <translation>色 :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1257"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1185"/>
         <source>Show Emoticons</source>
         <translation>絵文字を表示</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1387"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1307"/>
         <source>Events</source>
         <translation>イベント</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1429"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1349"/>
         <source>Play Sound:</source>
         <translation>音を鳴らす :</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1448"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1368"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1457"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1377"/>
         <source>Display System Tray Message (requires Growl on Mac OS X)</source>
         <translation>システムトレイメッセージを表示（OS XではGrowlが必要）</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1464"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1384"/>
         <source>Post Event in Chat</source>
         <translation>イベントをチャットに表示</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1476"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1396"/>
         <source>Execute System Command:</source>
         <translation>システムコマンド、スクリプトを実行:</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetPrefs.ui" line="1727"/>
+        <location filename="../gui/WidgetPrefs.ui" line="1631"/>
         <source>Apply Changes</source>
         <translation>変更を適用</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="63"/>
+        <location filename="../gui/widgetprefs.cpp" line="62"/>
         <source>Server Connected</source>
         <translation>サーバに接続</translation>
     </message>
@@ -1627,19 +1649,24 @@ p, li { white-space: pre-wrap; }
         <translation>転送の終了</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="437"/>
+        <location filename="../gui/widgetprefs.cpp" line="440"/>
         <source>New Bookmark</source>
         <translation>新規ブックマーク</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="560"/>
+        <location filename="../gui/widgetprefs.cpp" line="563"/>
         <source>(none)</source>
         <translation>（なし）</translation>
     </message>
     <message>
-        <location filename="../gui/widgetprefs.cpp" line="555"/>
+        <location filename="../gui/widgetprefs.cpp" line="558"/>
         <source>Select WAV Sound File</source>
         <translation>WAVサウンドファイルを選択</translation>
+    </message>
+    <message>
+        <location filename="../gui/WidgetPrefs.ui" line="1066"/>
+        <source>Wired</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1716,17 +1743,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>WidgetTracker</name>
     <message>
-        <location filename="../gui/WidgetTracker.ui" line="13"/>
+        <location filename="../gui/WidgetTracker.ui" line="14"/>
         <source>Trackers</source>
         <translation>トラッカー</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.ui" line="48"/>
+        <location filename="../gui/WidgetTracker.ui" line="43"/>
         <source>Refresh</source>
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.ui" line="73"/>
+        <location filename="../gui/WidgetTracker.ui" line="68"/>
         <source>Filter:</source>
         <translation>フィルタ :</translation>
     </message>
@@ -1766,12 +1793,12 @@ p, li { white-space: pre-wrap; }
         <translation>説明</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.cpp" line="116"/>
+        <location filename="../gui/WidgetTracker.cpp" line="118"/>
         <source>Yes</source>
         <translation>はい</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.cpp" line="116"/>
+        <location filename="../gui/WidgetTracker.cpp" line="118"/>
         <source>No</source>
         <translation>いいえ</translation>
     </message>
@@ -1781,7 +1808,7 @@ p, li { white-space: pre-wrap; }
         <translation>帯域</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.cpp" line="124"/>
+        <location filename="../gui/WidgetTracker.cpp" line="126"/>
         <source>n/a</source>
         <translation>n/a</translation>
     </message>
@@ -1791,21 +1818,25 @@ p, li { white-space: pre-wrap; }
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.ui" line="120"/>
+        <location filename="../gui/WidgetTracker.ui" line="118"/>
         <source>%1 servers registered with tracker</source>
         <translation>%1 のサーバがトラッカーに登録済み</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.cpp" line="149"/>
+        <location filename="../gui/WidgetTracker.cpp" line="153"/>
         <source>Connection Error</source>
         <translation>コネクションエラー</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetTracker.cpp" line="149"/>
-        <source>A connection error occoured while trying to connect to the tracker.
+        <location filename="../gui/WidgetTracker.cpp" line="153"/>
+        <source>A connection error occured while trying to connect to the tracker.
 Reason: %1</source>
-        <translation>トラッカーへの接続中に接続エラーが起きました。
-Grund. %1</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/WidgetTracker.cpp" line="82"/>
+        <source>Refreshing list...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1824,6 +1855,11 @@ Grund. %1</translation>
         <location filename="../gui/WidgetTransfers.ui" line="61"/>
         <source>Cancel Transfer</source>
         <translation>転送をキャンセル</translation>
+    </message>
+    <message>
+        <location filename="../gui/widgettransfers.cpp" line="56"/>
+        <source>file://%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1912,6 +1948,14 @@ Grund. %1</translation>
         <location filename="../gui/widgetuserinfo.cpp" line="56"/>
         <source>User Information: %1</source>
         <translation>ユーザ情報 : %1</translation>
+    </message>
+</context>
+<context>
+    <name>WiredSingleton</name>
+    <message>
+        <location filename="../general/wiredsingleton.cpp" line="138"/>
+        <source>Connecting...</source>
+        <translation type="unfinished">接続しています...</translation>
     </message>
 </context>
 <context>
