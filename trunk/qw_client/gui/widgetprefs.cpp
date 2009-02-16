@@ -25,29 +25,28 @@
 #include <QtCore>
 #include <QtGui>
 
-WidgetPrefs::WidgetPrefs(QWidget *parent)
- : QWidget(parent)
+WidgetPrefs::WidgetPrefs(QWidget *parent) : QWidget(parent)
 {
-	setAttribute(Qt::WA_DeleteOnClose);
-	setupUi(this);
-	
-	pNickChanged = false;
-	pStatusChanged = false;
-	pIconChanged = false;
+    setAttribute(Qt::WA_DeleteOnClose);
+    setupUi(this);
 
-	// Language menu
-	fLanguage->addItem(tr("Automatic (default)"), QString("_auto_"));
-	fLanguage->addItem("English", QString(""));
-	fLanguage->addItem("French", QString("fr"));
-	fLanguage->addItem("German", QString("de"));
-	fLanguage->addItem("Italian", QString("it"));
-	fLanguage->addItem("Portuguese", QString("pt"));
-	fLanguage->addItem("Spanish", QString("es"));
+    pNickChanged = false;
+    pStatusChanged = false;
+    pIconChanged = false;
+
+    // Language menu
+    fLanguage->addItem(tr("Automatic (default)"), QString("_auto_"));
+    fLanguage->addItem("English", QString(""));
+    fLanguage->addItem("French", QString("fr"));
+    fLanguage->addItem("German", QString("de"));
+    fLanguage->addItem("Italian", QString("it"));
+    fLanguage->addItem("Portuguese", QString("pt"));
+    fLanguage->addItem("Spanish", QString("es"));
     fLanguage->addItem("Japanese", QString("jp"));
-	
-	initEventsMenu();
-	initPrefs();
-	
+
+    initEventsMenu();
+    initPrefs();
+
 }
 
 
@@ -62,6 +61,7 @@ void WidgetPrefs::initEventsMenu() {
 
 	item = new QListWidgetItem(QIcon(":/icons/icn_event.png"), tr("Server Connected"), fEventsList);
 	item->setData(Qt::UserRole, QString("ServerConnected"));
+        fEventsList->setCurrentItem(item);
 	item = new QListWidgetItem(QIcon(":/icons/icn_event.png"), tr("Server Disconnected"), fEventsList);
 	item->setData(Qt::UserRole, QString("ServerDisconnected"));
 	item = new QListWidgetItem(QIcon(":/icons/icn_event.png"), tr("Server Error"), fEventsList);
@@ -184,8 +184,9 @@ void WidgetPrefs::initPrefs() {
 	// === Chat ===
 	// ============
 	tmpInt = conf.value("interface/chat/style",0).toInt();
-	fChatStyleQwired->setChecked(tmpInt==0);
+	fChatStyleWired->setChecked(tmpInt==0);
 	fChatStyleIRC->setChecked(tmpInt==1);
+	fChatStyleQwired->setChecked(tmpInt==2);
 
 	fChatEmoticons->setChecked(conf.value("interface/chat/emoticons", true).toBool());
 	fChatTimestampLine->setChecked(conf.value("interface/chat/show_time", false).toBool());
@@ -255,10 +256,12 @@ void WidgetPrefs::savePrefs() {
 	
 
 	// === Chat ===
-	if(fChatStyleQwired->isChecked()) {
+	if(fChatStyleWired->isChecked()) {
 		conf.setValue("interface/chat/style", 0);
 	} else if(fChatStyleIRC->isChecked()) {
 		conf.setValue("interface/chat/style", 1);
+	} else if(fChatStyleQwired->isChecked()) {
+		conf.setValue("interface/chat/style", 2);
 	}
 	conf.setValue("interface/chat/show_time", fChatTimestampLine->isChecked());
 	conf.setValue("interface/chat/time/color", fChatTimeColor->selectedColor() );

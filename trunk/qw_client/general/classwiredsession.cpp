@@ -40,7 +40,8 @@ ClassWiredSession::ClassWiredSession(QObject *parent)
 	initWiredSocket();
 	initMainWindow();
 	setConnectionToolButtonsEnabled(false);
-	reloadPreferences();
+        reloadPreferences();
+
 }
 
 void ClassWiredSession::initMainWindow()

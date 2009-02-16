@@ -38,9 +38,9 @@ int main (int argc, char *argv[]) {
  	QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
 #endif
 
-#ifdef Q_WS_X11
+/*#ifdef Q_WS_X11
 	QApplication::setStyle(new QCleanlooksStyle);
-#endif
+#endif*/
 	
 	QCoreApplication::setOrganizationName("NeoSoftware");
 	QCoreApplication::setOrganizationDomain("neo.de");
