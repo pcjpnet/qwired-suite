@@ -46,10 +46,14 @@ ClassWiredSession::ClassWiredSession(QObject *parent)
 
 void ClassWiredSession::initMainWindow()
 {
-	pConnWindow = new ConnWindow();
+        bannerSpace = 0;
+        bannerView = 0;
+        bannerSpace2 = 0;
+
+        pConnWindow = new ConnWindow();
 	connect(pConnWindow, SIGNAL(destroyed(QObject*)), this, SLOT(connectionWindowDestroyed(QObject*)) );
-	pConnWindow->show();
-	
+        pConnWindow->show();
+
 	pMainChat = new WidgetForum();
 	pMainChat->setContentsMargins(0,0,0,0);
 
@@ -94,6 +98,11 @@ void ClassWiredSession::initMainWindow()
 	pConnWindow->show();
 
 	setupConnections();
+
+        // Install the event filter in pConnWindow
+        pEventFilter = new ClassWiredEventFilter();
+        pConnWindow->installEventFilter(pEventFilter);
+        pEventFilter->setSocket(pWiredSocket);
 }
 
 
@@ -102,7 +111,7 @@ void ClassWiredSession::onUserlistComplete(int chatId)
 {
 	if(chatId!=1 && pContainerLayout->currentIndex()!=0) return;
 	pContainerLayout->setCurrentIndex(1);
-	setConnectionToolButtonsEnabled(true);
+        setConnectionToolButtonsEnabled(true);
 }
 
 
@@ -449,7 +458,7 @@ void ClassWiredSession::onSocketLoginFailed()
 void ClassWiredSession::onDoConnect(QString theHost, QString theLogin, QString thePassword) {
 	if(theLogin=="") pWiredSocket->setUserAccount("guest","");
 		else pWiredSocket->setUserAccount(theLogin,thePassword);
-	pWiredSocket->connectToWiredServer(theHost);
+        pWiredSocket->connectToWiredServer(theHost);
 	//pConnectWindow->setEnabled(false);
 }
 
@@ -499,16 +508,30 @@ void ClassWiredSession::setConnectionToolButtonsEnabled(bool theEnable) {
 
 /// Set the banner image to the toolbar of the main window.
 void ClassWiredSession::setBannerView(const QPixmap theBanner) {
-	QWidget *tmpSpace = new QWidget(pConnWindow->fToolBar);
-	tmpSpace->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-	pConnWindow->fToolBar->addWidget(tmpSpace);
-	QLabel *tmpView = new QLabel(pConnWindow->fToolBar);
-	tmpView->setPixmap(theBanner);
-	pConnWindow->fToolBar->addWidget(tmpView);
+        if(bannerSpace) {
+            delete bannerSpace;
+            bannerSpace = 0;
+        }
+        if(bannerView) {
+            delete bannerView;
+            bannerView = 0;
+        }
+        if(bannerSpace2) {
+            delete bannerSpace2;
+            bannerSpace2 = 0;
+        }
 
-	QWidget *tmpSpace2 = new QWidget(pConnWindow->fToolBar);
-	tmpSpace2->setFixedWidth(10);
-	pConnWindow->fToolBar->addWidget(tmpSpace2);
+        bannerSpace = new QWidget(pConnWindow->fToolBar);
+        bannerSpace->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        pConnWindow->fToolBar->addWidget(bannerSpace);
+
+        bannerView = new QLabel(pConnWindow->fToolBar);
+        bannerView->setPixmap(theBanner);
+        pConnWindow->fToolBar->addWidget(bannerView);
+
+        bannerSpace2 = new QWidget(pConnWindow->fToolBar);
+        bannerSpace2->setFixedWidth(10);
+        pConnWindow->fToolBar->addWidget(bannerSpace2);
 
 }
 
@@ -721,17 +744,42 @@ void ClassWiredSession::onConnectAborted()
 	pWiredSocket->disconnectSocketFromServer();
 }
 
+// Prompt user to confirm disconnection
+bool ClassWiredSession::confirmDisconnection()
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(pWiredSocket->pServerName);
+    msgBox.setText("Are you sure you want to disconnect?");
+    msgBox.setInformativeText(QString("If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n").arg(pWiredSocket->pServerName));
+    msgBox.addButton(QMessageBox::Abort);
+    QPushButton *disconnectButton = msgBox.addButton(tr("Disconnect"), QMessageBox::ActionRole);
+    msgBox.setDefaultButton(disconnectButton);
+    msgBox.exec();
+    if(msgBox.clickedButton() == disconnectButton) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 // === ACTIONS FROM THE MAIN WINDOW === //
 // ==================================== //
 
 /// The disconnect button has been clicked. Disconnect from the server.
 void ClassWiredSession::doActionDisconnect() {
+    // First we ask for confirmation
+    bool reallyDisconnect = confirmDisconnection();
+
+    // And then we disconnect
+    if(reallyDisconnect) {
 	setConnectionToolButtonsEnabled(false);
 	pMainChat->resetForm();
 	pConnectWindow->resetForm();
 	pWiredSocket->disconnectFromServer();
+        pWiredSocket->pServerName="";
 	pContainerLayout->setCurrentIndex(0); // go to connect dialog
+    }
 }
 
 
