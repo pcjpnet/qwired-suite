@@ -37,7 +37,7 @@ WiredSocket::WiredSocket(QObject *parent)
 	connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)),
 			 this, SLOT(on_socket_error(QAbstractSocket::SocketError)) );
 	pInvitedUserID = 0;
-	pIzCaturday = false; // :< no iz caturday?
+        pIzCaturday = false; // :< no iz caturday?
 }
 
 // Called by the socket and indicates the an SSL error has occoured.
@@ -48,7 +48,7 @@ void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
 
 /// Disconnect from the server and clean up
 void WiredSocket::disconnectFromServer() {
-	pSocket->disconnectFromHost();
+        pSocket->disconnectFromHost();
 	pAdminGroups.clear();
 	pAdminUsers.clear();
 	pInvitedUserID = 0;

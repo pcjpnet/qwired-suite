@@ -18,69 +18,34 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
  ***************************************************************************/
 
- 
-#ifndef CONNWINDOW_H
-#define CONNWINDOW_H
 
-#include <QWidget>
-#include <QPointer>
-#include <QMainWindow>
+#ifndef CLASSWIREDEVENTFILTER_H
+#define CLASSWIREDEVENTFILTER_H
 
-#include "ui_WinMain.h"
-#include "gui/widgetabout.h"
-#include "wired/classwireduser.h"
-#include "../general/wiredcommon.h"
+#include <QObject>
+#include "wired/wiredsocket.h"
 
-/**
-	@author Bastian Bense <bastibense@gmail.com>
- */
-class ConnWindow
-	: public QMainWindow, public Ui_MainWindow
+class ClassWiredEventFilter : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-	
-	QPointer<WidgetAbout> pWidgetAbout;
-	
-	ConnWindow(QWidget *parent=0)
-	{
-		Q_UNUSED(parent)
-		setupUi(this);
-		setUnifiedTitleAndToolBarOnMac(true);
-		setAttribute(Qt::WA_DeleteOnClose);
-		setWindowIcon( QIcon(":/icons/qwired_logo_32.png") );
-	};
-	
-	~ConnWindow()
-	{ };
+   ClassWiredEventFilter()
+   {
+       qDebug("Event filter created");
+   }
 
+   ~ClassWiredEventFilter()
+   {
+       qDebug("Event filter destroyed");
+   }
 
-	
-public slots:
-	
-	void toggleVisible()
-	{
-		if(this->isMinimized()) {
-			this->showNormal();
-		} else {
-			if(this->isVisible()) this->hide();
-			else this->show();
-		}
-	};
+   WiredSocket *pWiredSocket;
 
-	
-private slots:
-	
-	void on_actionAbout_triggered(bool)
-	{
-		if(!pWidgetAbout)
-			pWidgetAbout = new WidgetAbout();
-		pWidgetAbout->show();
-	};
-	
+   void setSocket(WiredSocket *s);
 
-
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif

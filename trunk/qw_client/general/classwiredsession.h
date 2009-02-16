@@ -30,6 +30,8 @@
 #include "gui/connwindow.h"
 #include "wired/wiredsocket.h"
 
+#include "ClassWiredEventFilter.h"
+
 #include "gui/widgetnews.h"
 #include "gui/modeluserlist.h"
 #include "gui/widgetprefs.h"
@@ -90,10 +92,19 @@ public:
 	QPointer<WidgetTracker> pWinTrackers;
         QPointer<WidgetFileBrowser> pWinFileBrowser;
 
+        QWidget *bannerSpace;
+        QLabel *bannerView;
+        QWidget *bannerSpace2;
+
+        ClassWiredEventFilter *pEventFilter;
+
 	QPointer<QMenu> pTrayMenuItem;
 	
 
 	QHash<int,QPointer<WidgetSendPrivMsg> > pMsgWindows;
+
+        // Misc
+        bool confirmDisconnection();
 	
 private:
 	QPointer<WiredSocket> pWiredSocket;
@@ -140,7 +151,7 @@ public slots:
 	void triggerEvent(QString event, QStringList parameters);
 	void setTrayMenuAction(QMenu*);
 	
-	void do_handle_chat_message(int, int, QString, bool);
+        void do_handle_chat_message(int, int, QString, bool);
 
 	// Acount buttons from connect window.
 	void doActionAccounts();
