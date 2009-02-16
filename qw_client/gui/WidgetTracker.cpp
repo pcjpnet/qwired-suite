@@ -50,7 +50,8 @@ WidgetTracker::WidgetTracker(QWidget *parent)
 	pModel->setHorizontalHeaderLabels(tmpHeaders);
 	
 	connect(fList, SIGNAL(doubleClicked ( const QModelIndex &)), this, SLOT(doubleclickedListItem(QModelIndex)));
-	
+        connect(fServers, SIGNAL(currentIndexChanged(int)), this, SLOT(on_fBtnRefresh_clicked()));
+
 	updateTrackerList();
 	if(fServers->count()) {
 		fServers->setCurrentIndex(0);
@@ -78,6 +79,7 @@ void WidgetTracker::updateTrackerList() {
 void WidgetTracker::on_fBtnRefresh_clicked() {
 // 	fList->clear();
 	fProgress->setVisible(true);
+        fProgress->setText(tr("Refreshing list..."));
 	//fList->setEnabled(false);
 	fFilter->setEnabled(false);
 	fBtnRefresh->setEnabled(false);
@@ -86,13 +88,13 @@ void WidgetTracker::on_fBtnRefresh_clicked() {
 }
 
 void WidgetTracker::trackerServersReceived(QList< ClassTrackerServer > theList) {
-	fProgress->setVisible(false);
 	fList->setEnabled(true);
 	fFilter->setEnabled(true);
 	fBtnRefresh->setEnabled(true);
 	pModel->setRowCount(theList.count());
 	
 	for(int i=0; i<theList.count(); i++) {
+                fProgress->setText(QString(tr("%1 servers registered with tracker")).arg(int(i+1)));
 		ClassTrackerServer ts = theList.value(i);
 		QStandardItem *item;
 
@@ -135,14 +137,16 @@ void WidgetTracker::trackerServersReceived(QList< ClassTrackerServer > theList) 
 
 	}
 
-	fList->resizeColumnToContents(0);
-	fList->resizeColumnToContents(1);
-	fList->resizeColumnToContents(2);
-	fList->resizeColumnToContents(3);
-	fList->resizeColumnToContents(4);
-	fList->resizeColumnToContents(5);
-	fList->resizeColumnToContents(6);
-	fList->resizeColumnToContents(7);
+        fList->resizeColumnToContents(0);
+        fList->resizeColumnToContents(1);
+        fList->resizeColumnToContents(2);
+        fList->resizeColumnToContents(3);
+        fList->resizeColumnToContents(4);
+        fList->resizeColumnToContents(5);
+        fList->resizeColumnToContents(6);
+        fList->resizeColumnToContents(7);
+        fList->resizeColumnToContents(8);
+
 }
 
 void WidgetTracker::handleSocketError(QAbstractSocket::SocketError error) {
@@ -155,7 +159,6 @@ void WidgetTracker::doubleclickedListItem(QModelIndex index )
 {
     int row = index.row();
     QString address = index.model()->index(row,8).data().toString();
-    //qDebug(address.mid(8,address.length()-9).toAscii());
     emit(newConnectionRequested(address.mid(8,address.length()-9)));
 }
 
