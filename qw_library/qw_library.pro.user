@@ -33,7 +33,8 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <value key="QtVersionId" type="int" >0</value>
-   <value key="buildDirectory" type="QString" >/home/bbense/Desktop/Devel/qwired-suite3/trunk/qw_library</value>
+   <value key="addQDumper" type="" ></value>
+   <value key="buildDirectory" type="QString" >/Users/bbense/Documents/Devel/QwiredSVN/trunk/qw_library</value>
   </valuemap>
  </data>
  <data>
@@ -41,6 +42,7 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
    <value key="QtVersionId" type="int" >0</value>
+   <value key="addQDumper" type="" ></value>
   </valuemap>
  </data>
  <data>
@@ -48,48 +50,30 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-HDfTccMtEa,guid=bdcc88566dd1fe4802b47b7c4995a3a1</value>
-    <value type="QString" >DESKTOP_SESSION=gnome</value>
-    <value type="QString" >DESKTOP_STARTUP_ID=</value>
-    <value type="QString" >DISPLAY=:0.0</value>
-    <value type="QString" >GDMSESSION=gnome</value>
-    <value type="QString" >GDM_LANG=de_DE.UTF-8</value>
-    <value type="QString" >GDM_XSERVER_LOCATION=local</value>
-    <value type="QString" >GNOME_DESKTOP_SESSION_ID=this-is-deprecated</value>
-    <value type="QString" >GNOME_KEYRING_PID=7048
-</value>
-    <value type="QString" >GNOME_KEYRING_SOCKET=/tmp/keyring-k7TbUa/socket</value>
-    <value type="QString" >GPG_AGENT_INFO=/tmp/gpg-LlZFtY/S.gpg-agent:7011:1</value>
-    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/bbense/.gtkrc-1.2-gnome2</value>
-    <value type="QString" >HOME=/home/bbense</value>
-    <value type="QString" >LANG=de_DE.UTF-8</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-PWzNcf/Render</value>
+    <value type="QString" >COMMAND_MODE=legacy</value>
+    <value type="QString" >DISPLAY=/tmp/launch-ErNKd5/:0</value>
+    <value type="QString" >HOME=/Users/bbense</value>
     <value type="QString" >LOGNAME=bbense</value>
-    <value type="QString" >ORBIT_SOCKETDIR=/tmp/orbit-bbense</value>
-    <value type="QString" >PATH=/usr/bin:/home/bbense/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
-    <value type="QString" >PWD=/home/bbense</value>
+    <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SESSION_MANAGER=local/bbense-shuttle2:/tmp/.ICE-unix/6945</value>
+    <value type="QString" >SECURITYSESSIONID=bbd120</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SSH_AGENT_PID=7010</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/keyring-k7TbUa/ssh</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-FiKZIk/Listeners</value>
+    <value type="QString" >TMPDIR=/var/folders/b4/b4h0ICMeE58OsX0LmQ89o++++TI/-Tmp-/</value>
     <value type="QString" >USER=bbense</value>
-    <value type="QString" >USERNAME=bbense</value>
-    <value type="QString" >WINDOWPATH=7</value>
-    <value type="QString" >XAUTHORITY=/home/bbense/.Xauthority</value>
-    <value type="QString" >XDG_DATA_DIRS=/usr/local/share/:/usr/share/:/usr/share/gdm/</value>
-    <value type="QString" >XDG_SESSION_COOKIE=5293b5ea4af5b9914b7eaa00474b2e99-1234543519.782702-1985021980</value>
+    <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:3</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >/home/bbense/Desktop/Devel/qwired-suite3/trunk/qw_library/qw_library.pro</value>
+    <value type="QString" >/Users/bbense/Documents/Devel/QwiredSVN/trunk/qw_library/qw_library.pro</value>
     <value type="QString" >-spec</value>
-    <value type="QString" >/usr/share/qt4/mkspecs/linux-g++</value>
+    <value type="QString" >macx-g++</value>
     <value type="QString" >-r</value>
     <value type="QString" >CONFIG+=debug_and_release</value>
-    <value type="QString" >CONFIG+=debug</value>
    </valuelist>
-   <value key="abstractProcess.command" type="QString" >/usr/bin/qmake-qt4</value>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/qmake</value>
    <value key="abstractProcess.enabled" type="bool" >false</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >/home/bbense/Desktop/Devel/qwired-suite3/trunk/qw_library</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/Users/bbense/Documents/Devel/QwiredSVN/trunk/qw_library</value>
    <value key="buildConfiguration" type="int" >10</value>
   </valuemap>
  </data>
@@ -98,36 +82,19 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-HDfTccMtEa,guid=bdcc88566dd1fe4802b47b7c4995a3a1</value>
-    <value type="QString" >DESKTOP_SESSION=gnome</value>
-    <value type="QString" >DESKTOP_STARTUP_ID=</value>
-    <value type="QString" >DISPLAY=:0.0</value>
-    <value type="QString" >GDMSESSION=gnome</value>
-    <value type="QString" >GDM_LANG=de_DE.UTF-8</value>
-    <value type="QString" >GDM_XSERVER_LOCATION=local</value>
-    <value type="QString" >GNOME_DESKTOP_SESSION_ID=this-is-deprecated</value>
-    <value type="QString" >GNOME_KEYRING_PID=7048
-</value>
-    <value type="QString" >GNOME_KEYRING_SOCKET=/tmp/keyring-k7TbUa/socket</value>
-    <value type="QString" >GPG_AGENT_INFO=/tmp/gpg-LlZFtY/S.gpg-agent:7011:1</value>
-    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/bbense/.gtkrc-1.2-gnome2</value>
-    <value type="QString" >HOME=/home/bbense</value>
-    <value type="QString" >LANG=de_DE.UTF-8</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-PWzNcf/Render</value>
+    <value type="QString" >COMMAND_MODE=legacy</value>
+    <value type="QString" >DISPLAY=/tmp/launch-ErNKd5/:0</value>
+    <value type="QString" >HOME=/Users/bbense</value>
     <value type="QString" >LOGNAME=bbense</value>
-    <value type="QString" >ORBIT_SOCKETDIR=/tmp/orbit-bbense</value>
-    <value type="QString" >PATH=/usr/bin:/home/bbense/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
-    <value type="QString" >PWD=/home/bbense</value>
+    <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SESSION_MANAGER=local/bbense-shuttle2:/tmp/.ICE-unix/6945</value>
+    <value type="QString" >SECURITYSESSIONID=bbd120</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SSH_AGENT_PID=7010</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/keyring-k7TbUa/ssh</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-FiKZIk/Listeners</value>
+    <value type="QString" >TMPDIR=/var/folders/b4/b4h0ICMeE58OsX0LmQ89o++++TI/-Tmp-/</value>
     <value type="QString" >USER=bbense</value>
-    <value type="QString" >USERNAME=bbense</value>
-    <value type="QString" >WINDOWPATH=7</value>
-    <value type="QString" >XAUTHORITY=/home/bbense/.Xauthority</value>
-    <value type="QString" >XDG_DATA_DIRS=/usr/local/share/:/usr/share/:/usr/share/gdm/</value>
-    <value type="QString" >XDG_SESSION_COOKIE=5293b5ea4af5b9914b7eaa00474b2e99-1234543519.782702-1985021980</value>
+    <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:3</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
     <value type="QString" >debug</value>
@@ -135,7 +102,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
    <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >/home/bbense/Desktop/Devel/qwired-suite3/trunk/qw_library</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/Users/bbense/Documents/Devel/QwiredSVN/trunk/qw_library</value>
    <valuelist key="makeargs" type="QVariantList" >
     <value type="QString" >debug</value>
    </valuelist>

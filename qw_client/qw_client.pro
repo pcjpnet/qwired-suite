@@ -2,15 +2,12 @@ TEMPLATE = app
 CONFIG += warn_on \
     thread \
     qt \
-    debug_and_release
+    debug
 TARGET = qwired
 RESOURCES = application.qrc
 QT += gui \
     network
 DESTDIR = ../bin/
-MOC_DIR = build
-OBJECTS_DIR = build
-UI_DIR = build
 ICON = qwired.icns
 RC_FILE = qwired.rc
 INCLUDEPATH = .
@@ -50,8 +47,7 @@ SOURCES += general/main.cpp \
     gui/widgetaccounts.cpp \
     gui/WidgetTracker.cpp \
     general/wiredsingleton.cpp \
-    gui/widgetserverinfo.cpp \
-    gui/widgetmessages.cpp
+    gui/widgetserverinfo.cpp
 FORMS += gui/WinMain.ui \
     gui/WidgetForum.ui \
     gui/WidgetNews.ui \
@@ -101,5 +97,4 @@ HEADERS += general/classwiredsession.h \
     gui/WidgetTracker.h \
     wired/classtrackerserver.h \
     gui/widgetabout.h \
-    gui/WidgetNewsPost.h \
-    gui/widgetmessages.h
+    gui/WidgetNewsPost.h

@@ -15,10 +15,8 @@
 */
 
 
-class QwMessage : QObject
+class QwMessage
 {
-
-    Q_OBJECT
 
 public:
     QwMessage();
@@ -38,5 +36,3 @@ public:
 
 
 #endif // QWMESSAGE_H
-
-qRegisterMetaType<QwMessage>("QwMessage");

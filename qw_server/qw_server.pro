@@ -10,7 +10,7 @@ INCLUDEPATH = ../qw_library
 LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
 QT -= gui
-CONFIG -= app_bundle
+CONFIG -= ppc x86 debug
 QT += network \
     xml \
     sql
