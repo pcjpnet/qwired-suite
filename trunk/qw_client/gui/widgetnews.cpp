@@ -83,13 +83,20 @@ void WidgetNews::addNewsItem(QString theNick, QString theTime, QString thePost)
 
 void WidgetNews::addFreshNewsItem(QString theNick, QString theTime, QString thePost)
 {
+        QString timeString;
+        QSettings conf;
+
+        timeString.append(theTime.left(10));
+        timeString = tr("%1/%2/%3 at %4 GTM %5").arg(timeString.mid(8,2), timeString.mid(5,2), timeString.left(4),theTime.mid(11,8), theTime.right(6));
+
 	QTextCursor tc = fNews->textCursor();
 	tc.setPosition(0);
 	fNews->setTextCursor(tc);
-	
-	fNews->setFontWeight(QFont::Bold);
+
+        fNews->setFontFamily(conf.value("interface/news/font", WiredSingleton::systemMonospaceFont().append(",11") ).toString());
+        fNews->setFontWeight(QFont::Bold);
 	fNews->setTextColor(pColorTitle);
-	fNews->textCursor().insertText(tr("From %1 (%2):\n").arg(theNick).arg(theTime));
+        fNews->textCursor().insertText(tr("From %1 (%2):\n").arg(theNick).arg(timeString));
 	fNews->setFontWeight(QFont::Normal);
 	fNews->setTextColor(pColorText);
 	fNews->textCursor().insertText(tr("%1\n\n").arg(thePost));
@@ -98,8 +105,17 @@ void WidgetNews::addFreshNewsItem(QString theNick, QString theTime, QString theP
 void WidgetNews::doSendNews() {
 	// Send the news text from the post window to the user.
 	if( pWinPost!=0 ) {
-		emit doPostNews(pWinPost->getPostText());
+                emit doPostNews(pWinPost->getPostText());
+                pWinPost->close();
+                pWinPost->deleteLater();
 	}
+}
+
+void WidgetNews::dontSendNews() {
+    if( pWinPost!=0 ) {
+                pWinPost->close();
+                pWinPost->deleteLater();
+        }
 }
 
 
@@ -117,6 +133,7 @@ void WidgetNews::on_fBtnPost_clicked(bool checked)
 	if( pWinPost==0 ) {
 		pWinPost = new WidgetNewsPost(this);
 		connect( pWinPost, SIGNAL(accepted()), this, SLOT(doSendNews()) );
+                connect( pWinPost, SIGNAL(rejected()), this, SLOT(dontSendNews()));
 		pWinPost->show();
 	} else {
 		pWinPost->raise();
@@ -125,8 +142,11 @@ void WidgetNews::on_fBtnPost_clicked(bool checked)
 }
 
 void WidgetNews::on_fBtnDelete_clicked(bool) {
-	fNews->clear();
-	emit onDeleteNews();
+        emit onDeleteNews();
+}
+
+void WidgetNews::clearTextArea() {
+    fNews->clear();
 }
 
 void WidgetNews::onServerNewsDone()
@@ -135,6 +155,14 @@ void WidgetNews::onServerNewsDone()
 }
 
 
+void WidgetNews::setDisabledPostButton(bool b)
+{
+    fBtnPost->setDisabled(b);
+}
 
+void WidgetNews::setDisabledClearButton(bool b)
+{
+    fBtnDelete->setDisabled(b);
+}
 
 

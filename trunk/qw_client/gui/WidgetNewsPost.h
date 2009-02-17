@@ -41,6 +41,8 @@ class WidgetNewsPost
 			Q_UNUSED(parent)
 			setAttribute(Qt::WA_DeleteOnClose);
 			setupUi(this);
+                        connect(fBtnPost,SIGNAL(released()),this,SLOT(sendButtonClicked()));
+                        connect(fBtnCancel,SIGNAL(released()),this,SLOT(cancelButtonClicked()));
 		};
 
 		
@@ -52,6 +54,21 @@ class WidgetNewsPost
 		{
 			return fNews->toPlainText();
 		};
+
+        private slots:
+                void sendButtonClicked()
+                {
+                    emit accepted();
+                }
+
+                void cancelButtonClicked()
+                {
+                    emit rejected();
+                }
+
+        signals:
+                void accepted();
+                void rejected();
 
 };
 

@@ -27,7 +27,7 @@
 <context>
     <name>ClassWiredSession</name>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="826"/>
+        <location filename="../general/classwiredsession.cpp" line="841"/>
         <source>News</source>
         <translation type="unfinished">Nouvelles</translation>
     </message>
@@ -81,17 +81,17 @@ Rejoindre et ouvrir une discussion privée séparée avec %1.</translation>
         <translation type="unfinished">Discussion privée</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="844"/>
+        <location filename="../general/classwiredsession.cpp" line="859"/>
         <source>Server Info</source>
         <translation type="unfinished">Information du serveur</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="937"/>
+        <location filename="../general/classwiredsession.cpp" line="952"/>
         <source>Transfers</source>
         <translation type="unfinished">Transferts</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="919"/>
+        <location filename="../general/classwiredsession.cpp" line="934"/>
         <source>File Search</source>
         <translation type="unfinished">Recherche de fichiers</translation>
     </message>
@@ -299,28 +299,28 @@ Rejoindre et ouvrir une discussion privée séparée avec %1.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="871"/>
+        <location filename="../general/classwiredsession.cpp" line="886"/>
         <source>Files</source>
         <translation type="unfinished">Fichiers</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="955"/>
+        <location filename="../general/classwiredsession.cpp" line="970"/>
         <source>File Transfer Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="958"/>
+        <location filename="../general/classwiredsession.cpp" line="973"/>
         <source>The transfer of file &apos;%1&apos; could not be completed because of an error.
 Possibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="1018"/>
+        <location filename="../general/classwiredsession.cpp" line="1033"/>
         <source>Folder Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="1020"/>
+        <location filename="../general/classwiredsession.cpp" line="1035"/>
         <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
 Do you want to begin the transfer?</source>
         <translation type="unfinished"></translation>
@@ -1155,34 +1155,34 @@ Merci d&apos;indiquer ici le motif et appuyer sur OK.</translation>
 <context>
     <name>WidgetNews</name>
     <message>
-        <location filename="../gui/WidgetNews.ui" line="13"/>
+        <location filename="../gui/WidgetNews.ui" line="14"/>
         <source>News</source>
         <translation type="unfinished">Nouvelles</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetNews.ui" line="28"/>
+        <location filename="../gui/WidgetNews.ui" line="42"/>
         <source>Refresh</source>
         <translation type="unfinished">Rafraichir</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetNews.ui" line="58"/>
+        <location filename="../gui/WidgetNews.ui" line="72"/>
         <source>Delete</source>
         <translation type="unfinished">Effacer</translation>
     </message>
     <message>
-        <location filename="../gui/WidgetNews.ui" line="65"/>
+        <location filename="../gui/WidgetNews.ui" line="79"/>
         <source>Post...</source>
         <translation type="unfinished">Poster...</translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="88"/>
+        <location filename="../gui/widgetnews.cpp" line="99"/>
         <source>From %1 (%2):
 </source>
         <translation type="unfinished">Depuis %1 (%2) :
 </translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="91"/>
+        <location filename="../gui/widgetnews.cpp" line="102"/>
         <source>%1
 
 </source>
@@ -1191,8 +1191,17 @@ Merci d&apos;indiquer ici le motif et appuyer sur OK.</translation>
 </translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="71"/>
+        <location filename="../gui/widgetnews.cpp" line="90"/>
         <source>%1/%2/%3 at %4 GTM %5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/WidgetNews.ui" line="23"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
