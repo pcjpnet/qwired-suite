@@ -9,7 +9,7 @@ void ClassWiredEventFilter::setSocket(WiredSocket *s)
 
 bool ClassWiredEventFilter::eventFilter(QObject *obj, QEvent *event)
  {
-     if(event->type() == QEvent::Close && pWiredSocket->pSocket->state() == QAbstractSocket::ConnectedState) {
+     if(event->type() == QEvent::Close && pWiredSocket->pSocket->state() == QAbstractSocket::ConnectedState && pWiredSocket->pServerName != "") {
 
         // Issue a confirmation dialog
         QMessageBox msgBox;
