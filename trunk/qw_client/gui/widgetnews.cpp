@@ -66,9 +66,12 @@ void WidgetNews::initPrefs() {
 
 void WidgetNews::addNewsItem(QString theNick, QString theTime, QString thePost)
 {
+    QString timeString;
+    timeString.append(theTime.left(10));
+    timeString = tr("%1/%2/%3 at %4 GTM %5").arg(timeString.mid(8,2), timeString.mid(5,2), timeString.left(4),theTime.mid(11,8), theTime.right(6));
 	fNews->setFontWeight(QFont::Bold);
 	fNews->setTextColor(pColorTitle);
-	fNews->textCursor().insertText(tr("From %1 (%2):\n").arg(theNick).arg(theTime));
+        fNews->textCursor().insertText(tr("From %1 (%2):\n").arg(theNick).arg(timeString));
 	fNews->setFontWeight(QFont::Normal);
 	fNews->setTextColor(pColorText);
 	fNews->textCursor().insertText(tr("%1\n\n").arg(thePost));

@@ -1097,18 +1097,18 @@ This can not be undone!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="344"/>
+        <location filename="../gui/widgetforum.cpp" line="346"/>
         <source>Kick</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="332"/>
+        <location filename="../gui/widgetforum.cpp" line="334"/>
         <source>You are about to disconnect &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/widgetforum.cpp" line="345"/>
+        <location filename="../gui/widgetforum.cpp" line="347"/>
         <source>You are about to ban &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation type="unfinished"></translation>
@@ -1167,16 +1167,21 @@ Please enter a reason and press OK.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="85"/>
+        <location filename="../gui/widgetnews.cpp" line="88"/>
         <source>From %1 (%2):
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="88"/>
+        <location filename="../gui/widgetnews.cpp" line="91"/>
         <source>%1
 
 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/widgetnews.cpp" line="71"/>
+        <source>%1/%2/%3 at %4 GTM %5</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
