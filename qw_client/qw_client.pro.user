@@ -32,10 +32,13 @@
   <variable>buildConfiguration-Debug</variable>
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
-   <value key="QtVersionId" type="int" >0</value>
+   <value key="QtVersionId" type="int" >2</value>
    <value key="addQDumper" type="" ></value>
    <value key="buildDirectory" type="QString" >/Users/multimedia/qwired-suite/qw_client</value>
    <value key="useShadowBuild" type="bool" >false</value>
+   <valuelist key="userEnvironmentChanges" type="QVariantList" >
+    <value type="QString" >COMMAND_MODE=legacy</value>
+   </valuelist>
   </valuemap>
  </data>
  <data>
@@ -45,23 +48,18 @@
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
     <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-aqOjw2/Render</value>
     <value type="QString" >COMMAND_MODE=legacy</value>
-    <value type="QString" >DAZSTUDIO=/Applications/DAZStudio</value>
-    <value type="QString" >DAZSTUDIOVERSION=17043456</value>
     <value type="QString" >DISPLAY=/tmp/launch-tzzfEg/:0</value>
     <value type="QString" >HOME=/Users/multimedia</value>
+    <value type="QString" >JAVA_LIBRARY_PATH=/Applications/SmartSVN 5.0.4/SmartSVN 5.app/Contents/Resources/Java:/System/Library/PrivateFrameworks/JavaApplicationLauncher.framework/Resources</value>
     <value type="QString" >LOGNAME=multimedia</value>
     <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SECURITYSESSIONID=6a2400</value>
     <value type="QString" >SHELL=/bin/bash</value>
     <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-WW9t5P/Listeners</value>
     <value type="QString" >TMPDIR=/var/folders/57/5788iEq3EDm4xw9fGK9h6k+++TI/-Tmp-/</value>
     <value type="QString" >USER=multimedia</value>
     <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:86
 </value>
-    <value type="QString" >com.adobe.versioncue.client.applocale=es_ES</value>
-    <value type="QString" >com.adobe.versioncue.client.appname=AdobeDrive</value>
-    <value type="QString" >com.adobe.versioncue.client.appversion=1.0.0</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
     <value type="QString" >/Users/multimedia/qwired-suite/qw_client/qw_client.pro</value>
@@ -70,7 +68,7 @@
     <value type="QString" >-r</value>
    </valuelist>
    <value key="abstractProcess.command" type="QString" >/usr/bin/qmake</value>
-   <value key="abstractProcess.enabled" type="bool" >true</value>
+   <value key="abstractProcess.enabled" type="bool" >false</value>
    <value key="abstractProcess.workingDirectory" type="QString" >/Users/multimedia/qwired-suite/qw_client</value>
    <value key="buildConfiguration" type="int" >2</value>
   </valuemap>
@@ -82,23 +80,18 @@
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
     <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-aqOjw2/Render</value>
     <value type="QString" >COMMAND_MODE=legacy</value>
-    <value type="QString" >DAZSTUDIO=/Applications/DAZStudio</value>
-    <value type="QString" >DAZSTUDIOVERSION=17043456</value>
     <value type="QString" >DISPLAY=/tmp/launch-tzzfEg/:0</value>
     <value type="QString" >HOME=/Users/multimedia</value>
+    <value type="QString" >JAVA_LIBRARY_PATH=/Applications/SmartSVN 5.0.4/SmartSVN 5.app/Contents/Resources/Java:/System/Library/PrivateFrameworks/JavaApplicationLauncher.framework/Resources</value>
     <value type="QString" >LOGNAME=multimedia</value>
     <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SECURITYSESSIONID=6a2400</value>
     <value type="QString" >SHELL=/bin/bash</value>
     <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-WW9t5P/Listeners</value>
     <value type="QString" >TMPDIR=/var/folders/57/5788iEq3EDm4xw9fGK9h6k+++TI/-Tmp-/</value>
     <value type="QString" >USER=multimedia</value>
     <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:86
 </value>
-    <value type="QString" >com.adobe.versioncue.client.applocale=es_ES</value>
-    <value type="QString" >com.adobe.versioncue.client.appname=AdobeDrive</value>
-    <value type="QString" >com.adobe.versioncue.client.appversion=1.0.0</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
     <value type="QString" >-w</value>
@@ -119,19 +112,20 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-PWzNcf/Render</value>
+    <value type="QString" >Apple_PubSub_Socket_Render=/tmp/launch-aqOjw2/Render</value>
     <value type="QString" >COMMAND_MODE=legacy</value>
-    <value type="QString" >DISPLAY=/tmp/launch-ErNKd5/:0</value>
-    <value type="QString" >HOME=/Users/bbense</value>
-    <value type="QString" >LOGNAME=bbense</value>
+    <value type="QString" >DISPLAY=/tmp/launch-tzzfEg/:0</value>
+    <value type="QString" >HOME=/Users/multimedia</value>
+    <value type="QString" >JAVA_LIBRARY_PATH=/Applications/SmartSVN 5.0.4/SmartSVN 5.app/Contents/Resources/Java:/System/Library/PrivateFrameworks/JavaApplicationLauncher.framework/Resources</value>
+    <value type="QString" >LOGNAME=multimedia</value>
     <value type="QString" >PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SECURITYSESSIONID=bbd120</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-FiKZIk/Listeners</value>
-    <value type="QString" >TMPDIR=/var/folders/b4/b4h0ICMeE58OsX0LmQ89o++++TI/-Tmp-/</value>
-    <value type="QString" >USER=bbense</value>
-    <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:3</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/launch-WW9t5P/Listeners</value>
+    <value type="QString" >TMPDIR=/var/folders/57/5788iEq3EDm4xw9fGK9h6k+++TI/-Tmp-/</value>
+    <value type="QString" >USER=multimedia</value>
+    <value type="QString" >__CF_USER_TEXT_ENCODING=0x1F5:0:86
+</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
     <value type="QString" >clean</value>
@@ -139,7 +133,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
    <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >../build</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/Users/multimedia/qwired-suite/qw_client</value>
   </valuemap>
  </data>
  <data>

@@ -1176,7 +1176,7 @@ Por favor introduzca una razón y pulse OK.</translation>
     <message>
         <location filename="../gui/WidgetNews.ui" line="58"/>
         <source>Delete</source>
-        <translation>Borrar</translation>
+        <translation>Limpiar</translation>
     </message>
     <message>
         <location filename="../gui/WidgetNews.ui" line="65"/>
@@ -1187,7 +1187,7 @@ Por favor introduzca una razón y pulse OK.</translation>
         <location filename="../gui/widgetnews.cpp" line="85"/>
         <source>From %1 (%2):
 </source>
-        <translation>Desde %1 (%2)</translation>
+        <translation type="unfinished">Por %1 (%2)</translation>
     </message>
     <message>
         <location filename="../gui/widgetnews.cpp" line="88"/>
