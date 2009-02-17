@@ -119,7 +119,8 @@ void ClassWiredSession::onUserlistComplete(int chatId)
 void ClassWiredSession::onTabBarCloseButtonClicked()
 {
 	int tmpIdx = pMainTabWidget->currentIndex();
-	if(!tmpIdx) return;
+        // We check if the chat tab is the current one so that not to close it
+        if(pMainTabWidget->currentWidget() == pMainChat) return;
 	pMainTabWidget->currentWidget()->close();
 	pMainTabWidget->removeTab(tmpIdx);
 }
@@ -128,7 +129,13 @@ void ClassWiredSession::onTabBarCloseButtonClicked()
 void ClassWiredSession::onTabBarCurrentChanged(int index)
 {
 	QWidget *tmpBtn = pMainTabWidget->cornerWidget();
-	tmpBtn->setEnabled(index>0);
+
+        // We check if the chat tab is the current one so that not to close it
+        if(pMainTabWidget->currentWidget() != pMainChat) {
+            tmpBtn->setEnabled(true);
+        } else {
+            tmpBtn->setEnabled(false);
+        }
 	
 	// Icon removal for private chats
 	QWidget *tmpWid = pMainTabWidget->widget(index);
