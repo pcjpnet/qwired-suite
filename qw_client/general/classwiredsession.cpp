@@ -819,8 +819,23 @@ void ClassWiredSession::doActionNews() {
 		connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
 		connect( pWiredSocket, SIGNAL(onServerNewsDone()), pWinNews, SLOT(onServerNewsDone()) );
 		connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
-		connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
-		connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(deleteNews()) );
+
+                // We check for the proper purrmissions
+
+                if(pWiredSocket->sessionUser.privClearNews) {
+                    connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(clearNews()) );
+                    connect( pWinNews, SIGNAL(onDeleteNews()), pWinNews, SLOT(clearTextArea()));
+                } else {
+                    pWinNews->setDisabledClearButton(true);
+                }
+
+                if(pWiredSocket->sessionUser.privPostNews) {
+                    connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
+                } else {
+                    pWinNews->setDisabledPostButton(true);
+                }
+
+
 		
 		// Display the widget using a Tab
 		int tmpIdx = pMainTabWidget->addTab(pWinNews, QIcon(), tr("News"));

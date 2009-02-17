@@ -54,6 +54,10 @@ class WidgetNews : public QWidget, private Ui::WidgetNews
 		void addFreshNewsItem(QString theNick, QString theTime, QString thePost);
 		void onServerNewsDone();
 		void doSendNews();
+                void dontSendNews();
+                void setDisabledPostButton(bool b);
+                void setDisabledClearButton(bool b);
+                void clearTextArea();
 
 	private slots:
 		void on_fBtnRefresh_clicked(bool checked);
