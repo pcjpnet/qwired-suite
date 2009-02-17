@@ -46,7 +46,7 @@ WidgetForum::WidgetForum(QWidget *parent)
 
 	// Set horizontal splitter
 	fHSplitter->setStretchFactor(0,20);
-	fHSplitter->setStretchFactor(1,1);
+        fHSplitter->setStretchFactor(1,1);
 
 	// Restore splitters from prefs
 	QSettings settings;
@@ -58,9 +58,11 @@ WidgetForum::WidgetForum(QWidget *parent)
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
 	connect(tmpS, SIGNAL(prefsChanged()),
-			this, SLOT(reloadPreferences()));
-	
+                        this, SLOT(reloadPreferences()));
+
 	reloadPreferences();
+
+
 }
 
 
