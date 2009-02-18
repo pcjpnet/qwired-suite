@@ -32,7 +32,7 @@ void QwSocket::sendMessage(const QwMessage &message)
     buffer += message.generateFrame();
     buffer.append('\x04');
     //qDebug() << this << "Writing bytes:"<<buffer<<buffer.toHex();
-    qDebug() << "Sending message:" <<message.commandName<< ":" << message.arguments;
+    qDebug() << "Sending message:" <<message.commandName<< ":" << message.arguments.count();
     socket->write(buffer);
 }
 
@@ -47,7 +47,7 @@ void QwSocket::setSslSocket(QSslSocket *socket)
     this->socket = socket;
     socket->setParent(this);
     connect( socket, SIGNAL(readyRead()), this, SLOT(socketDataReceived()), Qt::QueuedConnection );
-    connect( socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()) );
+    connect( socket, SIGNAL(disconnected()), this, SIGNAL(connectionLost()), Qt::QueuedConnection );
 }
 
 

@@ -10,12 +10,15 @@ INCLUDEPATH = ../qw_library
 LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
 QT -= gui
-CONFIG -= ppc x86 debug
+
+CONFIG += debug ppc x86
 QT += network \
     xml \
     sql
 TARGET = qwired_server
+
 DESTDIR = ../bin/
+
 HEADERS += QwsServerController.h \
     wiredsocket.h \
     QwSslTcpServer.h \
