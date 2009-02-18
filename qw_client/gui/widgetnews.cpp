@@ -23,6 +23,7 @@
 #include "widgetnews.h"
 #include "WidgetNewsPost.h"
 #include <QtCore>
+#include <QMessageBox>
 
 WidgetNews::WidgetNews(QWidget *parent)
  : QWidget(parent)
@@ -142,7 +143,10 @@ void WidgetNews::on_fBtnPost_clicked(bool checked)
 }
 
 void WidgetNews::on_fBtnDelete_clicked(bool) {
-        emit onDeleteNews();
+        if(QMessageBox::question (this, tr("Clear news"), tr("Are you sure you want to clear all news items?\n\nThis cannot be undone."), QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes)
+        {
+            emit onDeleteNews();
+        }
 }
 
 void WidgetNews::clearTextArea() {
