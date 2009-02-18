@@ -133,40 +133,43 @@ void QwsServerController::qwLog(QString theMessage) {
 }
 
 
+
 /*! Accepts a new connection. Connected to the newConnect() signal of pTcpServer.
 */
 void QwsServerController::acceptSslConnection()
 {
+    QSslSocket *newSocket = pTcpServer->nextPendingSslSocket();
+
     WiredSocket *clientSocket = new WiredSocket(this);
     clientSocket->user.pUserID = ++sessionIdCounter;
     pCore->registerClient(clientSocket);
-    clientSocket->setSslSocket(pTcpServer->nextPendingSslSocket());
+    clientSocket->setSslSocket(newSocket);
 
-    connect(clientSocket, SIGNAL(requestedUserlist(int)),
-            this, SLOT(handleUserlistRequest(int)), Qt::QueuedConnection);
-    connect(clientSocket, SIGNAL(disconnected()),
-            this, SLOT(handleSocketDisconnected()), Qt::QueuedConnection);
+    connect(clientSocket, SIGNAL(connectionLost()), this, SLOT(handleSocketDisconnected()));
+
+    qRegisterMetaType<QwMessage>();
+    qRegisterMetaType<Qws::SessionState>();
+
+    connect(clientSocket, SIGNAL(requestedUserlist(int)), this, SLOT(handleUserlistRequest(int)));
     connect(clientSocket, SIGNAL(sessionStateChanged(Qws::SessionState)),
-            this, SLOT(handleSocketSessionStateChanged(Qws::SessionState)), Qt::QueuedConnection);
+            this, SLOT(handleSocketSessionStateChanged(Qws::SessionState)));
     connect(clientSocket, SIGNAL(requestedChatRelay(int,QString,bool)),
-            this, SLOT(relayChatToRoom(int,QString,bool)), Qt::QueuedConnection);
+            this, SLOT(relayChatToRoom(int,QString,bool)));
     connect(clientSocket, SIGNAL(requestedMessageRelay(int,QString)),
-            this, SLOT(relayMessageToUser(int,QString)), Qt::QueuedConnection);
-    connect(clientSocket, SIGNAL(broadcastedMessage(QwMessage,int)),
-            this, SLOT(broadcastMessage(QwMessage,int,bool)), Qt::QueuedConnection);
-    connect(clientSocket, SIGNAL(userStatusChanged()),
-            this, SLOT(relayUserStatusChanged()), Qt::QueuedConnection);
+            this, SLOT(relayMessageToUser(int,QString)));
+    connect(clientSocket, SIGNAL(broadcastedMessage(QwMessage,int,bool)),
+            this, SLOT(broadcastMessage(QwMessage,int,bool)));
+    connect(clientSocket, SIGNAL(userStatusChanged()), this, SLOT(relayUserStatusChanged()));
     connect(clientSocket, SIGNAL(requestedRoomTopicChange(int,QString)),
-            this, SLOT(changeRoomTopic(int,QString)), Qt::QueuedConnection);
-    connect(clientSocket, SIGNAL(requestedRoomTopic(int)),
-            this, SLOT(sendRoomTopic(int)), Qt::QueuedConnection);
-    connect(clientSocket, SIGNAL(requestedNewRoom()),
-            this, SLOT(createNewRoom()), Qt::QueuedConnection);
-    connect(clientSocket, SIGNAL(requestedUserInviteToRoom(int,int)),
-            this, SLOT(inviteUserToRoom(int,int)), Qt::QueuedConnection);
-    connect(clientSocket, SIGNAL(requestedUserJoinRoom(int)),
-            this, SLOT(joinUserToRoom(int)), Qt::QueuedConnection);
-
+            this, SLOT(changeRoomTopic(int,QString)));
+    connect(clientSocket, SIGNAL(requestedRoomTopic(int)), this, SLOT(sendRoomTopic(int)));
+    connect(clientSocket, SIGNAL(requestedNewRoom()), this, SLOT(createNewRoom()));
+    connect(clientSocket, SIGNAL(requestedUserInviteToRoom(int,int)), this, SLOT(inviteUserToRoom(int,int)));
+    connect(clientSocket, SIGNAL(receivedMessageJOIN(int)), this, SLOT(handleMessageJOIN(int)));
+    connect(clientSocket, SIGNAL(receivedMessageDECLINE(int)), this, SLOT(handleMessageDECLINE(int)));
+    connect(clientSocket, SIGNAL(receivedMessageLEAVE(int)), this, SLOT(handleMessageLEAVE(int)));
+    connect(clientSocket, SIGNAL(receivedMessageBAN_KICK(int,QString,bool)),
+            this, SLOT(handleMessageBAN_KICK(int,QString,bool)));
 
     sockets[clientSocket->user.pUserID] = clientSocket;
 }
@@ -185,6 +188,7 @@ void QwsServerController::handleSocketDisconnected()
     QHashIterator<int, QwsRoom*> i(rooms);
     i.toBack();
     while (i.hasPrevious()) {
+        i.previous();
         QwsRoom *itemRoom = i.value();
         if (itemRoom && itemRoom->pUsers.contains(client->user.pUserID)) {
             removeUserFromRoom(i.key(), client->user.pUserID);
@@ -192,8 +196,8 @@ void QwsServerController::handleSocketDisconnected()
     }
 
     // Remove the client from the list of clients
-    WiredSocket *deadClient = sockets.take(client->user.pUserID);
-    deadClient->deleteLater();
+    sockets.remove(client->user.pUserID);
+    sender()->deleteLater();
 }
 
 
@@ -246,23 +250,23 @@ void QwsServerController::sendClientInformation(const int userId)
 */
 void QwsServerController::addUserToRoom(const int roomId, const int userId)
 {
-    if (!rooms.contains(roomId) || !sockets.contains(userId)) {
+    if (!rooms.contains(roomId)) {
+        qDebug() << this << "Unable to add user" << userId << "to room" << roomId << "(no such room)";
         return;
     }
-
     QwsRoom *room = rooms[roomId];
-    WiredSocket *user = sockets[userId];
-
-    QListIterator<int> i(room->pUsers);
-    while (i.hasNext()) {
-        int itemId = i.next();
-        WiredSocket *itemSocket = sockets[itemId];
-        if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
-            itemSocket->sendClientJoin(roomId, user->user);
-        }
+    if (!sockets.contains(userId)) {
+        qDebug() << this << "Unable to add user" << userId << "to room" << roomId << "(no such user)";
+        return;
     }
-
+    WiredSocket *user = sockets[userId];
     room->pUsers.append(userId);
+
+    // Notify the other users
+    QwMessage reply("302");
+    reply.appendArg(QByteArray::number(roomId));
+    user->user.userListEntry(reply);
+    broadcastMessage(reply, roomId, false);
 }
 
 /*! This method removes a user from the a room and notifies all other users in the same room about
@@ -270,16 +274,26 @@ void QwsServerController::addUserToRoom(const int roomId, const int userId)
 */
 void QwsServerController::removeUserFromRoom(const int roomId, const int userId)
 {
+    qDebug() << this << "Removing user" << userId << "from room" << roomId;
+    if (!rooms.contains(roomId)) { return; }
     QwsRoom *room = rooms[roomId];
-    WiredSocket *user = sockets[userId];
-    room->pUsers.removeOne(userId);
-    QListIterator<int> i(room->pUsers);
-    while (i.hasNext()) {
-        int itemId = i.next();
-        WiredSocket *itemSocket = sockets[itemId];
-        if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
-            itemSocket->sendClientLeave(roomId, user->user.pUserID);
-        }
+    if (!room->pUsers.contains(userId)) { return; }
+
+    if (room->pUsers.contains(userId)) {
+        room->pUsers.removeAll(userId);
+        // Notify the users.
+        QwMessage reply("303");
+        reply.appendArg(QString::number(roomId));
+        reply.appendArg(QString::number(userId));
+        broadcastMessage(reply, roomId, false);
+    }
+    room->pInvitedUsers.removeOne(userId);
+
+    // Delete the chat if it's the last one
+    if (roomId != 1 && room->pUsers.isEmpty()) {
+        qDebug() << this << "Deleting empty room" << roomId;
+        rooms.remove(roomId);
+        delete room;
     }
 }
 
@@ -480,6 +494,8 @@ void QwsServerController::createNewRoom()
     QwMessage reply("330");
     reply.appendArg(QString::number(newRoom->pChatId));
     user->sendMessage(reply);
+
+    qDebug() << this << "Created new room with id" << newRoom->pChatId;
 }
 
 
@@ -489,28 +505,48 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
 {
     WiredSocket *user = qobject_cast<WiredSocket*>(sender());
     if (!user) { return; }
+
+    if (userId == user->user.pUserID) {
+        qDebug() << this << "User tried to invite himself to room" << roomId;
+        user->sendError(Qws::ErrorComandFailed);
+        return;
+    }
+
     if (!rooms.contains(roomId)) {
         user->sendError(Qws::ErrorComandFailed);
+        qDebug() << this << "Room with id" << roomId << "does not exist!";
         return;
     }
     if (!sockets.contains(userId)) {
         user->sendError(Qws::ErrorClientNotFound);
+        qDebug() << this << "Client with id" << roomId << "does not exist!";
         return;
     }
     WiredSocket *targetUser = sockets[userId];
     QwsRoom *room = rooms[roomId];
-    if (!room->pUsers.contains(userId)) {
+    if (!room->pUsers.contains(user->user.pUserID)) {
         user->sendError(Qws::ErrorPermissionDenied);
+        qDebug() << this << "User with id"<< user->user.pUserID<<"was not in room"<<roomId;
         return;
     }
     if (room->pInvitedUsers.contains(userId)) {
         // Ignoring a double-invite here.
         user->sendError(Qws::ErrorComandFailed);
+        qDebug() << this << "User with id"<<userId<<"was already in list of invited of room" << roomId;
         return;
     }
     room->pInvitedUsers.append(userId);
-    // Send the information back to the client
-    QwMessage reply("331");
+
+    // Notify users in the same room about the invitation
+    QwMessage reply2("301");
+    reply2.appendArg(QString::number(roomId));
+    reply2.appendArg(QString::number(user->user.pUserID));
+    reply2.appendArg(QString("invited %1 to join this room... [server]")
+                     .arg(sockets[userId]->user.userNickname));
+    broadcastMessage(reply2, roomId, true);
+
+    // Send the invitation to the other user.
+    QwMessage reply("331"); // 331 Private Chat Invitiation
     reply.appendArg(QString::number(roomId));
     reply.appendArg(QString::number(user->user.pUserID));
     targetUser->sendMessage(reply);
@@ -519,27 +555,108 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
 
 /*! This method adds a user to a room after a JOIN command.
 */
-void QwsServerController::joinUserToRoom(const int roomId)
+void QwsServerController::handleMessageJOIN(const int roomId)
 {
     WiredSocket *user = qobject_cast<WiredSocket*>(sender());
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
+        qDebug() << this << "Unable to join channel"<<roomId<<" (does not exist)";
         user->sendError(Qws::ErrorComandFailed);
         return;
     }
+
     QwsRoom *room = rooms[roomId];
     if (!room->pInvitedUsers.contains(user->user.pUserID)) {
-        user->sendError(Qws::ErrorPermissionDenied);
+        qDebug() << this << "Unable to join channel"<<roomId<<" (user was not invited)";
+        user->sendError(Qws::ErrorComandFailed);
         return;
     }
     room->pInvitedUsers.removeAll(user->user.pUserID);
     room->pUsers.append(user->user.pUserID);
 
     // Send the information back to the client
-    QwMessage reply("302");
+    QwMessage reply("302"); // 302 Client Join
     reply.appendArg(QString::number(roomId));
     user->user.userListEntry(reply);
     broadcastMessage(reply, roomId, false);
+
+    // Send the client the chat topic
+    user->sendChatTopic(room);
+}
+
+
+/*! This method adds a user to a room after a JOIN command.
+*/
+void QwsServerController::handleMessageDECLINE(const int roomId)
+{
+    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    if (!user) { return; }
+    if (!rooms.contains(roomId)) {
+        qDebug() << this << "Unable to decline invitation"<<roomId<<" (does not exist)";
+        user->sendError(Qws::ErrorComandFailed);
+        return;
+    }
+
+    QwsRoom *room = rooms[roomId];
+    if (!room->pInvitedUsers.contains(user->user.pUserID)) {
+        qDebug() << this << "Unable to room invitation"<<roomId<<" (user was never invited)";
+        user->sendError(Qws::ErrorComandFailed);
+        return;
+    }
+    room->pInvitedUsers.removeAll(user->user.pUserID);
+
+    // Notify the other users that this user declined.
+    QwMessage reply("332");
+    reply.appendArg(QString::number(roomId));
+    reply.appendArg(QString::number(user->user.pUserID));
+    broadcastMessage(reply, roomId, true);
+}
+
+
+/*! This method removes a user to a room after a LEAVE command.
+*/
+void QwsServerController::handleMessageLEAVE(const int roomId)
+{
+    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    if (!user) { return; }
+    if (!rooms.contains(roomId)) {
+        qDebug() << this << "Unable to part user from room"<<roomId<<" (does not exist)";
+        user->sendError(Qws::ErrorComandFailed);
+        return;
+    }
+    QwsRoom *room = rooms[roomId];
+    if (!room->pUsers.contains(user->user.pUserID)) {
+        qDebug() << this << "Unable to part user from room"<<roomId<<" (user was not in room)";
+        user->sendError(Qws::ErrorComandFailed);
+        return;
+    }
+    removeUserFromRoom(roomId, user->user.pUserID);
+}
+
+
+/*! This method is called when a user needs to be kicked/banned from the server by an administrator.
+*/
+void QwsServerController::handleMessageBAN_KICK(const int userId, const QString reason, const bool isBan)
+{
+    qDebug() << this << "Handling a BAN/KICK for user"<<userId<<"ban="<<isBan;
+    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    if (!user) { return; }
+    if (!sockets.contains(userId)) {
+        qDebug() << this << "Unable to kick/ban user"<<userId<<" (does not exist)";
+        user->sendError(Qws::ErrorClientNotFound);
+        return;
+    }
+    WiredSocket *targetUser = sockets[userId];
+
+    // Notify the other clients about this
+    QwMessage reply(isBan ? "307" : "306");
+    reply.appendArg(QString::number(userId));
+    reply.appendArg(QString::number(user->user.pUserID));
+    reply.appendArg(reason);
+    broadcastMessage(reply, 1, true);
+
+    // Now kill him
+    targetUser->disconnectClient();
 }
 
 

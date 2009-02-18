@@ -28,9 +28,13 @@
 
 WiredSocket::WiredSocket(QObject *parent) : QwSocket(parent)
 {
+    qRegisterMetaType<QwMessage>();
+
     connect(this, SIGNAL(messageReceived(QwMessage)),
             this, SLOT(handleIncomingMessage(QwMessage)), Qt::QueuedConnection);
 
+
+    // A new socket is always in teh inactive state.
     sessionState = Qws::StateInactive;
 
 
@@ -41,7 +45,8 @@ WiredSocket::WiredSocket(QObject *parent) : QwSocket(parent)
 }
 
 
-WiredSocket::~WiredSocket() {
+WiredSocket::~WiredSocket()
+{
     qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
 }
 
@@ -50,7 +55,8 @@ WiredSocket::~WiredSocket() {
  * The idle timer was triggered. Check if the user is not idle and mark him/her
  * as idle. Afterwards a signal will be emitted so that other clients get updated.
  */
-void WiredSocket::idleTimerTriggered() {
+void WiredSocket::idleTimerTriggered()
+{
     if(!pSessionUser.pIdle) {
         pSessionUser.pIdle = true;
         emit userStatusChanged();
@@ -60,7 +66,8 @@ void WiredSocket::idleTimerTriggered() {
 
 /*!  The user shows some activity. Check if he/she is idle and un-idle.
 */
-void WiredSocket::resetIdleTimer() {
+void WiredSocket::resetIdleTimer()
+{
     pIdleTimer->start();
     if(pSessionUser.pIdle) {
         pSessionUser.pIdle = false;
@@ -70,7 +77,8 @@ void WiredSocket::resetIdleTimer() {
 
 
 // Called by the socket and indicates the an SSL error has occoured.
-void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
+void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors)
+{
 	qDebug() << "WiredSocket.on_socket_sslErrors(): "<<errors;
 	pSocket->ignoreSslErrors();
 }
@@ -78,13 +86,20 @@ void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors) {
 
 /*! A socket error ocurred.
 */
-void WiredSocket::on_socket_error() {
+void WiredSocket::on_socket_error()
+{
     qDebug() << "[qws] socket error:"<<pSocket->errorString()<<pSocket->error();
     disconnectClient();
 }
 
- void WiredSocket::handleIncomingMessage(QwMessage message)
- {
+
+/*! This method handles any incoming messages, checks the command name and passes the control to
+    the respective handler method. Each command has its own handler command, even it if just has
+    to emit a simple signal. This makes it easier to implement command checks and other things
+    later on.
+*/
+void WiredSocket::handleIncomingMessage(QwMessage message)
+{
      qDebug() << "RECEIVED:" << message.commandName;
 
      // Handshaking/Protocol
@@ -110,6 +125,8 @@ void WiredSocket::on_socket_error() {
          handleMessageBANNER(message);
      } else if (message.commandName == "INFO") {
          handleMessageINFO(message);
+     } else if (message.commandName == "PRIVILEGES") {
+         handleMessagePRIVILEGES(message);
 
 
      // Communication
@@ -129,6 +146,10 @@ void WiredSocket::on_socket_error() {
          handleMessageINVITE(message);
      } else if (message.commandName == "JOIN") {
          handleMessageJOIN(message);
+     } else if (message.commandName == "DECLINE") {
+         handleMessageDECLINE(message);
+     } else if (message.commandName == "LEAVE") {
+         handleMessageLEAVE(message);
 
      // News
      } else if (message.commandName == "NEWS") {
@@ -137,7 +158,15 @@ void WiredSocket::on_socket_error() {
          handleMessagePOST(message);
      } else if (message.commandName == "CLEARNEWS") {
          handleMessageCLEARNEWS(message);
+
+     // Administration
+     } else if (message.commandName == "KICK") {
+         handleMessageKICK(message);
+     } else if (message.commandName == "BAN") {
+         handleMessageBAN(message);
      }
+
+
 
  }
 
@@ -294,6 +323,30 @@ void WiredSocket::handleMessageINFO(QwMessage &message)
 }
 
 
+/*! PRIVILEGES command (get privileges mask)
+*/
+void WiredSocket::handleMessagePRIVILEGES(QwMessage &message)
+{
+    QwMessage reply("602");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+    reply.appendArg("1"); reply.appendArg("1");
+
+    reply.appendArg("0"); reply.appendArg("0");
+    reply.appendArg("0"); reply.appendArg("0");
+
+    reply.appendArg("1");
+
+    sendMessage(reply);
+}
+
+
 /* === Communication == */
 
 
@@ -346,12 +399,15 @@ void WiredSocket::handleMessageTOPIC(QwMessage &message)
 void WiredSocket::handleMessagePRIVCHAT(QwMessage &message)
 {
     Q_UNUSED(message);
-    qDebug() << this << "Requested new chat room" << message.getStringArgument(1);
+    qDebug() << this << "Requested new chat room";
     emit requestedNewRoom();
 }
 
 
-/*! INVITE command (Invite a user to a room)
+/*! INVITE command (Invite a user to a room).
+    The INVITE command creates a new room on the server
+    and automatically adds the inviting user to the room. After that it returns the ID of the
+    new room and expects the user to send an INVITE command for another user(s).
 */
 void WiredSocket::handleMessageINVITE(QwMessage &message)
 {
@@ -366,9 +422,26 @@ void WiredSocket::handleMessageINVITE(QwMessage &message)
 void WiredSocket::handleMessageJOIN(QwMessage &message)
 {
     qDebug() << this << "Joining chat room" << message.getStringArgument(0);
-    emit requestedUserJoinRoom(message.getStringArgument(0).toInt());
+    emit receivedMessageJOIN(message.getStringArgument(0).toInt());
 }
 
+
+/*! The user has declined an invitation to a private chat (0).
+*/
+void WiredSocket::handleMessageDECLINE(QwMessage &message)
+{
+    qDebug() << this << "Declined room invitation" << message.getStringArgument(0);
+    emit receivedMessageDECLINE(message.getStringArgument(0).toInt());
+}
+
+
+/*! The user has left a chat room.
+*/
+void WiredSocket::handleMessageLEAVE(QwMessage &message)
+{
+    qDebug() << this << "Left room" << message.getStringArgument(0);
+    emit receivedMessageLEAVE(message.getStringArgument(0).toInt());
+}
 
 
 /* === NEWS === */
@@ -441,7 +514,32 @@ void WiredSocket::handleMessageJOIN(QwMessage &message)
  }
 
 
- /* === PRIVATE SLOTS === */
+
+/* === ADMINISTRATION === */
+
+/*! BAN (ban user from server)
+*/
+void WiredSocket::handleMessageBAN(QwMessage &message)
+{
+    qDebug() << this << "Banning user"<<message.getStringArgument(0)<<"from server";
+    emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
+                                 message.getStringArgument(1), true);
+}
+
+
+/*! KICK (user from server) - same as ban without the ban
+*/
+void WiredSocket::handleMessageKICK(QwMessage &message)
+{
+    qDebug() << this << "Kicking user"<<message.getStringArgument(0)<<"from server";
+    emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
+                                 message.getStringArgument(1), false);
+}
+
+
+
+/* === PRIVATE SLOTS === */
+
 
 /*! Send a userlist item to the client. This includes some information about the client. The whole
      request is completed with the sendUserlistDone() call.
@@ -492,6 +590,21 @@ void WiredSocket::sendServerInfo()
 }
 
 
+/*! Send the chat topic to the client.
+*/
+void WiredSocket::sendChatTopic(const QwsRoom *chat)
+{
+    QwMessage reply("341");
+    reply.appendArg(QString::number(chat->pChatId));
+    reply.appendArg(chat->pTopicSetter.userNickname);
+    reply.appendArg(chat->pTopicSetter.userLogin);
+    reply.appendArg(chat->pTopicSetter.userIpAddress);
+    reply.appendArg(chat->pTopicDate.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(chat->pTopic);
+    sendMessage(reply);
+}
+
+
 // Called by readDataFromSocket() after splitting a message off the internal
 // buffer. We have to extract the command ID here and decide what to do with
 // the message.
@@ -516,12 +629,9 @@ void WiredSocket::handleWiredMessage(QByteArray theData)
 	} else {
 		// Handshake exists, handle the command.
 
-
                 if(tmpCmd=="BAN") {
 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), true );
 			resetIdleTimer();
-
-
 
 		} else if(tmpCmd=="DELETEUSER") {
 			emit deletedUser(userId(), QString::fromUtf8(tmpParams.value(0)));
@@ -579,15 +689,9 @@ void WiredSocket::handleWiredMessage(QByteArray theData)
 			emit userKicked(userId(), tmpParams.value(0).toInt(), QString::fromUtf8(tmpParams.value(1)), false );
 			resetIdleTimer();
 			
-		} else if(tmpCmd=="LEAVE") {
-			emit privateChatLeft(userId(), tmpParams.value(0).toInt());
-			resetIdleTimer();
-
 		} else if(tmpCmd=="LIST") {
 			emit requestedFileList(userId(), QString::fromUtf8(tmpParams.value(0)));
 			resetIdleTimer();
-
-
 
 		} else if(tmpCmd=="PRIVILEGES") {
 			sendPrivileges();
@@ -624,10 +728,12 @@ void WiredSocket::handleWiredMessage(QByteArray theData)
 
 /*! The client needs to be removed from the server. Delete the socket and this object.
 */
-void WiredSocket::disconnectClient() {
-	emit clientDisconnected(pSessionUser.pUserID);
-	pSocket->disconnectFromHost();
-	this->deleteLater();
+void WiredSocket::disconnectClient()
+{
+    qDebug() << this << "Called disconnectClient()";
+    emit clientDisconnected(pSessionUser.pUserID);
+    pSocket->disconnectFromHost();
+    this->deleteLater();
 }
 
 
@@ -655,6 +761,7 @@ void WiredSocket::sendClientJoin(const int chatId, const ClassWiredUser &user)
     user.userListEntry(reply);
     sendMessage(reply);
 }
+
 
 
 
@@ -704,21 +811,7 @@ void WiredSocket::sendUserInfo(const ClassWiredUser user) {
 //	sendWiredCommand(ba);
 }
 
-/**
- * The topic changed (or was requested) of a specific chat.
- * @param chat The object containing the chat information.
- */
-void WiredSocket::sendChatTopic(const QwsRoom chat)
-{
-	QByteArray ba("341 ");
-	ba += QByteArray::number(chat.pChatId); ba += kFS;
-        ba += chat.pTopicSetter.userNickname.toUtf8(); ba += kFS;
-        ba += chat.pTopicSetter.userLogin.toUtf8(); ba += kFS;
-        ba += chat.pTopicSetter.userIpAddress.toUtf8(); ba += kFS;
-	ba += chat.pTopicDate.toString(Qt::ISODate); ba += "+00:00"; ba += kFS;
-	ba += chat.pTopic.toUtf8();
-//	sendWiredCommand(ba);
-}
+
 
 /**
  * A used declined a private chat invitation. Let the inviting users know of this.
@@ -888,6 +981,7 @@ void WiredSocket::sendError(const Qws::ProtocolError error)
     QwMessage reply(errorString);
     sendMessage(reply);
 }
+
 
 
 

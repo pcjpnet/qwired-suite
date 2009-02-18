@@ -81,7 +81,13 @@ private slots:
     void sendRoomTopic(const int roomId);
     void createNewRoom();
     void inviteUserToRoom(const int userId, const int roomId);
-    void joinUserToRoom(const int roomId);
+    void handleMessageJOIN(const int roomId);
+    void handleMessageDECLINE(const int roomId);
+    void handleMessageLEAVE(const int roomId);
+
+
+    // Administration
+    void handleMessageBAN_KICK(const int userId, const QString reason, const bool isBan);
 
 public slots:
     //void reloadDatabase();

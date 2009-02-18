@@ -33,6 +33,7 @@ public:
 
 };
 
+Q_DECLARE_METATYPE(QwMessage);
 
 
 #endif // QWMESSAGE_H

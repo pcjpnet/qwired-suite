@@ -10,4 +10,3 @@ SOURCES += QwMessage.cpp QwSocket.cpp
 HEADERS += QwMessage.h QwSocket.h
 TARGET = qwlibrary
 DESTDIR = ../bin/
-

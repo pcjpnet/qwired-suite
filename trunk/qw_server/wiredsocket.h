@@ -64,6 +64,8 @@ namespace Qws {
 
 */
 
+Q_DECLARE_METATYPE(Qws::SessionState);
+
 const int kEOF = 0x04;
 const int kFS = 0x1C;
 
@@ -113,8 +115,13 @@ signals:
     /*! This signal is emitted when the client invites a user to a room. */
     void requestedUserInviteToRoom(const int userId, const int roomId);
     /*! This signal is emitted when a client decides to join a room by invitation. */
-    void requestedUserJoinRoom(const int roomId);
-
+    void receivedMessageJOIN(const int roomId);
+    /*! This signal is emitted when a client declines to join an invited room. */
+    void receivedMessageDECLINE(const int roomId);
+    /*! This signal is emitted when a client leaves a chat room. */
+    void receivedMessageLEAVE(const int roomId);
+    /*! This signal is emitted when the client kicked/banned another user. */
+    void receivedMessageBAN_KICK(const int userId, const QString reason, const bool isBan);
 
 		void clearedNews(const int id);
 		void clientDisconnected(const int id);
@@ -159,6 +166,7 @@ public slots:
     void sendChat(const int chatId, const int userId, const QString text, const bool isEmote);
     void sendError(const Qws::ProtocolError error);
     void sendServerInfo();
+    void sendChatTopic(const QwsRoom *chat);
 
 
 
@@ -178,7 +186,7 @@ public slots:
 		void sendFileStat(const ClassWiredFile file);
 		
 
-                void sendChatTopic(const QwsRoom chat);
+
 		void sendClientKicked(const int killerId, const int victimId, const QString reason, const bool banned);
 		void sendClientDeclinedChat(const int chatId, const int userId);
 
@@ -213,6 +221,7 @@ public slots:
                 void handleMessageICON(QwMessage &message);
                 void handleMessageBANNER(QwMessage &message);
                 void handleMessageINFO(QwMessage &message);
+                void handleMessagePRIVILEGES(QwMessage &message);
 
                 // Communication
                 void handleMessageSAY(QwMessage &message);
@@ -223,11 +232,21 @@ public slots:
                 void handleMessagePRIVCHAT(QwMessage &message);
                 void handleMessageINVITE(QwMessage &message);
                 void handleMessageJOIN(QwMessage &message);
+                void handleMessageDECLINE(QwMessage &message);
+                void handleMessageLEAVE(QwMessage &message);
 
                 // News
                 void handleMessageNEWS(QwMessage &message);
                 void handleMessagePOST(QwMessage &message);
                 void handleMessageCLEARNEWS(QwMessage &message);
+
+
+                // Administration
+                void handleMessageKICK(QwMessage &message);
+                void handleMessageBAN(QwMessage &message);
+
+
+
 
 		void on_socket_sslErrors(const QList<QSslError> & errors);
 		void handleWiredMessage(QByteArray theData);
