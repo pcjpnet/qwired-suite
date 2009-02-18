@@ -1,0 +1,28 @@
+#summary Description of Qwired Server's database structure.
+#labels Phase-Design
+
+= Qwired Server: Database Structure =
+
+== Privileges Flags ==
+Every account or group entry contains a mask field which defines the user's privileges.
+
+|| *Privilege* || *Key* ||
+|| get-user-info || i ||
+|| broadcast || b ||
+|| post-news || p ||
+|| clear-news || C ||
+|| download || d ||
+|| upload || u ||
+|| upload-anywhere || U ||
+|| create-folders || f ||
+|| alter-files || a ||
+|| delete-files || r ||
+|| view-dropboxes || D ||
+|| create-accounts || A ||
+|| edit-accounts || M ||
+|| delete-accounts || R ||
+|| elevate-privileges || E ||
+|| kick-users || K ||
+|| ban-users || B ||
+|| cannot-be-kicked || P ||
+|| change-topic || t ||
