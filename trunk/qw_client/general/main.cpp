@@ -77,7 +77,7 @@ int main (int argc, char *argv[]) {
 	// Singleton
 	QObject::connect(&app, SIGNAL(aboutToQuit()), &WSINGLETON::Instance(), SLOT(cleanUp()));
 	WSINGLETON::Instance().addSession(tmpConn);
-	WSINGLETON::Instance().createTrayIcon();
+        WSINGLETON::Instance().createTrayIcon();
 
 	return app.exec();
 }
