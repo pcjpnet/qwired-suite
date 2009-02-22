@@ -31,8 +31,9 @@
 #include <iostream>
 #include <QtCore>
 #include <QtNetwork>
+
+#include "QwsClientSocket.h"
 #include "QwSslTcpServer.h"
-#include "QwsConnection.h"
 
 class QwsServerController : public QObject
 {
@@ -45,8 +46,6 @@ public:
 
     static void qwLog(QString theMessage);
 
-    QPointer<QwsConnection> pCore;
-
     // Database access/configuration
     QVariant getConfigurationParam(const QString key, const QVariant defaultValue=QVariant());
 
@@ -55,7 +54,7 @@ private:
     int roomIdCounter;
 
     QPointer<QwSslTcpServer> pTcpServer;
-    QHash<int, WiredSocket*> sockets;
+    QHash<int, QwsClientSocket*> sockets;
     QHash<int, QwsRoom*> rooms;
 
 signals:

@@ -19,11 +19,11 @@
  ***************************************************************************/
 
 #include <QtCore>
-#include "classwiredfile.h"
+#include "QwsFile.h"
 
 
 // Load data from the server file listing responses.
-ClassWiredFile::ClassWiredFile(QList<QByteArray> theParams)
+QwsFile::QwsFile(QList<QByteArray> theParams)
 {
 	path = QString::fromUtf8( theParams.value(0) );
 	type = theParams.value(1).toInt();
@@ -33,23 +33,23 @@ ClassWiredFile::ClassWiredFile(QList<QByteArray> theParams)
 }
 
 
-ClassWiredFile::~ClassWiredFile()
+QwsFile::~QwsFile()
 { }
 
 
-ClassWiredFile::ClassWiredFile() {
+QwsFile::QwsFile() {
 	path="";
 	type=0;
 	size=0;
 }
 
 // Return the name of the file without all the slashes.
-QString ClassWiredFile::fileName() const
+QString QwsFile::fileName() const
 {
 	return path.section("/", -1);
 }
 
-void ClassWiredFile::setFromStat(QList<QByteArray> theParams)
+void QwsFile::setFromStat(QList<QByteArray> theParams)
 {
 	path = QString::fromUtf8( theParams.value(0) );
 	type = theParams.value(1).toInt();

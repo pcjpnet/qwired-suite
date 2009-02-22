@@ -22,20 +22,19 @@
 
 
 #include "QwsServerController.h"
-#include "wiredsocket.h"
+#include "QwsClientSocket.h"
 
 #include <QtSql>
 
 QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
 {
-    pCore = new QwsConnection(this);
-    sessionIdCounter = 0;
+    sessionIdCounter = 20;
     roomIdCounter = 10;
 
     // Initialize the main room (public chat, server user list)
     QwsRoom *publicRoom = new QwsRoom;
     publicRoom->pChatId = 1;
-    publicRoom->pTopic = "Welcome to Qwired Server!";
+    publicRoom->pTopic = tr("Welcome to Qwired Server!");
     rooms[1] = publicRoom;
 }
 
@@ -140,9 +139,8 @@ void QwsServerController::acceptSslConnection()
 {
     QSslSocket *newSocket = pTcpServer->nextPendingSslSocket();
 
-    WiredSocket *clientSocket = new WiredSocket(this);
+    QwsClientSocket *clientSocket = new QwsClientSocket(this);
     clientSocket->user.pUserID = ++sessionIdCounter;
-    pCore->registerClient(clientSocket);
     clientSocket->setSslSocket(newSocket);
 
     connect(clientSocket, SIGNAL(connectionLost()), this, SLOT(handleSocketDisconnected()));
@@ -182,7 +180,7 @@ void QwsServerController::acceptSslConnection()
 */
 void QwsServerController::handleSocketDisconnected()
 {
-    WiredSocket *client = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *client = qobject_cast<QwsClientSocket*>(sender());
     if (!client) { return; }
     qDebug() << this << "Sending all clients the client-left event.";
 
@@ -207,7 +205,7 @@ void QwsServerController::handleSocketDisconnected()
 */
 void QwsServerController::handleSocketSessionStateChanged(const Qws::SessionState state)
 {
-    WiredSocket *client = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *client = qobject_cast<QwsClientSocket*>(sender());
     if (!client) { return; }
     if (state == Qws::StateActive) {
         // Client became active (logged in)
@@ -220,7 +218,7 @@ void QwsServerController::handleSocketSessionStateChanged(const Qws::SessionStat
 */
 void QwsServerController::relayUserStatusChanged()
 {
-    WiredSocket *client = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *client = qobject_cast<QwsClientSocket*>(sender());
     if (!client) { return; }
     QwMessage reply("304");
     client->user.userListEntry(reply);
@@ -232,13 +230,13 @@ void QwsServerController::relayUserStatusChanged()
 */
 void QwsServerController::sendClientInformation(const int userId)
 {
-    WiredSocket *user = sockets[userId];
+    QwsClientSocket *user = sockets[userId];
     if (!user) { return; }
     if (!sockets.contains(userId)) {
         user->sendError(Qws::ErrorClientNotFound);
         return;
     }
-    WiredSocket *target = sockets[userId];
+    QwsClientSocket *target = sockets[userId];
     // Send the information
     QwMessage reply("308");
     target->user.userInfoEntry(reply);
@@ -261,7 +259,7 @@ void QwsServerController::addUserToRoom(const int roomId, const int userId)
         qDebug() << this << "Unable to add user" << userId << "to room" << roomId << "(no such user)";
         return;
     }
-    WiredSocket *user = sockets[userId];
+    QwsClientSocket *user = sockets[userId];
     room->pUsers.append(userId);
 
     // Notify the other users
@@ -310,7 +308,7 @@ void QwsServerController::handleUserlistRequest(const int roomId)
         return;
     }
 
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) {
         qDebug() << this << "Warning: Invalid sender socket. Can not cast.";
         return;
@@ -322,13 +320,22 @@ void QwsServerController::handleUserlistRequest(const int roomId)
     while (i.hasNext()) {
         int itemId = i.next();
         if (sockets.contains(itemId)) {
-            WiredSocket *itemSocket = sockets[itemId];
+            QwsClientSocket *itemSocket = sockets[itemId];
             if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
-                user->sendUserlistItem(roomId, itemSocket->user);
+                // Send a user list item
+                QwMessage reply("310");
+                reply.appendArg(QByteArray::number(roomId));
+                itemSocket->user.userListEntry(reply);
+                user->sendMessage(reply);
             }
         }
     }
-    user->sendUserlistDone(roomId);
+
+    // Send end of list
+    QwMessage reply("311");
+    reply.appendArg(QByteArray::number(roomId));
+    user->sendMessage(reply);
+
 }
 
 
@@ -342,7 +349,7 @@ void QwsServerController::relayChatToRoom(const int roomId, const QString text, 
         return;
     }
 
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) {
         qDebug() << this << "Warning: Invalid sender socket. Can not cast.";
         return;
@@ -351,31 +358,45 @@ void QwsServerController::relayChatToRoom(const int roomId, const QString text, 
     // Run trough the list of users in the room
     QwsRoom *room = rooms[roomId];
     QListIterator<int> i(room->pUsers);
+
+    // Prepare the message
+    QwMessage reply(isEmote ? "301 " : "300 ");
+    reply.appendArg(QByteArray::number(roomId));
+    reply.appendArg(QByteArray::number(user->user.pUserID));
+    reply.appendArg(text.toUtf8());
+
     while (i.hasNext()) {
         int itemId = i.next();
         if (sockets.contains(itemId)) {
-            WiredSocket *itemSocket = sockets[itemId];
+            QwsClientSocket *itemSocket = sockets[itemId];
             if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
-                itemSocket->sendChat(roomId, user->user.pUserID, text, isEmote);
+                itemSocket->sendMessage(reply);
             }
         }
     }
-    user->sendUserlistDone(roomId);
+
+    // Send end of list
+//    QwMessage reply("311");
+//    reply.appendArg(QByteArray::number(roomId));
+//    user->sendMessage(reply);
 }
 
 /*! This method relays a private message to another user.
 */
 void QwsServerController::relayMessageToUser(const int userId, const QString text)
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) {
         qDebug() << this << "Warning: Invalid sender socket. Can not cast.";
         return;
     }
     
     if (sockets.contains(userId)) {
-        WiredSocket *targetUser = sockets[userId];
-        targetUser->sendPrivateMessage(user->user.pUserID, text);
+        QwsClientSocket *targetUser = sockets[userId];
+        QwMessage reply("305");
+        reply.appendArg(QByteArray::number(userId));
+        reply.appendArg(text.toUtf8());
+        targetUser->sendMessage(reply);
     } else {
         user->sendError(Qws::ErrorClientNotFound);
     }
@@ -392,7 +413,7 @@ void QwsServerController::broadcastMessage(const QwMessage message, const int ro
         return;
     }
 
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) {
         qDebug() << this << "Warning: Invalid sender socket. Can not cast.";
         return;
@@ -404,7 +425,7 @@ void QwsServerController::broadcastMessage(const QwMessage message, const int ro
     while (i.hasNext()) {
         int itemId = i.next();
         if (!sockets.contains(itemId)) { continue; }
-        WiredSocket *itemSocket = sockets[itemId];
+        QwsClientSocket *itemSocket = sockets[itemId];
         if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
             if (sendToSelf || itemSocket != user) {
                 itemSocket->sendMessage(message);
@@ -418,7 +439,7 @@ void QwsServerController::broadcastMessage(const QwMessage message, const int ro
 */
 void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) {
         return;
     }
@@ -439,7 +460,7 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
     QwMessage reply("341");
     reply.appendArg(QString::number(roomId));
     reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.userLogin);
+    reply.appendArg(room->pTopicSetter.name);
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -451,7 +472,7 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
 */
 void QwsServerController::sendRoomTopic(const int roomId)
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
         user->sendError(Qws::ErrorComandFailed);
@@ -467,7 +488,7 @@ void QwsServerController::sendRoomTopic(const int roomId)
     QwMessage reply("341");
     reply.appendArg(QString::number(roomId));
     reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.userLogin);
+    reply.appendArg(room->pTopicSetter.name);
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -480,7 +501,7 @@ void QwsServerController::sendRoomTopic(const int roomId)
 */
 void QwsServerController::createNewRoom()
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
 
     // Create a new room
@@ -505,7 +526,7 @@ void QwsServerController::createNewRoom()
 */
 void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
 
     if (userId == user->user.pUserID) {
@@ -524,7 +545,7 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
         qDebug() << this << "Client with id" << roomId << "does not exist!";
         return;
     }
-    WiredSocket *targetUser = sockets[userId];
+    QwsClientSocket *targetUser = sockets[userId];
     QwsRoom *room = rooms[roomId];
     if (!room->pUsers.contains(user->user.pUserID)) {
         user->sendError(Qws::ErrorPermissionDenied);
@@ -559,7 +580,7 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
 */
 void QwsServerController::handleMessageJOIN(const int roomId)
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
         qDebug() << this << "Unable to join channel"<<roomId<<" (does not exist)";
@@ -583,7 +604,15 @@ void QwsServerController::handleMessageJOIN(const int roomId)
     broadcastMessage(reply, roomId, false);
 
     // Send the client the chat topic
-    user->sendChatTopic(room);
+    reply = QwMessage("341");
+    reply.appendArg(QString::number(room->pChatId));
+    reply.appendArg(room->pTopicSetter.userNickname);
+    reply.appendArg(room->pTopicSetter.name);
+    reply.appendArg(room->pTopicSetter.userIpAddress);
+    reply.appendArg(room->pTopicDate.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(room->pTopic);
+    user->sendMessage(reply);
+
 }
 
 
@@ -591,7 +620,7 @@ void QwsServerController::handleMessageJOIN(const int roomId)
 */
 void QwsServerController::handleMessageDECLINE(const int roomId)
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
         qDebug() << this << "Unable to decline invitation"<<roomId<<" (does not exist)";
@@ -619,7 +648,7 @@ void QwsServerController::handleMessageDECLINE(const int roomId)
 */
 void QwsServerController::handleMessageLEAVE(const int roomId)
 {
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
         qDebug() << this << "Unable to part user from room"<<roomId<<" (does not exist)";
@@ -641,14 +670,14 @@ void QwsServerController::handleMessageLEAVE(const int roomId)
 void QwsServerController::handleMessageBAN_KICK(const int userId, const QString reason, const bool isBan)
 {
     qDebug() << this << "Handling a BAN/KICK for user"<<userId<<"ban="<<isBan;
-    WiredSocket *user = qobject_cast<WiredSocket*>(sender());
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
     if (!sockets.contains(userId)) {
         qDebug() << this << "Unable to kick/ban user"<<userId<<" (does not exist)";
         user->sendError(Qws::ErrorClientNotFound);
         return;
     }
-    WiredSocket *targetUser = sockets[userId];
+    QwsClientSocket *targetUser = sockets[userId];
 
     // Notify the other clients about this
     QwMessage reply(isBan ? "307" : "306");
@@ -660,92 +689,3 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
     // Now kill him
     targetUser->disconnectClient();
 }
-
-
-/**
- * Load the database from the disk.
- */
-/*
-void QwsServerController::reloadDatabase() {
-	QStringList tmpCmdArgs = QCoreApplication::arguments();
-	qwLog("Loading database...");
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName("accounts.db");
-	if(!db.open()) {
-		qwLog(QString("Fatal: Could not open accounts.db. Reason: %1").arg(QSqlError(db.lastError()).text()));
-		exit(1);
-	} else {
-		pCore->pDatabase = db;
-
-		QSqlQuery query;
-		QStringList tmpTables = db.tables();
-		if(!tmpTables.contains("qw_news")) {
-			qDebug() << "[controller] Creating missing qw_new table.";
-			query.exec("CREATE TABLE qw_news (id INTEGER PRIMARY KEY, message TEXT, date TEXT, user TEXT, deleted INTEGER DEFAULT 0);");
-		}
-
-		if(!tmpTables.contains("qw_accounts")) {
-			qDebug() << "[controller] Creating missing qw_accounts table.";
-			query.exec("CREATE TABLE qw_accounts (id INTEGER PRIMARY KEY, login TEXT, password TEXT, groupname TEXT, privileges TEXT);");
-			query.exec("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES ('admin', '', 'admins', '1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1');");
-			query.exec("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES ('guest', '', '', '0:0:0:0:1:1:0:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0');");
-		}
-
-		// Import accounts from older configuration file
-		if(int index=tmpCmdArgs.indexOf("-iu") > -1) {
-			QFile tmpFile(tmpCmdArgs.value(index+1));
-			if(tmpFile.open(QIODevice::ReadOnly)) {
-				qwLog("Importing users from old-world file...");
-				query.exec("DELETE FROM qw_accounts;");
-				while(!tmpFile.atEnd()) {
-					QString tmpLine = tmpFile.readLine();
-					if(tmpLine.startsWith("#") || tmpLine.trimmed().isEmpty()) continue;
-					QStringList tmpRec = tmpLine.split(":");
-					query.prepare("INSERT INTO qw_accounts (login,password,groupname,privileges) VALUES (:login, :password, :groupname, :privileges);");
-					query.bindValue(":login", tmpLine.section(":",0,0));
-					query.bindValue(":password", tmpLine.section(":",1,1));
-					query.bindValue(":groupname", tmpLine.section(":",2,2));
-					query.bindValue(":privileges", tmpLine.section(":",3,-1).trimmed());
-					if(!query.exec()) qwLog(QString("SQL error: %1").arg(query.lastError().text()));
-					qwLog(QString("  Imported user %1").arg(tmpLine.section(":",0,0).trimmed()));
-				}
-			} else {
-				qwLog(QString("Error: Could not open old-world users file: %1").arg(tmpFile.errorString()));
-			}
-			exit(0);
-		}
-		
-
-		if(!tmpTables.contains("qw_groups")) {
-			qDebug() << "[controller] Creating missing qw_groups table.";
-			query.exec("CREATE TABLE qw_groups (id INTEGER PRIMARY KEY, groupname TEXT, privileges TEXT);");
-			query.exec("INSERT INTO qw_groups (groupname,privileges) VALUES ('admins', '1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1');");
-		}
-
-		// Import accounts from older configuration file
-		if(int index=tmpCmdArgs.indexOf("-ig") > -1) {
-			QFile tmpFile(tmpCmdArgs.value(index+1));
-			if(tmpFile.open(QIODevice::ReadOnly)) {
-				qwLog("Importing groups from old-world file...");
-				query.exec("DELETE FROM qw_groups;");
-				while(!tmpFile.atEnd()) {
-					QString tmpLine = tmpFile.readLine();
-					if(tmpLine.startsWith("#") || tmpLine.trimmed().isEmpty()) continue;
-					QStringList tmpRec = tmpLine.split(":");
-					query.prepare("INSERT INTO qw_groups (groupname,privileges) VALUES (:groupname, :privileges);");
-					query.bindValue(":groupname", tmpLine.section(":",0,0));
-					query.bindValue(":privileges", tmpLine.section(":",1,-1).trimmed());
-					if(!query.exec()) qwLog(QString("SQL error: %1").arg(query.lastError().text()));
-					qwLog(QString("  Imported group %1").arg(tmpLine.section(":",0,0)));
-				}
-			} else {
-				qwLog(QString("Error: Could not open old-world group file: %1").arg(tmpFile.errorString()));
-			}
-			exit(0);
-		}
-		
-		qDebug() << "Tables:"<<db.tables();
-	}
-}
-
-*/

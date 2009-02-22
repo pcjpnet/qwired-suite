@@ -31,15 +31,22 @@
 
 */
 
-#include "wiredsocket.h"
-#include "QwsServerController.h"
+/*! \class QwsClientSocket
+    \author Bastian Bense <bastibense@gmail.com>
+    \brief General client management and local data store access.
+    \date 2009-02-22
 
+*/
+
+#include "QwsClientSocket.h"
+#include "QwsServerController.h"
 #include "QwMessage.h"
 
 #include <QDateTime>
 #include <QDirIterator>
+#include <QtSql>
 
-WiredSocket::WiredSocket(QObject *parent) : QwSocket(parent)
+QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
 {
     qRegisterMetaType<QwMessage>();
 
@@ -58,7 +65,7 @@ WiredSocket::WiredSocket(QObject *parent) : QwSocket(parent)
 }
 
 
-WiredSocket::~WiredSocket()
+QwsClientSocket::~QwsClientSocket()
 {
     qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
 }
@@ -68,7 +75,7 @@ WiredSocket::~WiredSocket()
  * The idle timer was triggered. Check if the user is not idle and mark him/her
  * as idle. Afterwards a signal will be emitted so that other clients get updated.
  */
-void WiredSocket::idleTimerTriggered()
+void QwsClientSocket::idleTimerTriggered()
 {
     if(!pSessionUser.pIdle) {
         pSessionUser.pIdle = true;
@@ -79,7 +86,7 @@ void WiredSocket::idleTimerTriggered()
 
 /*!  The user shows some activity. Check if he/she is idle and un-idle.
 */
-void WiredSocket::resetIdleTimer()
+void QwsClientSocket::resetIdleTimer()
 {
     pIdleTimer->start();
     if(pSessionUser.pIdle) {
@@ -90,16 +97,16 @@ void WiredSocket::resetIdleTimer()
 
 
 // Called by the socket and indicates the an SSL error has occoured.
-void WiredSocket::on_socket_sslErrors(const QList<QSslError> & errors)
+void QwsClientSocket::on_socket_sslErrors(const QList<QSslError> & errors)
 {
-	qDebug() << "WiredSocket.on_socket_sslErrors(): "<<errors;
+        qDebug() << "QwsClientSocket.on_socket_sslErrors(): "<<errors;
 	pSocket->ignoreSslErrors();
 }
 
 
 /*! A socket error ocurred.
 */
-void WiredSocket::on_socket_error()
+void QwsClientSocket::on_socket_error()
 {
     qDebug() << "[qws] socket error:"<<pSocket->errorString()<<pSocket->error();
     disconnectClient();
@@ -111,108 +118,65 @@ void WiredSocket::on_socket_error()
     to emit a simple signal. This makes it easier to implement command checks and other things
     later on.
 */
-void WiredSocket::handleIncomingMessage(QwMessage message)
+void QwsClientSocket::handleIncomingMessage(QwMessage message)
 {
      qDebug() << "RECEIVED:" << message.commandName;
 
      // Handshaking/Protocol
-     if (message.commandName == "HELLO") {
-         handleMessageHELLO(message);
-     } else if (message.commandName == "CLIENT") {
-         handleMessageCLIENT(message);
-     } else if (message.commandName == "NICK") { /* TODO: broadcast update */
-         handleMessageNICK(message);
-     } else if (message.commandName == "PASS") { /* TODO: broadcast update */
-         handleMessagePASS(message);
-     } else if (message.commandName == "USER") {
-         handleMessageUSER(message);
-     } else if (message.commandName == "PING") {
-         handleMessagePING(message);
-     } else if (message.commandName == "STATUS") { /* TODO: broadcast update */
-         handleMessageSTATUS(message);
-     } else if (message.commandName == "WHO") {
-         handleMessageWHO(message);
-     } else if (message.commandName == "ICON") {
-         handleMessageICON(message);
-     } else if (message.commandName == "BANNER") {
-         handleMessageBANNER(message);
-     } else if (message.commandName == "INFO") {
-         handleMessageINFO(message);
-     } else if (message.commandName == "PRIVILEGES") {
-         handleMessagePRIVILEGES(message);
-
+     if (message.commandName == "HELLO") {             handleMessageHELLO(message);
+     } else if (message.commandName == "CLIENT") {     handleMessageCLIENT(message);
+     } else if (message.commandName == "NICK") {       handleMessageNICK(message);
+     } else if (message.commandName == "PASS") {       handleMessagePASS(message);
+     } else if (message.commandName == "USER") {       handleMessageUSER(message);
+     } else if (message.commandName == "PING") {       handleMessagePING(message);
+     } else if (message.commandName == "STATUS") {     handleMessageSTATUS(message);
+     } else if (message.commandName == "WHO") {        handleMessageWHO(message);
+     } else if (message.commandName == "ICON") {       handleMessageICON(message);
+     } else if (message.commandName == "BANNER") {     handleMessageBANNER(message);
+     } else if (message.commandName == "INFO") {       handleMessageINFO(message);
+     } else if (message.commandName == "PRIVILEGES") { handleMessagePRIVILEGES(message);
 
      // Communication
-     } else if (message.commandName == "SAY") {
-         handleMessageSAY(message);
-     } else if (message.commandName == "ME") {
-         handleMessageME(message);
-     } else if (message.commandName == "MSG") {
-         handleMessageMSG(message);
-     } else if (message.commandName == "BROADCAST") {
-         handleMessageBROADCAST(message);
-     } else if (message.commandName == "TOPIC") {
-         handleMessageTOPIC(message);
-     } else if (message.commandName == "PRIVCHAT") {
-         handleMessagePRIVCHAT(message);
-     } else if (message.commandName == "INVITE") {
-         handleMessageINVITE(message);
-     } else if (message.commandName == "JOIN") {
-         handleMessageJOIN(message);
-     } else if (message.commandName == "DECLINE") {
-         handleMessageDECLINE(message);
-     } else if (message.commandName == "LEAVE") {
-         handleMessageLEAVE(message);
+     } else if (message.commandName == "SAY") {        handleMessageSAY(message);
+     } else if (message.commandName == "ME") {         handleMessageME(message);
+     } else if (message.commandName == "MSG") {        handleMessageMSG(message);
+     } else if (message.commandName == "BROADCAST") {  handleMessageBROADCAST(message);
+     } else if (message.commandName == "TOPIC") {      handleMessageTOPIC(message);
+     } else if (message.commandName == "PRIVCHAT") {   handleMessagePRIVCHAT(message);
+     } else if (message.commandName == "INVITE") {     handleMessageINVITE(message);
+     } else if (message.commandName == "JOIN") {       handleMessageJOIN(message);
+     } else if (message.commandName == "DECLINE") {    handleMessageDECLINE(message);
+     } else if (message.commandName == "LEAVE") {      handleMessageLEAVE(message);
 
      // News
-     } else if (message.commandName == "NEWS") {
-         handleMessageNEWS(message);
-     } else if (message.commandName == "POST") {
-         handleMessagePOST(message);
-     } else if (message.commandName == "CLEARNEWS") {
-         handleMessageCLEARNEWS(message);
+     } else if (message.commandName == "NEWS") {       handleMessageNEWS(message);
+     } else if (message.commandName == "POST") {       handleMessagePOST(message);
+     } else if (message.commandName == "CLEARNEWS") {  handleMessageCLEARNEWS(message);
 
      // Administration
-     } else if (message.commandName == "KICK") {
-         handleMessageKICK(message);
-     } else if (message.commandName == "BAN") {
-         handleMessageBAN(message);
-     } else if (message.commandName == "USERS") {
-         handleMessageUSERS(message);
-     } else if (message.commandName == "GROUPS") {
-         handleMessageGROUPS(message);
-     } else if (message.commandName == "READUSER") {
-         handleMessageREADUSER(message);
-     } else if (message.commandName == "EDITUSER") {
-         handleMessageEDITUSER(message);
-     } else if (message.commandName == "CREATEUSER") {
-         handleMessageCREATEUSER(message);
-     } else if (message.commandName == "DELETEUSER") {
-         handleMessageDELETEUSER(message);
-     } else if (message.commandName == "READGROUP") {
-         handleMessageREADGROUP(message);
-     } else if (message.commandName == "CREATEGROUP") {
-         handleMessageCREATEGROUP(message);
-     } else if (message.commandName == "EDITGROUP") {
-         handleMessageEDITGROUP(message);
-     } else if (message.commandName == "DELETEGROUP") {
-         handleMessageDELETEGROUP(message);
-
+     } else if (message.commandName == "KICK") {       handleMessageKICK(message);
+     } else if (message.commandName == "BAN") {        handleMessageBAN(message);
+     } else if (message.commandName == "USERS") {      handleMessageUSERS(message);
+     } else if (message.commandName == "GROUPS") {     handleMessageGROUPS(message);
+     } else if (message.commandName == "READUSER") {   handleMessageREADUSER(message);
+     } else if (message.commandName == "EDITUSER") {   handleMessageEDITUSER(message);
+     } else if (message.commandName == "CREATEUSER") { handleMessageCREATEUSER(message);
+     } else if (message.commandName == "DELETEUSER") { handleMessageDELETEUSER(message);
+     } else if (message.commandName == "READGROUP") {  handleMessageREADGROUP(message);
+     } else if (message.commandName == "CREATEGROUP"){ handleMessageCREATEGROUP(message);
+     } else if (message.commandName == "EDITGROUP") {  handleMessageEDITGROUP(message);
+     } else if (message.commandName == "DELETEGROUP"){ handleMessageDELETEGROUP(message);
 
      // Files
-    } else if (message.commandName == "LIST") {
-        handleMessageLIST(message);
-    } else if (message.commandName == "STAT") {
-        handleMessageSTAT(message);
+    } else if (message.commandName == "LIST") {        handleMessageLIST(message);
+    } else if (message.commandName == "STAT") {        handleMessageSTAT(message);
     }
-
  }
-
 
 
  /*! HELLO command (Handshake request)
  */
- void WiredSocket::handleMessageHELLO(QwMessage &message)
+ void QwsClientSocket::handleMessageHELLO(QwMessage &message)
  {
      Q_UNUSED(message);
      qDebug() << this << "Received a HELLO handshake request.";
@@ -224,7 +188,7 @@ void WiredSocket::handleIncomingMessage(QwMessage message)
 
  /*! CLIENT command (Client software version and name)
  */
- void WiredSocket::handleMessageCLIENT(QwMessage &message)
+ void QwsClientSocket::handleMessageCLIENT(QwMessage &message)
  {
      qDebug() << this << "Received client information.";
      user.pClientVersion = message.getStringArgument(0);
@@ -233,7 +197,7 @@ void WiredSocket::handleIncomingMessage(QwMessage message)
 
  /*! NICK command (User nickname)
  */
- void WiredSocket::handleMessageNICK(QwMessage &message)
+ void QwsClientSocket::handleMessageNICK(QwMessage &message)
  {
      qDebug() << this << "Received user nickname.";
      user.userNickname = message.getStringArgument(0);
@@ -247,7 +211,7 @@ void WiredSocket::handleIncomingMessage(QwMessage message)
      authentication and causes the server to check the password and login, also load the specific
      account information from the database and tell all other clients that a user has logged in.
  */
- void WiredSocket::handleMessagePASS(QwMessage &message)
+ void QwsClientSocket::handleMessagePASS(QwMessage &message)
  {
      if (sessionState == Qws::StateConnected && !user.userNickname.isEmpty()) {
          // We need a handshake first and a nickname. Send the client the session id of its own
@@ -271,16 +235,16 @@ void WiredSocket::handleIncomingMessage(QwMessage message)
 
  /*! USER command (User login name)
  */
- void WiredSocket::handleMessageUSER(QwMessage &message)
+ void QwsClientSocket::handleMessageUSER(QwMessage &message)
  {
      qDebug() << this << "Received user login name:" << message.getStringArgument(0);
-     user.userLogin = message.getStringArgument(0);
+     user.name = message.getStringArgument(0);
  }
 
 
  /*! PING command (Keep-alive request)
  */
- void WiredSocket::handleMessagePING(QwMessage &message)
+ void QwsClientSocket::handleMessagePING(QwMessage &message)
  {
      Q_UNUSED(message);
      sendMessage(QwMessage("202 Pong"));
@@ -289,7 +253,7 @@ void WiredSocket::handleIncomingMessage(QwMessage message)
 
  /*! STATUS command (Keep-alive request)
  */
- void WiredSocket::handleMessageSTATUS(QwMessage &message)
+ void QwsClientSocket::handleMessageSTATUS(QwMessage &message)
  {
      qDebug() << this << "Received user status:" << message.getStringArgument(0);
      user.userStatus = message.getStringArgument(0);
@@ -301,7 +265,7 @@ void WiredSocket::handleIncomingMessage(QwMessage message)
 
  /*! WHO command (User list request)
  */
- void WiredSocket::handleMessageWHO(QwMessage &message)
+ void QwsClientSocket::handleMessageWHO(QwMessage &message)
  {
      int roomId = message.getStringArgument(0).toInt();
      qDebug() << this << "Requested user list for room #" << roomId;
@@ -311,7 +275,7 @@ void WiredSocket::handleIncomingMessage(QwMessage message)
 
 /*! ICON command (Set user icon)
 */
-void WiredSocket::handleMessageICON(QwMessage &message)
+void QwsClientSocket::handleMessageICON(QwMessage &message)
 {
     qDebug() << this << "Received icon and image";
     if (user.pIcon != message.getStringArgument(0).toInt()) {
@@ -337,7 +301,7 @@ void WiredSocket::handleMessageICON(QwMessage &message)
 
 /*! BANNER command (banner data request)
 */
-void WiredSocket::handleMessageBANNER(QwMessage &message)
+void QwsClientSocket::handleMessageBANNER(QwMessage &message)
 {
     Q_UNUSED(message);
     QSqlQuery query("SELECT conf_value FROM qws_config WHERE conf_key='server/banner'");
@@ -355,7 +319,7 @@ void WiredSocket::handleMessageBANNER(QwMessage &message)
 
 /*! INFO command (Get user info)
 */
-void WiredSocket::handleMessageINFO(QwMessage &message)
+void QwsClientSocket::handleMessageINFO(QwMessage &message)
 {
     emit requestedClientInfo(message.getStringArgument(0).toInt());
 }
@@ -363,8 +327,10 @@ void WiredSocket::handleMessageINFO(QwMessage &message)
 
 /*! PRIVILEGES command (get privileges mask)
 */
-void WiredSocket::handleMessagePRIVILEGES(QwMessage &message)
+void QwsClientSocket::handleMessagePRIVILEGES(QwMessage &message)
 {
+    Q_UNUSED(message);
+
     QwMessage reply("602");
     reply.appendArg("1"); reply.appendArg("1");
     reply.appendArg("1"); reply.appendArg("1");
@@ -390,7 +356,7 @@ void WiredSocket::handleMessagePRIVILEGES(QwMessage &message)
 
 /*! SAY command (Relay chat to room)
 */
-void WiredSocket::handleMessageSAY(QwMessage &message)
+void QwsClientSocket::handleMessageSAY(QwMessage &message)
 {
      emit requestedChatRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1), false);
 }
@@ -398,7 +364,7 @@ void WiredSocket::handleMessageSAY(QwMessage &message)
 
 /*! ME command (Relay chat to room as emote)
 */
- void WiredSocket::handleMessageME(QwMessage &message)
+ void QwsClientSocket::handleMessageME(QwMessage &message)
 {
      emit requestedChatRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1), true);
 }
@@ -406,7 +372,7 @@ void WiredSocket::handleMessageSAY(QwMessage &message)
 
 /*! MSG command (Relay private message to other user)
 */
-void WiredSocket::handleMessageMSG(QwMessage &message)
+void QwsClientSocket::handleMessageMSG(QwMessage &message)
 {
      emit requestedMessageRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1));
 }
@@ -414,7 +380,7 @@ void WiredSocket::handleMessageMSG(QwMessage &message)
 
 /*! BROADCAST command (Relay broadcast message to other users)
 */
-void WiredSocket::handleMessageBROADCAST(QwMessage &message)
+void QwsClientSocket::handleMessageBROADCAST(QwMessage &message)
 {
     QwMessage reply("309");
     reply.appendArg(QString::number(user.pUserID));
@@ -425,7 +391,7 @@ void WiredSocket::handleMessageBROADCAST(QwMessage &message)
 
 /*! TOPIC command (Change topic of chat)
 */
-void WiredSocket::handleMessageTOPIC(QwMessage &message)
+void QwsClientSocket::handleMessageTOPIC(QwMessage &message)
 {
     qDebug() << this << "Changing topic of chat" << message.getStringArgument(0);
     emit requestedRoomTopicChange(message.getStringArgument(0).toInt(), message.getStringArgument(1));
@@ -434,7 +400,7 @@ void WiredSocket::handleMessageTOPIC(QwMessage &message)
 
 /*! PRIVCHAT command (Create a new chat room)
 */
-void WiredSocket::handleMessagePRIVCHAT(QwMessage &message)
+void QwsClientSocket::handleMessagePRIVCHAT(QwMessage &message)
 {
     Q_UNUSED(message);
     qDebug() << this << "Requested new chat room";
@@ -447,7 +413,7 @@ void WiredSocket::handleMessagePRIVCHAT(QwMessage &message)
     and automatically adds the inviting user to the room. After that it returns the ID of the
     new room and expects the user to send an INVITE command for another user(s).
 */
-void WiredSocket::handleMessageINVITE(QwMessage &message)
+void QwsClientSocket::handleMessageINVITE(QwMessage &message)
 {
     qDebug() << this << "Invited user to chat room" << message.getStringArgument(0);
     emit requestedUserInviteToRoom(message.getStringArgument(0).toInt(),
@@ -457,7 +423,7 @@ void WiredSocket::handleMessageINVITE(QwMessage &message)
 
 /*! JOIN command (Join a previously invited room)
 */
-void WiredSocket::handleMessageJOIN(QwMessage &message)
+void QwsClientSocket::handleMessageJOIN(QwMessage &message)
 {
     qDebug() << this << "Joining chat room" << message.getStringArgument(0);
     emit receivedMessageJOIN(message.getStringArgument(0).toInt());
@@ -466,7 +432,7 @@ void WiredSocket::handleMessageJOIN(QwMessage &message)
 
 /*! The user has declined an invitation to a private chat (0).
 */
-void WiredSocket::handleMessageDECLINE(QwMessage &message)
+void QwsClientSocket::handleMessageDECLINE(QwMessage &message)
 {
     qDebug() << this << "Declined room invitation" << message.getStringArgument(0);
     emit receivedMessageDECLINE(message.getStringArgument(0).toInt());
@@ -475,7 +441,7 @@ void WiredSocket::handleMessageDECLINE(QwMessage &message)
 
 /*! The user has left a chat room.
 */
-void WiredSocket::handleMessageLEAVE(QwMessage &message)
+void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 {
     qDebug() << this << "Left room" << message.getStringArgument(0);
     emit receivedMessageLEAVE(message.getStringArgument(0).toInt());
@@ -486,7 +452,7 @@ void WiredSocket::handleMessageLEAVE(QwMessage &message)
 
  /*! NEWS command (News list request)
  */
- void WiredSocket::handleMessageNEWS(QwMessage &message)
+ void QwsClientSocket::handleMessageNEWS(QwMessage &message)
  {
      Q_UNUSED(message);
      qDebug() << this << "Requested news";
@@ -511,13 +477,13 @@ void WiredSocket::handleMessageLEAVE(QwMessage &message)
 
  /*! POST command (News list request)
  */
- void WiredSocket::handleMessagePOST(QwMessage &message)
+ void QwsClientSocket::handleMessagePOST(QwMessage &message)
  {
      qDebug() << this << "Posted news";
      QSqlQuery query;
      query.prepare("INSERT INTO qws_news (news_username, news_date, news_text) "
                    "VALUES (:_login, :_date, :_text)");
-     query.bindValue(":_login", QString("%1 [%2]").arg(user.userNickname).arg(user.userLogin));
+     query.bindValue(":_login", QString("%1 [%2]").arg(user.userNickname).arg(user.name));
      query.bindValue(":_date", QDateTime::currentDateTime().toTimeSpec(Qt::UTC).toString(Qt::ISODate));
      query.bindValue(":_text", message.getStringArgument(0));
 
@@ -539,7 +505,7 @@ void WiredSocket::handleMessageLEAVE(QwMessage &message)
 
  /*! CLEARNEWS command (clear news list request)
  */
- void WiredSocket::handleMessageCLEARNEWS(QwMessage &message)
+ void QwsClientSocket::handleMessageCLEARNEWS(QwMessage &message)
  {
      Q_UNUSED(message);
      qDebug() << this << "Cleared news";
@@ -557,7 +523,7 @@ void WiredSocket::handleMessageLEAVE(QwMessage &message)
 
 /*! BAN (ban user from server)
 */
-void WiredSocket::handleMessageBAN(QwMessage &message)
+void QwsClientSocket::handleMessageBAN(QwMessage &message)
 {
     qDebug() << this << "Banning user"<<message.getStringArgument(0)<<"from server";
     emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
@@ -567,7 +533,7 @@ void WiredSocket::handleMessageBAN(QwMessage &message)
 
 /*! KICK (user from server) - same as ban without the ban
 */
-void WiredSocket::handleMessageKICK(QwMessage &message)
+void QwsClientSocket::handleMessageKICK(QwMessage &message)
 {
     qDebug() << this << "Kicking user"<<message.getStringArgument(0)<<"from server";
     emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
@@ -577,8 +543,9 @@ void WiredSocket::handleMessageKICK(QwMessage &message)
 
 /*! USERS (list user accounts)
 */
-void WiredSocket::handleMessageUSERS(QwMessage &message)
+void QwsClientSocket::handleMessageUSERS(QwMessage &message)
 {
+    Q_UNUSED(message);
     qDebug() << this << "Listing user accounts";
 
     QSqlQuery query;
@@ -604,8 +571,9 @@ void WiredSocket::handleMessageUSERS(QwMessage &message)
 
 /*! GROUPS (list user accounts)
 */
-void WiredSocket::handleMessageGROUPS(QwMessage &message)
+void QwsClientSocket::handleMessageGROUPS(QwMessage &message)
 {
+    Q_UNUSED(message);
     qDebug() << this << "Listing groups";
 
     QSqlQuery query;
@@ -631,219 +599,139 @@ void WiredSocket::handleMessageGROUPS(QwMessage &message)
 
 /*! READUSER (requested details of user account)
 */
-void WiredSocket::handleMessageREADUSER(QwMessage &message)
+void QwsClientSocket::handleMessageREADUSER(QwMessage &message)
 {
     qDebug() << this << "Reading user" << message.getStringArgument(0);
-
-    QSqlQuery query;
-    query.prepare("SELECT id, acc_secret, acc_privileges, acc_group  FROM qws_accounts WHERE acc_name=:_name LIMIT 1");
-    query.bindValue(":_name", message.getStringArgument(0));
-    if (!query.exec()) {
-        qDebug() << this << "Unable to find user account:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
-    } else {
-        if (!query.size()) {
-            // Account not found
-            sendError(Qws::ErrorAccountNotFound);
-            return;
-        }
-        query.first();
+    QwsUser targetAccount;
+    targetAccount.name = message.getStringArgument(0);
+    if (targetAccount.loadFromDatabase()) {
         QwMessage reply("600");
-        reply.appendArg(message.getStringArgument(0)); // account name
-        reply.appendArg(query.value(1).toString()); // password
-        reply.appendArg(query.value(3).toString()); // group name
-
-        // We create a dummy user account to ease the management of the privileges flags
-        ClassWiredUser dummyUser;
-        dummyUser.setPrivilegesFromQwiredSpec(query.value(2).toString());
-        dummyUser.appendPrivilegeFlagsForREADUSER(reply);
-
+        reply.appendArg(targetAccount.name);
+        reply.appendArg(targetAccount.pPassword);
+        reply.appendArg(targetAccount.pGroupName);
+        targetAccount.appendPrivilegeFlagsForREADUSER(reply);
         sendMessage(reply);
+    } else {
+        sendError(Qws::ErrorAccountNotFound);
     }
 }
 
 
 /*! EDITUSER (write changes to user account)
 */
-void WiredSocket::handleMessageEDITUSER(QwMessage &message)
+void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
 {
     qDebug() << this << "Editing user" << message.getStringArgument(0);
-
-    QSqlQuery query;
-    query.prepare("UPDATE qws_accounts SET "
-                  "acc_secret=:_secret, acc_privileges=:_privileges, acc_group=:_group "
-                  "WHERE acc_name=:_name");
-    query.bindValue(":_name", message.getStringArgument(0));
-    query.bindValue(":_secret", message.getStringArgument(1));
-    query.bindValue(":_group", message.getStringArgument(2));
-    ClassWiredUser dummyUser;
-    dummyUser.setPrivilegesFromEDITUSER(message, 3);
-    query.bindValue(":_privileges", dummyUser.privilegesFlagsAsQwiredSpec());
-    if (!query.exec()) {
-        qDebug() << this << "Unable to edit user account:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
+    QwsUser targetAccount;
+    targetAccount.name = message.getStringArgument(0);
+    if (!targetAccount.loadFromDatabase()) {
+        // User does not exist (or error)
+        sendError(Qws::ErrorAccountNotFound);
     } else {
-        if (!query.numRowsAffected()) {
+        targetAccount.setPrivilegesFromEDITUSER(message, 3);
+        if (!targetAccount.writeToDatabase()) {
             sendError(Qws::ErrorAccountNotFound);
         }
     }
 }
 
 
-
-
-
 /*! CREATEUSER (create a new account)
 */
-void WiredSocket::handleMessageCREATEUSER(QwMessage &message)
+void QwsClientSocket::handleMessageCREATEUSER(QwMessage &message)
 {
     qDebug() << this << "Creating user" << message.getStringArgument(0);
-
-    // Check if the user already exists. If it does not exist, create it and call an update
-    // on the fresh account.
-    QSqlQuery query;
-    query.prepare("SELECT 1 FROM qws_accounts WHERE acc_name=:_name");
-    query.bindValue(":_name", message.getStringArgument(0));
-     if (!query.exec()) {
-        qDebug() << this << "Unable to create (check) user account:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
+    QwsUser targetUser;
+    targetUser.name = message.getStringArgument(0);
+    if (targetUser.loadFromDatabase()) {
+        // User exists already!
+        sendError(Qws::ErrorAccountExists);
     } else {
-        query.first();
-        if (query.isValid()) {
-            // Account already exists
-            sendError(Qws::ErrorAccountExists);
+        // Create account and update it
+        QSqlQuery query;
+        query.prepare("INSERT INTO qws_accounts (acc_name) VALUES (:_name)");
+        query.bindValue(":_name", message.getStringArgument(0));
+        if (!query.exec()) {
+            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
+            sendError(Qws::ErrorComandFailed);
             return;
-        } else {
-            // Create the new account and call EDITUSER to update it
-            query.clear();
-            query.prepare("INSERT INTO qws_accounts (acc_name) VALUES (:_name)");
-            query.bindValue(":_name", message.getStringArgument(0));
-            if (!query.exec()) {
-                qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
-                sendError(Qws::ErrorComandFailed);
-                return;
-            }
-            // Now update the fresh account
-            handleMessageEDITUSER(message);
         }
+        handleMessageEDITUSER(message);
     }
 }
 
 
 /*! DELETEUSER (delete user account)
 */
-void WiredSocket::handleMessageDELETEUSER(QwMessage &message)
+void QwsClientSocket::handleMessageDELETEUSER(QwMessage &message)
 {
     qDebug() << this << "Editing user" << message.getStringArgument(0);
-
-    QSqlQuery query;
-    query.prepare("DELETE FROM qws_accounts WHERE acc_name=:_name");
-    query.bindValue(":_name", message.getStringArgument(0));
-    if (!query.exec()) {
-        qDebug() << this << "Unable to delete user account:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
-    } else {
-        if (!query.numRowsAffected()) {
-            sendError(Qws::ErrorAccountNotFound);
-        }
+    QwsUser targetAccount;
+    targetAccount.name = message.getStringArgument(0);
+    if (!targetAccount.deleteFromDatabase()) {
+        sendError(Qws::ErrorAccountNotFound);
     }
 }
 
 
 /*! READGROUP (requested details of user group)
 */
-void WiredSocket::handleMessageREADGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageREADGROUP(QwMessage &message)
 {
     qDebug() << this << "Reading group" << message.getStringArgument(0);
-
-    QSqlQuery query;
-    query.prepare("SELECT id, group_name, group_privs FROM qws_groups WHERE group_name=:_name LIMIT 1");
-    query.bindValue(":_name", message.getStringArgument(0));
-    if (!query.exec()) {
-        qDebug() << this << "Unable to find user account:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
+    QwsUser targetGroup;
+    targetGroup.name = message.getStringArgument(0);
+    targetGroup.userType = Qws::UserTypeGroup;
+    if (!targetGroup.loadFromDatabase()) {
+        sendError(Qws::ErrorAccountNotFound);
     } else {
-        if (!query.size()) {
-            sendError(Qws::ErrorAccountNotFound);
-            return;
-        }
-        query.first();
-        QwMessage reply("601");
-        reply.appendArg(message.getStringArgument(0)); // group name
-
-        // We create a dummy user account to ease the management of the privileges flags
-        ClassWiredUser dummyUser;
-        dummyUser.setPrivilegesFromQwiredSpec(query.value(2).toString());
-        dummyUser.appendPrivilegeFlagsForREADUSER(reply);
-
-        sendMessage(reply);
+         QwMessage reply("601");
+         reply.appendArg(targetGroup.name);
+         targetGroup.appendPrivilegeFlagsForREADUSER(reply);
+         sendMessage(reply);
     }
 }
 
 
 /*! CREATEGROUP (create a new group)
 */
-void WiredSocket::handleMessageCREATEGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageCREATEGROUP(QwMessage &message)
 {
     qDebug() << this << "Creating group" << message.getStringArgument(0);
-
-    // Check if the group already exists. If it does not exist, create it and call an update
-    // on the fresh group record.
-    QSqlQuery query;
-    query.prepare("SELECT 1 FROM qws_groups WHERE group_name=:_name");
-    query.bindValue(":_name", message.getStringArgument(0));
-     if (!query.exec()) {
-        qDebug() << this << "Unable to create (check) group:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
+    QwsUser targetGroup;
+    targetGroup.userType = Qws::UserTypeGroup;
+    targetGroup.name = message.getStringArgument(0);
+    if (targetGroup.loadFromDatabase()) {
+        // User exists already!
+        sendError(Qws::ErrorAccountExists);
     } else {
-        query.first();
-        if (query.isValid()) {
-            // Group already exists
-            sendError(Qws::ErrorAccountExists);
+        // Create account and update it
+        QSqlQuery query;
+        query.prepare("INSERT INTO qws_groups (group_name) VALUES (:_name)");
+        query.bindValue(":_name", targetGroup.name);
+        if (!query.exec()) {
+            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
+            sendError(Qws::ErrorComandFailed);
             return;
-        } else {
-            // Create the new account and call EDITGROUP to update it
-            query.clear();
-            query.prepare("INSERT INTO qws_groups (group_name) VALUES (:_name)");
-            query.bindValue(":_name", message.getStringArgument(0));
-            if (!query.exec()) {
-                qDebug() << this << "Unable to create (insert) group account:" << query.lastError().text();
-                sendError(Qws::ErrorComandFailed);
-                return;
-            }
-            // Now update the fresh account
-            handleMessageEDITGROUP(message);
         }
+        handleMessageEDITGROUP(message);
     }
 }
 
 
 /*! EDITGROUP (write changes to user group)
 */
-void WiredSocket::handleMessageEDITGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
 {
     qDebug() << this << "Editing group" << message.getStringArgument(0);
-
-    QSqlQuery query;
-    query.prepare("UPDATE qws_groups SET group_privs=:_privs WHERE group_name=:_name");
-    query.bindValue(":_name", message.getStringArgument(0));
-
-    ClassWiredUser dummyUser;
-    dummyUser.setPrivilegesFromEDITUSER(message, 1);
-    query.bindValue(":_privs", dummyUser.privilegesFlagsAsQwiredSpec());
-
-    if (!query.exec()) {
-        qDebug() << this << "Unable to edit user group:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
+    QwsUser targetGroup;
+    targetGroup.name = message.getStringArgument(0);
+    targetGroup.userType = Qws::UserTypeGroup;
+    if (!targetGroup.loadFromDatabase()) {
+        sendError(Qws::ErrorAccountNotFound);
     } else {
-        if (!query.numRowsAffected()) {
+        targetGroup.setPrivilegesFromEDITUSER(message, 1);
+        if (!targetGroup.writeToDatabase()) {
             sendError(Qws::ErrorAccountNotFound);
         }
     }
@@ -852,21 +740,14 @@ void WiredSocket::handleMessageEDITGROUP(QwMessage &message)
 
 /*! DELETEGROUP (delete user group)
 */
-void WiredSocket::handleMessageDELETEGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
 {
     qDebug() << this << "Deleting group" << message.getStringArgument(0);
-
-    QSqlQuery query;
-    query.prepare("DELETE FROM qws_groups WHERE group_name=:_name");
-    query.bindValue(":_name", message.getStringArgument(0));
-    if (!query.exec()) {
-        qDebug() << this << "Unable to delete user group:" << query.lastError().text();
-        sendError(Qws::ErrorComandFailed);
-        return;
-    } else {
-        if (!query.numRowsAffected()) {
-            sendError(Qws::ErrorAccountNotFound);
-        }
+    QwsUser targetGroup;
+    targetGroup.name = message.getStringArgument(0);
+    targetGroup.userType = Qws::UserTypeGroup;
+    if (!targetGroup.deleteFromDatabase()) {
+        sendError(Qws::ErrorAccountNotFound);
     }
 }
 
@@ -875,7 +756,7 @@ void WiredSocket::handleMessageDELETEGROUP(QwMessage &message)
 
 /*! LIST (list files)
 */
-void WiredSocket::handleMessageLIST(QwMessage &message)
+void QwsClientSocket::handleMessageLIST(QwMessage &message)
 {
     QDir userRootDir(filesRootPath);
     QString pathRequested = message.getStringArgument(0);
@@ -935,7 +816,7 @@ void WiredSocket::handleMessageLIST(QwMessage &message)
 
 /*! STAT (return file/dir information)
 */
-void WiredSocket::handleMessageSTAT(QwMessage &message)
+void QwsClientSocket::handleMessageSTAT(QwMessage &message)
 {
     QDir filesRootDir(filesRootPath);
     QString pathRequested = message.getStringArgument(0);
@@ -978,42 +859,11 @@ void WiredSocket::handleMessageSTAT(QwMessage &message)
 /* === PRIVATE SLOTS === */
 
 
-/*! Send a userlist item to the client. This includes some information about the client. The whole
-     request is completed with the sendUserlistDone() call.
-*/
-void WiredSocket::sendUserlistItem(const int roomId, const ClassWiredUser &item)
-{
-     QwMessage reply("310");
-     reply.appendArg(QByteArray::number(roomId));
-     item.userListEntry(reply);
-     sendMessage(reply);
-}
-
-
-/*! See sendUserlistItem() for more information.
-*/
-void WiredSocket::sendUserlistDone(const int roomId)
-{
-    QwMessage reply("311");
-    reply.appendArg(QByteArray::number(roomId));
-    sendMessage(reply);
-}
-
-
-/*! Sends a 303-type message (client left).
-*/
-void WiredSocket::sendClientLeave(const int chatId, const int id)
-{
-    QwMessage reply("303");
-    reply.appendArg(QByteArray::number(chatId));
-    reply.appendArg(QByteArray::number(id));
-    sendMessage(reply);
-}
 
 
 /*! Send information about the server. Happens during handshake or asynchronously.
 */
-void WiredSocket::sendServerInfo()
+void QwsClientSocket::sendServerInfo()
 {
      QwMessage response("200");
      response.appendArg("1.0"); // app-version
@@ -1027,69 +877,22 @@ void WiredSocket::sendServerInfo()
 }
 
 
-/*! Send the chat topic to the client.
-*/
-void WiredSocket::sendChatTopic(const QwsRoom *chat)
-{
-    QwMessage reply("341");
-    reply.appendArg(QString::number(chat->pChatId));
-    reply.appendArg(chat->pTopicSetter.userNickname);
-    reply.appendArg(chat->pTopicSetter.userLogin);
-    reply.appendArg(chat->pTopicSetter.userIpAddress);
-    reply.appendArg(chat->pTopicDate.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-    reply.appendArg(chat->pTopic);
-    sendMessage(reply);
-}
-
 
 /*! The client needs to be removed from the server. Delete the socket and this object.
 */
-void WiredSocket::disconnectClient()
+void QwsClientSocket::disconnectClient()
 {
     qDebug() << this << "Called disconnectClient()";
-    emit clientDisconnected(pSessionUser.pUserID);
     pSocket->disconnectFromHost();
     this->deleteLater();
 }
 
 
-/*! Send a chat message for a specific room to the client. If \a isEmote is true, the message will
-    be sent as a 301-emote message, otherwise as 300-normal chat.
-*/
-void WiredSocket::sendChat(const int chatId, const int userId, const QString text, const bool isEmote)
-{
-    QwMessage reply(isEmote ? "301 " : "300 ");
-    reply.appendArg(QByteArray::number(chatId));
-    reply.appendArg(QByteArray::number(userId));
-    reply.appendArg(text.toUtf8());
-    sendMessage(reply);
-}
 
-
-/*! Notify that client that a user has joined the server (if chatId=1) o  a private chat.
-*/
-void WiredSocket::sendClientJoin(const int chatId, const ClassWiredUser &user)
-{
-    QwMessage reply("302");
-    reply.appendArg(QByteArray::number(chatId));
-    user.userListEntry(reply);
-    sendMessage(reply);
-}
-
-
-/*! Deliver a private message to this user.
-*/
-void WiredSocket::sendPrivateMessage(const int userId, const QString text)
-{
-    QwMessage reply("305");
-    reply.appendArg(QByteArray::number(userId));
-    reply.appendArg(text.toUtf8());
-    sendMessage(reply);
-}
 
 /*! Send an error message to the client if something goes wrong.
 */
-void WiredSocket::sendError(const Qws::ProtocolError error)
+void QwsClientSocket::sendError(const Qws::ProtocolError error)
 {
     QByteArray errorString;
     switch (error) {
@@ -1118,7 +921,7 @@ void WiredSocket::sendError(const Qws::ProtocolError error)
 /*! This method returns the local disk path of a file or directory depending on the user's root
     directory.
 */
-QString WiredSocket::localPathFromVirtualPath(const QString &path)
+QString QwsClientSocket::localPathFromVirtualPath(const QString &path)
 {
     return QDir(filesRootPath+QDir::separator()+path).absolutePath();
 }

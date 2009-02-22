@@ -26,7 +26,7 @@
 
 #include "QwsRoom.h"
 #include "QwMessage.h"
-#include "classwireduser.h"
+#include "QwsUser.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
@@ -41,7 +41,7 @@ public:
     QList<int> pUsers;
     QList<int> pInvitedUsers;
     QString pTopic;
-    ClassWiredUser pTopicSetter;
+    QwsUser pTopicSetter;
     QDateTime pTopicDate;
 
 

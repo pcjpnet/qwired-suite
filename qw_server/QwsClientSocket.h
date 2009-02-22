@@ -22,16 +22,14 @@
 #ifndef WIREDSOCKET_H
 #define WIREDSOCKET_H
 
-#include "classwireduser.h"
-#include "classwiredfile.h"
+#include "QwsUser.h"
+#include "QwsFile.h"
+#include "QwSocket.h"
+#include "QwsRoom.h"
 
 #include <QtCore>
 #include <QtNetwork>
 
-#include "QwSocket.h"
-#include "QwsRoom.h"
-
-#include "classwireduser.h"
 
 namespace Qws {
     enum SessionState { StateInactive /*! TCP-unknown, no handshake, not logged in */,
@@ -59,35 +57,32 @@ namespace Qws {
 
 
 
-/*! \class WiredSocket
+/*! \class QwsClientSocket
     \author Bastian Bense <bb@bense.de>
 
 */
 
 Q_DECLARE_METATYPE(Qws::SessionState);
 
-const int kEOF = 0x04;
-const int kFS = 0x1C;
 
-class WiredSocket : public QwSocket
+class QwsClientSocket : public QwSocket
 {
     friend class QwsServerController;
-
     Q_OBJECT
 
 public:
-    WiredSocket(QObject *parent = 0);
-    ~WiredSocket();
+    QwsClientSocket(QObject *parent = 0);
+    ~QwsClientSocket();
 
-    ClassWiredUser sessionUser() { return pSessionUser; };
+    QwsUser sessionUser() { return pSessionUser; };
     int userId() { return pSessionUser.pUserID; }
     bool pLoggedIn;
     bool isLoggedIn() { return pLoggedIn; };
-    ClassWiredUser pSessionUser;
-    QTimer* pIdleTimer;
+    QwsUser pSessionUser;
+    QTimer *pIdleTimer;
 
     /*! This is an instace representing the user account and information for this connection. */
-    ClassWiredUser user;
+    QwsUser user;
 
     /*! Defines the root path of the files directory for this connection. */
     QString filesRootPath;
@@ -127,133 +122,76 @@ signals:
     /*! This signal is emitted when the client kicked/banned another user. */
     void receivedMessageBAN_KICK(const int userId, const QString reason, const bool isBan);
 
-		void clearedNews(const int id);
-		void clientDisconnected(const int id);
-		void createdUser(const int id, const ClassWiredUser user);
-		void createdGroup(const int id, const ClassWiredUser group);
-		void editedUser(const int id, const ClassWiredUser user);
-		void editedGroup(const int id, const ClassWiredUser group);
-		void deletedUser(const int id, const QString name);
-		void deletedGroup(const int id, const QString name);
-		void declinedPrivateChat(const int id, const int chatId);
-		void handshakeComplete(const int id);
-		void invitedUserToChat(const int id, const int userId, const int chatId);
-		void joinedPrivateChat(const int id, const int chatId);
-		void loginReceived(const int id, QString login, QString password);
-		void newsPosted(const int id, const QString news);
-		void privateChatLeft(const int id, const int chatId);
-		void receivedClientInfo(const int id, const QString info);
-
-
-                void requestedAccountsList(const int id);
-		void requestedBanner(const int id);
-		void requestedFileList(const int id, const QString path);
-		void requestedFileStat(const int id, const QString path);
-		void requestedGroupsList(const int id);
-		void requestedNews(const int id);
-		void requestedPrivateChat(const int id);
-		void requestedReadUser(const int id, const QString name);
-		void requestedReadGroup(const int id, const QString name);
-		void requestedUserInfo(const int id, const int userId);
-
-		void topicChanged(const ClassWiredUser user, const int chatId, const QString topic);
-		void userImageChanged(const ClassWiredUser user);
-		void userKicked(const int id, const int userId, const QString reason, const bool banned);
-
-		
 
 		
 public slots:
-    void sendUserlistItem(const int roomId, const ClassWiredUser &item);
-    void sendUserlistDone(const int roomId);
-    void sendClientJoin(const int chatId, const ClassWiredUser &user);
-    void sendChat(const int chatId, const int userId, const QString text, const bool isEmote);
     void sendError(const Qws::ProtocolError error);
     void sendServerInfo();
-    void sendChatTopic(const QwsRoom *chat);
+    void disconnectClient();
+    void idleTimerTriggered();
 
 
+private slots:
+    void handleIncomingMessage(QwMessage message);
 
-		void disconnectClient();
-		
+    // Protocol
+    void handleMessageHELLO(QwMessage &message);
+    void handleMessageCLIENT(QwMessage &message);
+    void handleMessageNICK(QwMessage &message);
+    void handleMessagePASS(QwMessage &message);
+    void handleMessageUSER(QwMessage &message);
+    void handleMessagePING(QwMessage &message);
+    void handleMessageSTATUS(QwMessage &message);
+    void handleMessageWHO(QwMessage &message);
+    void handleMessageICON(QwMessage &message);
+    void handleMessageBANNER(QwMessage &message);
+    void handleMessageINFO(QwMessage &message);
+    void handleMessagePRIVILEGES(QwMessage &message);
 
-		void sendClientLeave(const int chatId, const int id);
+    // Communication
+    void handleMessageSAY(QwMessage &message);
+    void handleMessageME(QwMessage &message);
+    void handleMessageMSG(QwMessage &message);
+    void handleMessageBROADCAST(QwMessage &message);
+    void handleMessageTOPIC(QwMessage &message);
+    void handleMessagePRIVCHAT(QwMessage &message);
+    void handleMessageINVITE(QwMessage &message);
+    void handleMessageJOIN(QwMessage &message);
+    void handleMessageDECLINE(QwMessage &message);
+    void handleMessageLEAVE(QwMessage &message);
 
-		void sendPrivateMessage(const int userId, const QString text);
+    // News
+    void handleMessageNEWS(QwMessage &message);
+    void handleMessagePOST(QwMessage &message);
+    void handleMessageCLEARNEWS(QwMessage &message);
 
-		void idleTimerTriggered();
+    // Administration
+    void handleMessageKICK(QwMessage &message);
+    void handleMessageBAN(QwMessage &message);
+    void handleMessageUSERS(QwMessage &message);
+    void handleMessageGROUPS(QwMessage &message);
+    void handleMessageREADUSER(QwMessage &message);
+    void handleMessageEDITUSER(QwMessage &message);
+    void handleMessageCREATEUSER(QwMessage &message);
+    void handleMessageDELETEUSER(QwMessage &message);
+    void handleMessageREADGROUP(QwMessage &message);
+    void handleMessageCREATEGROUP(QwMessage &message);
+    void handleMessageEDITGROUP(QwMessage &message);
+    void handleMessageDELETEGROUP(QwMessage &message);
 
+    // Files
+    void handleMessageLIST(QwMessage &message);
+    void handleMessageSTAT(QwMessage &message);
 
-
-		
-	private slots:
-
-                void handleIncomingMessage(QwMessage message);
-
-                // Protocol
-                void handleMessageHELLO(QwMessage &message);
-                void handleMessageCLIENT(QwMessage &message);
-                void handleMessageNICK(QwMessage &message);
-                void handleMessagePASS(QwMessage &message);
-                void handleMessageUSER(QwMessage &message);
-                void handleMessagePING(QwMessage &message);
-                void handleMessageSTATUS(QwMessage &message);
-                void handleMessageWHO(QwMessage &message);
-                void handleMessageICON(QwMessage &message);
-                void handleMessageBANNER(QwMessage &message);
-                void handleMessageINFO(QwMessage &message);
-                void handleMessagePRIVILEGES(QwMessage &message);
-
-                // Communication
-                void handleMessageSAY(QwMessage &message);
-                void handleMessageME(QwMessage &message);
-                void handleMessageMSG(QwMessage &message);
-                void handleMessageBROADCAST(QwMessage &message);
-                void handleMessageTOPIC(QwMessage &message);
-                void handleMessagePRIVCHAT(QwMessage &message);
-                void handleMessageINVITE(QwMessage &message);
-                void handleMessageJOIN(QwMessage &message);
-                void handleMessageDECLINE(QwMessage &message);
-                void handleMessageLEAVE(QwMessage &message);
-
-                // News
-                void handleMessageNEWS(QwMessage &message);
-                void handleMessagePOST(QwMessage &message);
-                void handleMessageCLEARNEWS(QwMessage &message);
-
-
-                // Administration
-                void handleMessageKICK(QwMessage &message);
-                void handleMessageBAN(QwMessage &message);
-                void handleMessageUSERS(QwMessage &message);
-                void handleMessageGROUPS(QwMessage &message);
-                void handleMessageREADUSER(QwMessage &message);
-                void handleMessageEDITUSER(QwMessage &message);
-                void handleMessageCREATEUSER(QwMessage &message);
-                void handleMessageDELETEUSER(QwMessage &message);
-                void handleMessageREADGROUP(QwMessage &message);
-                void handleMessageCREATEGROUP(QwMessage &message);
-                void handleMessageEDITGROUP(QwMessage &message);
-                void handleMessageDELETEGROUP(QwMessage &message);
-
-                // Files
-                void handleMessageLIST(QwMessage &message);
-                void handleMessageSTAT(QwMessage &message);
+    void on_socket_sslErrors(const QList<QSslError> & errors);
+    void on_socket_error();
 
 
-
-		void on_socket_sslErrors(const QList<QSslError> & errors);
-		void on_socket_error();
-
-
-		
 private:
     /*! Defines the current state of the session/socket. */
     Qws::SessionState sessionState;
 
     QString localPathFromVirtualPath(const QString &path);
-
-
 
     void resetIdleTimer();
 
@@ -269,9 +207,7 @@ private:
     QByteArray pSendBuffer;
 
     QPointer<QSslSocket> pSocket;
-		
-		
-    
+
 };
 
 #endif

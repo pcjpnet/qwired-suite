@@ -24,20 +24,25 @@
 
 #include <QtCore>
 
-namespace Wired {
-	enum FileType { RegularFile, Directory, Uploads, DropBox };
+namespace Qws {
+        enum FileType { RegularFile,
+                        Directory,
+                        Uploads,
+                        DropBox };
 }
 
 /**
 	@author Bastian Bense <bastibense@gmail.com>
  */
-class ClassWiredFile {
+class QwsFile
+{
+
 public:
-    ClassWiredFile(QList<QByteArray> theParams);
-    ClassWiredFile();
-    ~ClassWiredFile();
+    QwsFile(QList<QByteArray> theParams);
+    QwsFile();
+    ~QwsFile();
     
-	static QString humanReadableSize(float theBytes);
+    static QString humanReadableSize(float theBytes);
     void setFromStat(QList<QByteArray> theParams);
 	
     
@@ -53,10 +58,10 @@ public:
     QString comment;
     
     QString fileName() const;
-	QIcon fileIcon() const;
+    QIcon fileIcon() const;
 
 };
 
-Q_DECLARE_METATYPE(ClassWiredFile)
+Q_DECLARE_METATYPE(QwsFile)
 
 #endif
