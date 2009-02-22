@@ -4,7 +4,7 @@
 = Qwired Server: Database Structure =
 
 == Privileges Flags ==
-Every account or group entry contains a mask field which defines the user's privileges.
+Every account or group entry contains a mask field which defines the user's privileges. The Qwired ignores unknown fields while reading, but if an account is modified via a client, unknown flags will be lost.
 
 || *Privilege* || *Key* ||
 || get-user-info || i ||
