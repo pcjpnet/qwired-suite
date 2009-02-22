@@ -86,7 +86,11 @@ public:
     ClassWiredUser pSessionUser;
     QTimer* pIdleTimer;
 
+    /*! This is an instace representing the user account and information for this connection. */
     ClassWiredUser user;
+
+    /*! Defines the root path of the files directory for this connection. */
+    QString filesRootPath;
 		
 		
 signals:
@@ -172,34 +176,11 @@ public slots:
 
 		void disconnectClient();
 		
-		void setClientInfo(const QString info);
-
-		void sendAccountListing(const QString name);
-		void sendAccountListingDone();
-		void sendGroupListing(const QString name);
-		void sendGroupListingDone();
-		void sendUserSpec(const ClassWiredUser account);
-		void sendGroupSpec(const ClassWiredUser group);
-
-		void sendFileListing(const ClassWiredFile file);
-		void sendFileListingDone(const QString path, const int free);
-		void sendFileStat(const ClassWiredFile file);
-		
-
-
-		void sendClientKicked(const int killerId, const int victimId, const QString reason, const bool banned);
-		void sendClientDeclinedChat(const int chatId, const int userId);
 
 		void sendClientLeave(const int chatId, const int id);
-		void sendInviteToChat(const int chatId, const int id);
 
 		void sendPrivateMessage(const int userId, const QString text);
-		void sendPrivateChatCreated(const int chatId);
-		void sendPrivileges();
 
-		
-		void sendUserInfo(const ClassWiredUser user);
-		
 		void idleTimerTriggered();
 
 
@@ -244,12 +225,24 @@ public slots:
                 // Administration
                 void handleMessageKICK(QwMessage &message);
                 void handleMessageBAN(QwMessage &message);
+                void handleMessageUSERS(QwMessage &message);
+                void handleMessageGROUPS(QwMessage &message);
+                void handleMessageREADUSER(QwMessage &message);
+                void handleMessageEDITUSER(QwMessage &message);
+                void handleMessageCREATEUSER(QwMessage &message);
+                void handleMessageDELETEUSER(QwMessage &message);
+                void handleMessageREADGROUP(QwMessage &message);
+                void handleMessageCREATEGROUP(QwMessage &message);
+                void handleMessageEDITGROUP(QwMessage &message);
+                void handleMessageDELETEGROUP(QwMessage &message);
 
+                // Files
+                void handleMessageLIST(QwMessage &message);
+                void handleMessageSTAT(QwMessage &message);
 
 
 
 		void on_socket_sslErrors(const QList<QSslError> & errors);
-		void handleWiredMessage(QByteArray theData);
 		void on_socket_error();
 
 
@@ -257,6 +250,9 @@ public slots:
 private:
     /*! Defines the current state of the session/socket. */
     Qws::SessionState sessionState;
+
+    QString localPathFromVirtualPath(const QString &path);
+
 
 
     void resetIdleTimer();

@@ -171,6 +171,8 @@ void QwsServerController::acceptSslConnection()
     connect(clientSocket, SIGNAL(receivedMessageBAN_KICK(int,QString,bool)),
             this, SLOT(handleMessageBAN_KICK(int,QString,bool)));
 
+    clientSocket->filesRootPath = getConfigurationParam("files/root", "./files").toString();
+
     sockets[clientSocket->user.pUserID] = clientSocket;
 }
 

@@ -319,7 +319,7 @@ void QwsConnection::inviteUserToChat(const int id, const int userId, const int c
  */
 void QwsConnection::sendUserInfo(const int id, const int userId) {
 //    if(!pClients.contains(userId)) { pClients[id]->sendErrorClientNotFound(); return; }
-    pClients[id]->sendUserInfo( pClients[userId]->sessionUser() );
+    //pClients[id]->sendUserInfo( pClients[userId]->sessionUser() );
 }
 
 

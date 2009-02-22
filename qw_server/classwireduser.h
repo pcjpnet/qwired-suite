@@ -38,6 +38,8 @@ public:
     static ClassWiredUser fromUserInfo( QList<QByteArray> theParams );
     ~ClassWiredUser();
 
+
+
     void setFromPrivileges(QList<QByteArray> theParams);
     void setPrivilegesFromAccount(const QString privileges);
 
@@ -45,6 +47,11 @@ public:
     void userListEntry(QwMessage &message) const;
     void userStatusEntry(QwMessage &message) const;
     void userInfoEntry(QwMessage &message) const;
+
+    void setPrivilegesFromQwiredSpec(const QString privileges);
+    QString privilegesFlagsAsQwiredSpec();
+    void appendPrivilegeFlagsForREADUSER(QwMessage &message);
+    void setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset);
 
     QString cryptedPassword();
 
@@ -98,6 +105,7 @@ public:
     int privDownloadLimit;
     int privUploadLimit;
     bool privChangeTopic;
+
 
 
 };
