@@ -38,11 +38,13 @@ class WidgetNews : public QWidget, private Ui::WidgetNews
 	private:
 		QColor pColorTitle;
 		QColor pColorText;
+                int newsCounter;
 		
 	public:
 		WidgetNews( QWidget *parent = 0 );
 		~WidgetNews();
 		QPointer<WidgetNewsPost> pWinPost;
+                int newsCount();
 		
 	signals:
 		void doRefreshNews();

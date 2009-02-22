@@ -11,18 +11,7 @@ bool ClassWiredEventFilter::eventFilter(QObject *obj, QEvent *event)
  {
      if(event->type() == QEvent::Close && pWiredSocket->pSocket->state() == QAbstractSocket::ConnectedState && pWiredSocket->pServerName != "") {
 
-        // Issue a confirmation dialog
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(pWiredSocket->pServerName);
-        msgBox.setText(tr("Are you sure you want to disconnect?"));
-        msgBox.setInformativeText(QString(tr("If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n")).arg(pWiredSocket->pServerName));
-        QPushButton *disconnectButton = msgBox.addButton(tr("Disconnect"), QMessageBox::ActionRole);
-        msgBox.addButton(tr("Abort"), QMessageBox::ActionRole);
-        msgBox.setDefaultButton(disconnectButton);
-        msgBox.exec();
-
-        // If user presses other than "Disconnect", we do nothing
-        if(msgBox.clickedButton() != disconnectButton) {
+        if(QMessageBox::question(0, tr("Disconnect"),tr("Are you sure you want to continue? If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n").arg(pWiredSocket->pServerName),QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
             event->ignore();
             return true;
         }
