@@ -31,6 +31,8 @@ WidgetNews::WidgetNews(QWidget *parent)
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 
+        newsCounter = 0;
+
 	// Notification manager
 	WiredSingleton *tmpS = &WSINGLETON::Instance();
 	connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
@@ -45,6 +47,7 @@ WidgetNews::~WidgetNews()
 void WidgetNews::reloadPreferences() {
 	initPrefs();
 	fNews->clear();
+        newsCounter = 0;
 	emit doRefreshNews();
 }
 
@@ -80,27 +83,31 @@ void WidgetNews::addNewsItem(QString theNick, QString theTime, QString thePost)
     fNews->setFontWeight(QFont::Normal);
     fNews->setTextColor(pColorText);
     fNews->textCursor().insertText(tr("%1\n\n").arg(thePost));
+
+    newsCounter++;
 }
 
 void WidgetNews::addFreshNewsItem(QString theNick, QString theTime, QString thePost)
 {
-        QString timeString;
-        QSettings conf;
+    QString timeString;
+    QSettings conf;
 
-        timeString.append(theTime.left(10));
-        timeString = tr("%1/%2/%3 at %4 GTM %5").arg(timeString.mid(8,2), timeString.mid(5,2), timeString.left(4),theTime.mid(11,8), theTime.right(6));
+    timeString.append(theTime.left(10));
+    timeString = tr("%1/%2/%3 at %4 GTM %5").arg(timeString.mid(8,2), timeString.mid(5,2), timeString.left(4),theTime.mid(11,8), theTime.right(6));
 
-	QTextCursor tc = fNews->textCursor();
-	tc.setPosition(0);
-	fNews->setTextCursor(tc);
+    QTextCursor tc = fNews->textCursor();
+    tc.setPosition(0);
+    fNews->setTextCursor(tc);
 
-        fNews->setFontFamily(conf.value("interface/news/font", WiredSingleton::systemMonospaceFont().append(",11") ).toString());
-        fNews->setFontWeight(QFont::Bold);
-	fNews->setTextColor(pColorTitle);
-        fNews->textCursor().insertText(tr("From %1 (%2):\n").arg(theNick).arg(timeString));
-	fNews->setFontWeight(QFont::Normal);
-	fNews->setTextColor(pColorText);
-	fNews->textCursor().insertText(tr("%1\n\n").arg(thePost));
+    fNews->setFontFamily(conf.value("interface/news/font", WiredSingleton::systemMonospaceFont().append(",11") ).toString());
+    fNews->setFontWeight(QFont::Bold);
+    fNews->setTextColor(pColorTitle);
+    fNews->textCursor().insertText(tr("From %1 (%2):\n").arg(theNick).arg(timeString));
+    fNews->setFontWeight(QFont::Normal);
+    fNews->setTextColor(pColorText);
+    fNews->textCursor().insertText(tr("%1\n\n").arg(thePost));
+
+    newsCounter++;
 }
 
 void WidgetNews::doSendNews() {
@@ -125,6 +132,7 @@ void WidgetNews::on_fBtnRefresh_clicked(bool checked)
 	Q_UNUSED(checked)
 	fNews->clear();
 	fProc->setVisible(true);
+        newsCounter = 0;
 	emit doRefreshNews();
 }
 
@@ -145,6 +153,7 @@ void WidgetNews::on_fBtnPost_clicked(bool checked)
 void WidgetNews::on_fBtnDelete_clicked(bool) {
         if(QMessageBox::question (this, tr("Clear news"), tr("Are you sure you want to clear all news items?\n\nThis cannot be undone."), QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes)
         {
+            newsCounter = 0;
             emit onDeleteNews();
         }
 }
@@ -167,6 +176,11 @@ void WidgetNews::setDisabledPostButton(bool b)
 void WidgetNews::setDisabledClearButton(bool b)
 {
     fBtnDelete->setDisabled(b);
+}
+
+int WidgetNews::newsCount()
+{
+    return newsCounter;
 }
 
 

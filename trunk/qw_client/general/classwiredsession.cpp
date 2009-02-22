@@ -754,15 +754,7 @@ void ClassWiredSession::onConnectAborted()
 // Prompt user to confirm disconnection
 bool ClassWiredSession::confirmDisconnection()
 {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(pWiredSocket->pServerName);
-    msgBox.setText(tr("Are you sure you want to disconnect?"));
-    msgBox.setInformativeText(QString(tr("If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n")).arg(pWiredSocket->pServerName));
-    msgBox.addButton(tr("Abort"), QMessageBox::ActionRole);
-    QPushButton *disconnectButton = msgBox.addButton(tr("Disconnect"), QMessageBox::ActionRole);
-    msgBox.setDefaultButton(disconnectButton);
-    msgBox.exec();
-    if(msgBox.clickedButton() == disconnectButton) {
+    if(QMessageBox::question(0, tr("Disconnect"),tr("Are you sure you want to continue? If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n").arg(pWiredSocket->pServerName), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
         return true;
     } else {
         return false;
@@ -828,8 +820,11 @@ void ClassWiredSession::doActionNews() {
 		connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
 
                 // We check for the proper purrmissions
+                // Also, we don't want the button to be active if there are no news to clear
 
-                if(pWiredSocket->sessionUser.privClearNews) {
+                qDebug("News counter: %u",pWinNews->newsCount());
+
+                if(pWiredSocket->sessionUser.privClearNews && pWinNews->newsCount()) {
                     connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(clearNews()) );
                     connect( pWinNews, SIGNAL(onDeleteNews()), pWinNews, SLOT(clearTextArea()));
                 } else {

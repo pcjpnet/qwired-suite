@@ -3,347 +3,327 @@
 <context>
     <name>ClassWiredEventFilter</name>
     <message>
-        <location filename="../general/ClassWiredEventFilter.cpp" line="19"/>
+        <location filename="../general/ClassWiredEventFilter.cpp" line="14"/>
         <source>Disconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/ClassWiredEventFilter.cpp" line="17"/>
-        <source>Are you sure you want to disconnect?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../general/ClassWiredEventFilter.cpp" line="18"/>
-        <source>If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
+        <location filename="../general/ClassWiredEventFilter.cpp" line="14"/>
+        <source>Are you sure you want to continue? If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
 </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../general/ClassWiredEventFilter.cpp" line="20"/>
-        <source>Abort</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ClassWiredSession</name>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="302"/>
+        <location filename="../general/classwiredsession.cpp" line="309"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation>Thema: %1
 Gesetzt von: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="358"/>
+        <location filename="../general/classwiredsession.cpp" line="365"/>
         <source>Broadcast Message</source>
         <translation>Rundsendung</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="394"/>
+        <location filename="../general/classwiredsession.cpp" line="401"/>
         <source>Private Chat Invitation</source>
         <translation>Private Chateinladung</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="395"/>
+        <location filename="../general/classwiredsession.cpp" line="402"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation>%1 hat Sie zu einem privaten Chat eingeladen.
 Klicken Sie &lt;Beitreten&gt; um diesem Chat mit %1 beizutreten.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="397"/>
+        <location filename="../general/classwiredsession.cpp" line="404"/>
         <source>Ignore</source>
         <translation>Ignorieren</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="398"/>
+        <location filename="../general/classwiredsession.cpp" line="405"/>
         <source>Reject</source>
         <translation>Ablehnen</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="399"/>
+        <location filename="../general/classwiredsession.cpp" line="406"/>
         <source>Join</source>
         <translation>Beitreten</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="841"/>
+        <location filename="../general/classwiredsession.cpp" line="843"/>
         <source>News</source>
         <translation>Neuigkeiten</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="385"/>
+        <location filename="../general/classwiredsession.cpp" line="392"/>
         <source>Info: %1</source>
         <translation>Informationen: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="426"/>
+        <location filename="../general/classwiredsession.cpp" line="433"/>
         <source>Private Chat</source>
         <translation>Privatchat</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="859"/>
+        <location filename="../general/classwiredsession.cpp" line="861"/>
         <source>Server Info</source>
         <translation>Serverinformationen</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="952"/>
+        <location filename="../general/classwiredsession.cpp" line="954"/>
         <source>Transfers</source>
         <translation>Übertragungen</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="934"/>
+        <location filename="../general/classwiredsession.cpp" line="936"/>
         <source>File Search</source>
         <translation>Suche</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="790"/>
+        <location filename="../general/classwiredsession.cpp" line="789"/>
         <source>Accounts</source>
         <translation>Benutzerkonten</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="556"/>
+        <location filename="../general/classwiredsession.cpp" line="563"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation>Befehl fehlgeschlagen. Ein undefinierter Fehler ist auf dem Server aufgetreten.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="557"/>
+        <location filename="../general/classwiredsession.cpp" line="564"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation>Befehl nicht erkannt. Qwired hat einen Befehl geschickt, welcher vom Server nicht verstanden wurde.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="558"/>
+        <location filename="../general/classwiredsession.cpp" line="565"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation>Befehl nicht implementiert. Der letzte gesendete Befehl ist nicht vom Server implementiert.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="559"/>
+        <location filename="../general/classwiredsession.cpp" line="566"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation>Syntaxfehler. Der letzte Befehl wurde nicht korrekt formatiert.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="560"/>
+        <location filename="../general/classwiredsession.cpp" line="567"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation>Anmeldung fehlgeschlagen. Der Benutzername oder das Passwort wurde vom Server abgelehnt.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="561"/>
+        <location filename="../general/classwiredsession.cpp" line="568"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation>Verbannt. Die Verbindung wurde vom Server abgelehnt, da Sie von einem Administrator des Servers verbannt wurden.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="562"/>
+        <location filename="../general/classwiredsession.cpp" line="569"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation>Client nicht gefunden. Der Server konnte den Zielclient nicht finden.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="563"/>
+        <location filename="../general/classwiredsession.cpp" line="570"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation>Konto nicht gefunden. Der Server konnte das gewünschte Konto nicht finden.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="564"/>
+        <location filename="../general/classwiredsession.cpp" line="571"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation>Konto existiert bereits. Das Konto konnte nicht erstellt werden, da ein anderes Konto mit dem selben Namen bereits existiert.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="565"/>
+        <location filename="../general/classwiredsession.cpp" line="572"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation>Benutzer kann nicht getrennt werden.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="566"/>
+        <location filename="../general/classwiredsession.cpp" line="573"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation>Zugang verweigert. Sie haben nicht genügend Zugriffsrechte um den letzten Befehl auszuführen.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="567"/>
+        <location filename="../general/classwiredsession.cpp" line="574"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation>Datei oder Verzeichnis nicht gefunden. Der letzte Befehl ist fehlgeschlagen, da die gewünschte Datei oder Verzeichnis nicht gefunden werden konnte.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="568"/>
+        <location filename="../general/classwiredsession.cpp" line="575"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation>Der letzte Befehl ist fehlgeschlagen, da die Datei oder das Verzeichnis bereits existiert.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="569"/>
+        <location filename="../general/classwiredsession.cpp" line="576"/>
         <source>Checksum Mismatch.</source>
         <translation>Checksummen stimmen nicht überein.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="570"/>
+        <location filename="../general/classwiredsession.cpp" line="577"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation>Warteschlagenlimit überschritten. Der letzte Befehl konnte nicht ausgeführt werden, da die Warteschlange auf dem Server voll ist.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="577"/>
+        <location filename="../general/classwiredsession.cpp" line="584"/>
         <source>Server Error</source>
         <translation>Serverfehler</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="554"/>
+        <location filename="../general/classwiredsession.cpp" line="561"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation>Ein unbekannter Fehler ist aufgetreten. Der Fehlercode lautet %1.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="588"/>
+        <location filename="../general/classwiredsession.cpp" line="595"/>
         <source>Show/Hide</source>
         <translation>Zeigen/Verstecken</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="611"/>
+        <location filename="../general/classwiredsession.cpp" line="618"/>
         <source>Connected</source>
         <translation>Verbunden</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="612"/>
+        <location filename="../general/classwiredsession.cpp" line="619"/>
         <source>Disconnected</source>
         <translation>Getrennt</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="613"/>
+        <location filename="../general/classwiredsession.cpp" line="620"/>
         <source>Server Error: %1</source>
         <translation>Serverfehler: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="614"/>
+        <location filename="../general/classwiredsession.cpp" line="621"/>
         <source>%1 joined</source>
         <translation>%1 ist angemeldet</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="615"/>
+        <location filename="../general/classwiredsession.cpp" line="622"/>
         <source>%1 is now known as %2</source>
         <translation>%1 ist jetzt bekannt als %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="616"/>
+        <location filename="../general/classwiredsession.cpp" line="623"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation>%1 ändert Status zu &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="617"/>
+        <location filename="../general/classwiredsession.cpp" line="624"/>
         <source>%1 left</source>
         <translation>%1 hat sich abgemeldet</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="618"/>
+        <location filename="../general/classwiredsession.cpp" line="625"/>
         <source>Chat from %1:
 %2</source>
         <translation>Chat von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="619"/>
+        <location filename="../general/classwiredsession.cpp" line="626"/>
         <source>Message from %1:
 %2</source>
         <translation>Private Nachricht von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="620"/>
+        <location filename="../general/classwiredsession.cpp" line="627"/>
         <source>News Posted from %1:
 %2</source>
         <translation>Neuigkeiten von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="621"/>
+        <location filename="../general/classwiredsession.cpp" line="628"/>
         <source>Broadcast from %1:
 %2</source>
         <translation>Rundsendung von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="622"/>
+        <location filename="../general/classwiredsession.cpp" line="629"/>
         <source>Transfer Started: %1</source>
         <translation>Transfer gestartet: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="623"/>
+        <location filename="../general/classwiredsession.cpp" line="630"/>
         <source>Transfer Finished: %1</source>
         <translation>Transfer abgeschlossen: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="698"/>
+        <location filename="../general/classwiredsession.cpp" line="705"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation>Der Dateitransfer ist aufgrund eines Fehlers unterbrochen worden. Fehlerkennung: %1</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="442"/>
+        <location filename="../general/classwiredsession.cpp" line="449"/>
         <source>Connecting. Starting session...</source>
         <translation>Verbunden. Sitzung starten...</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="471"/>
+        <location filename="../general/classwiredsession.cpp" line="478"/>
         <source>Connection Refused</source>
         <translation>Verbindung abgelehnt</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="472"/>
+        <location filename="../general/classwiredsession.cpp" line="479"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation>Die Verbindung wurde von der Gegenstelle abgelehnt. Normalerweise bedeutet dies, dass auf der Gegenseite kein Wired-Dienst läuft.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="475"/>
+        <location filename="../general/classwiredsession.cpp" line="482"/>
         <source>Host not found</source>
         <translation>Host nicht gefunden</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="475"/>
+        <location filename="../general/classwiredsession.cpp" line="482"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation>Konnte nicht zur Gegenstelle verbinden weil die Name nicht aufgelöst werden konnte.</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="707"/>
+        <location filename="../general/classwiredsession.cpp" line="714"/>
         <source>Receiving user list...</source>
         <translation>Benutzerliste empfangen...</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="886"/>
+        <location filename="../general/classwiredsession.cpp" line="888"/>
         <source>Files</source>
         <translation>Dateien</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="970"/>
+        <location filename="../general/classwiredsession.cpp" line="972"/>
         <source>File Transfer Error</source>
         <translation>Dateiübertragungsfehler</translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="973"/>
+        <location filename="../general/classwiredsession.cpp" line="975"/>
         <source>The transfer of file &apos;%1&apos; could not be completed because of an error.
 Possibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="1033"/>
+        <location filename="../general/classwiredsession.cpp" line="1035"/>
         <source>Folder Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="1035"/>
+        <location filename="../general/classwiredsession.cpp" line="1037"/>
         <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
 Do you want to begin the transfer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="755"/>
+        <location filename="../general/classwiredsession.cpp" line="757"/>
         <source>Disconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../general/classwiredsession.cpp" line="752"/>
-        <source>Are you sure you want to disconnect?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../general/classwiredsession.cpp" line="753"/>
-        <source>If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
+        <location filename="../general/classwiredsession.cpp" line="757"/>
+        <source>Are you sure you want to continue? If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
 </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../general/classwiredsession.cpp" line="754"/>
-        <source>Abort</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1178,14 +1158,14 @@ Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
         <translation>Veröffentlichen...</translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="99"/>
+        <location filename="../gui/widgetnews.cpp" line="105"/>
         <source>From %1 (%2):
 </source>
         <translation>Von %1 (%2):
 </translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="102"/>
+        <location filename="../gui/widgetnews.cpp" line="108"/>
         <source>%1
 
 </source>
@@ -1194,7 +1174,7 @@ Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
 </translation>
     </message>
     <message>
-        <location filename="../gui/widgetnews.cpp" line="90"/>
+        <location filename="../gui/widgetnews.cpp" line="96"/>
         <source>%1/%2/%3 at %4 GTM %5</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1205,6 +1185,18 @@ Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/widgetnews.cpp" line="154"/>
+        <source>Clear news</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/widgetnews.cpp" line="154"/>
+        <source>Are you sure you want to clear all news items?
+
+This cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
