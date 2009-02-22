@@ -54,6 +54,8 @@ ClassWiredUser::ClassWiredUser()
 	privDownloadLimit = 0;
 	privUploadLimit = 0;
 	privChangeTopic = false;
+
+
 }
 
 ClassWiredUser::ClassWiredUser(QList<QByteArray> theParams) {
@@ -74,6 +76,131 @@ ClassWiredUser::ClassWiredUser(QList<QByteArray> theParams) {
 
 ClassWiredUser::~ClassWiredUser()
 { }
+
+
+/*! Set the privileges flags from a Qwired(Server) privileges specification. The Qwired
+    specification is based on single characters instead of a series of numbers, making it much
+    easier to parse and write them even for human beings.
+*/
+void ClassWiredUser::setPrivilegesFromQwiredSpec(const QString privileges)
+{
+    this->privAlterFiles = privileges.contains("a", Qt::CaseSensitive);
+    this->privBanUsers = privileges.contains("B", Qt::CaseSensitive);
+    this->privBroadcast = privileges.contains("b", Qt::CaseSensitive);
+    this->privCannotBeKicked = privileges.contains("P", Qt::CaseSensitive);
+    this->privChangeTopic = privileges.contains("t", Qt::CaseSensitive);
+    this->privClearNews = privileges.contains("C", Qt::CaseSensitive);
+    this->privCreateAccounts = privileges.contains("A", Qt::CaseSensitive);
+    this->privCreateFolders = privileges.contains("f", Qt::CaseSensitive);
+    this->privDeleteAccounts = privileges.contains("R", Qt::CaseSensitive);
+    this->privDeleteFiles = privileges.contains("r", Qt::CaseSensitive);
+    this->privDownload = privileges.contains("d", Qt::CaseSensitive);
+    this->privEditAccounts = privileges.contains("M", Qt::CaseSensitive);
+    this->privElevatePrivileges = privileges.contains("E", Qt::CaseSensitive);
+    this->privGetUserInfo = privileges.contains("i", Qt::CaseSensitive);
+    this->privKickUsers = privileges.contains("K", Qt::CaseSensitive);
+    this->privPostNews = privileges.contains("p", Qt::CaseSensitive);
+    this->privUpload = privileges.contains("u", Qt::CaseSensitive);
+    this->privUploadAnywhere = privileges.contains("U", Qt::CaseSensitive);
+    this->privViewDropboxes = privileges.contains("D", Qt::CaseSensitive);
+}
+
+
+/*! This method returns the privileges flags as a series of Qwired Specification flags.
+    Please note that this does not include the numeric speed limits, as those are stored
+    independently from the normal flags.
+    I saved some nerves by not following the coding guidelines for brackets here, I hope you
+    forgive me. :)
+*/
+QString ClassWiredUser::privilegesFlagsAsQwiredSpec()
+{
+    QString privList;
+    if (this->privAlterFiles) privList.append("a");
+    if (this->privBanUsers) privList.append("B");
+    if (this->privBroadcast) privList.append("b");
+    if (this->privCannotBeKicked) privList.append("P");
+    if (this->privChangeTopic) privList.append("t");
+    if (this->privClearNews) privList.append("C");
+    if (this->privCreateAccounts) privList.append("A");
+    if (this->privCreateFolders) privList.append("f");
+    if (this->privDeleteAccounts) privList.append("R");
+    if (this->privDeleteFiles) privList.append("r");
+    if (this->privDownload) privList.append("d");
+    if (this->privEditAccounts) privList.append("M");
+    if (this->privElevatePrivileges) privList.append("E");
+    if (this->privGetUserInfo) privList.append("i");
+    if (this->privKickUsers) privList.append("K");
+    if (this->privPostNews) privList.append("p");
+    if (this->privUpload) privList.append("u");
+    if (this->privUploadAnywhere) privList.append("U");
+    if (this->privViewDropboxes) privList.append("D");
+    return privList;
+}
+
+
+/*! This method appends the required privileges flags for a response to the READUSER command (1.1).
+    The user name and other fields are not appended to the message, though.
+    The syntax for the privileges is also used on groups.
+*/
+void ClassWiredUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
+{
+    message.appendArg(QString::number(privGetUserInfo));
+    message.appendArg(QString::number(privBroadcast));
+    message.appendArg(QString::number(privPostNews));
+    message.appendArg(QString::number(privClearNews));
+    message.appendArg(QString::number(privDownload));
+    message.appendArg(QString::number(privUpload));
+    message.appendArg(QString::number(privUploadAnywhere));
+    message.appendArg(QString::number(privCreateFolders));
+    message.appendArg(QString::number(privAlterFiles));
+    message.appendArg(QString::number(privDeleteFiles));
+    message.appendArg(QString::number(privViewDropboxes));
+    message.appendArg(QString::number(privCreateAccounts));
+    message.appendArg(QString::number(privEditAccounts));
+    message.appendArg(QString::number(privDeleteAccounts));
+    message.appendArg(QString::number(privElevatePrivileges));
+    message.appendArg(QString::number(privKickUsers));
+    message.appendArg(QString::number(privBanUsers));
+    message.appendArg(QString::number(privCannotBeKicked));
+    message.appendArg(QString::number(privDownloadSpeed));
+    message.appendArg(QString::number(privUploadSpeed));
+    message.appendArg(QString::number(privDownloadLimit)); // wired 1.1
+    message.appendArg(QString::number(privUploadLimit)); // wired 1.1
+    message.appendArg(QString::number(privChangeTopic)); // wired 1.1
+}
+
+
+/*! This method sets the user privilege flags from the contents of the EDITUSER message.
+*/
+void ClassWiredUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset)
+{
+    // For EDITUSER we should skip 3 fields
+    // For EDITGROUP we should skip 1 field
+    this->privGetUserInfo = message.getStringArgument(fieldOffset++).toInt();
+    this->privBroadcast = message.getStringArgument(fieldOffset++).toInt();
+    this->privPostNews = message.getStringArgument(fieldOffset++).toInt();
+    this->privClearNews = message.getStringArgument(fieldOffset++).toInt();
+    this->privDownload = message.getStringArgument(fieldOffset++).toInt();
+    this->privUpload = message.getStringArgument(fieldOffset++).toInt();
+    this->privUploadAnywhere = message.getStringArgument(fieldOffset++).toInt();
+    this->privCreateFolders = message.getStringArgument(fieldOffset++).toInt();
+    this->privAlterFiles = message.getStringArgument(fieldOffset++).toInt();
+    this->privDeleteFiles = message.getStringArgument(fieldOffset++).toInt();
+    this->privViewDropboxes = message.getStringArgument(fieldOffset++).toInt();
+    this->privCreateAccounts = message.getStringArgument(fieldOffset++).toInt();
+    this->privEditAccounts = message.getStringArgument(fieldOffset++).toInt();
+    this->privDeleteAccounts = message.getStringArgument(fieldOffset++).toInt();
+    this->privElevatePrivileges = message.getStringArgument(fieldOffset++).toInt();
+    this->privKickUsers = message.getStringArgument(fieldOffset++).toInt();
+    this->privBanUsers = message.getStringArgument(fieldOffset++).toInt();
+    this->privCannotBeKicked = message.getStringArgument(fieldOffset++).toInt();
+    this->privDownloadSpeed = message.getStringArgument(fieldOffset++).toInt();
+    this->privUploadSpeed = message.getStringArgument(fieldOffset++).toInt();
+    this->privDownloadLimit = message.getStringArgument(fieldOffset++).toInt();
+    this->privUploadLimit = message.getStringArgument(fieldOffset++).toInt();
+    this->privChangeTopic = message.getStringArgument(fieldOffset++).toInt();
+}
+
 
 ClassWiredUser ClassWiredUser::fromUserInfo(QList<QByteArray> theParams) {
 	// Fill parameters from a Get User Info response.
