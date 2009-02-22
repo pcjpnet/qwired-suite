@@ -1,28 +1,26 @@
 SOURCES += main.cpp \
     QwsServerController.cpp \
-    wiredsocket.cpp \
+    QwsClientSocket.cpp \
     QwSslTcpServer.cpp \
-    classwireduser.cpp \
-    QwsConnection.cpp \
+    QwsUser.cpp \
     QwsRoom.cpp \
-    classwiredfile.cpp
+    QwsFile.cpp
 INCLUDEPATH = ../qw_library
 LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
 QT -= gui
 
-CONFIG += debug ppc x86
+CONFIG += debug \
+    ppc \
+    x86
 QT += network \
     xml \
     sql
 TARGET = qwired_server
-
 DESTDIR = ../bin/
-
 HEADERS += QwsServerController.h \
-    wiredsocket.h \
+    QwsClientSocket.h \
     QwSslTcpServer.h \
-    classwireduser.h \
-    QwsConnection.h \
+    QwsUser.h \
     QwsRoom.h \
-    classwiredfile.h
+    QwsFile.h

@@ -27,21 +27,25 @@
 
 #include "QwMessage.h"
 
+
+namespace Qws {
+    enum UserType { UserTypeAccount,
+                    UserTypeGroup };
+}
+
 /**
         @author Bastian Bense <bastibense@gmail.com>
  */
-class ClassWiredUser
+class QwsUser
 {
 public:
-    ClassWiredUser();
-    ClassWiredUser ( QList<QByteArray> theParams );
-    static ClassWiredUser fromUserInfo( QList<QByteArray> theParams );
-    ~ClassWiredUser();
+    QwsUser();
+    ~QwsUser();
 
-
-
-    void setFromPrivileges(QList<QByteArray> theParams);
-    void setPrivilegesFromAccount(const QString privileges);
+    // Database storage
+    bool loadFromDatabase();
+    bool writeToDatabase();
+    bool deleteFromDatabase();
 
     void privilegesFlags(QwMessage &message) const;
     void userListEntry(QwMessage &message) const;
@@ -55,19 +59,21 @@ public:
 
     QString cryptedPassword();
 
-    int pUserID;
+    // Account parameters (mainly database)
+    QString name;
+    QString pPassword;
+    QString pGroupName;
+
+    // Runtime user information
     bool pIdle;
     bool pAdmin;
-    int pIcon; /* unused in 1.1 */
-    QString userNickname; // Nickname of user, or name of group.
-    QString userLogin;
-    QString userIpAddress;
-    QString userHostName;
+    int pUserID;
+    int pIcon; // warning: unused in 1.1
+    QString userNickname;
     QString userStatus;
     QByteArray pImage;
-
-    // Session specific
-    QString pPassword;
+    QString userIpAddress;
+    QString userHostName;
 
     // Extended user info (get info)
     QString pClientVersion;
@@ -78,10 +84,8 @@ public:
     QByteArray pDownloads;
     QByteArray pUploads;
 
-    QString pGroupName; // Only in 600 User Specification
-
-    // Privileges management
-    int pAccountType; // 0 = user, 1 = group
+    // Privilege flags
+    Qws::UserType userType; // 0 = user, 1 = group
     bool privGetUserInfo;
     bool privBroadcast;
     bool privPostNews;

@@ -18,19 +18,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
  ***************************************************************************/
  
-#include "classwireduser.h"
+#include "QwsUser.h"
+
+#include <QtSql>
 #include <QCryptographicHash>
 
-ClassWiredUser::ClassWiredUser()
+QwsUser::QwsUser()
 {
 	pUserID = 0;
 	pIdle = false;
 	pAdmin = false;
 	pIcon = 0;
-	pAccountType = 0;
+        userType = Qws::UserTypeAccount;
 
 	// Default privs
-
 	privGetUserInfo = true;
 	privBroadcast = false;
 	privPostNews = true;
@@ -54,35 +55,150 @@ ClassWiredUser::ClassWiredUser()
 	privDownloadLimit = 0;
 	privUploadLimit = 0;
 	privChangeTopic = false;
-
-
 }
 
-ClassWiredUser::ClassWiredUser(QList<QByteArray> theParams) {
-	// Create the object from an incoming user list record.
-	pUserID = theParams.value(1,"").toInt();
-	pIdle = theParams.value(2,"").toInt()==1;
-	pAdmin = theParams.value(3,"").toInt()==1;
-	pIcon = theParams.value(4,"").toInt();
-        userNickname = QString::fromUtf8(theParams.value(5,""));
-        userLogin = QString::fromUtf8(theParams.value(6,""));
-        userIpAddress = theParams.value(7,"");
-        userHostName = theParams.value(8,"");
-        userStatus = QString::fromUtf8(theParams.value(9,""));
-	pImage = QByteArray::fromBase64(theParams.value(10,""));
-	pAccountType = 0;
-	//qDebug() << "ClassWiredUser: Created "<<pUserID<<pNick<<pIP<<pStatus<<pIdle<<pAdmin<<pIcon;
-}
 
-ClassWiredUser::~ClassWiredUser()
+QwsUser::~QwsUser()
 { }
+
+
+/*! This method loads the account data from the database. In order for this to work, the \a name
+    property has to be set to a existing user name. If a group is to be loaded from the database,
+    the \a userType property has to be set to \a Qws::UserTypeGroup.
+    If something goes wrong, or the account is not found in the database, this method returns false.
+    Otherwise the data is loaded from the database and all properties of the class instance are set.
+*/
+bool QwsUser::loadFromDatabase()
+{
+    qDebug() << this << "Reading properties for account/group" << name;
+
+    QSqlQuery query;
+    if (userType == Qws::UserTypeAccount) {
+        // Load Information about a User Account
+        query.prepare("SELECT id, acc_secret, acc_privileges, acc_group, acc_maxupload, acc_maxdownload "
+                      "FROM qws_accounts WHERE acc_name=:_name LIMIT 1;");
+        query.bindValue(":_name", this->name);
+        if (!query.exec()) {
+            qDebug() << this << "Unable to find user account:" << query.lastError().text();
+            return false;
+        } else {
+            query.first();
+            if (!query.isValid()) {
+                return false;
+            }
+            this->pPassword = query.value(1).toString();
+            this->setPrivilegesFromQwiredSpec(query.value(2).toString());
+            this->pGroupName = query.value(3).toString();
+            this->privUploadLimit = query.value(4).toInt();
+            this->privDownloadLimit = query.value(5).toInt();
+        }
+
+    } else if (userType == Qws::UserTypeGroup) {
+        // Load information about a group
+        query.prepare("SELECT id, group_privs FROM qws_groups WHERE group_name=:_name LIMIT 1");
+        query.bindValue(":_name", this->name);
+        if (!query.exec()) {
+            qDebug() << this << "Unable to find user account:" << query.lastError().text();
+            return false;
+        } else {
+            query.first();
+            if (!query.isValid()) {
+                return false;
+            }
+            this->setPrivilegesFromQwiredSpec(query.value(1).toString());
+        }
+    }
+    return true;
+}
+
+
+/*! This method writes the current account to the database. The account (or group) is created, if it
+    does not exist yet.
+*/
+bool QwsUser::writeToDatabase()
+{
+    QSqlQuery query;
+    if (userType == Qws::UserTypeAccount) {
+        // Load Information about a User Account
+        query.prepare("UPDATE qws_accounts "
+                      "SET acc_secret=:_secret, acc_privileges=:_privileges, acc_group=:_group, acc_maxdownload=:_maxdown, acc_maxupload=:_maxup "
+                      "WHERE acc_name=:_name");
+        query.bindValue(":_name", this->name);
+        query.bindValue(":_secret", this->pPassword);
+        query.bindValue(":_group", this->pGroupName);
+        query.bindValue(":_maxdown", this->privDownloadLimit);
+        query.bindValue(":_maxup", this->privUploadLimit);
+        query.bindValue(":_privileges", this->privilegesFlagsAsQwiredSpec());
+        if (!query.exec()) {
+            qDebug() << this << "Unable to write user account:" << query.lastError().text();
+            return false;
+        } else {
+            if (!query.numRowsAffected()) {
+                // Account does not exist yet
+                return false;
+            }
+        }
+
+    } else if (userType == Qws::UserTypeGroup) {
+        // Write a group
+        query.prepare("UPDATE qws_groups SET group_privs=:_privs WHERE group_name=:_name");
+        query.bindValue(":_name", this->name);
+        query.bindValue(":_privs", this->privilegesFlagsAsQwiredSpec());
+        if (!query.exec()) {
+            qDebug() << this << "Unable to edit user group:" << query.lastError().text();
+            return false;
+        } else {
+            if (query.numRowsAffected() <= 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+/*! This function deletes a group or user from the database. The properties \a name and \a userType
+    have to be set in order for this to work.
+    This method returns true on success.
+*/
+bool QwsUser::deleteFromDatabase()
+{
+    QSqlQuery query;
+    if (userType == Qws::UserTypeAccount) {
+        query.prepare("DELETE FROM qws_accounts WHERE acc_name=:_name");
+        query.bindValue(":_name", this->name);
+        if (!query.exec()) {
+            qDebug() << this << "Unable to delete user account:" << query.lastError().text();
+            return false;
+        } else {
+            if (query.numRowsAffected() <= 0) {
+                return false;
+            }
+        }
+
+
+    } else if (userType == Qws::UserTypeGroup) {
+        query.prepare("DELETE FROM qws_groups WHERE group_name=:_name");
+        query.bindValue(":_name", this->name);
+        if (!query.exec()) {
+            qDebug() << this << "Unable to delete user group:" << query.lastError().text();
+            return false;
+        } else {
+            if (query.numRowsAffected() <= 0) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
 
 
 /*! Set the privileges flags from a Qwired(Server) privileges specification. The Qwired
     specification is based on single characters instead of a series of numbers, making it much
     easier to parse and write them even for human beings.
 */
-void ClassWiredUser::setPrivilegesFromQwiredSpec(const QString privileges)
+void QwsUser::setPrivilegesFromQwiredSpec(const QString privileges)
 {
     this->privAlterFiles = privileges.contains("a", Qt::CaseSensitive);
     this->privBanUsers = privileges.contains("B", Qt::CaseSensitive);
@@ -112,7 +228,7 @@ void ClassWiredUser::setPrivilegesFromQwiredSpec(const QString privileges)
     I saved some nerves by not following the coding guidelines for brackets here, I hope you
     forgive me. :)
 */
-QString ClassWiredUser::privilegesFlagsAsQwiredSpec()
+QString QwsUser::privilegesFlagsAsQwiredSpec()
 {
     QString privList;
     if (this->privAlterFiles) privList.append("a");
@@ -142,7 +258,7 @@ QString ClassWiredUser::privilegesFlagsAsQwiredSpec()
     The user name and other fields are not appended to the message, though.
     The syntax for the privileges is also used on groups.
 */
-void ClassWiredUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
+void QwsUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
 {
     message.appendArg(QString::number(privGetUserInfo));
     message.appendArg(QString::number(privBroadcast));
@@ -172,7 +288,7 @@ void ClassWiredUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
 
 /*! This method sets the user privilege flags from the contents of the EDITUSER message.
 */
-void ClassWiredUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset)
+void QwsUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset)
 {
     // For EDITUSER we should skip 3 fields
     // For EDITGROUP we should skip 1 field
@@ -202,40 +318,17 @@ void ClassWiredUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffs
 }
 
 
-ClassWiredUser ClassWiredUser::fromUserInfo(QList<QByteArray> theParams) {
-	// Fill parameters from a Get User Info response.
-	
-	ClassWiredUser usr;
-	usr.pAccountType = 0;
-	usr.pUserID = theParams.value(0,"").toInt();
-	usr.pIdle = theParams.value(1,"").toInt()==1;
-	usr.pAdmin = theParams.value(2,"").toInt()==1;
-	usr.pIcon = theParams.value(3,"").toInt();
-        usr.userNickname = QString::fromUtf8(theParams.value(4,""));
-        usr.userLogin = QString::fromUtf8(theParams.value(5,""));
-        usr.userIpAddress = theParams.value(6,"");
-        usr.userHostName = theParams.value(7,"");
-	usr.pClientVersion = QString::fromUtf8(theParams.value(8,""));
-	usr.pCipherName = theParams.value(9,"");
-	usr.pCipherBits = theParams.value(10,"").toInt();
-	usr.pLoginTime = QDateTime::fromString( theParams.value(11,""), Qt::ISODate);
-	usr.pIdleTime = QDateTime::fromString( theParams.value(12,""), Qt::ISODate);
-	usr.pDownloads = theParams.value(13,"");
-	usr.pUploads = theParams.value(14,"");
-        usr.userStatus = theParams.value(15,"");
-	usr.pImage = QByteArray::fromBase64(theParams.value(16,""));
-	return usr;
-	
-}
 
-void ClassWiredUser::userInfoEntry(QwMessage &message) const
+/*! This method generates (appends) the fields required for a INFO response to a client.
+*/
+void QwsUser::userInfoEntry(QwMessage &message) const
 {
     message.appendArg(QString::number(pUserID));
     message.appendArg(pIdle ? "1" : "0");
     message.appendArg(pAdmin ? "1" : "0");
     message.appendArg(QString::number(pIcon));
     message.appendArg(userNickname);
-    message.appendArg(userLogin);
+    message.appendArg(name);
     message.appendArg(userIpAddress);
     message.appendArg(userHostName);
 
@@ -251,7 +344,11 @@ void ClassWiredUser::userInfoEntry(QwMessage &message) const
 
 }
 
-void ClassWiredUser::privilegesFlags(QwMessage &message) const
+
+/*! This method generates a list of privilege flag fields for use in all commands that utilize the
+    <privileges> list (see Wired documentation).
+*/
+void QwsUser::privilegesFlags(QwMessage &message) const
 {
     message.appendArg(QString::number(privGetUserInfo));
     message.appendArg(QString::number(privBroadcast));
@@ -279,67 +376,28 @@ void ClassWiredUser::privilegesFlags(QwMessage &message) const
 }
 
 
-/**
- * Set the privileges of this user object to the ones provided by theParams. This is
- * used internally by WiredSocket to manage the privileges of a user and session.
- * @param theParams A list of flags representing the privileges.
- */
-void ClassWiredUser::setFromPrivileges(const QList<QByteArray> theParams)
+/*! This method returns the user's cleartext password as a SHA-1 hash.
+*/
+QString QwsUser::cryptedPassword()
 {
-	if( theParams.count()>=23 ) {
-		privGetUserInfo = theParams.value(0).toInt();
-		privBroadcast = theParams.value(1).toInt();
-		privPostNews = theParams.value(2).toInt();
-		privClearNews = theParams.value(3).toInt();
-		privDownload = theParams.value(4).toInt();
-		privUpload = theParams.value(5).toInt();
-		privUploadAnywhere = theParams.value(6).toInt();
-		privCreateFolders = theParams.value(7).toInt();
-		privAlterFiles = theParams.value(8).toInt();
-		privDeleteFiles = theParams.value(9).toInt();
-		privViewDropboxes = theParams.value(10).toInt();
-		privCreateAccounts = theParams.value(11).toInt();
-		privEditAccounts = theParams.value(12).toInt();
-		privDeleteAccounts = theParams.value(13).toInt();
-		privElevatePrivileges = theParams.value(14).toInt();
-		privKickUsers = theParams.value(15).toInt();
-		privBanUsers = theParams.value(16).toInt();
-		privCannotBeKicked = theParams.value(17).toInt();
-		privDownloadSpeed = theParams.value(18).toInt();
-		privUploadSpeed = theParams.value(19).toInt();
-		privDownloadLimit = theParams.value(20).toInt();
-		privUploadLimit = theParams.value(21).toInt();
-		privChangeTopic = theParams.value(22).toInt();
-		return;
-	}
-	qDebug() << "ClassWiredUser: Failed to set privileges from privileges block!";
-	qDebug() << theParams;
-}
-
-/**
- * Return the SHA-1 crypt of the password in this user object. If the password is empty,
- * no crypting will be done.
- * @return The SHA-1 hash of the password.
- */
-QString ClassWiredUser::cryptedPassword()
-{
-	if( pPassword.isEmpty() )
-		return QString("");
-	QByteArray tmpDat = QCryptographicHash::hash(pPassword.toUtf8(), QCryptographicHash::Sha1);
-	return QString::fromUtf8(tmpDat.toHex());
+    if (pPassword.isEmpty()) {
+        return QString();
+    }
+    QByteArray hashedBinaryData = QCryptographicHash::hash(pPassword.toUtf8(), QCryptographicHash::Sha1);
+    return QString::fromUtf8(hashedBinaryData.toHex());
 }
 
 
 /*! Complete a message specially formatted for the user listing responses (310)
 */
-void ClassWiredUser::userListEntry(QwMessage &message) const
+void QwsUser::userListEntry(QwMessage &message) const
 {
     message.appendArg(QString::number(pUserID));
     message.appendArg(QString::number(pIdle));
     message.appendArg(QString::number(privKickUsers | privBanUsers));
     message.appendArg(QString::number(pIcon));
     message.appendArg(userNickname);
-    message.appendArg(userLogin);
+    message.appendArg(name);
     message.appendArg(userIpAddress);
     message.appendArg(userHostName);
     message.appendArg(userStatus);
@@ -349,7 +407,7 @@ void ClassWiredUser::userListEntry(QwMessage &message) const
 
 /* Complete a message specially formatted for the User Status Change messages.
 */
-void ClassWiredUser::userStatusEntry(QwMessage &message) const
+void QwsUser::userStatusEntry(QwMessage &message) const
 {
     message.appendArg(QString::number(pUserID));
     message.appendArg(QString::number(pIdle));
@@ -358,16 +416,5 @@ void ClassWiredUser::userStatusEntry(QwMessage &message) const
     message.appendArg(userNickname);
     message.appendArg(userStatus);
 }
-
-/**
- * Set the privileges flags from the database record.
- * @param privileges The string of privilege flags.
- */
-void ClassWiredUser::setPrivilegesFromAccount(const QString privileges) {
-	QByteArray tmpString(privileges.toAscii());
-	setFromPrivileges(tmpString.split(':'));
-}
-
-
 
 
