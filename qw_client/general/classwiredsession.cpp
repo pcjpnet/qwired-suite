@@ -258,7 +258,7 @@ void ClassWiredSession::onServerFileInfo(ClassWiredFile theFile) {
 
 // Enable/Disable GUI elements depending on the privileges
 void ClassWiredSession::onSocketPrivileges(ClassWiredUser s) {
-	pConnWindow->actionAccounts->setEnabled(s.privEditAccounts || s.privCreateAccounts || s.privDeleteAccounts);
+        pConnWindow->actionAccounts->setEnabled(s.privEditAccounts);
 }
 
 
