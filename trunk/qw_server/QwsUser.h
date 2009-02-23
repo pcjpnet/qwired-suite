@@ -85,7 +85,7 @@ public:
     QByteArray pUploads;
 
     // Privilege flags
-    Qws::UserType userType; // 0 = user, 1 = group
+    Qws::UserType userType;
     bool privGetUserInfo;
     bool privBroadcast;
     bool privPostNews;

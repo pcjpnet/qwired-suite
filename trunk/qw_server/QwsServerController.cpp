@@ -148,7 +148,8 @@ void QwsServerController::acceptSslConnection()
     qRegisterMetaType<QwMessage>();
     qRegisterMetaType<Qws::SessionState>();
 
-    connect(clientSocket, SIGNAL(requestedUserlist(int)), this, SLOT(handleUserlistRequest(int)));
+    connect(clientSocket, SIGNAL(requestedUserlist(int)),
+            this, SLOT(handleUserlistRequest(int)));
     connect(clientSocket, SIGNAL(sessionStateChanged(Qws::SessionState)),
             this, SLOT(handleSocketSessionStateChanged(Qws::SessionState)));
     connect(clientSocket, SIGNAL(requestedChatRelay(int,QString,bool)),
@@ -157,17 +158,30 @@ void QwsServerController::acceptSslConnection()
             this, SLOT(relayMessageToUser(int,QString)));
     connect(clientSocket, SIGNAL(broadcastedMessage(QwMessage,int,bool)),
             this, SLOT(broadcastMessage(QwMessage,int,bool)));
-    connect(clientSocket, SIGNAL(userStatusChanged()), this, SLOT(relayUserStatusChanged()));
+    connect(clientSocket, SIGNAL(userStatusChanged()),
+            this, SLOT(relayUserStatusChanged()));
     connect(clientSocket, SIGNAL(requestedRoomTopicChange(int,QString)),
             this, SLOT(changeRoomTopic(int,QString)));
-    connect(clientSocket, SIGNAL(requestedRoomTopic(int)), this, SLOT(sendRoomTopic(int)));
-    connect(clientSocket, SIGNAL(requestedNewRoom()), this, SLOT(createNewRoom()));
-    connect(clientSocket, SIGNAL(requestedUserInviteToRoom(int,int)), this, SLOT(inviteUserToRoom(int,int)));
-    connect(clientSocket, SIGNAL(receivedMessageJOIN(int)), this, SLOT(handleMessageJOIN(int)));
-    connect(clientSocket, SIGNAL(receivedMessageDECLINE(int)), this, SLOT(handleMessageDECLINE(int)));
-    connect(clientSocket, SIGNAL(receivedMessageLEAVE(int)), this, SLOT(handleMessageLEAVE(int)));
+    connect(clientSocket, SIGNAL(requestedRoomTopic(int)),
+            this, SLOT(sendRoomTopic(int)));
+    connect(clientSocket, SIGNAL(requestedNewRoom()),
+            this, SLOT(createNewRoom()));
+    connect(clientSocket, SIGNAL(requestedUserInviteToRoom(int,int)),
+            this, SLOT(inviteUserToRoom(int,int)));
+    connect(clientSocket, SIGNAL(receivedMessageJOIN(int)),
+            this, SLOT(handleMessageJOIN(int)));
+    connect(clientSocket, SIGNAL(receivedMessageDECLINE(int)),
+            this, SLOT(handleMessageDECLINE(int)));
+    connect(clientSocket, SIGNAL(receivedMessageLEAVE(int)),
+            this, SLOT(handleMessageLEAVE(int)));
     connect(clientSocket, SIGNAL(receivedMessageBAN_KICK(int,QString,bool)),
             this, SLOT(handleMessageBAN_KICK(int,QString,bool)));
+    connect(clientSocket, SIGNAL(receivedMessageINFO(int)),
+            this, SLOT(handleMessageINFO(int)) );
+    connect(clientSocket, SIGNAL(modifiedUserAccount(QString)),
+            this, SLOT(handleModifiedUserAccount(QString)));
+    connect(clientSocket, SIGNAL(modifiedUserGroup(QString)),
+            this, SLOT(handleModifiedUserGroup(QString)));
 
     clientSocket->filesRootPath = getConfigurationParam("files/root", "./files").toString();
 
@@ -221,27 +235,29 @@ void QwsServerController::relayUserStatusChanged()
     QwsClientSocket *client = qobject_cast<QwsClientSocket*>(sender());
     if (!client) { return; }
     QwMessage reply("304");
-    client->user.userListEntry(reply);
+    client->user.userStatusEntry(reply);
     broadcastMessage(reply, 1, true);
 }
 
 
-/*! This method is called when a client requests information about a client.
+/*! This slot is called when a client requests information about another client.
 */
-void QwsServerController::sendClientInformation(const int userId)
+void QwsServerController::handleMessageINFO(const int userId)
 {
-    QwsClientSocket *user = sockets[userId];
-    if (!user) { return; }
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!sockets.contains(userId)) {
         user->sendError(Qws::ErrorClientNotFound);
         return;
     }
     QwsClientSocket *target = sockets[userId];
+    if (!target) { return; }
+
     // Send the information
     QwMessage reply("308");
     target->user.userInfoEntry(reply);
     user->sendMessage(reply);
 }
+
 
 
 
@@ -678,6 +694,11 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
         return;
     }
     QwsClientSocket *targetUser = sockets[userId];
+    if (targetUser->user.privCannotBeKicked) {
+        qDebug() << this << "Unable to kick user - protected!";
+        user->sendError(Qws::ErrorCannotBeDisconnected);
+        return;
+    }
 
     // Notify the other clients about this
     QwMessage reply(isBan ? "307" : "306");
@@ -688,4 +709,61 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
 
     // Now kill him
     targetUser->disconnectClient();
+}
+
+
+/*! This method is called when a user needs to be kicked/banned from the server by an administrator.
+*/
+void QwsServerController::handleModifiedUserAccount(const QString name)
+{
+    QHashIterator<int,QwsClientSocket*> i(sockets);
+    while (i.hasNext()) {
+        i.next();
+        QwsClientSocket *item = i.value();
+        if (!item) continue;
+        if (item->user.name == name) {
+            // Reload the account
+            item->user.loadFromDatabase();
+
+            // Send new privileges
+            QwMessage reply("602");
+            item->user.appendPrivilegeFlagsForREADUSER(reply);
+            item->sendMessage(reply);
+
+            // Broadcast a change
+            reply = QwMessage("304");
+            item->user.userStatusEntry(reply);
+            broadcastMessage(reply, 1, true);
+        }
+    }
+
+
+}
+
+
+/*! This method is called when a user needs to be kicked/banned from the server by an administrator.
+*/
+void QwsServerController::handleModifiedUserGroup(const QString name)
+{
+    QHashIterator<int,QwsClientSocket*> i(sockets);
+    while (i.hasNext()) {
+        i.next();
+        QwsClientSocket *item = i.value();
+        if (!item) continue;
+        if (item->user.pGroupName == name) {
+            // Reload the account
+            item->user.loadFromDatabase();
+
+            // Send new privileges
+            QwMessage reply("602");
+            item->user.appendPrivilegeFlagsForREADUSER(reply);
+            item->sendMessage(reply);
+
+            // Broadcast a change
+            reply = QwMessage("304");
+            item->user.userStatusEntry(reply);
+            broadcastMessage(reply, 1, true);
+        }
+    }
+
 }

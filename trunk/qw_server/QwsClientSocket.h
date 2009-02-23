@@ -108,7 +108,7 @@ signals:
     /*! This signal is emitted if the client needs to be sent the topic of a room. (After login) */
     void requestedRoomTopic(const int roomId);
     /*! This signal is emitted when the client requests information about a client. */
-    void requestedClientInfo(const int userId);
+    void receivedMessageINFO(const int userId);
     /*! This signal is emitted when the client wants to create a new chat room. */
     void requestedNewRoom();
     /*! This signal is emitted when the client invites a user to a room. */
@@ -121,7 +121,10 @@ signals:
     void receivedMessageLEAVE(const int roomId);
     /*! This signal is emitted when the client kicked/banned another user. */
     void receivedMessageBAN_KICK(const int userId, const QString reason, const bool isBan);
-
+    /*! This signal is emitted when the client modified a user account and it needs to be reloaded. */
+    void modifiedUserAccount(const QString name);
+    /*! This signal is emitted when the client modified a group and it needs to be reloaded. */
+    void modifiedUserGroup(const QString name);
 
 		
 public slots:
@@ -191,7 +194,7 @@ private:
     /*! Defines the current state of the session/socket. */
     Qws::SessionState sessionState;
 
-    QString localPathFromVirtualPath(const QString &path);
+    QString localPathFromRemotePath(const QString &path);
 
     void resetIdleTimer();
 

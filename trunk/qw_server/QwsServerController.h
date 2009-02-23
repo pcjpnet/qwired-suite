@@ -69,7 +69,7 @@ private slots:
     // Protocol
     void broadcastMessage(const QwMessage message, const int roomId, const bool sendToSelf);
     void relayUserStatusChanged();
-    void sendClientInformation(const int userId);
+    void handleMessageINFO(const int userId);
 
     // Communication
     void addUserToRoom(const int roomId, const int userId);
@@ -87,6 +87,8 @@ private slots:
 
     // Administration
     void handleMessageBAN_KICK(const int userId, const QString reason, const bool isBan);
+    void handleModifiedUserAccount(const QString name);
+    void handleModifiedUserGroup(const QString name);
 
 public slots:
     //void reloadDatabase();

@@ -21,9 +21,6 @@
 
 /*
   Things that need to be done:
-
-  - actually check the privileges, login and password on login
-  - broadcast changes of privileges if the user is logged in
   - implement speed limits
   - ask morris about those new limit parameters in the accounts
   - file transfers, multi-threaded sockets
@@ -120,7 +117,7 @@ void QwsClientSocket::on_socket_error()
 */
 void QwsClientSocket::handleIncomingMessage(QwMessage message)
 {
-     qDebug() << "RECEIVED:" << message.commandName;
+     qDebug() << "RECEIVED:" << message.commandName << message.arguments;
 
      // Handshaking/Protocol
      if (message.commandName == "HELLO") {             handleMessageHELLO(message);
@@ -218,18 +215,40 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
          // session and proceed.
          user.pPassword = message.getStringArgument(0);
 
-         QwMessage reply("201");
-         reply.appendArg(QString::number(user.pUserID));
-         sendMessage(reply);
-         sessionState = Qws::StateActive;
-         emit sessionStateChanged(sessionState);
-         emit requestedRoomTopic(1);
+         // Check the login and password
+         QSqlQuery query;
+         query.prepare("SELECT id FROM qws_accounts WHERE acc_name=:_name AND acc_secret=:_secret");
+         query.bindValue(":_name", user.name);
+         query.bindValue(":_secret", user.pPassword);
+         if (query.exec()) {
+             // Query was OK. Check if there was a result.
+             query.first();
+             if (query.isValid() && user.loadFromDatabase()) {
+                 user.pLoginTime = QDateTime::currentDateTime();
+                 user.pIdleTime = QDateTime::currentDateTime();
 
-     } else {
-         // No handshake before or some information was missing.
-         sendMessage(QwMessage("510 Login Failed"));
-         disconnectClient();
+                 // Increment counter (we don't care so much if this fails)
+                 query.clear();
+                 query.prepare("UPDATE qws_accounts SET acc_logincount=acc_logincount+1 WHERE acc_name=:_name");
+                 query.bindValue(":_name", user.name);
+                 query.exec();
+
+                 // Login successful
+                 QwMessage reply("201");
+                 reply.appendArg(QString::number(user.pUserID));
+                 sendMessage(reply);
+                 sessionState = Qws::StateActive;
+                 emit sessionStateChanged(sessionState);
+                 emit requestedRoomTopic(1);
+                 return;
+             }
+         }
      }
+
+     // If in doubt, fail
+     sendError(Qws::ErrorLoginFailed);
+     disconnectClient();
+     return;
  }
 
 
@@ -237,8 +256,12 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
  */
  void QwsClientSocket::handleMessageUSER(QwMessage &message)
  {
-     qDebug() << this << "Received user login name:" << message.getStringArgument(0);
      user.name = message.getStringArgument(0);
+     if (user.name.isEmpty()) {
+         // Guest fallback
+         user.name = "guest";
+     }
+     qDebug() << this << "Received user login name:" << user.name;
  }
 
 
@@ -321,7 +344,8 @@ void QwsClientSocket::handleMessageBANNER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageINFO(QwMessage &message)
 {
-    emit requestedClientInfo(message.getStringArgument(0).toInt());
+    if (!user.privGetUserInfo) { sendError(Qws::ErrorPermissionDenied); return; }
+    emit receivedMessageINFO(message.getStringArgument(0).toInt());
 }
 
 
@@ -330,23 +354,8 @@ void QwsClientSocket::handleMessageINFO(QwMessage &message)
 void QwsClientSocket::handleMessagePRIVILEGES(QwMessage &message)
 {
     Q_UNUSED(message);
-
     QwMessage reply("602");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-    reply.appendArg("1"); reply.appendArg("1");
-
-    reply.appendArg("0"); reply.appendArg("0");
-    reply.appendArg("0"); reply.appendArg("0");
-
-    reply.appendArg("1");
-
+    user.appendPrivilegeFlagsForREADUSER(reply);
     sendMessage(reply);
 }
 
@@ -382,6 +391,7 @@ void QwsClientSocket::handleMessageMSG(QwMessage &message)
 */
 void QwsClientSocket::handleMessageBROADCAST(QwMessage &message)
 {
+    if (!user.privBroadcast) { sendError(Qws::ErrorPermissionDenied); return; }
     QwMessage reply("309");
     reply.appendArg(QString::number(user.pUserID));
     reply.appendArg(message.getStringArgument(0));
@@ -394,6 +404,7 @@ void QwsClientSocket::handleMessageBROADCAST(QwMessage &message)
 void QwsClientSocket::handleMessageTOPIC(QwMessage &message)
 {
     qDebug() << this << "Changing topic of chat" << message.getStringArgument(0);
+    if (!user.privChangeTopic) { sendError(Qws::ErrorPermissionDenied); return; }
     emit requestedRoomTopicChange(message.getStringArgument(0).toInt(), message.getStringArgument(1));
 }
 
@@ -479,6 +490,8 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
  */
  void QwsClientSocket::handleMessagePOST(QwMessage &message)
  {
+     if (!user.privPostNews) { sendError(Qws::ErrorPermissionDenied); return; }
+
      qDebug() << this << "Posted news";
      QSqlQuery query;
      query.prepare("INSERT INTO qws_news (news_username, news_date, news_text) "
@@ -508,6 +521,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
  void QwsClientSocket::handleMessageCLEARNEWS(QwMessage &message)
  {
      Q_UNUSED(message);
+     if (!user.privClearNews) { sendError(Qws::ErrorPermissionDenied); return; }
      qDebug() << this << "Cleared news";
      QSqlQuery query;
      query.prepare("DELETE FROM qws_news");
@@ -525,6 +539,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 */
 void QwsClientSocket::handleMessageBAN(QwMessage &message)
 {
+    if (!user.privBanUsers) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Banning user"<<message.getStringArgument(0)<<"from server";
     emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
                                  message.getStringArgument(1), true);
@@ -535,6 +550,7 @@ void QwsClientSocket::handleMessageBAN(QwMessage &message)
 */
 void QwsClientSocket::handleMessageKICK(QwMessage &message)
 {
+    if (!user.privKickUsers) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Kicking user"<<message.getStringArgument(0)<<"from server";
     emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
                                  message.getStringArgument(1), false);
@@ -545,6 +561,8 @@ void QwsClientSocket::handleMessageKICK(QwMessage &message)
 */
 void QwsClientSocket::handleMessageUSERS(QwMessage &message)
 {
+    if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     Q_UNUSED(message);
     qDebug() << this << "Listing user accounts";
 
@@ -573,6 +591,8 @@ void QwsClientSocket::handleMessageUSERS(QwMessage &message)
 */
 void QwsClientSocket::handleMessageGROUPS(QwMessage &message)
 {
+    if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     Q_UNUSED(message);
     qDebug() << this << "Listing groups";
 
@@ -601,6 +621,8 @@ void QwsClientSocket::handleMessageGROUPS(QwMessage &message)
 */
 void QwsClientSocket::handleMessageREADUSER(QwMessage &message)
 {
+    if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     qDebug() << this << "Reading user" << message.getStringArgument(0);
     QwsUser targetAccount;
     targetAccount.name = message.getStringArgument(0);
@@ -621,6 +643,8 @@ void QwsClientSocket::handleMessageREADUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
 {
+    if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     qDebug() << this << "Editing user" << message.getStringArgument(0);
     QwsUser targetAccount;
     targetAccount.name = message.getStringArgument(0);
@@ -629,9 +653,14 @@ void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
         sendError(Qws::ErrorAccountNotFound);
     } else {
         targetAccount.setPrivilegesFromEDITUSER(message, 3);
+        targetAccount.pPassword = message.getStringArgument(1);
+        targetAccount.pGroupName = message.getStringArgument(2);
         if (!targetAccount.writeToDatabase()) {
             sendError(Qws::ErrorAccountNotFound);
+        } else {
+            emit modifiedUserAccount(targetAccount.name);
         }
+
     }
 }
 
@@ -640,6 +669,8 @@ void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageCREATEUSER(QwMessage &message)
 {
+    if (!user.privCreateAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     qDebug() << this << "Creating user" << message.getStringArgument(0);
     QwsUser targetUser;
     targetUser.name = message.getStringArgument(0);
@@ -665,6 +696,8 @@ void QwsClientSocket::handleMessageCREATEUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEUSER(QwMessage &message)
 {
+    if (!user.privDeleteAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     qDebug() << this << "Editing user" << message.getStringArgument(0);
     QwsUser targetAccount;
     targetAccount.name = message.getStringArgument(0);
@@ -678,6 +711,8 @@ void QwsClientSocket::handleMessageDELETEUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageREADGROUP(QwMessage &message)
 {
+    if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     qDebug() << this << "Reading group" << message.getStringArgument(0);
     QwsUser targetGroup;
     targetGroup.name = message.getStringArgument(0);
@@ -697,6 +732,8 @@ void QwsClientSocket::handleMessageREADGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageCREATEGROUP(QwMessage &message)
 {
+    if (!user.privCreateAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
+
     qDebug() << this << "Creating group" << message.getStringArgument(0);
     QwsUser targetGroup;
     targetGroup.userType = Qws::UserTypeGroup;
@@ -723,6 +760,7 @@ void QwsClientSocket::handleMessageCREATEGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
 {
+    if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Editing group" << message.getStringArgument(0);
     QwsUser targetGroup;
     targetGroup.name = message.getStringArgument(0);
@@ -733,6 +771,8 @@ void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
         targetGroup.setPrivilegesFromEDITUSER(message, 1);
         if (!targetGroup.writeToDatabase()) {
             sendError(Qws::ErrorAccountNotFound);
+        } else {
+            emit modifiedUserGroup(targetGroup.name);
         }
     }
 }
@@ -742,6 +782,7 @@ void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
 {
+    if (!user.privDeleteAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Deleting group" << message.getStringArgument(0);
     QwsUser targetGroup;
     targetGroup.name = message.getStringArgument(0);
@@ -758,33 +799,20 @@ void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageLIST(QwMessage &message)
 {
-    QDir userRootDir(filesRootPath);
-    QString pathRequested = message.getStringArgument(0);
-    QString userCurrent = localPathFromVirtualPath(pathRequested);
-    QDir userCurrentDir(userCurrent);
+    QString requestedPath = message.getStringArgument(0);
+    QString localPath = localPathFromRemotePath(requestedPath);
+    QDir localPathDir(localPath);
 
-    qDebug() << this << "LIST:" << pathRequested;
-    qDebug() << this << "  =>" << userCurrent;
-
-    // Compare the absolute path (including unresolved symlinks) to the base path of the user's
-    // account. If it correct, the symlinks will be resolved.
-    if (!userCurrentDir.absolutePath().startsWith(userRootDir.absolutePath())) {
-        qDebug() << this << "Unable to escape jail list directory:" << userCurrentDir.canonicalPath();
+    if (localPath.isEmpty() || !localPathDir.exists() || !localPathDir.isReadable()) {
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
 
-    if (!userCurrentDir.exists()) {
-        qDebug() << this << "Target dir does not exist!";
-        sendError(Qws::ErrorFileOrDirectoryNotFound);
-        return;
-    }
-
-    QDirIterator it(userCurrentDir, QDirIterator::FollowSymlinks);
+    QDirIterator it(localPathDir, QDirIterator::FollowSymlinks);
     while (it.hasNext()) {
         QString item = it.next();
         QFileInfo itemInfo(item);
-        QString itemRemotePath = QDir::cleanPath(pathRequested+"/"+itemInfo.fileName());
+        QString itemRemotePath = QDir::cleanPath(requestedPath+"/"+itemInfo.fileName());
 
         if (itemInfo.isHidden()) {
             continue;
@@ -808,7 +836,7 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
 
     // End of list
     QwMessage reply("411");
-    reply.appendArg(pathRequested);
+    reply.appendArg(requestedPath);
     reply.appendArg("0");
     sendMessage(reply);
 }
@@ -818,38 +846,31 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
 */
 void QwsClientSocket::handleMessageSTAT(QwMessage &message)
 {
-    QDir filesRootDir(filesRootPath);
-    QString pathRequested = message.getStringArgument(0);
-    QString targetFile = localPathFromVirtualPath(pathRequested);
 
-    QFileInfo localVirtualFileInfo(targetFile);
-    QString localAbsolutePath = localVirtualFileInfo.absoluteFilePath();
-    qDebug() << "localAbsolutePath:" << localAbsolutePath;
+    QString requestedPath = message.getStringArgument(0);
+    QString localFilePath = localPathFromRemotePath(requestedPath);
+    QFileInfo targetInfo(localFilePath);
 
-    qDebug() << "filesRootPath:" << filesRootPath;
-    if (!localAbsolutePath.startsWith(filesRootDir.absolutePath())) {
-        qDebug() << this << "Preventing access to" << localAbsolutePath;
+    if (localFilePath.isEmpty() || !targetInfo.exists() || !targetInfo.isReadable()) {
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
 
-    QString localCanonicalPath = localVirtualFileInfo.canonicalFilePath();
-    qDebug() << "localCanonicalPath:" << localCanonicalPath;
 
-    QFileInfo localFileInfo(localCanonicalPath);
+    qDebug() << "localAbsolutePath:" << localFilePath;
 
     QwMessage reply("402");
-    reply.appendArg(pathRequested);
-    if (localFileInfo.isDir()) {
-        QDir localDir(localCanonicalPath);
+    reply.appendArg(requestedPath);
+    if (targetInfo.isDir()) {
+        QDir localDir(QDir(localFilePath).canonicalPath());
         reply.appendArg("1");
         reply.appendArg(QString::number(localDir.count()));
     } else {
         reply.appendArg("0");
-        reply.appendArg(QString::number(localFileInfo.size()));
+        reply.appendArg(QString::number(targetInfo.size()));
     }
-    reply.appendArg(localFileInfo.created().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-    reply.appendArg(localFileInfo.lastModified().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetInfo.created().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetInfo.lastModified().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
 
     reply.appendArg(""); // Checksum
     reply.appendArg(""); // Comment
@@ -888,8 +909,6 @@ void QwsClientSocket::disconnectClient()
 }
 
 
-
-
 /*! Send an error message to the client if something goes wrong.
 */
 void QwsClientSocket::sendError(const Qws::ProtocolError error)
@@ -918,11 +937,21 @@ void QwsClientSocket::sendError(const Qws::ProtocolError error)
 }
 
 
-/*! This method returns the local disk path of a file or directory depending on the user's root
-    directory.
+/*! This method returns a 'secure' path from the remote provided path to a file or directory. The
+    idea is to prevent access to directories outside of the user root-jail while following symlinks.
 */
-QString QwsClientSocket::localPathFromVirtualPath(const QString &path)
+QString QwsClientSocket::localPathFromRemotePath(const QString &path)
 {
-    return QDir(filesRootPath+QDir::separator()+path).absolutePath();
+    QString insecureLocalPath = QDir(filesRootPath + "/" + path).absolutePath();
+    QString absoluteUserRootPath = QDir(filesRootPath).absolutePath();
+    if (insecureLocalPath.startsWith(absoluteUserRootPath)) {
+        // We make sure that the requested path is part of the local root of the users directory
+        // tree. This path may contain symbolic links are in the responsibility of the user.
+        return insecureLocalPath;
+    } else {
+        // Insecure path
+        qDebug() << this << "Unable to escape jail list directory:" << path;
+        return "";
+    }
 }
 

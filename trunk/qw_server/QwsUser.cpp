@@ -36,8 +36,8 @@ QwsUser::QwsUser()
 	privBroadcast = false;
 	privPostNews = true;
 	privClearNews = false;
-	privDownload = false;
-	privUpload = false;
+        privDownload = true;
+        privUpload = true;
 	privUploadAnywhere = false;
 	privCreateFolders = false;
 	privAlterFiles = false;
@@ -47,8 +47,8 @@ QwsUser::QwsUser()
 	privEditAccounts = false;
 	privDeleteAccounts = false;
 	privElevatePrivileges = false;
-	privKickUsers = true;
-	privBanUsers = true;
+        privKickUsers = false;
+        privBanUsers = false;
 	privCannotBeKicked = false;
 	privDownloadSpeed = 0;
 	privUploadSpeed = 0;
@@ -59,7 +59,8 @@ QwsUser::QwsUser()
 
 
 QwsUser::~QwsUser()
-{ }
+{
+}
 
 
 /*! This method loads the account data from the database. In order for this to work, the \a name
@@ -75,7 +76,8 @@ bool QwsUser::loadFromDatabase()
     QSqlQuery query;
     if (userType == Qws::UserTypeAccount) {
         // Load Information about a User Account
-        query.prepare("SELECT id, acc_secret, acc_privileges, acc_group, acc_maxupload, acc_maxdownload "
+        query.prepare("SELECT id, acc_secret, acc_privileges, acc_group, acc_maxupload, acc_maxdownload, "
+                      "acc_speedupload, acc_speeddownload "
                       "FROM qws_accounts WHERE acc_name=:_name LIMIT 1;");
         query.bindValue(":_name", this->name);
         if (!query.exec()) {
@@ -87,10 +89,35 @@ bool QwsUser::loadFromDatabase()
                 return false;
             }
             this->pPassword = query.value(1).toString();
-            this->setPrivilegesFromQwiredSpec(query.value(2).toString());
             this->pGroupName = query.value(3).toString();
-            this->privUploadLimit = query.value(4).toInt();
-            this->privDownloadLimit = query.value(5).toInt();
+
+            if (pGroupName.isEmpty()) {
+                // No group specified - load user privileges
+                this->privUploadLimit = query.value(4).toInt();
+                this->privDownloadLimit = query.value(5).toInt();
+                this->privUploadSpeed = query.value(6).toInt();
+                this->privDownloadSpeed = query.value(7).toInt();
+                this->setPrivilegesFromQwiredSpec(query.value(2).toString());
+            } else {
+                // Group specified - load group data
+                QwsUser targetGroup;
+                targetGroup.userType = Qws::UserTypeGroup;
+                targetGroup.name = pGroupName;
+                if (!targetGroup.loadFromDatabase()) {
+                    qDebug() << this << "Unable to load group for user.";
+                    return false;
+                } else {
+                    // Load privileges from group
+                    qDebug() << this << "Loading privileges and settings from group" << pGroupName;
+                    this->setPrivilegesFromQwiredSpec(targetGroup.privilegesFlagsAsQwiredSpec());
+                    this->privUploadLimit = targetGroup.privUploadLimit;
+                    this->privDownloadLimit = targetGroup.privDownloadLimit;
+                    this->privUploadSpeed = targetGroup.privUploadSpeed;
+                    this->privDownloadSpeed = targetGroup.privDownloadSpeed;
+                }
+
+            }
+
         }
 
     } else if (userType == Qws::UserTypeGroup) {
@@ -121,13 +148,17 @@ bool QwsUser::writeToDatabase()
     if (userType == Qws::UserTypeAccount) {
         // Load Information about a User Account
         query.prepare("UPDATE qws_accounts "
-                      "SET acc_secret=:_secret, acc_privileges=:_privileges, acc_group=:_group, acc_maxdownload=:_maxdown, acc_maxupload=:_maxup "
+                      "SET acc_secret=:_secret, acc_privileges=:_privileges, acc_group=:_group, "
+                      "acc_maxdownload=:_maxdown, acc_maxupload=:_maxup, "
+                      "acc_speeddownload=:_speeddownload, acc_speedupload=:_speedupload "
                       "WHERE acc_name=:_name");
         query.bindValue(":_name", this->name);
         query.bindValue(":_secret", this->pPassword);
         query.bindValue(":_group", this->pGroupName);
         query.bindValue(":_maxdown", this->privDownloadLimit);
         query.bindValue(":_maxup", this->privUploadLimit);
+        query.bindValue(":_speeddownload", this->privDownloadSpeed);
+        query.bindValue(":_speedupload", this->privUploadSpeed);
         query.bindValue(":_privileges", this->privilegesFlagsAsQwiredSpec());
         if (!query.exec()) {
             qDebug() << this << "Unable to write user account:" << query.lastError().text();
@@ -189,7 +220,6 @@ bool QwsUser::deleteFromDatabase()
             }
         }
     }
-
     return true;
 }
 
@@ -312,9 +342,10 @@ void QwsUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset)
     this->privCannotBeKicked = message.getStringArgument(fieldOffset++).toInt();
     this->privDownloadSpeed = message.getStringArgument(fieldOffset++).toInt();
     this->privUploadSpeed = message.getStringArgument(fieldOffset++).toInt();
-    this->privDownloadLimit = message.getStringArgument(fieldOffset++).toInt();
-    this->privUploadLimit = message.getStringArgument(fieldOffset++).toInt();
-    this->privChangeTopic = message.getStringArgument(fieldOffset++).toInt();
+    this->privDownloadLimit = message.getStringArgument(fieldOffset++).toInt(); // wired 1.1
+    this->privUploadLimit = message.getStringArgument(fieldOffset++).toInt(); // wired 1.1
+    this->privChangeTopic = message.getStringArgument(fieldOffset++).toInt(); // wired 1.1
+
 }
 
 
@@ -325,7 +356,7 @@ void QwsUser::userInfoEntry(QwMessage &message) const
 {
     message.appendArg(QString::number(pUserID));
     message.appendArg(pIdle ? "1" : "0");
-    message.appendArg(pAdmin ? "1" : "0");
+    message.appendArg(privBanUsers || privKickUsers ? "1" : "0");
     message.appendArg(QString::number(pIcon));
     message.appendArg(userNickname);
     message.appendArg(name);
