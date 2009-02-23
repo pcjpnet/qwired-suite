@@ -754,11 +754,10 @@ void ClassWiredSession::onConnectAborted()
 // Prompt user to confirm disconnection
 bool ClassWiredSession::confirmDisconnection()
 {
-    if(QMessageBox::question(0, tr("Disconnect"),tr("Are you sure you want to continue? If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n").arg(pWiredSocket->pServerName), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+    if(!pEventFilter->disconnectionPrompt()) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 

@@ -607,7 +607,7 @@ void WiredSocket::on_server_broadcast(QList< QByteArray > theParams)
 void WiredSocket::clearNews() { sendWiredCommand("CLEARNEWS"); }
 
 void WiredSocket::getFileList(QString thePath) {
-	sendWiredCommand(QByteArray("LIST ")+thePath.toUtf8());
+        sendWiredCommand(QByteArray("LIST ")+thePath.toUtf8());
 }
 
 void WiredSocket::setUserIcon(QPixmap theIcon) {
@@ -1252,7 +1252,7 @@ void WiredSocket::sendClientInfo() {
 // Send a Wired message
 void WiredSocket::sendWiredCommand(const QByteArray theData) {
 	if(!pSocket->isOpen()) return;
-	pSocket->write(theData + char(kEOF));
+        pSocket->write(theData + char(kEOF));
 }
 
 // Return a list of parameters from the message, automatically skipping the command identifier.
