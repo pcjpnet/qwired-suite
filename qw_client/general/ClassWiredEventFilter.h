@@ -44,6 +44,8 @@ public:
 
    void setSocket(WiredSocket *s);
 
+   bool disconnectionPrompt(QEvent *event = 0);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 };
