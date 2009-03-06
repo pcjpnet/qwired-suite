@@ -1,16 +1,19 @@
 #ifndef QWCFILEINFO_H
 #define QWCFILEINFO_H
 
-#include <QtCore>
-#include <QtGui>
+//#include <QtCore>
+//#include <QtGui>
+#include <QMetaType>
+#include <QString>
+#include <QList>
+#include <QDateTime>
+#include <QIcon>
 
 namespace WiredTransfer {
-	enum FileType { RegularFile, Directory, Uploads, DropBox };
+    enum FileType { RegularFile, Directory, Uploads, DropBox };
 }
 
-/**
-	@author Bastian Bense <bastibense@gmail.com>
- */
+
 class QwcFileInfo
 {
 
@@ -19,13 +22,13 @@ public:
     QwcFileInfo();
     ~QwcFileInfo();
     
-	static QString humanReadableSize(qlonglong theBytes);
+    static QString humanReadableSize(qlonglong theBytes);
     void setFromStat(QList<QByteArray> theParams);
-	
+
     
     // Default parameters
     QString path;
-	WiredTransfer::FileType type;
+    WiredTransfer::FileType type;
     qlonglong size;
     QDateTime created;
     QDateTime modified;
@@ -35,10 +38,10 @@ public:
     QString comment;
 
     QString fileName() const;
-	QIcon fileIcon() const;
+    QIcon fileIcon() const;
 
-	bool isIndexed; // used for recursive downloads
-	QString localPath; // local path for folder uploads
+    bool isIndexed; // used for recursive downloads
+    QString localPath; // local path for folder uploads
 
 };
 

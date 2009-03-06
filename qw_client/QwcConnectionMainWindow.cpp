@@ -1,6 +1,14 @@
 #include "QwcConnectionMainWindow.h"
 
 
+/*! \class QwcConnectionMainWindow
+    \author Bastian Bense <bastibense@gmail.com>
+    \date 2009-03-06
+
+    This is a QMainWindow derivate that provides the default connection window and toolbars. Its
+    CentralWidget will be set to be a \a QwsChat instance by default, providing a standard user list.
+*/
+
 QwcConnectionMainWindow::QwcConnectionMainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setupUi(this);

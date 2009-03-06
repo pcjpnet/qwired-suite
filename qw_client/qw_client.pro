@@ -101,7 +101,7 @@ HEADERS += QwcSession.h \
     QwcAccountsWidget.h \
     QwcFileInfoWidget.h \
     QwcTrackerlistWidget.h \
-    QwcTrackerInfo.h \
+    QwcTrackerServerInfo.h \
     QwcAboutWidget.h \
     QwcNewsPostWidget.h \
     QwcEventFilter.h
