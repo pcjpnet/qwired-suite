@@ -1,6 +1,12 @@
 #include "QwcSession.h"
 #include "QwcSingleton.h"
 
+/*! \class QwcSingleton
+    \author Bastian Bense <bastibense@gmail.com>
+    \date 2009-03-06
+    \brief The application-wide singelton to synchronize parts of the application at runtime.
+*/
+
 // Declare override-method for Mac dock
 #ifdef Q_WS_MAC
 	void qt_mac_set_dock_menu(QMenu *menu);

@@ -10,10 +10,6 @@
 
 class QwcSession;
 
-/**
-A basic singleton to handle global notification within the app.
-	@author Bastian Bense <bastibense@gmail.com>
- */
 class QwcSingleton : public QObject
 {
 	

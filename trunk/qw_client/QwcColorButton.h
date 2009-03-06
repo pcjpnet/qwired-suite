@@ -1,9 +1,11 @@
 #ifndef QWCCOLORBUTTON_H
 #define QWCCOLORBUTTON_H
 
+
 #include <QToolButton>
 #include <QPainter>
 #include <QColorDialog>
+
 
 class QwcColorButton : public QToolButton
 {

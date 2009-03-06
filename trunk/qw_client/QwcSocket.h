@@ -8,7 +8,7 @@
 #include "QwcUserInfo.h"
 #include "QwcFiletransferInfo.h"
 #include "QwcFileInfo.h"
-#include "QwcTrackerInfo.h"
+#include "QwcTrackerServerInfo.h"
 #include "QwcFiletransferSocket.h"
 
 /**
@@ -60,8 +60,8 @@ public:
     bool pIzCaturday;
     QString tranzlate(QString);
 
-    const int userCountByChat(const int theChatID);
-    const int userIndexByID(const int theID, const int theChat=1);
+    int userCountByChat(const int theChatID);
+    int userIndexByID(const int theID, const int theChat=1);
     const QwcUserInfo userByIndex(const int theChatID, const int theIndex);
 
     void connectToWiredServer(QString theHostName, int thePort=2000);
@@ -252,7 +252,7 @@ public:
 
     // TRACKER
     //
-    void trackerServersReceived(QList<ClassTrackerServer>);
+    void trackerServersReceived(QList<QwcTrackerServerInfo>);
 
 private:
 
@@ -276,7 +276,7 @@ private:
 
     /// The temporary list of items for the search results.
     QList<QwcFileInfo> pSearchResults;
-    QList<ClassTrackerServer> pTrackerServers;
+    QList<QwcTrackerServerInfo> pTrackerServers;
 
     /// This is our TCP buffer. Could possibly be optimized, but works for now.
     QByteArray pBuffer;

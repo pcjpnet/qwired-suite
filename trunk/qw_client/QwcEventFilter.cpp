@@ -15,16 +15,16 @@ void QwcEventFilter::setSocket(QwcSocket *s)
 
 
 bool QwcEventFilter::eventFilter(QObject *obj, QEvent *event)
- {
-     if(event->type() == QEvent::Close && pWiredSocket->pSocket->state() == QAbstractSocket::ConnectedState && pWiredSocket->pServerName != "") {
-         if(QwcEventFilter::disconnectionPrompt(event)) {
-             return true;
-         }
-     }
+{
+    if(event->type() == QEvent::Close && pWiredSocket->pSocket->state() == QAbstractSocket::ConnectedState && pWiredSocket->pServerName != "") {
+        if(QwcEventFilter::disconnectionPrompt(event)) {
+            return true;
+        }
+    }
 
-     // Normal course of action
-     return QObject::eventFilter(obj, event);
- }
+    // Normal course of action
+    return QObject::eventFilter(obj, event);
+}
 
 
 bool QwcEventFilter::disconnectionPrompt(QEvent *event)

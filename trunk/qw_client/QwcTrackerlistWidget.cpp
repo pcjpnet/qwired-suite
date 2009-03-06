@@ -7,8 +7,8 @@ QwcTrackerlistWidget::QwcTrackerlistWidget(QWidget *parent) : QWidget(parent)
 	setupUi(this);
     pSocket = new QwcSocket(this);
 	
-	connect( pSocket, SIGNAL(trackerServersReceived(QList<ClassTrackerServer>)),
-			 this, SLOT(trackerServersReceived(QList<ClassTrackerServer>)) );
+        connect( pSocket, SIGNAL(trackerServersReceived(QList<QwcTrackerServerInfo>)),
+                         this, SLOT(trackerServersReceived(QList<QwcTrackerServerInfo>)) );
 
 	connect( pSocket, SIGNAL(onSocketError(QAbstractSocket::SocketError)),
 			 this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
@@ -67,7 +67,7 @@ void QwcTrackerlistWidget::on_fBtnRefresh_clicked() {
 	pSocket->connectToTracker( address);
 }
 
-void QwcTrackerlistWidget::trackerServersReceived(QList< ClassTrackerServer > theList) {
+void QwcTrackerlistWidget::trackerServersReceived(QList< QwcTrackerServerInfo > theList) {
 	fList->setEnabled(true);
 	fFilter->setEnabled(true);
 	fBtnRefresh->setEnabled(true);
@@ -75,7 +75,7 @@ void QwcTrackerlistWidget::trackerServersReceived(QList< ClassTrackerServer > th
 	
 	for(int i=0; i<theList.count(); i++) {
                 fProgress->setText(QString(tr("%1 servers registered with tracker")).arg(int(i+1)));
-		ClassTrackerServer ts = theList.value(i);
+                QwcTrackerServerInfo ts = theList.value(i);
 		QStandardItem *item;
 
 		item = new QStandardItem(ts.name);

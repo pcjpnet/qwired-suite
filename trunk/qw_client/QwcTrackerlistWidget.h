@@ -6,7 +6,7 @@
 
 #include "ui_QwcTrackerlistWidget.h"
 #include "QwcSocket.h"
-#include "QwcTrackerInfo.h"
+#include "QwcTrackerServerInfo.h"
 
 /**
 	@author Bastian Bense <bb@bense.de>
@@ -30,7 +30,7 @@ signals:
 private slots:
 	
 	void on_fBtnRefresh_clicked();
-	void trackerServersReceived(QList<ClassTrackerServer> theList);
+        void trackerServersReceived(QList<QwcTrackerServerInfo> theList);
 	void handleSocketError(QAbstractSocket::SocketError);
 	void doubleclickedListItem(QModelIndex index );
 
