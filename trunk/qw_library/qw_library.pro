@@ -6,7 +6,9 @@ QT += network
 TARGET = qw_library
 TEMPLATE = lib
 CONFIG += staticlib debug
-SOURCES += QwMessage.cpp QwSocket.cpp
-HEADERS += QwMessage.h QwSocket.h
+SOURCES += QwMessage.cpp \
+    QwSocket.cpp
+HEADERS += QwMessage.h \
+    QwSocket.h
 TARGET = qwlibrary
 DESTDIR = ../bin/

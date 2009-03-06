@@ -1,98 +1,94 @@
 <RCC>
-  <qresource prefix="/" >
-    <file alias="lang_de.qm">lang/lang_de.qm</file>
-    <file alias="lang_it.qm">lang/lang_it.qm</file>
-    <file alias="lang_pt.qm">lang/lang_pt.qm</file>
-    <file alias="lang_es.qm">lang/lang_es.qm</file>
-    <file alias="lang_fr.qm">lang/lang_fr.qm</file>
-    <file alias="lang_jp.qm">lang/lang_jp.qm</file>
-
-	<file>icons/32x32/network-server.png</file>
-	<file>icons/32x32/start-here.png</file>
-	<file>icons/32x32/go-down.png</file>
-	<file>icons/32x32/go-up.png</file>
-	<file>icons/32x32/face-smile.png</file>
-	<file>icons/32x32/mail-message-new.png</file>
-	
-	<file>icons/16x16/process-stop.png</file>
-	<file>icons/16x16/system-search.png</file>
-	<file>icons/16x16/go-down.png</file>
-	<file>icons/16x16/go-first.png</file>
-	<file>icons/16x16/go-up.png</file>
-	<file>icons/16x16/folder-new.png</file>
-	<file>icons/16x16/view-refresh.png</file>
-	<file>icons/16x16/edit-delete.png</file>
-	
-    <file>icons/about_sidebar.png</file>
-    <file>general/tranzlator.txt</file>
-    <file>icons/qwired_splash.png</file>
-    <file>icons/accounts.png</file>
-    <file>icons/btn_ban.png</file>
-    <file>icons/btn_chat.png</file>
-    <file>icons/btn_info.png</file>
-    <file>icons/btn_kick.png</file>
-    <file>icons/disconnect.png</file>
-    <file>icons/files.png</file>
-    <file>icons/filesearch.png</file>
-    <file>icons/icn_back.png</file>
-    <file>icons/icn_close.png</file>
-    <file>icons/icn_delete.png</file>
-    <file>icons/icn_download.png</file>
-    <file>icons/icn_download_32.png</file>
-    <file>icons/icn_dropbox_18.png</file>
-    <file>icons/icn_file_18.png</file>
-    <file>icons/icn_folder_18.png</file>
-    <file>icons/icn_foldernew.png</file>
-    <file>icons/icn_invite.png</file>
-    <file>icons/icn_msg.png</file>
-    <file>icons/icn_refresh.png</file>
-    <file>icons/icn_tracker.png</file>
-    <file>icons/icn_trackerserver.png</file>
-    <file>icons/icn_upload.png</file>
-    <file>icons/icn_upload_32.png</file>
-    <file>icons/icon_account.png</file>
-    <file>icons/icon_accountgroup.png</file>
-    <file>icons/icon_favourite.png</file>
-    <file>icons/icon_happycat.png</file>
-    <file>icons/icon_missing.png</file>
-    <file>icons/news.png</file>
-    <file>icons/qwired_logo_128.png</file>
-    <file>icons/qwired_logo_18.png</file>
-    <file>icons/qwired_logo_32.png</file>
-    <file>icons/qwired_logo_48.png</file>
-    <file>icons/qwired_logo_512.png</file>
-    <file>icons/tab-content.png</file>
-    <file>icons/tab-idle.png</file>
-    <file>icons/tb_news.png</file>
-    <file>icons/transfers.png</file>
-  
-    <file>icons/files/files-archive.png</file>
-    <file>icons/files/files-audio.png</file>
-    <file>icons/files/files-dropbox.png</file>
-    <file>icons/files/files-folder.png</file>
-    <file>icons/files/files-image.png</file>
-    <file>icons/files/files-media.png</file>
-    <file>icons/files/files-office.png</file>
-    <file>icons/files/files-regular.png</file>
-    <file>icons/files/files-text.png</file>
-    <file>icons/files/files-uploads.png</file>
-    <file>icons/files/files-executable.png</file>
-    <file>icons/emotes/face-angel.png</file>
-    <file>icons/emotes/face-crying.png</file>
-    <file>icons/emotes/face-devilish.png</file>
-    <file>icons/emotes/face-glasses.png</file>
-    <file>icons/emotes/face-grin.png</file>
-    <file>icons/emotes/face-kiss.png</file>
-    <file>icons/emotes/face-monkey.png</file>
-    <file>icons/emotes/face-plain.png</file>
-    <file>icons/emotes/face-sad.png</file>
-    <file>icons/emotes/face-smile.png</file>
-    <file>icons/emotes/face-smile-big.png</file>
-    <file>icons/emotes/face-surprise.png</file>
-    <file>icons/emotes/face-wink.png</file>
-    <file>icons/emotes/face-cat.png</file>
-    <file>icons/icn_showhide.png</file>
-    <file>icons/icn_quit.png</file>
-    <file>icons/icn_event.png</file>
-  </qresource>
+    <qresource prefix="/" >
+        <file alias="lang_de.qm" >lang/lang_de.qm</file>
+        <file alias="lang_it.qm" >lang/lang_it.qm</file>
+        <file alias="lang_pt.qm" >lang/lang_pt.qm</file>
+        <file alias="lang_es.qm" >lang/lang_es.qm</file>
+        <file alias="lang_fr.qm" >lang/lang_fr.qm</file>
+        <file alias="lang_jp.qm" >lang/lang_jp.qm</file>
+        <file>icons/32x32/network-server.png</file>
+        <file>icons/32x32/start-here.png</file>
+        <file>icons/32x32/go-down.png</file>
+        <file>icons/32x32/go-up.png</file>
+        <file>icons/32x32/face-smile.png</file>
+        <file>icons/32x32/mail-message-new.png</file>
+        <file>icons/16x16/process-stop.png</file>
+        <file>icons/16x16/system-search.png</file>
+        <file>icons/16x16/go-down.png</file>
+        <file>icons/16x16/go-first.png</file>
+        <file>icons/16x16/go-up.png</file>
+        <file>icons/16x16/folder-new.png</file>
+        <file>icons/16x16/view-refresh.png</file>
+        <file>icons/16x16/edit-delete.png</file>
+        <file>icons/about_sidebar.png</file>
+        <file>icons/qwired_splash.png</file>
+        <file>icons/accounts.png</file>
+        <file>icons/btn_ban.png</file>
+        <file>icons/btn_chat.png</file>
+        <file>icons/btn_info.png</file>
+        <file>icons/btn_kick.png</file>
+        <file>icons/disconnect.png</file>
+        <file>icons/files.png</file>
+        <file>icons/filesearch.png</file>
+        <file>icons/icn_back.png</file>
+        <file>icons/icn_close.png</file>
+        <file>icons/icn_delete.png</file>
+        <file>icons/icn_download.png</file>
+        <file>icons/icn_download_32.png</file>
+        <file>icons/icn_dropbox_18.png</file>
+        <file>icons/icn_file_18.png</file>
+        <file>icons/icn_folder_18.png</file>
+        <file>icons/icn_foldernew.png</file>
+        <file>icons/icn_invite.png</file>
+        <file>icons/icn_msg.png</file>
+        <file>icons/icn_refresh.png</file>
+        <file>icons/icn_tracker.png</file>
+        <file>icons/icn_trackerserver.png</file>
+        <file>icons/icn_upload.png</file>
+        <file>icons/icn_upload_32.png</file>
+        <file>icons/icon_account.png</file>
+        <file>icons/icon_accountgroup.png</file>
+        <file>icons/icon_favourite.png</file>
+        <file>icons/icon_happycat.png</file>
+        <file>icons/icon_missing.png</file>
+        <file>icons/news.png</file>
+        <file>icons/qwired_logo_128.png</file>
+        <file>icons/qwired_logo_18.png</file>
+        <file>icons/qwired_logo_32.png</file>
+        <file>icons/qwired_logo_48.png</file>
+        <file>icons/qwired_logo_512.png</file>
+        <file>icons/tab-content.png</file>
+        <file>icons/tab-idle.png</file>
+        <file>icons/tb_news.png</file>
+        <file>icons/transfers.png</file>
+        <file>icons/files/files-archive.png</file>
+        <file>icons/files/files-audio.png</file>
+        <file>icons/files/files-dropbox.png</file>
+        <file>icons/files/files-folder.png</file>
+        <file>icons/files/files-image.png</file>
+        <file>icons/files/files-media.png</file>
+        <file>icons/files/files-office.png</file>
+        <file>icons/files/files-regular.png</file>
+        <file>icons/files/files-text.png</file>
+        <file>icons/files/files-uploads.png</file>
+        <file>icons/files/files-executable.png</file>
+        <file>icons/emotes/face-angel.png</file>
+        <file>icons/emotes/face-crying.png</file>
+        <file>icons/emotes/face-devilish.png</file>
+        <file>icons/emotes/face-glasses.png</file>
+        <file>icons/emotes/face-grin.png</file>
+        <file>icons/emotes/face-kiss.png</file>
+        <file>icons/emotes/face-monkey.png</file>
+        <file>icons/emotes/face-plain.png</file>
+        <file>icons/emotes/face-sad.png</file>
+        <file>icons/emotes/face-smile.png</file>
+        <file>icons/emotes/face-smile-big.png</file>
+        <file>icons/emotes/face-surprise.png</file>
+        <file>icons/emotes/face-wink.png</file>
+        <file>icons/emotes/face-cat.png</file>
+        <file>icons/icn_showhide.png</file>
+        <file>icons/icn_quit.png</file>
+        <file>icons/icn_event.png</file>
+        <file>tranzlator.txt</file>
+    </qresource>
 </RCC>
