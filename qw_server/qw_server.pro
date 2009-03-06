@@ -10,9 +10,7 @@ LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
 QT -= gui
 
-CONFIG += debug \
-    ppc \
-    x86
+CONFIG += debug
 QT += network \
     xml \
     sql
