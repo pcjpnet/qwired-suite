@@ -15,6 +15,7 @@
 QwcPrivateMessagerSession::QwcPrivateMessagerSession()
 {
     unreadCount = 0;
+    document = NULL;
 }
 
 // Item Delegate
@@ -102,7 +103,7 @@ void QwcPrivateMessageListDelegate::paint(QPainter *painter, const QStyleOptionV
 
 QSize QwcPrivateMessageListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    return QSize(200, 36);
+    return QSize(160, 36);
 };
 
 
@@ -113,6 +114,60 @@ QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
     fMessageList->setItemDelegate(new QwcPrivateMessageListDelegate(fMessageList));
+    fMessageInput->installEventFilter(this);
+}
+
+
+/*! This method is called automatically and we use it to strip the return and enter key from the
+    message input field.
+*/
+bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == fMessageInput) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (!keyEvent) { return false; }
+            if (keyEvent->key() == Qt::Key_Return) {
+                // Add to the document
+                if (fMessageList->currentRow() == -1) { return false; }
+                QwcPrivateMessagerSession session = fMessageList->currentItem()->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
+                if (session.document) {
+                    qDebug() << "send message";
+
+                    QTextCursor cursor = session.document->rootFrame()->lastCursorPosition();
+                    cursor.insertHtml(QString("<div class=\"msg_out\">%1</div>").arg(fMessageInput->toPlainText()));
+                    //QTextCursor cursor(session.document);
+                    //cursor.movePosition(QTextCursor::End);
+/*
+                    QTextFrameFormat frameFormat;
+                    frameFormat.setPadding(6);
+                    frameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_Inset);
+                    frameFormat.setBorder(1);
+                    frameFormat.setMargin(0);
+                    frameFormat.setBackground(QColor(Qt::gray).lighter());
+
+                    QTextFrame *messageFrame = cursor.insertFrame(frameFormat);
+*/
+                    //cursor.insertBlock(blockFormat);
+
+                    //QTextCharFormat format = cursor.charFormat();
+                    //format.setBackground(Qt::lightGray);
+                    //format.setFontWeight(QFont::Bold);
+                    //cursor.setCharFormat(format);
+
+
+                    //cursor.insertHtml(fMessageInput->toPlainText());
+
+                    //cursor.insertHtml(QString("<br><div class=\"msg_out\">%1</div>").arg());
+                    emit enteredNewMessage(session.userInfo.pUserID, fMessageInput->toPlainText());
+                    fMessageInput->clear();
+                }
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 
@@ -142,6 +197,7 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
     if (!targetDocument) {
         QwcPrivateMessagerSession session;
         targetDocument = new QTextDocument(fMessageList);
+        targetDocument->setDefaultStyleSheet(".msg_in { background-color: #DDF; }  .msg_out { background-color: #FDD; }");
         session.document = targetDocument;
         session.unreadCount = 1;
         session.userInfo = sender;
@@ -152,9 +208,21 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
 
     // Add the data
     if (targetDocument) {
-        QTextCursor cursor(targetDocument);
+        QTextCursor cursor = targetDocument->rootFrame()->lastCursorPosition();
+        cursor.insertHtml(QString("<div class=\"msg_in\">%1</div>").arg(fMessageInput->toPlainText()));
+        /*
+QTextCursor cursor(targetDocument);
         cursor.movePosition(QTextCursor::End);
-        cursor.insertHtml(QString("<b>%1:</b> %2").arg(sender.pNick).arg(message));
+
+        QTextBlockFormat blockFormat;
+        blockFormat.setTopMargin(4);
+        blockFormat.setLeftMargin(4);
+        blockFormat.setRightMargin(4);
+        blockFormat.setBottomMargin(4);
+        blockFormat.setBackground(QColor(Qt::gray).lighter(150));
+        cursor.insertBlock(blockFormat);
+        cursor.insertText(message);
+        */
     }
 }
 

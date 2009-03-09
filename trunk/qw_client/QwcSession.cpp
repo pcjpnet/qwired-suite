@@ -163,6 +163,8 @@ void QwcSession::setupConnections() {
 
     connect(pWiredSocket, SIGNAL(onPrivateMessage(QwcUserInfo,QString)),
             privateMessager, SLOT(handleNewMessage(QwcUserInfo, QString)) );
+    connect(privateMessager, SIGNAL(enteredNewMessage(int,QString)),
+            pWiredSocket, SLOT(sendPrivateMessage(int,QString)));
 
     connect(pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
     connect(pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
