@@ -1,24 +1,3 @@
-/***************************************************************************
- * QWired - a free Wired client.
- * Copyright (C) 2008 Bastian Bense
- ***************************************************************************
- * This program is free software; you can redistribute it and/or modify it *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2 of the License, or           *
- * (at your option) any later version.                                     *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the                                 *
- * Free Software Foundation, Inc.,                                         *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
- ***************************************************************************/
-
-
 /*
   Things that need to be done:
   - implement speed limits
@@ -50,13 +29,12 @@ QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
     connect(this, SIGNAL(messageReceived(QwMessage)),
             this, SLOT(handleIncomingMessage(QwMessage)), Qt::QueuedConnection);
 
-
     // A new socket is always in teh inactive state.
     sessionState = Qws::StateInactive;
 
-
+    // Set up the idle timer and connect it to the respective handlers
     pIdleTimer = new QTimer(this);
-    pIdleTimer->setInterval(1000*60*10);
+    pIdleTimer->setInterval(1000*60*10); // 10 minutes
     pIdleTimer->setSingleShot(true);
     connect(pIdleTimer, SIGNAL(timeout()), this, SLOT(idleTimerTriggered()));
 }
@@ -64,7 +42,7 @@ QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
 
 QwsClientSocket::~QwsClientSocket()
 {
-    qDebug() << "[qws] Destroying"<<pSessionUser.pUserID;
+    qDebug() << "[qws] Destroying"<<user.pUserID;
 }
 
 
@@ -74,22 +52,21 @@ QwsClientSocket::~QwsClientSocket()
  */
 void QwsClientSocket::idleTimerTriggered()
 {
-    if(!pSessionUser.pIdle) {
-        pSessionUser.pIdle = true;
-        emit userStatusChanged();
-    }
+    if (user.pIdle) { return; }
+    user.pIdle = true;
+    emit userStatusChanged();
 }
 
 
-/*!  The user shows some activity. Check if he/she is idle and un-idle.
+/*! The user shows some activity. Check if he/she is idle and un-idle and change the user status
+    if needed.
 */
 void QwsClientSocket::resetIdleTimer()
 {
     pIdleTimer->start();
-    if(pSessionUser.pIdle) {
-        pSessionUser.pIdle = false;
-        emit userStatusChanged();
-    }
+    if (!user.pIdle) { return; }
+    user.pIdle = false;
+    emit userStatusChanged();
 }
 
 
@@ -167,6 +144,9 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
      // Files
     } else if (message.commandName == "LIST") {        handleMessageLIST(message);
     } else if (message.commandName == "STAT") {        handleMessageSTAT(message);
+    } else if (message.commandName == "FOLDER") {      handleMessageFOLDER(message);
+    } else if (message.commandName == "DELETE") {      handleMessageDELETE(message);
+    } else if (message.commandName == "MOVE") {        handleMessageMOVE(message);
     }
  }
 
@@ -196,11 +176,13 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
  */
  void QwsClientSocket::handleMessageNICK(QwMessage &message)
  {
+     resetIdleTimer();
      qDebug() << this << "Received user nickname.";
      user.userNickname = message.getStringArgument(0);
      if (sessionState == Qws::StateActive) {
          emit userStatusChanged();
      }
+
  }
 
 
@@ -278,6 +260,7 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
  */
  void QwsClientSocket::handleMessageSTATUS(QwMessage &message)
  {
+     resetIdleTimer();
      qDebug() << this << "Received user status:" << message.getStringArgument(0);
      user.userStatus = message.getStringArgument(0);
      if (sessionState == Qws::StateActive) {
@@ -300,6 +283,7 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 */
 void QwsClientSocket::handleMessageICON(QwMessage &message)
 {
+    resetIdleTimer();
     qDebug() << this << "Received icon and image";
     if (user.pIcon != message.getStringArgument(0).toInt()) {
         user.pIcon = message.getStringArgument(0).toInt();
@@ -367,7 +351,8 @@ void QwsClientSocket::handleMessagePRIVILEGES(QwMessage &message)
 */
 void QwsClientSocket::handleMessageSAY(QwMessage &message)
 {
-     emit requestedChatRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1), false);
+    resetIdleTimer();
+    emit requestedChatRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1), false);
 }
 
 
@@ -375,6 +360,7 @@ void QwsClientSocket::handleMessageSAY(QwMessage &message)
 */
  void QwsClientSocket::handleMessageME(QwMessage &message)
 {
+     resetIdleTimer();
      emit requestedChatRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1), true);
 }
 
@@ -383,7 +369,8 @@ void QwsClientSocket::handleMessageSAY(QwMessage &message)
 */
 void QwsClientSocket::handleMessageMSG(QwMessage &message)
 {
-     emit requestedMessageRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1));
+    resetIdleTimer();
+    emit requestedMessageRelay(message.getStringArgument(0).toInt(), message.getStringArgument(1));
 }
 
 
@@ -391,6 +378,7 @@ void QwsClientSocket::handleMessageMSG(QwMessage &message)
 */
 void QwsClientSocket::handleMessageBROADCAST(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privBroadcast) { sendError(Qws::ErrorPermissionDenied); return; }
     QwMessage reply("309");
     reply.appendArg(QString::number(user.pUserID));
@@ -404,6 +392,7 @@ void QwsClientSocket::handleMessageBROADCAST(QwMessage &message)
 void QwsClientSocket::handleMessageTOPIC(QwMessage &message)
 {
     qDebug() << this << "Changing topic of chat" << message.getStringArgument(0);
+    resetIdleTimer();
     if (!user.privChangeTopic) { sendError(Qws::ErrorPermissionDenied); return; }
     emit requestedRoomTopicChange(message.getStringArgument(0).toInt(), message.getStringArgument(1));
 }
@@ -415,6 +404,7 @@ void QwsClientSocket::handleMessagePRIVCHAT(QwMessage &message)
 {
     Q_UNUSED(message);
     qDebug() << this << "Requested new chat room";
+    resetIdleTimer();
     emit requestedNewRoom();
 }
 
@@ -427,6 +417,7 @@ void QwsClientSocket::handleMessagePRIVCHAT(QwMessage &message)
 void QwsClientSocket::handleMessageINVITE(QwMessage &message)
 {
     qDebug() << this << "Invited user to chat room" << message.getStringArgument(0);
+    resetIdleTimer();
     emit requestedUserInviteToRoom(message.getStringArgument(0).toInt(),
                                    message.getStringArgument(1).toInt());
 }
@@ -437,6 +428,7 @@ void QwsClientSocket::handleMessageINVITE(QwMessage &message)
 void QwsClientSocket::handleMessageJOIN(QwMessage &message)
 {
     qDebug() << this << "Joining chat room" << message.getStringArgument(0);
+    resetIdleTimer();
     emit receivedMessageJOIN(message.getStringArgument(0).toInt());
 }
 
@@ -446,6 +438,7 @@ void QwsClientSocket::handleMessageJOIN(QwMessage &message)
 void QwsClientSocket::handleMessageDECLINE(QwMessage &message)
 {
     qDebug() << this << "Declined room invitation" << message.getStringArgument(0);
+    resetIdleTimer();
     emit receivedMessageDECLINE(message.getStringArgument(0).toInt());
 }
 
@@ -455,6 +448,7 @@ void QwsClientSocket::handleMessageDECLINE(QwMessage &message)
 void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 {
     qDebug() << this << "Left room" << message.getStringArgument(0);
+    resetIdleTimer();
     emit receivedMessageLEAVE(message.getStringArgument(0).toInt());
 }
 
@@ -490,8 +484,8 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
  */
  void QwsClientSocket::handleMessagePOST(QwMessage &message)
  {
+     resetIdleTimer();
      if (!user.privPostNews) { sendError(Qws::ErrorPermissionDenied); return; }
-
      qDebug() << this << "Posted news";
      QSqlQuery query;
      query.prepare("INSERT INTO qws_news (news_username, news_date, news_text) "
@@ -521,6 +515,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
  void QwsClientSocket::handleMessageCLEARNEWS(QwMessage &message)
  {
      Q_UNUSED(message);
+     resetIdleTimer();
      if (!user.privClearNews) { sendError(Qws::ErrorPermissionDenied); return; }
      qDebug() << this << "Cleared news";
      QSqlQuery query;
@@ -539,6 +534,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 */
 void QwsClientSocket::handleMessageBAN(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privBanUsers) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Banning user"<<message.getStringArgument(0)<<"from server";
     emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
@@ -550,6 +546,7 @@ void QwsClientSocket::handleMessageBAN(QwMessage &message)
 */
 void QwsClientSocket::handleMessageKICK(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privKickUsers) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Kicking user"<<message.getStringArgument(0)<<"from server";
     emit receivedMessageBAN_KICK(message.getStringArgument(0).toInt(),
@@ -561,6 +558,7 @@ void QwsClientSocket::handleMessageKICK(QwMessage &message)
 */
 void QwsClientSocket::handleMessageUSERS(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     Q_UNUSED(message);
@@ -591,6 +589,7 @@ void QwsClientSocket::handleMessageUSERS(QwMessage &message)
 */
 void QwsClientSocket::handleMessageGROUPS(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     Q_UNUSED(message);
@@ -621,6 +620,7 @@ void QwsClientSocket::handleMessageGROUPS(QwMessage &message)
 */
 void QwsClientSocket::handleMessageREADUSER(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     qDebug() << this << "Reading user" << message.getStringArgument(0);
@@ -643,6 +643,7 @@ void QwsClientSocket::handleMessageREADUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     qDebug() << this << "Editing user" << message.getStringArgument(0);
@@ -669,6 +670,7 @@ void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageCREATEUSER(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privCreateAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     qDebug() << this << "Creating user" << message.getStringArgument(0);
@@ -696,6 +698,7 @@ void QwsClientSocket::handleMessageCREATEUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEUSER(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privDeleteAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     qDebug() << this << "Editing user" << message.getStringArgument(0);
@@ -711,6 +714,7 @@ void QwsClientSocket::handleMessageDELETEUSER(QwMessage &message)
 */
 void QwsClientSocket::handleMessageREADGROUP(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     qDebug() << this << "Reading group" << message.getStringArgument(0);
@@ -732,6 +736,7 @@ void QwsClientSocket::handleMessageREADGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageCREATEGROUP(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privCreateAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
 
     qDebug() << this << "Creating group" << message.getStringArgument(0);
@@ -760,6 +765,7 @@ void QwsClientSocket::handleMessageCREATEGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privEditAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Editing group" << message.getStringArgument(0);
     QwsUser targetGroup;
@@ -782,6 +788,7 @@ void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
 {
+    resetIdleTimer();
     if (!user.privDeleteAccounts) { sendError(Qws::ErrorPermissionDenied); return; }
     qDebug() << this << "Deleting group" << message.getStringArgument(0);
     QwsUser targetGroup;
@@ -799,44 +806,45 @@ void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
 */
 void QwsClientSocket::handleMessageLIST(QwMessage &message)
 {
-    QString requestedPath = message.getStringArgument(0);
-    QString localPath = localPathFromRemotePath(requestedPath);
-    QDir localPathDir(localPath);
+    resetIdleTimer();
+    QwsFile targetDirectory;
+    targetDirectory.localFilesRoot = filesRootPath;
+    targetDirectory.path = message.getStringArgument(0);
 
-    if (localPath.isEmpty() || !localPathDir.exists() || !localPathDir.isReadable()) {
+    // Check if target is valid
+    if (!targetDirectory.updateLocalPath(false)) {
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
 
-    QDirIterator it(localPathDir, QDirIterator::FollowSymlinks);
+    // Check if the target is a directory
+    if (!targetDirectory.type > Qws::FileTypeRegular) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks);
     while (it.hasNext()) {
-        QString item = it.next();
-        QFileInfo itemInfo(item);
-        QString itemRemotePath = QDir::cleanPath(requestedPath+"/"+itemInfo.fileName());
+        it.next();
 
-        if (itemInfo.isHidden()) {
-            continue;
-        }
+        QwsFile itemFile;
+        itemFile.localFilesRoot = targetDirectory.localAbsolutePath;
+        itemFile.path = it.fileName();
 
-        // File list item
-        QwMessage replyItem("410");
-        replyItem.appendArg(itemRemotePath);
-        if (itemInfo.isDir() || itemInfo.isSymLink()) {
-            QDir dirInfo(itemInfo.canonicalFilePath());
-            replyItem.appendArg("1"); // Type Directory
-            replyItem.appendArg(QString::number(dirInfo.count()));
-        } else {
-            replyItem.appendArg("0"); // Type File
-            replyItem.appendArg(QString::number(itemInfo.size()));
+        if (itemFile.updateLocalPath(true)) {
+            QwMessage replyItem("410");
+            replyItem.appendArg(QDir::cleanPath(targetDirectory.path + "/" + itemFile.path));
+            replyItem.appendArg(QString::number(itemFile.type));
+            replyItem.appendArg(QString::number(itemFile.size));
+            replyItem.appendArg(itemFile.created.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.modified.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+            sendMessage(replyItem);
         }
-        replyItem.appendArg(itemInfo.created().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-        replyItem.appendArg(itemInfo.lastModified().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-        sendMessage(replyItem);
     }
 
     // End of list
     QwMessage reply("411");
-    reply.appendArg(requestedPath);
+    reply.appendArg(targetDirectory.path);
     reply.appendArg("0");
     sendMessage(reply);
 }
@@ -846,36 +854,113 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
 */
 void QwsClientSocket::handleMessageSTAT(QwMessage &message)
 {
+    resetIdleTimer();
+    QwsFile targetFile;
+    targetFile.localFilesRoot = filesRootPath;
+    targetFile.path = message.getStringArgument(0);
 
-    QString requestedPath = message.getStringArgument(0);
-    QString localFilePath = localPathFromRemotePath(requestedPath);
-    QFileInfo targetInfo(localFilePath);
-
-    if (localFilePath.isEmpty() || !targetInfo.exists() || !targetInfo.isReadable()) {
+    if (!targetFile.updateLocalPath()) {
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
 
-
-    qDebug() << "localAbsolutePath:" << localFilePath;
-
+    // Send file info reply
     QwMessage reply("402");
-    reply.appendArg(requestedPath);
-    if (targetInfo.isDir()) {
-        QDir localDir(QDir(localFilePath).canonicalPath());
-        reply.appendArg("1");
-        reply.appendArg(QString::number(localDir.count()));
-    } else {
-        reply.appendArg("0");
-        reply.appendArg(QString::number(targetInfo.size()));
-    }
-    reply.appendArg(targetInfo.created().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-    reply.appendArg(targetInfo.lastModified().toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-
-    reply.appendArg(""); // Checksum
-    reply.appendArg(""); // Comment
+    reply.appendArg(targetFile.path);
+    reply.appendArg(QString::number(targetFile.type));
+    reply.appendArg(QString::number(targetFile.size));
+    reply.appendArg(targetFile.created.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetFile.modified.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetFile.checksum);
+    reply.appendArg(targetFile.comment);
     sendMessage(reply);
 }
+
+
+/*! FOLDER (create a directory/folder)
+*/
+void QwsClientSocket::handleMessageFOLDER(QwMessage &message)
+{
+    resetIdleTimer();
+    if (!user.privCreateFolders) { sendError(Qws::ErrorPermissionDenied); return; }
+
+    QString folderBasePath = message.getStringArgument(0).section('/', 0, -2, QString::SectionSkipEmpty);
+    QString folderBaseName = message.getStringArgument(0).section('/', -1, -1, QString::SectionSkipEmpty);
+
+    QwsFile targetBaseFolder;
+    targetBaseFolder.path = folderBasePath;
+    targetBaseFolder.localFilesRoot = filesRootPath;
+
+    if (!targetBaseFolder.updateLocalPath(true)) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    QDir localBaseDir(targetBaseFolder.localAbsolutePath);
+    if (!localBaseDir.mkdir(folderBaseName)) {
+        sendError(Qws::ErrorFileOrDirectoryExists);
+        return;
+    }
+
+    qDebug() << "Creating folder at" << folderBasePath << "with name" << folderBaseName;
+
+}
+
+
+/*! DELETE (delete a file/folder)
+*/
+void QwsClientSocket::handleMessageDELETE(QwMessage &message)
+{
+    resetIdleTimer();
+    if (!user.privDeleteFiles) { sendError(Qws::ErrorPermissionDenied); return; }
+
+    QString folderBasePath = message.getStringArgument(0).section('/', 0, -2, QString::SectionSkipEmpty);
+    QString folderBaseName = message.getStringArgument(0).section('/', -1, -1, QString::SectionSkipEmpty);
+
+    qDebug() << this << "Path=" << folderBasePath << "Item=" << folderBaseName;
+
+    QwsFile targetBase;
+    targetBase.path = message.getStringArgument(0);
+    targetBase.localFilesRoot = filesRootPath;
+    if (!targetBase.updateLocalPath(true)) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    QFileInfo targetInfo(targetBase.localAbsolutePath);
+    QDir targetFolder(targetBase.localAbsolutePath);
+    if (targetInfo.isDir()) {
+        // Directory
+
+        QDirIterator it(targetFolder, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            it.next();
+
+            qDebug() << "Deleting:" << it.filePath();
+        }
+
+    } else {
+        // File
+        QDir parentDir(targetBase.localAbsolutePath);
+        if (!parentDir.cdUp()) {
+            sendError(Qws::ErrorFileOrDirectoryNotFound);
+            return;
+        }
+        if (!parentDir.remove(folderBaseName)) {
+            qDebug() << this << "Unable to delete file" << targetBase.localAbsolutePath;
+            sendError(Qws::ErrorFileOrDirectoryNotFound);
+            return;
+        }
+    }
+
+}
+
+
+void QwsClientSocket::handleMessageMOVE(QwMessage &message)
+{
+
+}
+
 
 /* === PRIVATE SLOTS === */
 
@@ -936,22 +1021,4 @@ void QwsClientSocket::sendError(const Qws::ProtocolError error)
     sendMessage(reply);
 }
 
-
-/*! This method returns a 'secure' path from the remote provided path to a file or directory. The
-    idea is to prevent access to directories outside of the user root-jail while following symlinks.
-*/
-QString QwsClientSocket::localPathFromRemotePath(const QString &path)
-{
-    QString insecureLocalPath = QDir(filesRootPath + "/" + path).absolutePath();
-    QString absoluteUserRootPath = QDir(filesRootPath).absolutePath();
-    if (insecureLocalPath.startsWith(absoluteUserRootPath)) {
-        // We make sure that the requested path is part of the local root of the users directory
-        // tree. This path may contain symbolic links are in the responsibility of the user.
-        return insecureLocalPath;
-    } else {
-        // Insecure path
-        qDebug() << this << "Unable to escape jail list directory:" << path;
-        return "";
-    }
-}
 

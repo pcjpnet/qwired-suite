@@ -1,8 +1,6 @@
 #ifndef QWCFILEINFO_H
 #define QWCFILEINFO_H
 
-//#include <QtCore>
-//#include <QtGui>
 #include <QMetaType>
 #include <QString>
 #include <QList>

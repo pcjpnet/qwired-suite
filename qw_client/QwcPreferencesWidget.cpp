@@ -1,7 +1,11 @@
 #include "QwcPreferencesWidget.h"
 #include "QwcGlobals.h"
-#include <QtCore>
-#include <QtGui>
+
+#include <QDir>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QFontDialog>
+#include <QtDebug>
 
 QwcPreferencesWidget::QwcPreferencesWidget(QWidget *parent) : QWidget(parent)
 {

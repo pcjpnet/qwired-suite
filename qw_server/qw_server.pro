@@ -2,14 +2,13 @@ SOURCES += main.cpp \
     QwsServerController.cpp \
     QwsClientSocket.cpp \
     QwSslTcpServer.cpp \
-    QwsUser.cpp \
-    QwsRoom.cpp \
-    QwsFile.cpp
+    QwsFile.cpp \
+    QwsClientTransferSocket.cpp \
+    QwsUser.cpp
 INCLUDEPATH = ../qw_library
 LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
 QT -= gui
-
 CONFIG += debug
 QT += network \
     xml \
@@ -19,6 +18,6 @@ DESTDIR = ../bin/
 HEADERS += QwsServerController.h \
     QwsClientSocket.h \
     QwSslTcpServer.h \
-    QwsUser.h \
-    QwsRoom.h \
-    QwsFile.h
+    QwsFile.h \
+    QwsClientTransferSocket.h \
+    QwsUser.h

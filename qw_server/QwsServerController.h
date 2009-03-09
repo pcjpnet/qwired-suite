@@ -34,6 +34,7 @@
 
 #include "QwsClientSocket.h"
 #include "QwSslTcpServer.h"
+#include "QwsClientTransferSocket.h"
 
 class QwsServerController : public QObject
 {
@@ -55,21 +56,23 @@ private:
 
     QPointer<QwSslTcpServer> pTcpServer;
     QHash<int, QwsClientSocket*> sockets;
-    QHash<int, QwsRoom*> rooms;
+    QHash<int, QwRoom*> rooms;
+    QHash<int, QwsClientTransferSocket*> transferSockets;
+
 
 signals:
     void qwBroadcastChat(int chatId, int userId, QString text, bool isEmote);
 
-private slots:
-    void handleUserlistRequest(const int roomId);
 
-    void handleSocketDisconnected();
-    void handleSocketSessionStateChanged(const Qws::SessionState state);
+private slots:
 
     // Protocol
+    void handleSocketDisconnected();
+    void handleSocketSessionStateChanged(const Qws::SessionState state);
     void broadcastMessage(const QwMessage message, const int roomId, const bool sendToSelf);
     void relayUserStatusChanged();
     void handleMessageINFO(const int userId);
+    void handleUserlistRequest(const int roomId);
 
     // Communication
     void addUserToRoom(const int roomId, const int userId);
@@ -84,14 +87,12 @@ private slots:
     void handleMessageDECLINE(const int roomId);
     void handleMessageLEAVE(const int roomId);
 
-
     // Administration
     void handleMessageBAN_KICK(const int userId, const QString reason, const bool isBan);
     void handleModifiedUserAccount(const QString name);
     void handleModifiedUserGroup(const QString name);
 
 public slots:
-    //void reloadDatabase();
     bool loadConfiguration();
     bool startServer();
     void acceptSslConnection();

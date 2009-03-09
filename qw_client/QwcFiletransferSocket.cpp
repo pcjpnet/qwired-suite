@@ -1,6 +1,12 @@
 #include "QwcFiletransferSocket.h"
 
-void QwcFiletransferSocket::run() {
+QwcFiletransferSocket::QwcFiletransferSocket(QObject *parent) : QThread(parent)
+{
+
+}
+
+void QwcFiletransferSocket::run()
+{
 	pSocket = new QSslSocket;
 	pSocket->setProtocol(QSsl::TlsV1);
 	pSocket->setPeerVerifyMode(QSslSocket::QueryPeer);

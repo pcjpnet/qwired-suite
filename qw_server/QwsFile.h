@@ -19,21 +19,24 @@
  ***************************************************************************/
 
  
-#ifndef CLASSWIREDFILE_H
-#define CLASSWIREDFILE_H
+#ifndef QWSFILE_H
+#define QWSFILE_H
 
 #include <QtCore>
 
+/*
+#include <QFileInfo>
+#include <QList>
+#include <QByteArray>
+#include <QDateTime>
+#include <QString>
+*/
+
 namespace Qws {
-        enum FileType { RegularFile,
-                        Directory,
-                        Uploads,
-                        DropBox };
+    /*! A file item within the protocol can have different types. */
+    enum FileType { FileTypeRegular, FileTypeFolder, FileTypeUploadsFolder, FileTypeDropBox };
 }
 
-/**
-	@author Bastian Bense <bastibense@gmail.com>
- */
 class QwsFile
 {
 
@@ -42,23 +45,39 @@ public:
     QwsFile();
     ~QwsFile();
     
-    static QString humanReadableSize(float theBytes);
-    void setFromStat(QList<QByteArray> theParams);
-	
-    
-    // Default parameters
+    bool isWithinLocalRoot();
+    bool updateLocalPath(bool quickCheck=false);
+    void updateLocalChecksum();
+
+    /*! The relative location of the file - usually this is appended to the \a localFilesRoot path.
+        Example: "/photos/myphoto.jpg" */
     QString path;
-    int type;
     qlonglong size;
     QDateTime created;
     QDateTime modified;
-    
-    // STAT parameters
     QString checksum;
     QString comment;
-    
+
+    /*! The local root of the files tree. (normally the Files directory of the server)
+        Example: "/home/username/qwired_server/files" */
+    QString localFilesRoot;
+    QString localAbsolutePath;
+
+    /*! The type of the file. See \a Qws::FileType for more information. */
+    Qws::FileType type;
+
     QString fileName() const;
-    QIcon fileIcon() const;
+
+
+    ////////////////////////////////
+    // Transfer Related Properties
+    ////////////////////////////////
+
+    /*! This is used during \a TRANSFER messages. */
+    QString transferHash;
+
+    static QString humanReadableSize(float theBytes);
+    void setFromStat(QList<QByteArray> theParams);
 
 };
 

@@ -8,11 +8,11 @@
 #include <QSslSocket>
 
 /*!
+    \class QwSocket
     \author Bastian Bense
     \date 2009-01-23
-
-    Dies ist die Basisklasse für alle CentralPark Sockets. Hier ist das Grundprotokoll implementiert
-    und wird entsprechend behandelt.
+    \brief This is the base class for all sockets used in the Qwired servers and clients. It provides
+        basic protocol support and wrappers for the most important functions.
 */
 
 

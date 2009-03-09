@@ -39,7 +39,12 @@ void QwMessage::appendArg(const QString data)
 */
 QString QwMessage::getStringArgument(int index)
 {
-    return arguments.value(index);
+    QString result = arguments.value(index);
+    if (result.isNull()) {
+        return "";
+    } else {
+        return result;
+    }
 }
 
 
