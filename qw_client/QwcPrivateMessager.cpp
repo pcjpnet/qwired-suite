@@ -14,30 +14,33 @@
 // Session intialization
 QwcPrivateMessagerSession::QwcPrivateMessagerSession()
 {
-    unreadCount = 4;
+    unreadCount = 0;
 }
 
 // Item Delegate
 //
 QwcPrivateMessageListDelegate::QwcPrivateMessageListDelegate(QObject *parent) : QItemDelegate(parent)
 {
-
 }
 
 void QwcPrivateMessageListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    painter->save();
+    painter->translate(option.rect.topLeft());
+    QRect itemRect(QPoint(0,0), option.rect.size());
+
     if (!index.data(Qt::UserRole).canConvert<QwcPrivateMessagerSession>()) { return; }
     painter->setRenderHint(QPainter::Antialiasing);
 
     QwcPrivateMessagerSession session = index.data(Qt::UserRole).value<QwcPrivateMessagerSession>();
 
-    QSize iconSize(option.rect.height()-4, option.rect.height()-4);
+    QSize iconSize(itemRect.height()-4, itemRect.height()-4);
     QPixmap userIcon = session.userInfo.iconAsPixmap().scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     // Nice Background
     painter->save();
-    painter->setClipRect(option.rect);
-    painter->translate(0, option.rect.height()/2);
+    painter->setClipRect(itemRect);
+    painter->translate(0, itemRect.height()/2);
     painter->scale(8, 8);
     painter->translate(0, -iconSize.height()*0.5);
     painter->setOpacity(0.2);
@@ -52,7 +55,7 @@ void QwcPrivateMessageListDelegate::paint(QPainter *painter, const QStyleOptionV
 
     // Nickname
     painter->save();
-    painter->translate(iconSize.width()+8, option.rect.height()/2);
+    painter->translate(iconSize.width()+8, itemRect.height()/2);
 
     font.setBold(true);
     font.setPixelSize(12);
@@ -72,9 +75,7 @@ void QwcPrivateMessageListDelegate::paint(QPainter *painter, const QStyleOptionV
         QRect badgeRect(0, 0, iconSize.width(), iconSize.height()*0.5);
         font.setPixelSize(badgeRect.height()*0.8);
         font.setBold(true);
-
-        //painter->setOpacity(0.8);
-        painter->translate(option.rect.width()-iconSize.width()-8, option.rect.height()/2 - badgeRect.height()/2);
+        painter->translate(itemRect.width()-iconSize.width()-8, itemRect.height()/2 - badgeRect.height()/2);
         painter->setFont(font);
         painter->setPen(QColor(Qt::red).darker(130));
         painter->setBrush(Qt::red);
@@ -86,20 +87,21 @@ void QwcPrivateMessageListDelegate::paint(QPainter *painter, const QStyleOptionV
     }
 
     // Option highlight
-    if (option.state % QStyle::State_Selected) {
+    if (option.state & QStyle::State_Selected) {
         painter->save();
         painter->setPen(Qt::NoPen);
         painter->setOpacity(0.3);
         painter->setBrush(option.palette.color(QPalette::Highlight));
-        painter->drawRect(option.rect);
+        painter->drawRect(itemRect);
         painter->restore();
     }
 
+    painter->restore();
 }
+
 
 QSize QwcPrivateMessageListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-
     return QSize(200, 36);
 };
 
@@ -111,9 +113,6 @@ QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
     fMessageList->setItemDelegate(new QwcPrivateMessageListDelegate(fMessageList));
-
-
-
 }
 
 
@@ -122,36 +121,41 @@ QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
 void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QString message)
 {
     qDebug() << "Handling message...";
-
     QTextDocument *targetDocument = NULL;
 
-    if (messageSessions.contains(sender.pUserID)) {
-        // There is a messageSession - we should add the new message and update the icon in the
-        // conversation list.
-        QListWidgetItem *currentItem = fMessageList->currentItem();
-        if (!currentItem) { return; }
+    // Try to find an existing session
+    for (int i=0; i<fMessageList->count(); i++) {
+        QListWidgetItem *item = fMessageList->item(i);
+        if (!item) { continue; }
 
-        QwcPrivateMessagerSession session = currentItem->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
-        targetDocument = session.document;
+        QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
+        if (itemSession.userInfo.pUserID != sender.pUserID) { continue; }
+        targetDocument = itemSession.document;
 
-    } else {
-        // There is no messageSession for the user yet. Create a new one.
+        if (i != fMessageList->currentRow()) {
+            itemSession.unreadCount += 1;
+            item->setData(Qt::UserRole, QVariant::fromValue(itemSession));
+        }
+    }
+
+    // Check if we need to create a new session
+    if (!targetDocument) {
         QwcPrivateMessagerSession session;
-        targetDocument = new QTextDocument(this);
+        targetDocument = new QTextDocument(fMessageList);
         session.document = targetDocument;
+        session.unreadCount = 1;
         session.userInfo = sender;
 
         QListWidgetItem *item = new QListWidgetItem(fMessageList);
-        item->setText(sender.pNick);
         item->setData(Qt::UserRole, QVariant::fromValue(session));
     }
 
-    // Add the new message to the log
-    if (!targetDocument) { return; }
-    QTextCursor cursor(targetDocument);
-    cursor.movePosition(QTextCursor::End);
-    cursor.insertHtml(QString("<b>%1:</b> %2").arg(sender.pNick).arg(message));
-
+    // Add the data
+    if (targetDocument) {
+        QTextCursor cursor(targetDocument);
+        cursor.movePosition(QTextCursor::End);
+        cursor.insertHtml(QString("<b>%1:</b> %2").arg(sender.pNick).arg(message));
+    }
 }
 
 
@@ -165,10 +169,11 @@ void QwcPrivateMessager::on_fMessageList_currentRowChanged(int currentRow)
         fMessageView->clear();
     } else {
         // Display the selected session
-        int sessionId = fMessageList->currentItem()->data(Qt::UserRole).toInt();
-        QTextDocument *targetDocument = messageSessions[sessionId].document;
-        if (targetDocument) {
-            fMessageView->setDocument(targetDocument);
+        QwcPrivateMessagerSession session = fMessageList->currentItem()->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
+        if (session.document) {
+            session.unreadCount = 0;
+            fMessageList->currentItem()->setData(Qt::UserRole, QVariant::fromValue(session));
+            fMessageView->setDocument(session.document);
         }
     }
 }

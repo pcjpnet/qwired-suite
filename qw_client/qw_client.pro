@@ -1,16 +1,13 @@
 TEMPLATE = app
-CONFIG += warn_on \
-    thread \
-    qt \
-    debug
-
-LIBS += ../bin/libqwlibrary.a
-
-macx:TARGET = "Qwired Client"
-!macx:TARGET = qwired
+CONFIG += warn_on thread qt x86 ppc
+macx {
+    TARGET = "Qwired Client"
+}
+!macx {
+    TARGET = qwired
+}
 RESOURCES = application.qrc
-QT += gui \
-    network
+QT += gui network
 DESTDIR = ../bin/
 ICON = qwired.icns
 RC_FILE = qwired.rc
@@ -31,6 +28,7 @@ TRANSLATIONS += lang/lang_de.ts \
     lang/lang_fr.ts \
     lang/lang_es.ts \
     lang/lang_jp.ts
+
 SOURCES += main.cpp \
     QwcSocket.cpp \
     QwcSession.cpp \
@@ -60,6 +58,7 @@ SOURCES += main.cpp \
     QwcConnectWidget.cpp \
     QwcConnectionMainWindow.cpp \
     QwcPrivateMessager.cpp
+
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
