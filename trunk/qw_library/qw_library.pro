@@ -5,7 +5,7 @@ QT -= gui
 QT += network
 TARGET = qw_library
 TEMPLATE = lib
-CONFIG += staticlib debug
+CONFIG += staticlib debug x86 ppc
 SOURCES += QwMessage.cpp \
     QwSocket.cpp \
     QwRoom.cpp \
