@@ -22,8 +22,10 @@ private slots:
     void bookmarkSelected(QAction *action);
     void loadBookmarks();
 
+
 protected:
     void timerEvent(QTimerEvent *);
+
 
 public slots:
     void stopReconnecting();
@@ -35,7 +37,7 @@ public slots:
 
 signals:
     /// The user clicked 'connect' and is ready to wait for a connection.
-    void onConnnectReady(QString theHost, QString theLogin, QString thePassword);
+    void userFinished(QString theHost, QString theLogin, QString thePassword);
     /// The user clicked the cancel button.
     void onConnectAborted();
     

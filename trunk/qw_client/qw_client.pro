@@ -3,6 +3,9 @@ CONFIG += warn_on \
     thread \
     qt \
     debug
+
+LIBS += ../bin/libqwlibrary.a
+
 macx:TARGET = "Qwired Client"
 !macx:TARGET = qwired
 RESOURCES = application.qrc
@@ -11,7 +14,8 @@ QT += gui \
 DESTDIR = ../bin/
 ICON = qwired.icns
 RC_FILE = qwired.rc
-INCLUDEPATH = .
+INCLUDEPATH += ../qw_library
+
 macx { 
     QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
     QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
@@ -54,7 +58,8 @@ SOURCES += main.cpp \
     QwcAboutWidget.cpp \
     QwcColorButton.cpp \
     QwcConnectWidget.cpp \
-    QwcConnectionMainWindow.cpp
+    QwcConnectionMainWindow.cpp \
+    QwcPrivateMessager.cpp
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
@@ -70,7 +75,8 @@ FORMS += QwcConnectionMainWindow.ui \
     QwcFileInfoWidget.ui \
     QwcTrackerlistWidget.ui \
     QwcAboutWidget.ui \
-    QwcNewsPostWidget.ui
+    QwcNewsPostWidget.ui \
+    QwcPrivateMessager.ui
 HEADERS += QwcSession.h \
     QwcUserInfo.h \
     QwcConnectionMainWindow.h \
@@ -104,4 +110,5 @@ HEADERS += QwcSession.h \
     QwcTrackerServerInfo.h \
     QwcAboutWidget.h \
     QwcNewsPostWidget.h \
-    QwcEventFilter.h
+    QwcEventFilter.h \
+    QwcPrivateMessager.h

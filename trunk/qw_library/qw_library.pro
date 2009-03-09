@@ -7,8 +7,14 @@ TARGET = qw_library
 TEMPLATE = lib
 CONFIG += staticlib debug
 SOURCES += QwMessage.cpp \
-    QwSocket.cpp
+    QwSocket.cpp \
+    QwRoom.cpp \
+    QwUser.cpp
+
 HEADERS += QwMessage.h \
-    QwSocket.h
+    QwSocket.h \
+    QwRoom.h \
+    QwUser.h
+
 TARGET = qwlibrary
 DESTDIR = ../bin/

@@ -25,7 +25,7 @@
 #include "QwsUser.h"
 #include "QwsFile.h"
 #include "QwSocket.h"
-#include "QwsRoom.h"
+#include "QwRoom.h"
 
 #include <QtCore>
 #include <QtNetwork>
@@ -71,14 +71,10 @@ class QwsClientSocket : public QwSocket
     Q_OBJECT
 
 public:
-    QwsClientSocket(QObject *parent = 0);
+    QwsClientSocket(QObject *parent=0);
     ~QwsClientSocket();
 
-    QwsUser sessionUser() { return pSessionUser; };
-    int userId() { return pSessionUser.pUserID; }
-    bool pLoggedIn;
-    bool isLoggedIn() { return pLoggedIn; };
-    QwsUser pSessionUser;
+
     QTimer *pIdleTimer;
 
     /*! This is an instace representing the user account and information for this connection. */
@@ -132,6 +128,7 @@ public slots:
     void sendServerInfo();
     void disconnectClient();
     void idleTimerTriggered();
+    void resetIdleTimer();
 
 
 private slots:
@@ -185,6 +182,9 @@ private slots:
     // Files
     void handleMessageLIST(QwMessage &message);
     void handleMessageSTAT(QwMessage &message);
+    void handleMessageFOLDER(QwMessage &message);
+    void handleMessageDELETE(QwMessage &message);
+    void handleMessageMOVE(QwMessage &message);
 
     void on_socket_sslErrors(const QList<QSslError> & errors);
     void on_socket_error();
@@ -194,21 +194,7 @@ private:
     /*! Defines the current state of the session/socket. */
     Qws::SessionState sessionState;
 
-    QString localPathFromRemotePath(const QString &path);
-
-    void resetIdleTimer();
-
-    /// Our function that formats a Wired message and sends it to the server.
-    void sendWiredCommand(const QByteArray);
-    void sendWiredCommandBuffer(const QByteArray);
-
-    /// This is our TCP buffer. Could possibly be optimized, but works for now.
-    QByteArray pBuffer;
-
-    /// This is the send TCP buffer. It is used when sending lists and to prevent the event loop
-    /// from fireing command handling during list sending.
-    QByteArray pSendBuffer;
-
+    /*! This is the pointer to our SSL socket. We use this as input/output to the client. */
     QPointer<QSslSocket> pSocket;
 
 };

@@ -28,7 +28,7 @@ void QwcConnectWidget::on_btnConnect_clicked()
 {
     fContainer->setCurrentIndex(1);
     fStatus->setText(tr("Connecting..."));
-    emit onConnnectReady(fAddress->text(), fLogin->text(), fPassword->text());
+    emit userFinished(fAddress->text(), fLogin->text(), fPassword->text());
 }
 
 

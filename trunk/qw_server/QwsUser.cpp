@@ -1,65 +1,103 @@
-/***************************************************************************
- * QWired - a free Wired client.
- * Copyright (C) 2008 Bastian Bense
- ***************************************************************************
- * This program is free software; you can redistribute it and/or modify it *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2 of the License, or           *
- * (at your option) any later version.                                     *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the                                 *
- * Free Software Foundation, Inc.,                                         *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
- ***************************************************************************/
- 
+#include <QtSql>
+
 #include "QwsUser.h"
 
-#include <QtSql>
-#include <QCryptographicHash>
+/*! \class QwsUser
+    \date 2009-03-08
+    \author Bastian Bense <bastibense@gmail.com>
+    \brief This class defines a user for the Qwired Server.
+*/
 
 QwsUser::QwsUser()
 {
-	pUserID = 0;
-	pIdle = false;
-	pAdmin = false;
-	pIcon = 0;
-        userType = Qws::UserTypeAccount;
-
-	// Default privs
-	privGetUserInfo = true;
-	privBroadcast = false;
-	privPostNews = true;
-	privClearNews = false;
-        privDownload = true;
-        privUpload = true;
-	privUploadAnywhere = false;
-	privCreateFolders = false;
-	privAlterFiles = false;
-	privDeleteFiles = false;
-	privViewDropboxes = false;;
-	privCreateAccounts = false;
-	privEditAccounts = false;
-	privDeleteAccounts = false;
-	privElevatePrivileges = false;
-        privKickUsers = false;
-        privBanUsers = false;
-	privCannotBeKicked = false;
-	privDownloadSpeed = 0;
-	privUploadSpeed = 0;
-	privDownloadLimit = 0;
-	privUploadLimit = 0;
-	privChangeTopic = false;
+    QwUser();
 }
 
 
-QwsUser::~QwsUser()
+/*! This method generates a list of privilege flag fields for use in all commands that utilize the
+    <privileges> list (see Wired documentation).
+*/
+void QwsUser::privilegesFlags(QwMessage &message) const
 {
+    message.appendArg(QString::number(privGetUserInfo));
+    message.appendArg(QString::number(privBroadcast));
+    message.appendArg(QString::number(privPostNews));
+    message.appendArg(QString::number(privClearNews));
+    message.appendArg(QString::number(privDownload));
+    message.appendArg(QString::number(privUpload));
+    message.appendArg(QString::number(privUploadAnywhere));
+    message.appendArg(QString::number(privCreateFolders));
+    message.appendArg(QString::number(privAlterFiles));
+    message.appendArg(QString::number(privDeleteFiles));
+    message.appendArg(QString::number(privViewDropboxes));
+    message.appendArg(QString::number(privCreateAccounts));
+    message.appendArg(QString::number(privEditAccounts));
+    message.appendArg(QString::number(privDeleteAccounts));
+    message.appendArg(QString::number(privElevatePrivileges));
+    message.appendArg(QString::number(privKickUsers));
+    message.appendArg(QString::number(privBanUsers));
+    message.appendArg(QString::number(privCannotBeKicked));
+    message.appendArg(QString::number(privDownloadSpeed));
+    message.appendArg(QString::number(privUploadSpeed));
+    message.appendArg(QString::number(privDownloadLimit));
+    message.appendArg(QString::number(privUploadLimit));
+    message.appendArg(QString::number(privChangeTopic));
+}
+
+
+/*! Complete a message specially formatted for the user listing responses (310)
+*/
+void QwsUser::userListEntry(QwMessage &message) const
+{
+    message.appendArg(QString::number(pUserID));
+    message.appendArg(QString::number(pIdle));
+    message.appendArg(QString::number(privKickUsers | privBanUsers));
+    message.appendArg(QString::number(pIcon));
+    message.appendArg(userNickname);
+    message.appendArg(name);
+    message.appendArg(userIpAddress);
+    message.appendArg(userHostName);
+    message.appendArg(userStatus);
+    message.appendArg(pImage);
+}
+
+
+/* Complete a message specially formatted for the User Status Change messages.
+*/
+void QwsUser::userStatusEntry(QwMessage &message) const
+{
+    message.appendArg(QString::number(pUserID));
+    message.appendArg(QString::number(pIdle));
+    message.appendArg(QString::number(privKickUsers | privBanUsers));
+    message.appendArg(QString::number(pIcon)); // icon, unused since 1.1
+    message.appendArg(userNickname);
+    message.appendArg(userStatus);
+}
+
+
+/*! This method generates (appends) the fields required for a INFO response to a client.
+*/
+void QwsUser::userInfoEntry(QwMessage &message) const
+{
+    message.appendArg(QString::number(pUserID));
+    message.appendArg(pIdle ? "1" : "0");
+    message.appendArg(privBanUsers || privKickUsers ? "1" : "0");
+    message.appendArg(QString::number(pIcon));
+    message.appendArg(userNickname);
+    message.appendArg(name);
+    message.appendArg(userIpAddress);
+    message.appendArg(userHostName);
+
+    message.appendArg(pClientVersion);
+    message.appendArg(pCipherName);
+    message.appendArg(QString::number(pCipherBits));
+    message.appendArg(pLoginTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    message.appendArg(pIdleTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    message.appendArg(""); // downloads
+    message.appendArg(""); // uploads
+    message.appendArg(userStatus);
+    message.appendArg(pImage);
+
 }
 
 
@@ -224,66 +262,6 @@ bool QwsUser::deleteFromDatabase()
 }
 
 
-/*! Set the privileges flags from a Qwired(Server) privileges specification. The Qwired
-    specification is based on single characters instead of a series of numbers, making it much
-    easier to parse and write them even for human beings.
-*/
-void QwsUser::setPrivilegesFromQwiredSpec(const QString privileges)
-{
-    this->privAlterFiles = privileges.contains("a", Qt::CaseSensitive);
-    this->privBanUsers = privileges.contains("B", Qt::CaseSensitive);
-    this->privBroadcast = privileges.contains("b", Qt::CaseSensitive);
-    this->privCannotBeKicked = privileges.contains("P", Qt::CaseSensitive);
-    this->privChangeTopic = privileges.contains("t", Qt::CaseSensitive);
-    this->privClearNews = privileges.contains("C", Qt::CaseSensitive);
-    this->privCreateAccounts = privileges.contains("A", Qt::CaseSensitive);
-    this->privCreateFolders = privileges.contains("f", Qt::CaseSensitive);
-    this->privDeleteAccounts = privileges.contains("R", Qt::CaseSensitive);
-    this->privDeleteFiles = privileges.contains("r", Qt::CaseSensitive);
-    this->privDownload = privileges.contains("d", Qt::CaseSensitive);
-    this->privEditAccounts = privileges.contains("M", Qt::CaseSensitive);
-    this->privElevatePrivileges = privileges.contains("E", Qt::CaseSensitive);
-    this->privGetUserInfo = privileges.contains("i", Qt::CaseSensitive);
-    this->privKickUsers = privileges.contains("K", Qt::CaseSensitive);
-    this->privPostNews = privileges.contains("p", Qt::CaseSensitive);
-    this->privUpload = privileges.contains("u", Qt::CaseSensitive);
-    this->privUploadAnywhere = privileges.contains("U", Qt::CaseSensitive);
-    this->privViewDropboxes = privileges.contains("D", Qt::CaseSensitive);
-}
-
-
-/*! This method returns the privileges flags as a series of Qwired Specification flags.
-    Please note that this does not include the numeric speed limits, as those are stored
-    independently from the normal flags.
-    I saved some nerves by not following the coding guidelines for brackets here, I hope you
-    forgive me. :)
-*/
-QString QwsUser::privilegesFlagsAsQwiredSpec()
-{
-    QString privList;
-    if (this->privAlterFiles) privList.append("a");
-    if (this->privBanUsers) privList.append("B");
-    if (this->privBroadcast) privList.append("b");
-    if (this->privCannotBeKicked) privList.append("P");
-    if (this->privChangeTopic) privList.append("t");
-    if (this->privClearNews) privList.append("C");
-    if (this->privCreateAccounts) privList.append("A");
-    if (this->privCreateFolders) privList.append("f");
-    if (this->privDeleteAccounts) privList.append("R");
-    if (this->privDeleteFiles) privList.append("r");
-    if (this->privDownload) privList.append("d");
-    if (this->privEditAccounts) privList.append("M");
-    if (this->privElevatePrivileges) privList.append("E");
-    if (this->privGetUserInfo) privList.append("i");
-    if (this->privKickUsers) privList.append("K");
-    if (this->privPostNews) privList.append("p");
-    if (this->privUpload) privList.append("u");
-    if (this->privUploadAnywhere) privList.append("U");
-    if (this->privViewDropboxes) privList.append("D");
-    return privList;
-}
-
-
 /*! This method appends the required privileges flags for a response to the READUSER command (1.1).
     The user name and other fields are not appended to the message, though.
     The syntax for the privileges is also used on groups.
@@ -347,105 +325,4 @@ void QwsUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset)
     this->privChangeTopic = message.getStringArgument(fieldOffset++).toInt(); // wired 1.1
 
 }
-
-
-
-/*! This method generates (appends) the fields required for a INFO response to a client.
-*/
-void QwsUser::userInfoEntry(QwMessage &message) const
-{
-    message.appendArg(QString::number(pUserID));
-    message.appendArg(pIdle ? "1" : "0");
-    message.appendArg(privBanUsers || privKickUsers ? "1" : "0");
-    message.appendArg(QString::number(pIcon));
-    message.appendArg(userNickname);
-    message.appendArg(name);
-    message.appendArg(userIpAddress);
-    message.appendArg(userHostName);
-
-    message.appendArg(pClientVersion);
-    message.appendArg(pCipherName);
-    message.appendArg(QString::number(pCipherBits));
-    message.appendArg(pLoginTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-    message.appendArg(pIdleTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-    message.appendArg(""); // downloads
-    message.appendArg(""); // uploads
-    message.appendArg(userStatus);
-    message.appendArg(pImage);
-
-}
-
-
-/*! This method generates a list of privilege flag fields for use in all commands that utilize the
-    <privileges> list (see Wired documentation).
-*/
-void QwsUser::privilegesFlags(QwMessage &message) const
-{
-    message.appendArg(QString::number(privGetUserInfo));
-    message.appendArg(QString::number(privBroadcast));
-    message.appendArg(QString::number(privPostNews));
-    message.appendArg(QString::number(privClearNews));
-    message.appendArg(QString::number(privDownload));
-    message.appendArg(QString::number(privUpload));
-    message.appendArg(QString::number(privUploadAnywhere));
-    message.appendArg(QString::number(privCreateFolders));
-    message.appendArg(QString::number(privAlterFiles));
-    message.appendArg(QString::number(privDeleteFiles));
-    message.appendArg(QString::number(privViewDropboxes));
-    message.appendArg(QString::number(privCreateAccounts));
-    message.appendArg(QString::number(privEditAccounts));
-    message.appendArg(QString::number(privDeleteAccounts));
-    message.appendArg(QString::number(privElevatePrivileges));
-    message.appendArg(QString::number(privKickUsers));
-    message.appendArg(QString::number(privBanUsers));
-    message.appendArg(QString::number(privCannotBeKicked));
-    message.appendArg(QString::number(privDownloadSpeed));
-    message.appendArg(QString::number(privUploadSpeed));
-    message.appendArg(QString::number(privDownloadLimit));
-    message.appendArg(QString::number(privUploadLimit));
-    message.appendArg(QString::number(privChangeTopic));
-}
-
-
-/*! This method returns the user's cleartext password as a SHA-1 hash.
-*/
-QString QwsUser::cryptedPassword()
-{
-    if (pPassword.isEmpty()) {
-        return QString();
-    }
-    QByteArray hashedBinaryData = QCryptographicHash::hash(pPassword.toUtf8(), QCryptographicHash::Sha1);
-    return QString::fromUtf8(hashedBinaryData.toHex());
-}
-
-
-/*! Complete a message specially formatted for the user listing responses (310)
-*/
-void QwsUser::userListEntry(QwMessage &message) const
-{
-    message.appendArg(QString::number(pUserID));
-    message.appendArg(QString::number(pIdle));
-    message.appendArg(QString::number(privKickUsers | privBanUsers));
-    message.appendArg(QString::number(pIcon));
-    message.appendArg(userNickname);
-    message.appendArg(name);
-    message.appendArg(userIpAddress);
-    message.appendArg(userHostName);
-    message.appendArg(userStatus);
-    message.appendArg(pImage);
-}
-
-
-/* Complete a message specially formatted for the User Status Change messages.
-*/
-void QwsUser::userStatusEntry(QwMessage &message) const
-{
-    message.appendArg(QString::number(pUserID));
-    message.appendArg(QString::number(pIdle));
-    message.appendArg(QString::number(privKickUsers | privBanUsers));
-    message.appendArg(QString::number(pIcon)); // icon, unused since 1.1
-    message.appendArg(userNickname);
-    message.appendArg(userStatus);
-}
-
 

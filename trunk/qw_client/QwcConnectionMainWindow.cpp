@@ -18,20 +18,29 @@ QwcConnectionMainWindow::QwcConnectionMainWindow(QWidget *parent) : QMainWindow(
 }
 
 
+/*! This is called from the try menu on Windows/Linux systems to hide and show the connection
+    window properly.
+*/
 void QwcConnectionMainWindow::toggleVisible()
 {
-    if(this->isMinimized()) {
+    if (this->isMinimized()) {
         this->showNormal();
     } else {
-        if(this->isVisible()) this->hide();
-        else this->show();
+        if (this->isVisible()) {
+            this->hide();
+        } else {
+            this->show();
+        }
     }
 }
 
 
+/*! This displays the about dialog to the user and is usually called from the "About" menu-item.
+*/
 void QwcConnectionMainWindow::on_actionAbout_triggered(bool)
 {
-    if(!pQwcAboutWidget)
+    if(!pQwcAboutWidget) {
         pQwcAboutWidget = new QwcAboutWidget();
+    }
     pQwcAboutWidget->show();
 }
