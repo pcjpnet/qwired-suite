@@ -3,13 +3,15 @@
 
 #include "ui_ServerMonitorWindow.h"
 
-class ServerMonitorWindow : public QWidget, private Ui::ServerMonitorWindow
+class ServerMonitorWindow : public QWidget, public Ui_ServerMonitorWindow
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ServerMonitorWindow)
 
 public:
     explicit ServerMonitorWindow(QWidget *parent = 0);
+
+private slots:
+    void on_myButton_clicked();
 
 };
 
