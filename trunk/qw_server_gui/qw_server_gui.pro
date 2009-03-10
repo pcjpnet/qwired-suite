@@ -8,5 +8,6 @@ SOURCES += ServerMonitorWindow.cpp \
     main.cpp \
     ServerMonitorController.cpp
 FORMS += ServerMonitorWindow.ui
+
 DESTDIR = ../bin
 TARGET = qw_server_gui

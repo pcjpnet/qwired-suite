@@ -135,19 +135,30 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
                     qDebug() << "send message";
 
                     QTextCursor cursor = session.document->rootFrame()->lastCursorPosition();
-                    cursor.insertHtml(QString("<div class=\"msg_out\">%1</div>").arg(fMessageInput->toPlainText()));
-                    //QTextCursor cursor(session.document);
-                    //cursor.movePosition(QTextCursor::End);
-/*
+
+                    cursor.movePosition(QTextCursor::StartOfBlock);
+
+
+
                     QTextFrameFormat frameFormat;
                     frameFormat.setPadding(6);
-                    frameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_Inset);
-                    frameFormat.setBorder(1);
+                    frameFormat.setBackground(QColor(Qt::gray).lighter());
                     frameFormat.setMargin(0);
+                    frameFormat.setBorder(2);
+                    frameFormat.setBorderBrush(QColor(Qt::gray));
                     frameFormat.setBackground(QColor(Qt::gray).lighter());
 
-                    QTextFrame *messageFrame = cursor.insertFrame(frameFormat);
-*/
+                    // Title
+                    QTextBlockFormat headerFormat;
+                    headerFormat.setAlignment(Qt::AlignHCenter);
+                    cursor.insertBlock(headerFormat);
+                    cursor.insertText(QDateTime::currentDateTime().toString());
+
+                    QTextFrame *frame = cursor.insertFrame(frameFormat);
+
+                    frame->firstCursorPosition().insertText(fMessageInput->toPlainText());
+
+
                     //cursor.insertBlock(blockFormat);
 
                     //QTextCharFormat format = cursor.charFormat();
@@ -161,6 +172,9 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
                     //cursor.insertHtml(QString("<br><div class=\"msg_out\">%1</div>").arg());
                     emit enteredNewMessage(session.userInfo.pUserID, fMessageInput->toPlainText());
                     fMessageInput->clear();
+
+
+                    fMessageView->ensureCursorVisible();
                 }
                 return true;
             }
