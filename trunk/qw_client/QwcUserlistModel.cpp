@@ -16,30 +16,23 @@ QwcUserlistModel::QwcUserlistModel(QObject *parent) : QAbstractListModel(parent)
 
 
 QwcUserlistModel::~QwcUserlistModel()
-{
-}
+{ }
+
 
 Qt::ItemFlags QwcUserlistModel::flags (const QModelIndex & index) const
 {
-
-    if (index.isValid()) {
-        return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
-    } else {
-        return Qt::ItemIsSelectable | Qt::ItemIsDropEnabled;
-    }
+    return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+//    if (index.isValid()) {
+//        return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+//    } else {
+//        return Qt::ItemIsSelectable | Qt::ItemIsDropEnabled;
+//    }
 }
 
-// Qt::DropActions QwcUserlistModel::supportedDropActions() const
-// {
-// 	return Qt::CopyAction;
-// }
 
 QStringList QwcUserlistModel::mimeTypes() const
 {
-    qDebug() << "mime types";
-    QStringList types;
-    types << "application/x-userid";
-    return types;
+    return QStringList();
 }
 
 QMimeData *QwcUserlistModel::mimeData(const QModelIndexList &indexes) const
@@ -70,16 +63,23 @@ bool QwcUserlistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     return false;
 }
 
-QVariant QwcUserlistModel::data(const QModelIndex & index, int role) const
+
+/*! This reimplementation returns a QVariant<QwcUserInfo> in the Qt::UserRole field which contains
+    the information about the selected row/entry.
+*/
+QVariant QwcUserlistModel::data(const QModelIndex &index, int role) const
 {
-    if( !index.isValid() )
-        return QVariant();
-    if( index.row()>=wiredSocket->userCountByChat(chatID) )
-        return QVariant();
+    if (!index.isValid()) { return QVariant(); }
+    if (index.row() >= wiredSocket->userCountByChat(chatID)) { return QVariant(); }
+    QwcUserInfo userInfo = wiredSocket->userByIndex(chatID, index.row());
 
+    if (role == Qt::UserRole) {
+        return QVariant::fromValue(userInfo);
+    }
 
+/*
     if(role == Qt::DisplayRole) {
-        QwcUserInfo wu = wiredSocket->userByIndex(chatID, index.row());
+
         return wu.pNick;
     } else if( role == Qt::DecorationRole ) { // Nickname
         QwcUserInfo wu = wiredSocket->userByIndex(chatID, index.row());
@@ -104,62 +104,85 @@ QVariant QwcUserlistModel::data(const QModelIndex & index, int role) const
     } else {
         return QVariant();
     }
+
+    */
 }
 
+
+/*! Returns the row count of the current model.
+*/
 int QwcUserlistModel::rowCount(const QModelIndex &) const
 {
-    if( wiredSocket )
-        return wiredSocket->userCountByChat(chatID);
-    return 0;
+    if (!wiredSocket) { return 0; }
+    return wiredSocket->userCountByChat(chatID);
 }
 
+
+/*! Set the socket for the current model and automatically connect the right signals to add, update
+    and remove the user entries for a given chat.
+*/
 void QwcUserlistModel::setWiredSocket(QwcSocket *theSocket)
 {
     wiredSocket = theSocket;
-    if( wiredSocket ) {
-        connect( wiredSocket, SIGNAL(onServerUserlistDone(int)), this, SLOT(onDataUpdate(int)) );
-        connect( wiredSocket, SIGNAL(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)),
-                 this,          SLOT(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)) );
-        connect( wiredSocket, SIGNAL(onServerUserJoined(int, const QwcUserInfo)),
-                 this,		SLOT(onServerUserJoined(int, const QwcUserInfo)) );
-        connect( wiredSocket, SIGNAL(onServerUserLeft(int, const QwcUserInfo)),
-                 this,		SLOT(onServerUserLeft(int, const QwcUserInfo)) );
-    }
+    if (!wiredSocket ) { return; }
+    connect( wiredSocket, SIGNAL(onServerUserlistDone(int)), this, SLOT(onDataUpdate(int)) );
+    connect( wiredSocket, SIGNAL(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)),
+             this, SLOT(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)) );
+    connect( wiredSocket, SIGNAL(onServerUserJoined(int, const QwcUserInfo)),
+             this, SLOT(onServerUserJoined(int, const QwcUserInfo)) );
+    connect( wiredSocket, SIGNAL(onServerUserLeft(int, const QwcUserInfo)),
+             this, SLOT(onServerUserLeft(int, const QwcUserInfo)) );
 }
+
 
 // Data base been updated.
 void QwcUserlistModel::onDataUpdate(int theChatID)
 {
-    if( wiredSocket and theChatID==chatID )
-        reset();
+    if (!wiredSocket) { return; }
+    if (theChatID != chatID) { return; }
+    reset();
 }
 
+
+/*! This is called from the application singleton and is supposed to refresh the whole list in case
+    the fonts or display settings changed.
+*/
+void QwcUserlistModel::reloadPreferences()
+{
+    reset();
+}
+
+
+/*! This slot is called from the socket if a user name, status or other information has changed.
+*/
 void QwcUserlistModel::onServerUserChanged(const QwcUserInfo, const QwcUserInfo theNew)
 {
-    if(wiredSocket) {
-        int tmpIdx = wiredSocket->userIndexByID(theNew.pUserID);
-        emit dataChanged( createIndex(tmpIdx,0), createIndex(tmpIdx,0) );
-    }
+    if (!wiredSocket) { return; }
+    int userIndex = wiredSocket->userIndexByID(theNew.pUserID);
+    emit dataChanged(createIndex(userIndex,0), createIndex(userIndex,0));
 }
 
+
+/*! This slot is called from the socket if a user has joined the server or a room.
+*/
 void QwcUserlistModel::onServerUserJoined(int theChatID, const QwcUserInfo theUser)
 {
-    Q_UNUSED(theUser)
-            // A user joined the server.
-            if(wiredSocket && theChatID==chatID) {
-        //int tmpIdx = wiredSocket->userIndexByID(theUser.pUserID);
-        //insertRows(rowCount(), 1);
-        reset();
-
-    }
+    Q_UNUSED(theUser);
+    if (!wiredSocket) { return; }
+    if (theChatID != chatID) { return; }
+    reset();
 }
 
-// A user has left the chat
+
+/*! This slot is called from the socket if a user has left the room/server.
+*/
 void QwcUserlistModel::onServerUserLeft(int theChatID, const QwcUserInfo)
 {
-    if(wiredSocket && (chatID==theChatID || chatID==1))
-        reset();
+    if (!wiredSocket) { return; }
+    if (theChatID != chatID) { return; }
+    reset();
 }
+
 
 bool QwcUserlistModel::removeRows(int row, int count, const QModelIndex &)
 {
@@ -168,6 +191,7 @@ bool QwcUserlistModel::removeRows(int row, int count, const QModelIndex &)
     return true;
 }
 
+
 bool QwcUserlistModel::insertRows(int row, int count, const QModelIndex &)
 {
     beginInsertRows(QModelIndex(), row, row+count-1);
@@ -175,10 +199,7 @@ bool QwcUserlistModel::insertRows(int row, int count, const QModelIndex &)
     return true;
 }
 
-void QwcUserlistModel::reloadPreferences()
-{
-    reset();
-}
+
 
 
 
