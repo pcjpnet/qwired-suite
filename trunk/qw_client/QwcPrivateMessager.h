@@ -22,19 +22,6 @@ Q_DECLARE_METATYPE(QwcPrivateMessagerSession);
 
 
 
-/*! This delegate is responsible for drawing the user list in the messenger window.
-*/
-class QwcPrivateMessageListDelegate : public QItemDelegate
-{
-Q_OBJECT
-public:
-    QwcPrivateMessageListDelegate(QObject *parent=0);
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-};
-
-
-
 /*! This is the main messenger widget. It is responsible for the user interaction.
 */
 class QwcPrivateMessager : public QWidget, private Ui_QwcPrivateMessager
