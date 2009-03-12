@@ -47,9 +47,13 @@ public:
 private:
     QGraphicsScene *graphicsScene;
     QMap<int,QwcPrivateMessagerSession> messageSessions;
+    bool appendMessageToCurrentSession(QTextDocument *document, const QString message, const QColor messageColor=Qt::gray);
 
 private slots:
     void on_fMessageList_currentRowChanged(int currentRow);
+    void on_btnRemoveSession_clicked();
+    void on_btnSaveSession_clicked();
+
 
 public slots:
     void handleNewMessage(const QwcUserInfo &sender, const QString message);

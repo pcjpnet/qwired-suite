@@ -254,4 +254,6 @@ class QwcUserInfo
     bool privChangeTopic;
 };
 
+Q_DECLARE_METATYPE(QwcUserInfo);
+
 #endif

@@ -128,55 +128,23 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
             if (!keyEvent) { return false; }
             if (keyEvent->key() == Qt::Key_Return) {
-                // Add to the document
-                if (fMessageList->currentRow() == -1) { return false; }
+
+                // Check if the current item is a valid one
                 QwcPrivateMessagerSession session = fMessageList->currentItem()->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
-                if (session.document) {
-                    qDebug() << "send message";
+                if (!session.document) { return false; }
+                if (fMessageInput->toPlainText().isEmpty()) { return true; }
 
-                    QTextCursor cursor = session.document->rootFrame()->lastCursorPosition();
-
-                    cursor.movePosition(QTextCursor::StartOfBlock);
-
-
-
-                    QTextFrameFormat frameFormat;
-                    frameFormat.setPadding(6);
-                    frameFormat.setBackground(QColor(Qt::gray).lighter());
-                    frameFormat.setMargin(0);
-                    frameFormat.setBorder(2);
-                    frameFormat.setBorderBrush(QColor(Qt::gray));
-                    frameFormat.setBackground(QColor(Qt::gray).lighter());
-
-                    // Title
-                    QTextBlockFormat headerFormat;
-                    headerFormat.setAlignment(Qt::AlignHCenter);
-                    cursor.insertBlock(headerFormat);
-                    cursor.insertText(QDateTime::currentDateTime().toString());
-
-                    QTextFrame *frame = cursor.insertFrame(frameFormat);
-
-                    frame->firstCursorPosition().insertText(fMessageInput->toPlainText());
-
-
-                    //cursor.insertBlock(blockFormat);
-
-                    //QTextCharFormat format = cursor.charFormat();
-                    //format.setBackground(Qt::lightGray);
-                    //format.setFontWeight(QFont::Bold);
-                    //cursor.setCharFormat(format);
-
-
-                    //cursor.insertHtml(fMessageInput->toPlainText());
-
-                    //cursor.insertHtml(QString("<br><div class=\"msg_out\">%1</div>").arg());
+                // Append it to the view
+                if (appendMessageToCurrentSession(session.document, fMessageInput->toPlainText(), Qt::blue)) {
+                    // Scroll down
+                    fMessageView->setTextCursor(fMessageView->document()->rootFrame()->lastCursorPosition());
+                    fMessageView->ensureCursorVisible();
+                    // Let other parts of the program know that the user entered a message
                     emit enteredNewMessage(session.userInfo.pUserID, fMessageInput->toPlainText());
                     fMessageInput->clear();
-
-
-                    fMessageView->ensureCursorVisible();
+                    return true;
                 }
-                return true;
+
             }
         }
     }
@@ -189,7 +157,7 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
 */
 void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QString message)
 {
-    qDebug() << "Handling message...";
+    QListWidgetItem *targetListItem = NULL;
     QTextDocument *targetDocument = NULL;
 
     // Try to find an existing session
@@ -199,8 +167,12 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
 
         QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
         if (itemSession.userInfo.pUserID != sender.pUserID) { continue; }
+
+        targetListItem = item;
         targetDocument = itemSession.document;
 
+        // If the target session is not the current one, increment the unread counter to display
+        // the event to the user.
         if (i != fMessageList->currentRow()) {
             itemSession.unreadCount += 1;
             item->setData(Qt::UserRole, QVariant::fromValue(itemSession));
@@ -211,33 +183,24 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
     if (!targetDocument) {
         QwcPrivateMessagerSession session;
         targetDocument = new QTextDocument(fMessageList);
-        targetDocument->setDefaultStyleSheet(".msg_in { background-color: #DDF; }  .msg_out { background-color: #FDD; }");
         session.document = targetDocument;
         session.unreadCount = 1;
         session.userInfo = sender;
 
-        QListWidgetItem *item = new QListWidgetItem(fMessageList);
-        item->setData(Qt::UserRole, QVariant::fromValue(session));
+        targetListItem = new QListWidgetItem(fMessageList);
+        targetListItem->setData(Qt::UserRole, QVariant::fromValue(session));
+        fMessageList->setCurrentItem(targetListItem);
     }
 
     // Add the data
-    if (targetDocument) {
-        QTextCursor cursor = targetDocument->rootFrame()->lastCursorPosition();
-        cursor.insertHtml(QString("<div class=\"msg_in\">%1</div>").arg(fMessageInput->toPlainText()));
-        /*
-QTextCursor cursor(targetDocument);
-        cursor.movePosition(QTextCursor::End);
+    appendMessageToCurrentSession(targetDocument, message, Qt::green);
 
-        QTextBlockFormat blockFormat;
-        blockFormat.setTopMargin(4);
-        blockFormat.setLeftMargin(4);
-        blockFormat.setRightMargin(4);
-        blockFormat.setBottomMargin(4);
-        blockFormat.setBackground(QColor(Qt::gray).lighter(150));
-        cursor.insertBlock(blockFormat);
-        cursor.insertText(message);
-        */
+    // If this is the current item, scroll down
+    if (fMessageList->currentItem() == targetListItem) {
+         fMessageView->setTextCursor(fMessageView->document()->rootFrame()->lastCursorPosition());
+         fMessageView->ensureCursorVisible();
     }
+
 }
 
 
@@ -245,6 +208,9 @@ QTextCursor cursor(targetDocument);
 */
 void QwcPrivateMessager::on_fMessageList_currentRowChanged(int currentRow)
 {
+    btnRemoveSession->setEnabled(currentRow != -1);
+    btnSaveSession->setEnabled(currentRow != -1);
+
     if (currentRow == -1) {
         // Nothing selected or list is empty now
         fMessageInput->clear();
@@ -258,4 +224,82 @@ void QwcPrivateMessager::on_fMessageList_currentRowChanged(int currentRow)
             fMessageView->setDocument(session.document);
         }
     }
+}
+
+
+/*! Append a new message to the current session and scroll to the end of the message protocol and
+    returns true if the action was successful. The \a messageColor defines the color of the message
+    box and should be provided as a full-color (no dimming required) color, as it is automatically
+    adjusted for the border and background.
+*/
+bool QwcPrivateMessager::appendMessageToCurrentSession(QTextDocument *document, const QString message, const QColor messageColor)
+{
+    if (!document) { return false; }
+
+    QTextCursor cursor = document->rootFrame()->lastCursorPosition();
+    cursor.movePosition(QTextCursor::StartOfBlock);
+
+    QTextFrameFormat frameFormat;
+    frameFormat.setPadding(4);
+    frameFormat.setBackground(messageColor.lighter(190));
+    frameFormat.setMargin(0);
+    frameFormat.setBorder(2);
+    frameFormat.setBorderBrush(messageColor.lighter(150));
+    frameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_Outset);
+
+    // Title
+    QTextCharFormat backupCharFormat = cursor.charFormat();
+
+    QTextCharFormat newCharFormat;
+    newCharFormat.setFontPointSize(9);
+
+    QTextBlockFormat headerFormat;
+    headerFormat.setAlignment(Qt::AlignHCenter);
+    cursor.insertBlock(headerFormat);
+    cursor.setCharFormat(newCharFormat);
+    cursor.insertText(QDateTime::currentDateTime().toString());
+
+    QTextFrame *frame = cursor.insertFrame(frameFormat);
+    cursor.setCharFormat(backupCharFormat);
+    frame->firstCursorPosition().insertText(message);
+
+    return true;
+}
+
+
+/*! Delete the current message session and remove it fromt he list.
+*/
+void QwcPrivateMessager::on_btnRemoveSession_clicked()
+{
+    if (fMessageList->currentRow() == -1) { return; }
+
+    QwcPrivateMessagerSession session = fMessageList->currentItem()->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
+    if (session.document) {
+        fMessageView->setDocument(0);
+        fMessageList->takeItem(fMessageList->currentRow());
+        session.document->deleteLater();
+    }
+}
+
+
+/*! Save the contents of the message session to a HTML file.
+*/
+void QwcPrivateMessager::on_btnSaveSession_clicked()
+{
+    QTextDocument *document = fMessageView->document();
+    if (!document) { return; }
+
+    QString targetFile = QFileDialog::getSaveFileName(this, tr("Save message log as HTML file"), QDir::homePath(), tr("HTML file (*.html)"));
+    if (targetFile.isEmpty()) { return; }
+
+    QFile outputFile(targetFile);
+    if (!outputFile.open(QIODevice::WriteOnly)) {
+        QMessageBox::warning(this, tr("Unable to save message log"), tr("An error occourred while "
+                    "attempting to write the message log file (%1)").arg(outputFile.errorString()));
+        return;
+    }
+
+    outputFile.write(document->toHtml().toUtf8());
+    outputFile.close();
+
 }
