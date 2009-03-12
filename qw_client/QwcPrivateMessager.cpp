@@ -1,4 +1,5 @@
 #include "QwcPrivateMessager.h"
+#include "QwcUserlistDelegate.h"
 
 /*! \class QwcPrivateMessager
     \author Bastian Bense <bastibense@gmail.com>
@@ -18,102 +19,12 @@ QwcPrivateMessagerSession::QwcPrivateMessagerSession()
     document = NULL;
 }
 
-// Item Delegate
-//
-QwcPrivateMessageListDelegate::QwcPrivateMessageListDelegate(QObject *parent) : QItemDelegate(parent)
-{
-}
-
-void QwcPrivateMessageListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    painter->save();
-    painter->translate(option.rect.topLeft());
-    QRect itemRect(QPoint(0,0), option.rect.size());
-
-    if (!index.data(Qt::UserRole).canConvert<QwcPrivateMessagerSession>()) { return; }
-    painter->setRenderHint(QPainter::Antialiasing);
-
-    QwcPrivateMessagerSession session = index.data(Qt::UserRole).value<QwcPrivateMessagerSession>();
-
-    QSize iconSize(itemRect.height()-4, itemRect.height()-4);
-    QPixmap userIcon = session.userInfo.iconAsPixmap().scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    // Nice Background
-    painter->save();
-    painter->setClipRect(itemRect);
-    painter->translate(0, itemRect.height()/2);
-    painter->scale(8, 8);
-    painter->translate(0, -iconSize.height()*0.5);
-    painter->setOpacity(0.2);
-    painter->drawPixmap(0, 0, userIcon);
-    painter->restore();
-
-    // Draw the icon
-    painter->drawPixmap(2, 2, userIcon);
-
-    // Draw the user nickname and status
-    QFont font = painter->font();
-
-    // Nickname
-    painter->save();
-    painter->translate(iconSize.width()+8, itemRect.height()/2);
-
-    font.setBold(true);
-    font.setPixelSize(12);
-    painter->setFont(font);
-    painter->drawText(0, -2, session.userInfo.pNick);
-
-    // Status
-    font.setBold(false);
-    font.setPixelSize(10);
-    painter->setFont(font);
-    painter->drawText(0, painter->fontMetrics().ascent()+1, session.userInfo.pStatus);
-    painter->restore();
-
-    // Unread Count
-    if (session.unreadCount) {
-        painter->save();
-        QRect badgeRect(0, 0, iconSize.width(), iconSize.height()*0.5);
-        font.setPixelSize(badgeRect.height()*0.8);
-        font.setBold(true);
-        painter->translate(itemRect.width()-iconSize.width()-8, itemRect.height()/2 - badgeRect.height()/2);
-        painter->setFont(font);
-        painter->setPen(QColor(Qt::red).darker(130));
-        painter->setBrush(Qt::red);
-        painter->drawRoundedRect(badgeRect, 3, 3);
-        painter->setOpacity(1);
-        painter->setPen(QPen(Qt::white));
-        painter->drawText(badgeRect, Qt::AlignHCenter | Qt::AlignVCenter, QString::number(session.unreadCount));
-        painter->restore();
-    }
-
-    // Option highlight
-    if (option.state & QStyle::State_Selected) {
-        painter->save();
-        painter->setPen(Qt::NoPen);
-        painter->setOpacity(0.3);
-        painter->setBrush(option.palette.color(QPalette::Highlight));
-        painter->drawRect(itemRect);
-        painter->restore();
-    }
-
-    painter->restore();
-}
-
-
-QSize QwcPrivateMessageListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    return QSize(160, 36);
-};
-
-
-
 // Messenger Widget
 //
 QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
-    fMessageList->setItemDelegate(new QwcPrivateMessageListDelegate(fMessageList));
+    fMessageList->setItemDelegate(new QwcUserlistDelegate(fMessageList));
     fMessageInput->installEventFilter(this);
 }
 
