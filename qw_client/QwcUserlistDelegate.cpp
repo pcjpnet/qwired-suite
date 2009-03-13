@@ -93,7 +93,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         font.setPixelSize(10);
         painter->setFont(font);
         painter->drawText(0, painter->fontMetrics().ascent()+1, session.userInfo.pStatus);
-        painter->restore();
+
     }
 
     // Nickname
@@ -107,6 +107,8 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     }
 
     painter->drawText(0, -2, session.userInfo.pNick);
+
+    painter->restore();
 
 
     // Unread Count (only for message sessions)
