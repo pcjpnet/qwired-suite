@@ -36,7 +36,6 @@ SOURCES += main.cpp \
     QwcNewsWidget.cpp \
     QwcUserlistModel.cpp \
     QwcUserlistDelegate.cpp \
-    SendPrivateMessageWidget.cpp \
     QwcUserInfoWidget.cpp \
     QwcUserlistWidget.cpp \
     QwcFileBrowserWidget.cpp \
@@ -62,7 +61,6 @@ SOURCES += main.cpp \
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
-    SendPrivateMessageWidget.ui \
     QwcUserInfoWidget.ui \
     QwcServerInfoWidget.ui \
     QwcFileBrowserWidget.ui \
@@ -84,7 +82,6 @@ HEADERS += QwcSession.h \
     QwcNewsWidget.h \
     QwcUserlistModel.h \
     QwcUserlistDelegate.h \
-    SendPrivateMessageWidget.h \
     QwcUserInfoWidget.h \
     QwcUserlistWidget.h \
     QwcServerInfoWidget.h \

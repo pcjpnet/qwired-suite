@@ -11,22 +11,19 @@ QwcUserlistModel::QwcUserlistModel(QObject *parent) : QAbstractListModel(parent)
 
     // Notification manager
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
+    connect(tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()));
 }
 
 
 QwcUserlistModel::~QwcUserlistModel()
-{ }
-
-
-Qt::ItemFlags QwcUserlistModel::flags (const QModelIndex & index) const
 {
-    return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
-//    if (index.isValid()) {
-//        return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
-//    } else {
-//        return Qt::ItemIsSelectable | Qt::ItemIsDropEnabled;
-//    }
+}
+
+
+Qt::ItemFlags QwcUserlistModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid()) { return 0; }
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
 
@@ -34,6 +31,7 @@ QStringList QwcUserlistModel::mimeTypes() const
 {
     return QStringList();
 }
+
 
 QMimeData *QwcUserlistModel::mimeData(const QModelIndexList &indexes) const
 {
@@ -44,6 +42,7 @@ QMimeData *QwcUserlistModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
+
 bool QwcUserlistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
     Q_UNUSED(row);
@@ -51,8 +50,7 @@ bool QwcUserlistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     Q_UNUSED(parent);
 
     qDebug() << "drop mime data";
-    if (action == Qt::IgnoreAction)
-        return true;
+    if (action == Qt::IgnoreAction) { return true; }
 
     if (data->hasFormat("application/x-userid")) {
         QByteArray dat = data->data("application/x-userid");
@@ -70,12 +68,13 @@ bool QwcUserlistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 QVariant QwcUserlistModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) { return QVariant(); }
-    if (index.row() >= wiredSocket->userCountByChat(chatID)) { return QVariant(); }
-    QwcUserInfo userInfo = wiredSocket->userByIndex(chatID, index.row());
-
+    if (index.row() >= wiredSocket->userCountByChat(chatID)) { qDebug() << "row"; return QVariant();  }
     if (role == Qt::UserRole) {
+        QwcUserInfo userInfo = wiredSocket->userByIndex(chatID, index.row());
         return QVariant::fromValue(userInfo);
     }
+
+    return QVariant();
 
 /*
     if(role == Qt::DisplayRole) {
@@ -124,7 +123,7 @@ int QwcUserlistModel::rowCount(const QModelIndex &) const
 void QwcUserlistModel::setWiredSocket(QwcSocket *theSocket)
 {
     wiredSocket = theSocket;
-    if (!wiredSocket ) { return; }
+    if (!wiredSocket) { return; }
     connect( wiredSocket, SIGNAL(onServerUserlistDone(int)), this, SLOT(onDataUpdate(int)) );
     connect( wiredSocket, SIGNAL(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)),
              this, SLOT(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)) );

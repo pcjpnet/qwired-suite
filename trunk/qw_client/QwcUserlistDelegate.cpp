@@ -10,7 +10,7 @@ QwcUserlistDelegate::QwcUserlistDelegate(QObject *parent) : QItemDelegate (paren
 {
     // Notification manager
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
+    connect(tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()));
     reloadPreferences();
 }
 
@@ -20,7 +20,8 @@ QwcUserlistDelegate::~QwcUserlistDelegate()
 }
 
 
-void QwcUserlistDelegate::reloadPreferences() {
+void QwcUserlistDelegate::reloadPreferences()
+{
     QSettings s;
     pListFont.fromString(s.value("interface/userlist/font", QApplication::font().toString()).toString());
     pCompactMode = s.value("interface/userlist/compact",false).toBool();
@@ -28,18 +29,17 @@ void QwcUserlistDelegate::reloadPreferences() {
 }
 
 
-QSize QwcUserlistDelegate::sizeHint ( const QStyleOptionViewItem &, const QModelIndex &index ) const {
-    if(!index.isValid()) return QSize();
-    if(pCompactMode) {
-        return QSize(160,24);
-    } else {
-        return QSize(160,34);
-    }
+QSize QwcUserlistDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &index) const
+{
+    if (!index.isValid()) { return QSize(); }
+    return QSize(160, pCompactMode ? 24 : 34);
 }
 
 
 void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    if (!index.isValid()) { return; }
+
     /// Display mode: 0 = normal chat user icons, 1 = private messenger user icons with unread count
     int displayMode = 0;
     QwcPrivateMessagerSession session;
@@ -58,8 +58,6 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         // Something went wrong!
         return;
     }
-
-
 
     painter->setRenderHint(QPainter::Antialiasing);
 
@@ -132,7 +130,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     if (option.state & QStyle::State_Selected) {
         painter->save();
         painter->setPen(Qt::NoPen);
-        painter->setOpacity(0.3);
+        painter->setOpacity(0.5);
         painter->setBrush(option.palette.color(QPalette::Highlight));
         painter->drawRect(itemRect);
         painter->restore();

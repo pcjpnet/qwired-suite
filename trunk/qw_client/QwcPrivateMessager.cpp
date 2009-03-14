@@ -26,6 +26,24 @@ QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
     setupUi(this);
     fMessageList->setItemDelegate(new QwcUserlistDelegate(fMessageList));
     fMessageInput->installEventFilter(this);
+
+    // Set up the splitter
+    splitterVertical->setStretchFactor(0, 4);
+    splitterVertical->setStretchFactor(1, 10);
+
+    // Restore the splitter
+    QSettings settings;
+    splitterVertical->restoreState(settings.value("messager/splitterVertical", splitterVertical->saveState()).toByteArray());
+    splitterHorizontal->restoreState(settings.value("messager/splitterHorizontal", splitterHorizontal->saveState()).toByteArray());
+
+}
+
+
+QwcPrivateMessager::~QwcPrivateMessager()
+{
+    QSettings settings;
+    settings.setValue("messager/splitterVertical", splitterVertical->saveState());
+    settings.setValue("messager/splitterHorizontal", splitterHorizontal->saveState());
 }
 
 
@@ -104,7 +122,9 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
     }
 
     // Add the data
-    appendMessageToCurrentSession(targetDocument, message, Qt::green);
+    if (!message.isNull()) {
+        appendMessageToCurrentSession(targetDocument, message, Qt::green);
+    }
 
     // If this is the current item, scroll down
     if (fMessageList->currentItem() == targetListItem) {
@@ -121,6 +141,8 @@ void QwcPrivateMessager::on_fMessageList_currentRowChanged(int currentRow)
 {
     btnRemoveSession->setEnabled(currentRow != -1);
     btnSaveSession->setEnabled(currentRow != -1);
+    fMessageInput->setEnabled(currentRow != -1);
+    fMessageList->setEnabled(currentRow != -1);
 
     if (currentRow == -1) {
         // Nothing selected or list is empty now

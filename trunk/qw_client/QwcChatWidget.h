@@ -16,19 +16,28 @@ class QwcChatWidget : public QWidget, public Ui_QwcChatWidget
 public:
     QwcChatWidget(QWidget *parent = 0);
     ~QwcChatWidget();
+
     void setUserListModel(QwcUserlistModel *model);
     void setSession(QwcSession *session);
+
     QwcSession* session();
     int pChatID;
     bool pEmoticonsEnabled;
 
+signals:
+    /*! This signal is emitted if a entry has been double-clicked in the user list. */
+    void userDoubleClicked(const QwcUserInfo user);
+
+
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
+
 
 public slots:
     void resetForm();
     void writeToChat(QString theUser, QString theText, bool theEmote);
     void writeEventToChat(QString theMsg);
+
 
 private:
     QwcSession *pSession;
@@ -38,7 +47,6 @@ private:
     int pChatStyle;
     bool pChatShowTime;
     QFont pChatFont;
-    QPointer<QwcUserlistDelegate> userlistDelegate;
     QPointer<QMenu> pInviteMenu;
     void updateInviteMenu();
 

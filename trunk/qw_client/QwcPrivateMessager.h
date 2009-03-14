@@ -29,6 +29,7 @@ class QwcPrivateMessager : public QWidget, private Ui_QwcPrivateMessager
 Q_OBJECT
 public:
     QwcPrivateMessager(QWidget *parent=0);
+    ~QwcPrivateMessager();
     bool eventFilter(QObject *watched, QEvent *event);
 
 private:
