@@ -58,7 +58,7 @@ class QwcUserInfo
         pIP = theParams.value(7,"");
         pHost = theParams.value(8,"");
         pStatus = QString::fromUtf8(theParams.value(9,""));
-        pImage = QByteArray::fromBase64(theParams.value(10,""));
+        setImageFromData(QByteArray::fromBase64(theParams.value(10,"")));
         pAccountType = 0;
     };
 
@@ -88,7 +88,7 @@ class QwcUserInfo
         usr.pDownloads = theParams.value(13,"");
         usr.pUploads = theParams.value(14,"");
         usr.pStatus = theParams.value(15,"");
-        usr.pImage = QByteArray::fromBase64(theParams.value(16,""));
+        usr.setImageFromData(QByteArray::fromBase64(theParams.value(16,"")));
         return usr;
     };
 
@@ -191,16 +191,16 @@ class QwcUserInfo
     };
 
 
-    // Return the image of the user as icon/pixmap
-    QPixmap iconAsPixmap()
-    {
-        QPixmap tmpIcon;
-        tmpIcon.loadFromData(pImage);
-        if(!tmpIcon.isNull())
-            return tmpIcon;
-        return QPixmap();
+    /*! Set the user image from PNG data and return true if the task was successful.
+    */
+    bool setImageFromData(const QByteArray data) {
+        QImage icon;
+        if (icon.loadFromData(data)) {
+            userImage = icon;
+            return true;
+        }
+        return false;
     };
-
 
     int pUserID;
     bool pIdle;
@@ -211,7 +211,8 @@ class QwcUserInfo
     QString pIP;
     QString pHost;
     QString pStatus;
-    QByteArray pImage;
+    QImage userImage;
+    //QByteArray pImage;
 
     // Session specific
     QString pPassword;

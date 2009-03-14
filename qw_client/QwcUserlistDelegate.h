@@ -19,6 +19,8 @@ public:
     QFont pListFont;
     bool pCompactMode;
     bool pAlternateRowBg;
+    qreal backgroundOpacity;
+
 
 private slots:
     void reloadPreferences();

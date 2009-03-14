@@ -239,7 +239,7 @@ max size 32x32 pixels</string>
        <item>
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="fTabUiChat">
           <attribute name="title">
@@ -416,15 +416,44 @@ max size 32x32 pixels</string>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>40</width>
+                   <width>12</width>
                    <height>20</height>
                   </size>
                  </property>
                 </spacer>
                </item>
+               <item>
+                <widget class="QLabel" name="label_36">
+                 <property name="text">
+                  <string>Userlist Background Opacity:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="sliderUserlistBackgroundOpacity">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>6</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::TicksBelow</enum>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
-             <item row="5" column="1">
+             <item row="6" column="1">
               <widget class="QCheckBox" name="fBtnIfUserlistAlternateRow">
                <property name="text">
                 <string>Alternating Row Background</string>

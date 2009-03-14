@@ -130,7 +130,7 @@ public:
     void sendPrivateMessage(int theUserID, QString theMessage);
     void setCaturday(bool);
     void setChatTopic(int theChatID, QString theTopic);
-    void setUserIcon(QPixmap theIcon);
+    void setUserIcon(QImage icon);
     void setUserStatus(QString theStatus);
     void statFile(const QString thePath);
 

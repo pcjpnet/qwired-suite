@@ -403,13 +403,13 @@ void QwcSession::doHandleUserInfo(QwcUserInfo theUser)
         } }
 
     // Not found, create a new window
-    QwcUserInfoWidget *info = new QwcUserInfoWidget(pConnWindow);
-    info->setUser(theUser);
-    QPixmap tmpIcnPx;
-    tmpIcnPx.loadFromData(theUser.pImage);
-    int tmpIdx = pMainTabWidget->addTab(info, QIcon(tmpIcnPx), tr("Info: %1").arg(theUser.pNick));
+//    QwcUserInfoWidget *info = new QwcUserInfoWidget(pConnWindow);
+//    info->setUser(theUser);
+//    QPixmap tmpIcnPx;
+//    tmpIcnPx.loadFromData(theUser.pImage);
+//    int tmpIdx = pMainTabWidget->addTab(info, QIcon(tmpIcnPx), tr("Info: %1").arg(theUser.pNick));
 
-    pMainTabWidget->setCurrentIndex(tmpIdx);
+    //pMainTabWidget->setCurrentIndex(tmpIdx);
 
 }
 
@@ -756,7 +756,7 @@ void QwcSession::initWiredSocket()
     pWiredSocket->setUserStatus(settings.value("general/status","Qwired Newbie").toString());
     pWiredSocket->setUserNick(settings.value("general/nickname", "Unnamed").toString());
 
-    QPixmap tmpIcon = settings.value("general/icon", QPixmap(":/icons/qwired_logo_32.png")).value<QPixmap>();
+    QImage tmpIcon = settings.value("general/icon", QImage(":/icons/qwired_logo_32.png")).value<QImage>();
     pWiredSocket->setUserIcon(tmpIcon);
 }
 
@@ -771,7 +771,7 @@ void QwcSession::reloadPreferences()
     if(pWiredSocket->sessionUser.pStatus!=s.value("general/status", "Qwired Newbie").toString())
         pWiredSocket->setUserStatus(s.value("general/status").toString());
 
-    QPixmap tmpNew = s.value("general/icon", QPixmap()).value<QPixmap>();
+    QImage tmpNew = s.value("general/icon", QImage()).value<QImage>();
     pWiredSocket->setUserIcon(tmpNew);
 }
 
