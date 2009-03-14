@@ -26,6 +26,7 @@ void QwcUserlistDelegate::reloadPreferences()
     pListFont.fromString(s.value("interface/userlist/font", QApplication::font().toString()).toString());
     pCompactMode = s.value("interface/userlist/compact",false).toBool();
     pAlternateRowBg = s.value("interface/userlist/alternate_bg",false).toBool();
+    backgroundOpacity = s.value("interface/userlist/background_opacity", 30).toInt()/100.0;
 }
 
 
@@ -46,6 +47,10 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     painter->save();
     painter->translate(option.rect.topLeft());
+
+
+
+
     QRect itemRect(QPoint(0,0), option.rect.size());
 
     if (index.data(Qt::UserRole).canConvert<QwcUserInfo>()) {
@@ -62,20 +67,36 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setRenderHint(QPainter::Antialiasing);
 
     QSize iconSize(itemRect.height()-4, itemRect.height()-4);
-    QPixmap userIcon = session.userInfo.iconAsPixmap().scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QImage userIconFullres = session.userInfo.userImage;
+    QImage userIcon = userIconFullres.scaled(iconSize, Qt::KeepAspectRatio, Qt::FastTransformation);
 
     // Nice Background
-    painter->save();
-    painter->setClipRect(itemRect);
-    painter->translate(0, itemRect.height()/2);
-    painter->scale(8, 8);
-    painter->translate(0, -iconSize.height()*0.5);
-    painter->setOpacity(0.2);
-    painter->drawPixmap(0, 0, userIcon);
-    painter->restore();
+    if (backgroundOpacity > 0.0) {
+        painter->save();
+        QImage userIconBackground;
+        if (userIconFullres.height() == option.rect.height()) {
+            userIconBackground = userIconFullres;
+        } else {
+            userIconBackground = userIconFullres.scaledToWidth(350, Qt::FastTransformation);
+        }
+        painter->setClipRect(itemRect);
+        painter->setOpacity(backgroundOpacity);
+        painter->drawImage(0, option.rect.height()/2-userIconBackground.height()/2, userIconBackground);
+        painter->restore();
+
+    } else if (pAlternateRowBg && (index.row() % 2)>0) {
+        painter->save();
+        painter->setBrush(option.palette.color(QPalette::Highlight).lighter(140));
+        painter->setPen(Qt::NoPen);
+        painter->drawRect(0, 0, option.rect.width(), option.rect.height());
+        painter->restore();
+    }
 
     // Draw the icon
-    painter->drawPixmap(2, 2, userIcon);
+    bool isConformingIcon = userIconFullres.height() == 34 && userIconFullres.width() >= 34;
+    if (backgroundOpacity == 0 || !isConformingIcon) {
+        painter->drawImage(2, option.rect.height()/2-userIcon.height()/2, userIcon);
+    }
 
     // Draw the user nickname and status
     QFont font = painter->font();
@@ -86,7 +107,8 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
 
     // Status
-    if (!session.userInfo.pStatus.isEmpty()) {
+    bool statusTextAvailable = !session.userInfo.pStatus.isEmpty();
+    if (!pCompactMode && statusTextAvailable) {
         font.setBold(false);
         font.setPixelSize(10);
         painter->setFont(font);
@@ -100,11 +122,19 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setFont(font);
 
     // Move the nickname to the middle if there is no status
-    if (session.userInfo.pStatus.isEmpty()) {
+    if (pCompactMode || !statusTextAvailable) {
         painter->translate(0, painter->fontMetrics().ascent()/2);
     }
 
+    // Paint the nickname
+    painter->save();
+    QColor statusColor(Qt::black);
+    if (session.userInfo.pAdmin) {
+        statusColor = Qt::red;
+    }
+    painter->setPen(statusColor);
     painter->drawText(0, -2, session.userInfo.pNick);
+    painter->restore();
 
     painter->restore();
 
@@ -134,7 +164,19 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         painter->setBrush(option.palette.color(QPalette::Highlight));
         painter->drawRect(itemRect);
         painter->restore();
+    } else {
+        // Idle dimming
+        if (session.userInfo.pIdle) {
+            painter->save();
+            painter->setBrush(Qt::white);
+            painter->setOpacity(0.5);
+            painter->setPen(Qt::NoPen);
+            painter->drawRect(itemRect);
+            painter->restore();
+        }
     }
+
+
 
     painter->restore();
 

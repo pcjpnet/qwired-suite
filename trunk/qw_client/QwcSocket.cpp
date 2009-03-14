@@ -231,7 +231,7 @@ void QwcSocket::setCaturday(bool b) {
     // everyday iz caturday!  :3
     if(b) {
         pTranzlator.clear();
-        setUserIcon( QPixmap(":/icons/icon_happycat.png") );
+        setUserIcon( QImage(":/icons/icon_happycat.png") );
         setUserStatus(tr("kittehday nait fevrar"));
         QString tmpNick = sessionUser.pNick;
         tmpNick = tmpNick.replace("s","z");
@@ -396,7 +396,7 @@ void QwcSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
             QwcUserInfo tmpUsrOld = j.next();
             if(tmpUsrOld.pUserID==tmpID) {
                 QwcUserInfo tmpUsr = tmpUsrOld;
-                tmpUsr.pImage = QByteArray::fromBase64(theParams.value(1,""));
+                tmpUsr.setImageFromData(QByteArray::fromBase64(theParams.value(1,"")));
                 j.setValue(tmpUsr);
 
                 // Fire a signal, only for the main list!
@@ -423,7 +423,7 @@ void QwcSocket::on_server_userlist_joined(QList< QByteArray > theParams )
     usr.pIP = QString::fromUtf8(theParams.value(7));
     usr.pHost = QString::fromAscii(theParams.value(8));
     usr.pStatus = QString::fromAscii(theParams.value(9));
-    usr.pImage = QByteArray::fromBase64(theParams.value(10));
+    usr.setImageFromData(QByteArray::fromBase64(theParams.value(10)));
 
     QList<QwcUserInfo> &tmpList = pUsers[tmpChatID];
     tmpList.append(usr);
@@ -596,21 +596,23 @@ void QwcSocket::getFileList(QString thePath) {
     sendWiredCommand(QByteArray("LIST ")+thePath.toUtf8());
 }
 
-void QwcSocket::setUserIcon(QPixmap theIcon) {
+/*! Send a new user icon to the remote server and update the local user info.
+*/
+void QwcSocket::setUserIcon(QImage icon)
+{
     // Send a new user icon to the server
     QByteArray tmpCmd;
-    if( !theIcon.isNull() ) {
-        QImage tmpImg = theIcon.toImage();
-        QByteArray ba;
-        QBuffer buf(&ba);
-        buf.open(QIODevice::WriteOnly);
-        tmpImg.save(&buf, "PNG");
-        tmpCmd += "ICON 0"; // unused since 1.1
-        tmpCmd += kFS;
-        tmpCmd += ba.toBase64();
-        sessionUser.pImage = ba;
-        sendWiredCommand(tmpCmd);
-    }
+    if (icon.isNull()) { return; }
+    QByteArray imageData;
+    QBuffer imageDataBuffer(&imageData);
+    imageDataBuffer.open(QIODevice::WriteOnly);
+    icon.save(&imageDataBuffer, "PNG");
+    tmpCmd += "ICON 0"; // unused since 1.1
+    tmpCmd += kFS;
+    tmpCmd += imageData.toBase64();
+    sessionUser.userImage = icon;
+    sendWiredCommand(tmpCmd);
+
 }
 
 
@@ -1002,7 +1004,7 @@ void QwcSocket::on_server_privileges(QList< QByteArray > theParams) {
 void QwcSocket::do_send_user_login() {
     sendClientInfo();
     setUserNick(sessionUser.pNick.toUtf8());
-    setUserIcon(sessionUser.iconAsPixmap());
+    setUserIcon(sessionUser.userImage);
     setUserStatus(sessionUser.pStatus);
 
     QByteArray tmpCmd;

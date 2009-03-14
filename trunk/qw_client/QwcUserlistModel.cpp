@@ -73,6 +73,16 @@ QVariant QwcUserlistModel::data(const QModelIndex &index, int role) const
         QwcUserInfo userInfo = wiredSocket->userByIndex(chatID, index.row());
         return QVariant::fromValue(userInfo);
     }
+    /*else if (role == Qt::ToolTipRole) {
+        QwcUserInfo userInfo = wiredSocket->userByIndex(chatID, index.row());
+
+        QString tooltipText = tr("<b>Nickname:</b> %1<br><b>Login:</b> %2<br><b>Status:</b> %3<br>"
+                                 "<b>IP-Address:</b> %4<br><b>Hostname:</b> %5<br><b>Logged in:</b> %6")
+                              .arg(userInfo.pNick).arg(userInfo.pLogin).arg(userInfo.pStatus)
+                              .arg(userInfo.pIP).arg(userInfo.pHost).arg(userInfo.pLoginTime.toLocalTime().toString());
+
+        return tooltipText;
+    }*/
 
     return QVariant();
 

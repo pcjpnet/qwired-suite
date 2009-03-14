@@ -46,13 +46,14 @@ void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
 	fLoginTime->setText( theUser.pLoginTime.toString() );
 	fIdleTime->setText( theUser.pIdleTime.toString() );
 	
-	QPixmap icon;
-	icon.loadFromData(theUser.pImage);
-	if( !icon.isNull() ) {
-		if(icon.width()>128 || icon.height()>128)
-			icon = icon.scaled(128, 128, Qt::KeepAspectRatio);
-		fIcon->setPixmap(icon);
-	}
+        /*! \todo User icon in user info should be working! */
+//	QPixmap icon;
+//        icon.loadFromData(theUser.userImage);
+//	if( !icon.isNull() ) {
+//		if(icon.width()>128 || icon.height()>128)
+//			icon = icon.scaled(128, 128, Qt::KeepAspectRatio);
+//		fIcon->setPixmap(icon);
+//	}
 	setWindowTitle(tr("User Information: %1").arg(theUser.pNick));
 	pUserID = theUser.pUserID;
 	setTransfers(0, theUser);
