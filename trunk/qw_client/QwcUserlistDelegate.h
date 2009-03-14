@@ -2,6 +2,7 @@
 #define QWCUSERLISTDELEGATE_H
 
 #include <QItemDelegate>
+#include <QCache>
 
 
 class QwcUserlistDelegate : public QItemDelegate
@@ -20,7 +21,6 @@ public:
     bool pCompactMode;
     bool pAlternateRowBg;
     qreal backgroundOpacity;
-
 
 private slots:
     void reloadPreferences();

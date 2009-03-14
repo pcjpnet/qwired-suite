@@ -48,9 +48,6 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->save();
     painter->translate(option.rect.topLeft());
 
-
-
-
     QRect itemRect(QPoint(0,0), option.rect.size());
 
     if (index.data(Qt::UserRole).canConvert<QwcUserInfo>()) {
@@ -68,7 +65,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     QSize iconSize(itemRect.height()-4, itemRect.height()-4);
     QImage userIconFullres = session.userInfo.userImage;
-    QImage userIcon = userIconFullres.scaled(iconSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+    QImage userIcon = userIconFullres.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     // Nice Background
     if (backgroundOpacity > 0.0) {
@@ -77,7 +74,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         if (userIconFullres.height() == option.rect.height()) {
             userIconBackground = userIconFullres;
         } else {
-            userIconBackground = userIconFullres.scaledToWidth(350, Qt::FastTransformation);
+            userIconBackground = userIconFullres.scaledToWidth(350, Qt::SmoothTransformation);
         }
         painter->setClipRect(itemRect);
         painter->setOpacity(backgroundOpacity);
