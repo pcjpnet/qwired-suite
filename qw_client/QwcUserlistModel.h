@@ -17,7 +17,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     bool insertRows ( int row, int count, const QModelIndex & parent = QModelIndex() );
     bool removeRows ( int row, int count, const QModelIndex & parent = QModelIndex() );
-    Qt::ItemFlags flags (const QModelIndex & index) const;
+
+    Qt::ItemFlags flags(const QModelIndex &index) const;
     QStringList mimeTypes() const;
     QMimeData* mimeData(const QModelIndexList &indexes) const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);

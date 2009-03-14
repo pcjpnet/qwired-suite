@@ -2,7 +2,6 @@
 #include "QwcSession.h"
 #include "QwcChatWidget.h"
 #include "QwcGlobals.h"
-#include "SendPrivateMessageWidget.h"
 
 QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 {
@@ -81,7 +80,7 @@ void QwcChatWidget::writeEventToChat(QString theMsg)
     tc.setCharFormat(f);
 
     QString tmpTimestamp;
-    if(pChatShowTime) {
+    if (pChatShowTime) {
         f.setForeground(pChatTimeColor);
         tc.setCharFormat(f);
         tmpTimestamp = QTime::currentTime().toString().append(" ");
@@ -103,8 +102,8 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
 {
     if(watched == fChatInput && event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if(!keyEvent) return false;
-        if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
+        if (!keyEvent) return false;
+        if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
         {
             postChatInputText();
             return true;
@@ -282,39 +281,43 @@ void QwcChatWidget::postChatInputText()
 }
 
 
+/*! Set the current model for the ListView.
+*/
 void QwcChatWidget::setUserListModel(QwcUserlistModel *model)
 { 
+    if (!model) { return; }
+
     // Set the model of the user list.
     fUsers->setModel(model);
-    userlistDelegate = new QwcUserlistDelegate(this);
-    fUsers->setItemDelegate(userlistDelegate);
+    fUsers->setItemDelegate(new QwcUserlistDelegate(this));
+
     model->setChatID(pChatID);
     model->setWiredSocket(pSession->wiredSocket());
 
     // Connect the change event to this window
-    connect( fUsers->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    connect(fUsers->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
              this, SLOT(onUserlistSelectionChanged(const QItemSelection &, const QItemSelection &)) );
 
     // Allow Drag+Drop only in private chats
 
     fUsers->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    fUsers->setDragEnabled(true);
-    fUsers->setDropIndicatorShown(true);
+//    fUsers->setDragEnabled(true);
+//    fUsers->setDropIndicatorShown(true);
 
-    if( pChatID!=1 ) {
+    if (pChatID != 1) {
         fUsers->setAcceptDrops(true);
     }
 
     // Allow the user to use the "Invite" button if this is a private chat
-    if(pChatID!=1) {
+    if(pChatID != 1) {
         fBtnInvite->setVisible(true);
         updateInviteMenu();
-
     }
 }
 
 
-void QwcChatWidget::on_fBtnKick_clicked() {
+void QwcChatWidget::on_fBtnKick_clicked()
+{
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
     int tmpID = tmpIdx.data(Qt::UserRole).toInt();
     QString tmpNick = tmpIdx.data(Qt::DisplayRole).toString();
@@ -326,6 +329,7 @@ void QwcChatWidget::on_fBtnKick_clicked() {
         pSession->wiredSocket()->kickClient(tmpID, tmpReason);
     }
 }
+
 
 void QwcChatWidget::on_fBtnBan_clicked()
 {
@@ -341,41 +345,24 @@ void QwcChatWidget::on_fBtnBan_clicked()
     }
 }
 
+
 void QwcChatWidget::on_fBtnMsg_clicked()
 {
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
     on_fUsers_doubleClicked(tmpIdx);
 }
 
-// User list item double-clicked. Show a new private message dialog.
-void QwcChatWidget::on_fUsers_doubleClicked (const QModelIndex &index)
-{
-    int tmpUserID = index.data( Qt::UserRole ).toInt();
-    QwcUserInfo tmpUsr = pSession->wiredSocket()->getUserByID(tmpUserID);
 
-    SendPrivateMessageWidget *msg;
-    if(!pSession->pMsgWindows.contains(tmpUserID)) {
-        msg = new SendPrivateMessageWidget();
-        msg->setParent(this, Qt::Window);
-        msg->setWindowTitle(tmpUsr.pNick);
-        msg->setWindowIcon(tmpUsr.iconAsPixmap());
-        msg->pTargetID = tmpUserID;
-        connect( msg, SIGNAL(newMessage(int,QString)), pSession->wiredSocket(), SLOT(sendPrivateMessage(int,QString)) );
-        pSession->pMsgWindows[tmpUserID] = msg;
-    } else {
-        msg = pSession->pMsgWindows.value(tmpUserID);
-    }
-    if(msg) {
-        msg->move( fUsers->pos() );
-        msg->show();
-        msg->raise();
-        msg->fInput->setFocus();
-    }
-    //
-    // 	msg->setTarget ( pSession, tmpUserID );
-    // 	msg->fTitle->setText(tr("Private Message To: %1").arg( index.data(Qt::DisplayRole).toString() ));
-    //
-    // 	msg->show();
+/*! A user (or more) have been double-clicked. We emit a signal for this event, so the session
+    can comfortably handle this.
+*/
+void QwcChatWidget::on_fUsers_doubleClicked(const QModelIndex &index)
+{
+    if (!index.isValid()) { return; }
+    if (!index.data(Qt::UserRole).canConvert<QwcUserInfo>()) { return; }
+
+    QwcUserInfo targetUser = index.data(Qt::UserRole).value<QwcUserInfo>();
+    emit userDoubleClicked(targetUser);
 }
 
 // User list item has changed/selection changed.
@@ -388,6 +375,7 @@ void QwcChatWidget::onUserlistSelectionChanged(const QItemSelection &, const QIt
     fBtnChat->setEnabled( fUsers->selectionModel()->hasSelection() );
 }
 
+
 void QwcChatWidget::on_fBtnChat_clicked()
 {
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
@@ -397,10 +385,11 @@ void QwcChatWidget::on_fBtnChat_clicked()
     }
 }
 
+
 void QwcChatWidget::on_fBtnInfo_clicked()
 {
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
-    if( tmpIdx.isValid() ) {
+    if (tmpIdx.isValid()) {
         int tmpID = tmpIdx.data(Qt::UserRole).toInt();
         pSession->wiredSocket()->getClientInfo(tmpID);
     }
@@ -412,19 +401,20 @@ void QwcChatWidget::on_fBtnInfo_clicked()
 //
 void QwcChatWidget::updateInviteMenu()
 {
-    if(!pInviteMenu) {
+    if (!pInviteMenu) {
         pInviteMenu = new QMenu(fBtnInvite);
         fBtnInvite->setMenu(pInviteMenu);
-        connect(pInviteMenu, SIGNAL(triggered(QAction*)), this, SLOT(inviteMenuTriggered(QAction*)));
+        connect(pInviteMenu, SIGNAL(triggered(QAction*)),
+                this, SLOT(inviteMenuTriggered(QAction*)));
     }
 
     pInviteMenu->clear();
 
     QList<QwcUserInfo> &tmpList = pSession->wiredSocket()->pUsers[1];
     QListIterator<QwcUserInfo> i(tmpList);
-    while(i.hasNext()) {
+    while (i.hasNext()) {
         QwcUserInfo tmpUsr = i.next();
-        if(tmpUsr.pUserID!=pSession->wiredSocket()->sessionUser.pUserID) {
+        if (tmpUsr.pUserID!=pSession->wiredSocket()->sessionUser.pUserID) {
             QAction *tmpAct = pInviteMenu->addAction(tmpUsr.pNick);
             tmpAct->setIcon(tmpUsr.iconAsPixmap());
             tmpAct->setData(tmpUsr.pUserID);
@@ -432,10 +422,12 @@ void QwcChatWidget::updateInviteMenu()
     }
 }
 
-void QwcChatWidget::inviteMenuTriggered(QAction * action)
+
+void QwcChatWidget::inviteMenuTriggered(QAction *action)
 {
     pSession->wiredSocket()->inviteClientToChat(pChatID, action->data().toInt());
 }
+
 
 void QwcChatWidget::reloadPreferences()
 {

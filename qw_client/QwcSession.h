@@ -17,7 +17,6 @@
 #include "QwcConnectWidget.h"
 #include "QwcFiletransferWidget.h"
 #include "QwcFileSearchWidget.h"
-#include "SendPrivateMessageWidget.h"
 #include "QwcAccountsWidget.h"
 #include "QwcTrackerlistWidget.h"
 #include "QwcFileInfoWidget.h"
@@ -79,9 +78,6 @@ public:
 
     QPointer<QMenu> pTrayMenuItem;
 
-
-    QHash<int,QPointer<SendPrivateMessageWidget> > pMsgWindows;
-
     // Misc
     bool confirmDisconnection();
 
@@ -127,6 +123,9 @@ private slots:
     void fileListingRecursiveDone(const QList<QwcFileInfo>);
 
 public slots:
+
+    void showMessagerForUser(const QwcUserInfo targetUser);
+
     void triggerEvent(QString event, QStringList parameters);
     void setTrayMenuAction(QMenu*);
 
@@ -159,7 +158,7 @@ public slots:
 
     // Socket handlers
     void doHandleChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
-    void doHandlePrivMsg(QwcUserInfo theUser, QString theMessage);
+//    void doHandlePrivMsg(QwcUserInfo theUser, QString theMessage);
     void doHandleBroadcast(QwcUserInfo theUser, QString theMessage);
     void doHandleUserInfo(QwcUserInfo theUser);
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
