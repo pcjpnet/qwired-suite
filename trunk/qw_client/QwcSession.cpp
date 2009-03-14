@@ -168,6 +168,11 @@ void QwcSession::setupConnections() {
             pWiredSocket, SLOT(sendPrivateMessage(int,QString)));
     connect(pMainChat, SIGNAL(userDoubleClicked(const QwcUserInfo)),
             this, SLOT(showMessagerForUser(const QwcUserInfo)));
+    connect(pWiredSocket, SIGNAL(onServerUserChanged(QwcUserInfo, QwcUserInfo)),
+            privateMessager, SLOT(handleUserChanged(QwcUserInfo, QwcUserInfo)) );
+    connect(pWiredSocket, SIGNAL(onServerUserLeft(int, QwcUserInfo)),
+            privateMessager, SLOT(handleUserLeft(int, QwcUserInfo)));
+
 
     connect(pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
     connect(pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),

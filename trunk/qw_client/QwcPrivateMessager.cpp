@@ -15,6 +15,7 @@
 // Session intialization
 QwcPrivateMessagerSession::QwcPrivateMessagerSession()
 {
+    inactive = false;
     unreadCount = 0;
     document = NULL;
 }
@@ -124,6 +125,10 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
     // Add the data
     if (!message.isNull()) {
         appendMessageToCurrentSession(targetDocument, message, Qt::green);
+    } else {
+        // Set the focus, because if the message is a null string, the user probably wants to
+        // send a new message.
+        fMessageInput->setFocus();
     }
 
     // If this is the current item, scroll down
@@ -141,13 +146,13 @@ void QwcPrivateMessager::on_fMessageList_currentRowChanged(int currentRow)
 {
     btnRemoveSession->setEnabled(currentRow != -1);
     btnSaveSession->setEnabled(currentRow != -1);
-    fMessageInput->setEnabled(currentRow != -1);
     fMessageList->setEnabled(currentRow != -1);
 
     if (currentRow == -1) {
         // Nothing selected or list is empty now
         fMessageInput->clear();
         fMessageView->clear();
+        fMessageInput->setEnabled(false);
     } else {
         // Display the selected session
         QwcPrivateMessagerSession session = fMessageList->currentItem()->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
@@ -155,6 +160,8 @@ void QwcPrivateMessager::on_fMessageList_currentRowChanged(int currentRow)
             session.unreadCount = 0;
             fMessageList->currentItem()->setData(Qt::UserRole, QVariant::fromValue(session));
             fMessageView->setDocument(session.document);
+
+            fMessageInput->setEnabled(!session.inactive);
         }
     }
 }
@@ -234,5 +241,48 @@ void QwcPrivateMessager::on_btnSaveSession_clicked()
 
     outputFile.write(document->toHtml().toUtf8());
     outputFile.close();
+}
 
+
+/*! Something about a user changed - handle the change here and update the user list.
+*/
+void QwcPrivateMessager::handleUserChanged(QwcUserInfo previous, QwcUserInfo current)
+{
+    for (int i=0; i<fMessageList->count(); i++) {
+        QListWidgetItem *item = fMessageList->item(i);
+        if (!item) { continue; }
+
+        QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
+        if (itemSession.userInfo.pUserID != current.pUserID) { continue; }
+
+        itemSession.userInfo = current;
+        item->setData(Qt::UserRole, QVariant::fromValue(itemSession));
+        fMessageList->update();
+        return;
+    }
+}
+
+
+/*! A user logged off or became invalid. We should disable some features such as sending messages
+    and change the user's nickname to reflect the fact.
+*/
+void QwcPrivateMessager::handleUserLeft(int chatId, QwcUserInfo user)
+{
+    for (int i=0; i<fMessageList->count(); i++) {
+        QListWidgetItem *item = fMessageList->item(i);
+        if (!item) { continue; }
+
+        QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
+        if (itemSession.userInfo.pUserID != user.pUserID) { continue; }
+        itemSession.inactive = true;
+        itemSession.userInfo.pNick = tr("%1 [user left]").arg(itemSession.userInfo.pNick);
+        item->setData(Qt::UserRole, QVariant::fromValue(itemSession));
+        fMessageList->update();
+
+        if (item == fMessageList->currentItem()) {
+            fMessageInput->setEnabled(false);
+        }
+
+        return;
+    }
 }

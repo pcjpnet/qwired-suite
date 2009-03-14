@@ -15,6 +15,8 @@ class QwcPrivateMessagerSession
 public:
     QwcPrivateMessagerSession();
     int unreadCount;
+    /*! If true, the user has logged off or can't be messaged anymore. */
+    bool inactive;
     QwcUserInfo userInfo;
     QTextDocument *document;
 };
@@ -34,7 +36,6 @@ public:
 
 private:
     QGraphicsScene *graphicsScene;
-    QMap<int,QwcPrivateMessagerSession> messageSessions;
     bool appendMessageToCurrentSession(QTextDocument *document, const QString message, const QColor messageColor=Qt::gray);
 
 private slots:
@@ -45,6 +46,8 @@ private slots:
 
 public slots:
     void handleNewMessage(const QwcUserInfo &sender, const QString message);
+    void handleUserChanged(QwcUserInfo previous, QwcUserInfo current);
+    void handleUserLeft(int chatId, QwcUserInfo user);
 
 signals:
     void enteredNewMessage(const int targetUserId, const QString message);
