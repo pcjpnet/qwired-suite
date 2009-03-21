@@ -304,6 +304,11 @@ Please enter a reason and press OK.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcConnectWidget.ui" line="89"/>
+        <source>&lt;b&gt;Welcome to Qwired!&lt;/b&gt;&lt;br&gt;&lt;br&gt;Please enter a server address and your login credentials, then press Connect. Alternatively you can select one of your bookmarks from the Bookmarks-Menu below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../QwcConnectWidget.ui" line="119"/>
         <source>Address:</source>
         <translation type="unfinished"></translation>
@@ -336,11 +341,6 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectWidget.ui" line="316"/>
         <source>Ready.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcConnectWidget.ui" line="89"/>
-        <source>&lt;b&gt;Welcome to Qwired!&lt;/b&gt;&lt;br&gt;&lt;br&gt;Please enter a server address and your login credentials, then press Connect. Alternatively you can select one of your bookmarks from the Bookmarks-Menu below.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

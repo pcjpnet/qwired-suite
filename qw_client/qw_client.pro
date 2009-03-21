@@ -27,7 +27,8 @@ TRANSLATIONS += lang/lang_de.ts \
     lang/lang_it.ts \
     lang/lang_fr.ts \
     lang/lang_es.ts \
-    lang/lang_jp.ts
+    lang/lang_jp.ts \
+    lang/lang_nl.ts
 
 SOURCES += main.cpp \
     QwcSocket.cpp \
