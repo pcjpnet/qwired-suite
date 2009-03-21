@@ -18,6 +18,7 @@ QwcPreferencesWidget::QwcPreferencesWidget(QWidget *parent) : QWidget(parent)
 
     // Language menu
     fLanguage->addItem(tr("Automatic (default)"), QString("_auto_"));
+    fLanguage->addItem("Dutch", QString("nl"));
     fLanguage->addItem("English", QString(""));
     fLanguage->addItem("French", QString("fr"));
     fLanguage->addItem("German", QString("de"));
