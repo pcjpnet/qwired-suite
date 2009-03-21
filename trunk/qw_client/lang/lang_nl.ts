@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1">
+<!DOCTYPE TS>
+<TS version="2.0" language="nl_NL">
 <context>
     <name>QwcAboutWidget</name>
     <message>
@@ -563,6 +564,7 @@ Please enter a reason and press OK.</source>
         <source>Are you sure you want to delete the selected %n item(s)?
 This can not be undone!</source>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
