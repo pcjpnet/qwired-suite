@@ -1,0 +1,14 @@
+#summary A quick guide to translating Qwired.
+
+= Introduction =
+
+Qwired uses Qt's translation engine to allow easy localization of the user interface. This page describes the steps neccessary to localize Qwired into your language.
+
+
+= Details =
+
+== Step 1: Download the Qt-SDK ==
+First you'll need the Qt SDK, which can be downloaded here. The SDK contains Qt Linguist, the translation utility which is needed for translating Qwired.
+
+== Step 2: Download the localization files (.ts) ==
+After that you'll need a prepared translation file for your language
