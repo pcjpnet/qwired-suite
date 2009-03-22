@@ -26,7 +26,7 @@ The process is pretty much straightforward. Please refer to the provided Qt Ling
 == Step 4: Upload the updated translation file ==
 To make the translation files available to everyone else, you'll have to upload the updated translation files. Unless you have write-access to the SVN-tree (right now there are just two people with write access), you should attach the file to the respective issue:
 
-  * [issue:27 Dutch]
-  * [issue:28 Japanese]
+  * [http://code.google.com/p/qwired-suite/issues/detail?id=27 Dutch]
+  * [http://code.google.com/p/qwired-suite/issues/detail?id=28 Japanese]
 
 *Obviously the list above is not complete. Please open an issue for your respective language - we'll react to it by creating a ".ts"-file which you can edit!*
