@@ -29,14 +29,16 @@ QwcNewsWidget::~QwcNewsWidget()
 {
 }
 
-void QwcNewsWidget::reloadPreferences() {
+void QwcNewsWidget::reloadPreferences()
+{
     initPrefs();
     fNews->clear();
     newsCounter = 0;
     emit doRefreshNews();
 }
 
-void QwcNewsWidget::initPrefs() {
+void QwcNewsWidget::initPrefs()
+{
     QPalette tmpP = fNews->palette();
     tmpP.setColor(QPalette::Base, QwcSingleton::colorFromPrefs("interface/news/back/color", Qt::white));
     fNews->setPalette(tmpP);
@@ -95,7 +97,8 @@ void QwcNewsWidget::addFreshNewsItem(QString theNick, QString theTime, QString t
     newsCounter++;
 }
 
-void QwcNewsWidget::doSendNews() {
+void QwcNewsWidget::doSendNews()
+{
     // Send the news text from the post window to the user.
     if( pWinPost!=0 ) {
         emit doPostNews(pWinPost->getPostText());
