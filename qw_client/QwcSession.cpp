@@ -50,13 +50,18 @@ void QwcSession::initMainWindow()
     // Set up the container widget
     pContainerWidget = new QWidget();
     pContainerLayout = new QStackedLayout(pContainerWidget);
+//#ifndef Q_WS_MAC
     pContainerWidget->setContentsMargins(6, 6, 6, 6);
+//#endif
     pContainerWidget->setLayout(pContainerLayout);
 
     // Create the tab bar
     pMainTabWidget = new QTabWidget(pContainerWidget);
     pMainTabWidget->clear();
     pMainTabWidget->setVisible(false);
+//#ifdef Q_WS_MAC
+//    pMainTabWidget->setDocumentMode(true);
+//#endif
     connect(pMainTabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(onTabBarCurrentChanged(int)) );
 

@@ -1,11 +1,24 @@
 TEMPLATE = app
-CONFIG += warn_on thread qt x86 ppc
+CONFIG += warn_on thread qt
+
+!debug_and_release:release:macx {
+  CONFIG += x86 ppc
+  message("Compiling Universal binary.")
+}
+
 macx {
     TARGET = "Qwired Client"
+    #QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
+    #QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
+    QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
 }
+
 !macx {
     TARGET = qwired
 }
+
+
 RESOURCES = application.qrc
 QT += gui network
 DESTDIR = ../bin/
@@ -13,12 +26,7 @@ ICON = qwired.icns
 RC_FILE = qwired.rc
 INCLUDEPATH += ../qw_library
 
-macx { 
-    QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
-    QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
-    QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
-}
+
 
 # release:CONFIG += x86 \
 # ppc
