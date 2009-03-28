@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1">
+<!DOCTYPE TS>
+<TS version="2.0">
 <context>
     <name>QwcAboutWidget</name>
     <message>
@@ -41,11 +42,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.cpp" line="190"/>
         <location filename="../QwcAccountsWidget.ui" line="730"/>
         <source>Apply Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.cpp" line="191"/>
+        <location filename="../QwcAccountsWidget.ui" line="383"/>
         <location filename="../QwcAccountsWidget.ui" line="723"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
@@ -216,6 +220,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.ui" line="626"/>
         <location filename="../QwcAccountsWidget.ui" line="683"/>
         <source>KB/s</source>
         <translation type="unfinished"></translation>
@@ -229,6 +234,7 @@
 <context>
     <name>QwcChatWidget</name>
     <message>
+        <location filename="../QwcChatWidget.cpp" line="326"/>
         <location filename="../QwcChatWidget.cpp" line="341"/>
         <source>Kick</source>
         <translation type="unfinished"></translation>
@@ -427,6 +433,7 @@ Please enter a reason and press OK.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcConnectionMainWindow.ui" line="163"/>
         <location filename="../QwcConnectionMainWindow.ui" line="243"/>
         <source>Ctrl+F</source>
         <translation type="unfinished"></translation>
@@ -529,11 +536,12 @@ Please enter a reason and press OK.</source>
 <context>
     <name>QwcFileBrowserWidget</name>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="106"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="105"/>
         <source>%1 items, %2 total, %3 available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcFileBrowserWidget.cpp" line="111"/>
         <location filename="../QwcFileBrowserWidget.cpp" line="112"/>
         <source>Files - %1</source>
         <translation type="unfinished"></translation>
@@ -582,6 +590,7 @@ This can not be undone!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcFileBrowserWidget.ui" line="38"/>
         <location filename="../QwcFileBrowserWidget.ui" line="41"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
@@ -646,6 +655,11 @@ This can not be undone!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcFileInfoWidget.ui" line="80"/>
+        <location filename="../QwcFileInfoWidget.ui" line="112"/>
+        <location filename="../QwcFileInfoWidget.ui" line="144"/>
+        <location filename="../QwcFileInfoWidget.ui" line="176"/>
+        <location filename="../QwcFileInfoWidget.ui" line="208"/>
         <location filename="../QwcFileInfoWidget.ui" line="240"/>
         <source>file</source>
         <translation type="unfinished"></translation>
@@ -780,12 +794,12 @@ This can not be undone!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="143"/>
+        <location filename="../QwcFiletransferDelegate.cpp" line="142"/>
         <source>%1 (%2 items) of %3 (%4 items) completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="150"/>
+        <location filename="../QwcFiletransferDelegate.cpp" line="149"/>
         <source>%1 of %2 completed (%3%) %4</source>
         <translation type="unfinished"></translation>
     </message>
@@ -793,6 +807,7 @@ This can not be undone!</source>
 <context>
     <name>QwcFiletransferWidget</name>
     <message>
+        <location filename="../QwcFiletransferWidget.cpp" line="37"/>
         <location filename="../QwcFiletransferWidget.cpp" line="38"/>
         <source>file://%1</source>
         <translation type="unfinished"></translation>
@@ -839,30 +854,33 @@ This can not be undone!</source>
 <context>
     <name>QwcNewsWidget</name>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="81"/>
+        <location filename="../QwcNewsWidget.cpp" line="64"/>
+        <location filename="../QwcNewsWidget.cpp" line="83"/>
         <source>%1/%2/%3 at %4 GTM %5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="90"/>
+        <location filename="../QwcNewsWidget.cpp" line="69"/>
+        <location filename="../QwcNewsWidget.cpp" line="92"/>
         <source>From %1 (%2):
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="93"/>
+        <location filename="../QwcNewsWidget.cpp" line="72"/>
+        <location filename="../QwcNewsWidget.cpp" line="95"/>
         <source>%1
 
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="139"/>
+        <location filename="../QwcNewsWidget.cpp" line="142"/>
         <source>Clear news</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="139"/>
+        <location filename="../QwcNewsWidget.cpp" line="142"/>
         <source>Are you sure you want to clear all news items?
 
 This cannot be undone.</source>
@@ -874,7 +892,7 @@ This cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="23"/>
+        <location filename="../QwcNewsWidget.ui" line="77"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -883,17 +901,17 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="42"/>
+        <location filename="../QwcNewsWidget.ui" line="28"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="72"/>
+        <location filename="../QwcNewsWidget.ui" line="58"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="79"/>
+        <location filename="../QwcNewsWidget.ui" line="65"/>
         <source>Post...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -906,117 +924,118 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="44"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="45"/>
         <source>Server Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="47"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="48"/>
         <source>Server Disconnected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="49"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="50"/>
         <source>Server Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="51"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="52"/>
         <source>User Joined</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="53"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="54"/>
         <source>User Changed Nick</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="55"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="56"/>
         <source>User Changed Status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="57"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="58"/>
         <source>User Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="59"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="60"/>
         <source>Chat Received</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="61"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="62"/>
         <source>Message Received</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="63"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="64"/>
         <source>News Posted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="65"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="66"/>
         <source>Broadcast Received</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="67"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="68"/>
         <source>Transfer Started</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="69"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="70"/>
         <source>Transfer Finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="265"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="266"/>
         <source>Select Icon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="265"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="266"/>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="274"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="275"/>
         <source>Invalid File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="274"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="275"/>
         <source>Could not open the selected image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="294"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="295"/>
         <source>Select Download Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="392"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="393"/>
         <source>New Tracker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="394"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="395"/>
         <source>my.tracker.com</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="426"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="427"/>
         <source>New Bookmark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="549"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="502"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="550"/>
         <source>(none)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="544"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="545"/>
         <source>Select WAV Sound File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1057,6 +1076,12 @@ max size 32x32 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="184"/>
+        <location filename="../QwcPreferencesWidget.ui" line="480"/>
+        <location filename="../QwcPreferencesWidget.ui" line="487"/>
+        <location filename="../QwcPreferencesWidget.ui" line="629"/>
+        <location filename="../QwcPreferencesWidget.ui" line="695"/>
+        <location filename="../QwcPreferencesWidget.ui" line="803"/>
         <location filename="../QwcPreferencesWidget.ui" line="1484"/>
         <source>Set...</source>
         <translation type="unfinished"></translation>
@@ -1073,11 +1098,14 @@ max size 32x32 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="246"/>
         <location filename="../QwcPreferencesWidget.ui" line="1042"/>
         <source>Chat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="267"/>
+        <location filename="../QwcPreferencesWidget.ui" line="531"/>
         <location filename="../QwcPreferencesWidget.ui" line="739"/>
         <source>Text:</source>
         <translation type="unfinished"></translation>
@@ -1103,6 +1131,8 @@ max size 32x32 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="328"/>
+        <location filename="../QwcPreferencesWidget.ui" line="570"/>
         <location filename="../QwcPreferencesWidget.ui" line="768"/>
         <source>Background:</source>
         <translation type="unfinished"></translation>
@@ -1153,6 +1183,7 @@ max size 32x32 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="657"/>
         <location filename="../QwcPreferencesWidget.ui" line="1453"/>
         <source>Files</source>
         <translation type="unfinished"></translation>
@@ -1163,6 +1194,7 @@ max size 32x32 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="685"/>
         <location filename="../QwcPreferencesWidget.ui" line="845"/>
         <source>Use Alternating Row Background</source>
         <translation type="unfinished"></translation>
@@ -1178,6 +1210,7 @@ max size 32x32 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="826"/>
         <location filename="../QwcPreferencesWidget.ui" line="1536"/>
         <source>Trackers</source>
         <translation type="unfinished"></translation>
@@ -1196,6 +1229,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="901"/>
         <location filename="../QwcPreferencesWidget.ui" line="1556"/>
         <source>New</source>
         <translation type="unfinished"></translation>
@@ -1209,6 +1243,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="919"/>
         <location filename="../QwcPreferencesWidget.ui" line="1566"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
@@ -1372,7 +1407,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="238"/>
+        <location filename="../QwcPrivateMessager.cpp" line="237"/>
         <source>An error occourred while attempting to write the message log file (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1425,6 +1460,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcServerInfoWidget.ui" line="119"/>
+        <location filename="../QwcServerInfoWidget.ui" line="157"/>
+        <location filename="../QwcServerInfoWidget.ui" line="195"/>
+        <location filename="../QwcServerInfoWidget.ui" line="233"/>
+        <location filename="../QwcServerInfoWidget.ui" line="271"/>
+        <location filename="../QwcServerInfoWidget.ui" line="347"/>
         <location filename="../QwcServerInfoWidget.ui" line="385"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
@@ -1473,290 +1514,291 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QwcSession</name>
     <message>
-        <location filename="../QwcSession.cpp" line="314"/>
+        <location filename="../QwcSession.cpp" line="315"/>
+        <location filename="../QwcSession.cpp" line="319"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="421"/>
+        <location filename="../QwcSession.cpp" line="426"/>
         <source>Private Chat Invitation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="422"/>
+        <location filename="../QwcSession.cpp" line="427"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="424"/>
+        <location filename="../QwcSession.cpp" line="429"/>
         <source>Ignore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="425"/>
+        <location filename="../QwcSession.cpp" line="430"/>
         <source>Reject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="426"/>
+        <location filename="../QwcSession.cpp" line="431"/>
         <source>Join</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="455"/>
+        <location filename="../QwcSession.cpp" line="460"/>
         <source>Private Chat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="464"/>
+        <location filename="../QwcSession.cpp" line="469"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="495"/>
+        <location filename="../QwcSession.cpp" line="500"/>
         <source>Connection Refused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="496"/>
+        <location filename="../QwcSession.cpp" line="500"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="499"/>
+        <location filename="../QwcSession.cpp" line="504"/>
         <source>Host not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="499"/>
+        <location filename="../QwcSession.cpp" line="504"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="584"/>
+        <location filename="../QwcSession.cpp" line="589"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="586"/>
+        <location filename="../QwcSession.cpp" line="591"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="587"/>
+        <location filename="../QwcSession.cpp" line="592"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="588"/>
+        <location filename="../QwcSession.cpp" line="593"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="589"/>
+        <location filename="../QwcSession.cpp" line="594"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="590"/>
+        <location filename="../QwcSession.cpp" line="595"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="591"/>
+        <location filename="../QwcSession.cpp" line="596"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="592"/>
+        <location filename="../QwcSession.cpp" line="597"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="593"/>
+        <location filename="../QwcSession.cpp" line="598"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="594"/>
+        <location filename="../QwcSession.cpp" line="599"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="595"/>
+        <location filename="../QwcSession.cpp" line="600"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="596"/>
+        <location filename="../QwcSession.cpp" line="601"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="597"/>
+        <location filename="../QwcSession.cpp" line="602"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="598"/>
+        <location filename="../QwcSession.cpp" line="603"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="599"/>
+        <location filename="../QwcSession.cpp" line="604"/>
         <source>Checksum Mismatch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="600"/>
+        <location filename="../QwcSession.cpp" line="605"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="607"/>
+        <location filename="../QwcSession.cpp" line="612"/>
         <source>Server Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="616"/>
+        <location filename="../QwcSession.cpp" line="621"/>
         <source>Show/Hide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="640"/>
+        <location filename="../QwcSession.cpp" line="645"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="641"/>
+        <location filename="../QwcSession.cpp" line="646"/>
         <source>Disconnected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="642"/>
+        <location filename="../QwcSession.cpp" line="647"/>
         <source>Server Error: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="643"/>
+        <location filename="../QwcSession.cpp" line="648"/>
         <source>%1 joined</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="644"/>
+        <location filename="../QwcSession.cpp" line="649"/>
         <source>%1 is now known as %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="645"/>
+        <location filename="../QwcSession.cpp" line="650"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="646"/>
+        <location filename="../QwcSession.cpp" line="651"/>
         <source>%1 left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="647"/>
+        <location filename="../QwcSession.cpp" line="652"/>
         <source>Chat from %1:
 %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="648"/>
+        <location filename="../QwcSession.cpp" line="653"/>
         <source>Message from %1:
 %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="649"/>
+        <location filename="../QwcSession.cpp" line="654"/>
         <source>News Posted from %1:
 %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="650"/>
+        <location filename="../QwcSession.cpp" line="655"/>
         <source>Broadcast from %1:
 %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="651"/>
+        <location filename="../QwcSession.cpp" line="656"/>
         <source>Transfer Started: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="652"/>
+        <location filename="../QwcSession.cpp" line="657"/>
         <source>Transfer Finished: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="734"/>
+        <location filename="../QwcSession.cpp" line="739"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="744"/>
+        <location filename="../QwcSession.cpp" line="749"/>
         <source>Receiving user list...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="820"/>
+        <location filename="../QwcSession.cpp" line="825"/>
         <source>Accounts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="875"/>
+        <location filename="../QwcSession.cpp" line="880"/>
         <source>News</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="893"/>
+        <location filename="../QwcSession.cpp" line="898"/>
         <source>Server Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="922"/>
+        <location filename="../QwcSession.cpp" line="927"/>
         <source>Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="974"/>
+        <location filename="../QwcSession.cpp" line="979"/>
         <source>File Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="993"/>
+        <location filename="../QwcSession.cpp" line="998"/>
         <source>Transfers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1012"/>
+        <location filename="../QwcSession.cpp" line="1017"/>
         <source>File Transfer Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1015"/>
+        <location filename="../QwcSession.cpp" line="1018"/>
         <source>The transfer of file &apos;%1&apos; could not be completed because of an error.
 Possibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1078"/>
+        <location filename="../QwcSession.cpp" line="1083"/>
         <source>Folder Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1080"/>
+        <location filename="../QwcSession.cpp" line="1084"/>
         <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
 Do you want to begin the transfer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1094"/>
+        <location filename="../QwcSession.cpp" line="1099"/>
         <source>Private Messages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1835,21 +1877,26 @@ Do you want to begin the transfer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="77"/>
         <location filename="../QwcTrackerlistWidget.ui" line="118"/>
         <source>%1 servers registered with tracker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="90"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="102"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="106"/>
         <source>n/a</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="94"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="98"/>
         <source>Yes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="94"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="98"/>
         <source>No</source>
         <translation type="unfinished"></translation>
@@ -1889,7 +1936,7 @@ Reason: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.cpp" line="112"/>
+        <location filename="../QwcUserInfoWidget.cpp" line="111"/>
         <source>%1 MB of %2 MB at %3 KiB/sec</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1969,6 +2016,8 @@ Reason: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcUserInfoWidget.ui" line="235"/>
+        <location filename="../QwcUserInfoWidget.ui" line="258"/>
         <location filename="../QwcUserInfoWidget.ui" line="281"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
@@ -1984,6 +2033,7 @@ Reason: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcUserInfoWidget.ui" line="299"/>
         <location filename="../QwcUserInfoWidget.ui" line="317"/>
         <source>Downloads</source>
         <translation type="unfinished"></translation>
