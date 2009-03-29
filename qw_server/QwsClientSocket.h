@@ -121,8 +121,12 @@ signals:
     void modifiedUserAccount(const QString name);
     /*! This signal is emitted when the client modified a group and it needs to be reloaded. */
     void modifiedUserGroup(const QString name);
-
+    /*! This signal is emitted when the client requests (GET) a file from the server. */
+    void receivedMessageGET(const QwsFile file);
+    /*! This signal is emitted when the client requests (PUT) a upload to the server. */
+    void receivedMessagePUT(const QwsFile file);
 		
+
 public slots:
     void sendError(const Qws::ProtocolError error);
     void sendServerInfo();
@@ -181,10 +185,13 @@ private slots:
 
     // Files
     void handleMessageLIST(QwMessage &message);
+    void handleMessageLISTRECURSIVE(QwMessage &message);
     void handleMessageSTAT(QwMessage &message);
     void handleMessageFOLDER(QwMessage &message);
     void handleMessageDELETE(QwMessage &message);
     void handleMessageMOVE(QwMessage &message);
+    void handleMessageGET(QwMessage &message);
+    void handleMessagePUT(QwMessage &message);
 
     void on_socket_sslErrors(const QList<QSslError> & errors);
     void on_socket_error();

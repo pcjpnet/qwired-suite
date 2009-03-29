@@ -36,8 +36,8 @@ bool QwsFile::isWithinLocalRoot()
 
     // Check if the file is part of the files root
     qDebug() << "LocalRoot:" << localFilesRoot << "---" << localAbsolutePath;
-    qDebug() << "LocalAbsoluteRoot:" << localFilesRootInfo.absolutePath();
-    if (!localAbsolutePath.startsWith(localFilesRootInfo.absolutePath())) {
+    qDebug() << "LocalAbsoluteRoot:" << localFilesRootInfo.absoluteFilePath();
+    if (!localAbsolutePath.startsWith(localFilesRootInfo.absoluteFilePath())) {
         qDebug() << this << "Blocking access above files root:" << path;
         return false;
     }
@@ -61,14 +61,15 @@ bool QwsFile::updateLocalPath(bool quickCheck)
 
 
     // Check if the file is part of the files root
-    qDebug() << "LocalRoot:" << localFilesRoot << "---" << localAbsolutePath;
-    if (!localAbsolutePath.startsWith(localFilesRootInfo.absolutePath())) {
+//    qDebug() << "LocalRoot:" << localFilesRootInfo.absoluteFilePath() << "---" << localAbsolutePath;
+    if (!localAbsolutePath.startsWith(localFilesRootInfo.absoluteFilePath())) {
         qDebug() << this << "Blocking access above files root:" << path;
         return false;
     }
 
     // Check if the local path exists
     if (!localPathInfo.exists() && !localPathInfo.isReadable()) {
+        // The file does not exist
         qDebug() << this << "Path is not readable:" << path;
         return false;
     }

@@ -25,7 +25,7 @@
 #include <QtCore>
 #include "QwsServerController.h"
 
-const QString QWSERVER_VERSION("1.0.0");
+const QString QWSERVER_VERSION("0.1.0");
 
 int main (int argc, char *argv[])
 {

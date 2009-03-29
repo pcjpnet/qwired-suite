@@ -4,7 +4,9 @@ SOURCES += main.cpp \
     QwSslTcpServer.cpp \
     QwsFile.cpp \
     QwsClientTransferSocket.cpp \
-    QwsUser.cpp
+    QwsUser.cpp \
+    QwsTransferInfo.cpp \
+    QwsTransferPool.cpp
 INCLUDEPATH = ../qw_library
 LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
@@ -20,4 +22,6 @@ HEADERS += QwsServerController.h \
     QwSslTcpServer.h \
     QwsFile.h \
     QwsClientTransferSocket.h \
-    QwsUser.h
+    QwsUser.h \
+    QwsTransferInfo.h \
+    QwsTransferPool.h

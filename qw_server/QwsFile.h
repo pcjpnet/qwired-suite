@@ -58,6 +58,9 @@ public:
     QString checksum;
     QString comment;
 
+    /*! A offset value within a file - used during partial transfers. */
+    qint64 offset;
+
     /*! The local root of the files tree. (normally the Files directory of the server)
         Example: "/home/username/qwired_server/files" */
     QString localFilesRoot;
