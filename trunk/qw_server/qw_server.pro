@@ -12,6 +12,7 @@ LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
 QT -= gui
 CONFIG += debug
+CONFIG -= app_bundle
 QT += network \
     xml \
     sql
