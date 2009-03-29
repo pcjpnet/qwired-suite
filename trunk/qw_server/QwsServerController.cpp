@@ -1,46 +1,30 @@
-/***************************************************************************
- *   Copyright (C) 2007 by Bastian Bense   *
- *   bb@bense.de   *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
-
-
-
-
 #include "QwsServerController.h"
 #include "QwsClientSocket.h"
 
 #include <QtSql>
+#include <QUuid>
 
 QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
 {
     sessionIdCounter = 20;
     roomIdCounter = 10;
 
+    // Initialize the transfer pool
+    transferPool = new QwsTransferPool;
+
     // Initialize the main room (public chat, server user list)
     QwRoom *publicRoom = new QwRoom;
     publicRoom->pChatId = 1;
     publicRoom->pTopic = tr("Welcome to Qwired Server!");
     rooms[1] = publicRoom;
+
+    maxTransfersPerClient = 1;
 }
 
 
 QwsServerController::~QwsServerController()
 {
+    delete transferPool;
 }
 
 
@@ -99,51 +83,89 @@ QVariant QwsServerController::getConfigurationParam(const QString key, const QVa
 }
 
 
+/*! Returns the active transfers identified by \a userId.
+*/
+QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int userId)
+{
+    QList<QwsClientTransferSocket*> resultList;
+
+    QListIterator<QPointer<QwsClientTransferSocket> > j(transferSockets);
+    while (j.hasNext()) {
+        QPointer<QwsClientTransferSocket> socket = j.next();
+        if (socket.isNull()) { continue; }
+        if (socket->transferInfo.targetUserId == userId) {
+            resultList.append(socket);
+        }
+    }
+
+    return resultList;
+}
+
+
 /*! Start the TCP listener in order to accept connections.
 */
 bool QwsServerController::startServer()
 {
     int tmpPort = getConfigurationParam("server/port", 2000).toInt();
     QString tmpAddress = getConfigurationParam("server/address", "0.0.0.0").toString();
-    qwLog(QString("Starting server on  %2:%1...").arg(tmpPort).arg(tmpAddress));
-
-    pTcpServer = new QwSslTcpServer(this);
-    connect(pTcpServer, SIGNAL(newSslConnection()), this, SLOT(acceptSslConnection()));
-
     QString certificateFile = getConfigurationParam("server/certificate", "qwired_server.crt").toString();
-    if (!pTcpServer->setCertificateFromFile(certificateFile)) {
+
+    sessionTcpServer = new QwSslTcpServer(this);
+    connect(sessionTcpServer, SIGNAL(newSslConnection()),
+            this, SLOT(acceptSessionSslConnection()));
+
+    if (!sessionTcpServer->setCertificateFromFile(certificateFile)) {
         return false;
     }
-
-    if(!pTcpServer->listen( QHostAddress(tmpAddress), tmpPort)) {
-        qwLog(QString("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(pTcpServer->errorString()));
+    if(!sessionTcpServer->listen(QHostAddress(tmpAddress), tmpPort)) {
+        qwLog(QString("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(sessionTcpServer->errorString()));
         return false;
+    } else {
+        qwLog(QString("Started control socket listener on  %2:%1...").arg(tmpPort).arg(tmpAddress));
+    }
+
+
+    // File transfer socket
+    this->transferTcpServer = new QwSslTcpServer(this);
+    connect(transferTcpServer, SIGNAL(newSslConnection()),
+            this, SLOT(acceptTransferSslConnection()));
+    if (!transferTcpServer->setCertificateFromFile(certificateFile)) {
+        qwLog(QString("Warning: Unable to set certificate file on file transfer listener - file transfers won't work."));
+    }
+    if (!transferTcpServer->listen(QHostAddress(tmpAddress), tmpPort+1)) {
+        qwLog(QString("Fatal: Unable to listen on TCP port %1. %2. File transfers won't work.").arg(tmpPort+1).arg(sessionTcpServer->errorString()));
+    } else {
+        qwLog(QString("Started transfer socket listener on  %2:%1...").arg(tmpPort+1).arg(tmpAddress));
     }
 
     return true;
 }
 
 
-/**
- * Write a message to the log (and console)
- */
-void QwsServerController::qwLog(QString theMessage) {
-        std::cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(theMessage).toStdString() << std::endl;
+/*! Write a message to the server log, or standard output, or attached GUI client.
+*/
+void QwsServerController::qwLog(QString message, Qws::LogType type)
+{
+    std::cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString())
+            .arg(message).toStdString() << std::endl;
 }
 
 
 
-/*! Accepts a new connection. Connected to the newConnect() signal of pTcpServer.
+
+
+/*! Accepts a new connection. Connected to the newConnect() signal of sessionTcpServer.
 */
-void QwsServerController::acceptSslConnection()
+void QwsServerController::acceptSessionSslConnection()
 {
-    QSslSocket *newSocket = pTcpServer->nextPendingSslSocket();
+    QSslSocket *newSocket = sessionTcpServer->nextPendingSslSocket();
 
     QwsClientSocket *clientSocket = new QwsClientSocket(this);
     clientSocket->user.pUserID = ++sessionIdCounter;
     clientSocket->setSslSocket(newSocket);
 
-    connect(clientSocket, SIGNAL(connectionLost()), this, SLOT(handleSocketDisconnected()));
+    connect(clientSocket, SIGNAL(connectionLost()),
+            this, SLOT(handleSocketDisconnected()));
 
     qRegisterMetaType<QwMessage>();
     qRegisterMetaType<Qws::SessionState>();
@@ -183,6 +205,11 @@ void QwsServerController::acceptSslConnection()
     connect(clientSocket, SIGNAL(modifiedUserGroup(QString)),
             this, SLOT(handleModifiedUserGroup(QString)));
 
+    connect(clientSocket, SIGNAL(receivedMessageGET(QwsFile)),
+            this, SLOT(handleMessageGET(QwsFile)));
+    connect(clientSocket, SIGNAL(receivedMessagePUT(QwsFile)),
+            this, SLOT(handleMessagePUT(QwsFile)));
+
     clientSocket->filesRootPath = getConfigurationParam("files/root", "./files").toString();
 
     sockets[clientSocket->user.pUserID] = clientSocket;
@@ -206,6 +233,20 @@ void QwsServerController::handleSocketDisconnected()
         QwRoom *itemRoom = i.value();
         if (itemRoom && itemRoom->pUsers.contains(client->user.pUserID)) {
             removeUserFromRoom(i.key(), client->user.pUserID);
+        }
+    }
+
+    // Delete all transfers
+    int deletedTransfers = transferPool->deleteTransfersWithUserId(client->user.pUserID);
+    qDebug() << this << "Removed transfers from pool:" << deletedTransfers;
+
+    QListIterator<QPointer<QwsClientTransferSocket> > j(transferSockets);
+    while (j.hasNext()) {
+        QPointer<QwsClientTransferSocket> socket = j.next();
+        if (socket.isNull()) { continue; }
+        if (socket->transferInfo.targetUserId == client->user.pUserID) {
+            qDebug() << this << "Aborting transfer" << socket;
+            socket->abortTransfer();
         }
     }
 
@@ -765,5 +806,149 @@ void QwsServerController::handleModifiedUserGroup(const QString name)
             broadcastMessage(reply, 1, true);
         }
     }
+
+}
+
+
+/*! GET - A client has requested a file from the server.
+*/
+void QwsServerController::handleMessageGET(const QwsFile file)
+{
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
+    if (!user) { return; }
+
+    // Add the request to the list of transfers
+    QwsTransferInfo transfer;
+    transfer.file = file;
+    transfer.hash = QUuid::createUuid().toString();
+    transfer.type = Qws::TransferTypeDownload;
+    transfer.offset = file.offset;
+    transfer.targetUserId = user->user.pUserID;
+    transferPool->appendTransferToQueue(transfer);
+
+    checkTransferQueue(user->user.pUserID);
+
+    qDebug() << "Queueing down-transfer with hash" << transfer.hash;
+}
+
+
+/*! PUT - A client has requested a file upload to the server.
+*/
+void QwsServerController::handleMessagePUT(const QwsFile file)
+{
+    QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
+    if (!user) { return; }
+
+    // Add the request to the list of transfers
+    QwsTransferInfo transfer;
+    transfer.file = file;
+    transfer.hash = QUuid::createUuid().toString();
+    transfer.type = Qws::TransferTypeUpload;
+    transfer.offset = file.offset;
+    qDebug() << "Reserving UP offset ="<<transfer.offset;
+    transfer.targetUserId = user->user.pUserID;
+    transferPool->appendTransferToQueue(transfer);
+
+    checkTransferQueue(user->user.pUserID);
+
+    qDebug() << "Queueing up-transfer with hash" << transfer.hash;
+}
+
+
+
+void QwsServerController::checkTransferQueue(int userId)
+{
+    qDebug() << this << "Checking transfer queue of" << userId;
+    if (!sockets.contains(userId)) { return; }
+    QwsClientSocket *socket = sockets[userId];
+    if (!socket) { return; }
+
+    QList<QwsClientTransferSocket*> activeTransfers = transfersWithUserId(userId);
+    QList<QwsTransferInfo> queuedTransfers = transferPool->findTransfersWithUserId(userId);
+
+    qDebug() << this << "User" << userId << "Active=" << activeTransfers.count() << "Queued=" << queuedTransfers.count();
+
+    if (queuedTransfers.isEmpty()) {
+        qDebug() << this << "No more queued transfers for:" << userId;
+        return;
+    };
+
+    if (activeTransfers.count() < maxTransfersPerClient) {
+        // There are less transfers active than allowed. We can start the next transfers.
+        // Take the next transfer from the stack and notify the client.
+        QwsTransferInfo nextTransfer = transferPool->firstTransferWithUserId(userId);
+        qDebug() << this << "Sending transfer ready for transfer" << nextTransfer.hash;
+        QwMessage reply("400"); // 400 - transfer ready
+        reply.appendArg(nextTransfer.file.path);
+        reply.appendArg(QString::number(nextTransfer.offset));
+        reply.appendArg(nextTransfer.hash);
+        socket->sendMessage(reply);
+
+    } else {
+        // All active transfer slots are in use. We should notify the client about that state.
+        int transferPosition = 1;
+        QList<QwsTransferInfo> queuedTransfers = transferPool->findTransfersWithUserId(userId);
+        QListIterator<QwsTransferInfo> i(queuedTransfers);
+        while (i.hasNext()) {
+            QwsTransferInfo item = i.next();
+            QwMessage reply("401"); // 401 - transfer queued
+            reply.appendArg(item.file.path);
+            reply.appendArg(QString::number(transferPosition));
+            socket->sendMessage(reply);
+            transferPosition += 1;
+        }
+    }
+
+}
+
+
+void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
+{
+    qDebug() << this << "Handle transfer done.";
+    QwsClientTransferSocket *socket = qobject_cast<QwsClientTransferSocket*>(sender());
+    if (!socket) { return; }
+    if (transferSockets.contains(socket)) {
+        qDebug() << this << "Deleting obsolete socket:" << socket;
+        transferSockets.removeOne(socket);
+        checkTransferQueue(socket->transferInfo.targetUserId);
+        socket->deleteLater();
+    }
+
+}
+
+
+void QwsServerController::handleTransferError(Qws::TransferSocketError error, const QwsTransferInfo transfer)
+{
+    qDebug() << this << "Transfer error.";
+    QwsClientTransferSocket *socket = qobject_cast<QwsClientTransferSocket*>(sender());
+    if (!socket) { return; }
+    if (transferSockets.contains(socket)) {
+        qDebug() << this << "Deleting obsolete socket:" << socket;
+        transferSockets.removeOne(socket);
+
+        if (error == Qws::TransferSocketErrorNetwork) {
+            checkTransferQueue(socket->transferInfo.targetUserId);
+        }
+        socket->deleteLater();
+    }
+
+}
+
+
+/*! Accepts a new transfer connection. Connected to the newConnect() signal of transferTcpServer.
+*/
+void QwsServerController::acceptTransferSslConnection()
+{
+    QSslSocket *newSocket = transferTcpServer->nextPendingSslSocket();
+    QwsClientTransferSocket *transferSocket = new QwsClientTransferSocket(this);
+    connect(transferSocket, SIGNAL(transferDone(QwsTransferInfo)),
+            this, SLOT(handleTransferDone(QwsTransferInfo)));
+    connect(transferSocket, SIGNAL(transferError(Qws::TransferSocketError,QwsTransferInfo)),
+            this, SLOT(handleTransferError(Qws::TransferSocketError, QwsTransferInfo)));
+    transferSocket->setSocket(newSocket);
+    transferSocket->setTransferPool(transferPool);
+    transferSockets.append(transferSocket);
+    transferSocket->beginTransfer();
+    qDebug() << transferSocket << "Beginning new transfer";
 
 }

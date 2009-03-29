@@ -31,10 +31,18 @@
 #include <iostream>
 #include <QtCore>
 #include <QtNetwork>
+#include <QQueue>
 
 #include "QwsClientSocket.h"
 #include "QwSslTcpServer.h"
 #include "QwsClientTransferSocket.h"
+#include "QwsTransferInfo.h"
+
+#include "QwsTransferPool.h"
+
+namespace Qws {
+    enum LogType { LogTypeInfo, LogTypeWarning, LogTypeFatal, LogTypeDebug };
+}
 
 class QwsServerController : public QObject
 {
@@ -45,7 +53,7 @@ public:
     QwsServerController(QObject *parent = 0);
     virtual ~QwsServerController();
 
-    static void qwLog(QString theMessage);
+    static void qwLog(QString message, Qws::LogType type=Qws::LogTypeInfo);
 
     // Database access/configuration
     QVariant getConfigurationParam(const QString key, const QVariant defaultValue=QVariant());
@@ -53,11 +61,20 @@ public:
 private:
     int sessionIdCounter;
     int roomIdCounter;
+    int maxTransfersPerClient;
 
-    QPointer<QwSslTcpServer> pTcpServer;
+    QPointer<QwSslTcpServer> sessionTcpServer;
+    QPointer<QwSslTcpServer> transferTcpServer;
+    QwsTransferPool *transferPool;
+
+    /*! The list of active transfer sockets. Active transfers are not in the \a transfers list. */
+    QList<QPointer<QwsClientTransferSocket> > transferSockets;
+
     QHash<int, QwsClientSocket*> sockets;
     QHash<int, QwRoom*> rooms;
-    QHash<int, QwsClientTransferSocket*> transferSockets;
+
+    QList<QwsClientTransferSocket*> transfersWithUserId(int userId);
+    void checkTransferQueue(int userId);
 
 
 signals:
@@ -65,6 +82,10 @@ signals:
 
 
 private slots:
+
+    // Socket Management
+    void acceptSessionSslConnection();
+    void acceptTransferSslConnection();
 
     // Protocol
     void handleSocketDisconnected();
@@ -92,10 +113,17 @@ private slots:
     void handleModifiedUserAccount(const QString name);
     void handleModifiedUserGroup(const QString name);
 
+    // File transfers
+    void handleMessageGET(const QwsFile file);
+    void handleMessagePUT(const QwsFile file);
+    void handleTransferDone(const QwsTransferInfo transfer);
+    void handleTransferError(Qws::TransferSocketError error, const QwsTransferInfo transfer);
+//    void handleTransferSocketHash(const QByteArray hash);
+
 public slots:
     bool loadConfiguration();
     bool startServer();
-    void acceptSslConnection();
+
 
 };
 

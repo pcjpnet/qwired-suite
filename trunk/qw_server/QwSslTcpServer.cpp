@@ -42,20 +42,20 @@ bool QwSslTcpServer::setCertificateFromFile(QString file)
 
 void QwSslTcpServer::incomingConnection(int socketDescriptor)
 {
-	qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor;
-	QSslSocket *conn = new QSslSocket(this);
-	if(conn->setSocketDescriptor(socketDescriptor)) {
-		qDebug() << "[ssltcpserver] Accepted connection, setting parameters and initing handshake.";
-		conn->setProtocol(QSsl::TlsV1);
-		conn->setPrivateKey(pPrivateKey);
-		conn->setLocalCertificate(pLocalCert);
-		conn->startServerEncryption();
-		pPendingSockets.append(conn);
-		emit newSslConnection();
-	} else {
-		qDebug() << "[ssltcpserver] Failed to set socket descriptor. Dropping.";
-		delete conn;
-	}
+    qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor;
+    QSslSocket *conn = new QSslSocket(this);
+    if(conn->setSocketDescriptor(socketDescriptor)) {
+        qDebug() << "[ssltcpserver] Accepted connection, setting parameters and initing handshake.";
+        conn->setProtocol(QSsl::TlsV1);
+        conn->setPrivateKey(pPrivateKey);
+        conn->setLocalCertificate(pLocalCert);
+        conn->startServerEncryption();
+        pPendingSockets.append(conn);
+        emit newSslConnection();
+    } else {
+        qDebug() << "[ssltcpserver] Failed to set socket descriptor. Dropping.";
+        delete conn;
+    }
 }
 
 /**
@@ -63,7 +63,7 @@ void QwSslTcpServer::incomingConnection(int socketDescriptor)
  */
 bool QwSslTcpServer::hasPendingSslSocket()
 {
-	return pPendingSockets.size()>0;
+    return pPendingSockets.size()>0;
 }
 
 

@@ -143,10 +143,13 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
      // Files
     } else if (message.commandName == "LIST") {        handleMessageLIST(message);
+    } else if (message.commandName == "LISTRECURSIVE"){handleMessageLISTRECURSIVE(message);
     } else if (message.commandName == "STAT") {        handleMessageSTAT(message);
     } else if (message.commandName == "FOLDER") {      handleMessageFOLDER(message);
     } else if (message.commandName == "DELETE") {      handleMessageDELETE(message);
     } else if (message.commandName == "MOVE") {        handleMessageMOVE(message);
+    } else if (message.commandName == "GET") {         handleMessageGET(message);
+    } else if (message.commandName == "PUT") {         handleMessagePUT(message);
     }
  }
 
@@ -807,6 +810,7 @@ void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
 void QwsClientSocket::handleMessageLIST(QwMessage &message)
 {
     resetIdleTimer();
+
     QwsFile targetDirectory;
     targetDirectory.localFilesRoot = filesRootPath;
     targetDirectory.path = message.getStringArgument(0);
@@ -823,7 +827,61 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
         return;
     }
 
-    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks);
+    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks );
+    while (it.hasNext()) {
+        it.next();
+
+        QwsFile itemFile;
+        itemFile.localFilesRoot = targetDirectory.localAbsolutePath;
+        itemFile.path = it.fileName();
+
+        if (itemFile.updateLocalPath(true)) {
+            QwMessage replyItem("410");
+            replyItem.appendArg(QDir::cleanPath(targetDirectory.path + "/" + itemFile.path));
+            replyItem.appendArg(QString::number(itemFile.type));
+            replyItem.appendArg(QString::number(itemFile.size));
+            replyItem.appendArg(itemFile.created.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.modified.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+            sendMessage(replyItem);
+        }
+    }
+
+    // End of list
+    QwMessage reply("411");
+    reply.appendArg(targetDirectory.path);
+    reply.appendArg("0");
+    sendMessage(reply);
+}
+
+
+/*! LISTRECURSIVE (list files recursively)
+*/
+void QwsClientSocket::handleMessageLISTRECURSIVE(QwMessage &message)
+{
+    resetIdleTimer();
+    QwsFile targetDirectory;
+    targetDirectory.localFilesRoot = filesRootPath;
+    targetDirectory.path = message.getStringArgument(0);
+
+    // Prevent root indexing
+    if (targetDirectory.path == "/") {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    // Check if target is valid
+    if (!targetDirectory.updateLocalPath(false)) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    // Check if the target is a directory
+    if (!targetDirectory.type > Qws::FileTypeRegular) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
     while (it.hasNext()) {
         it.next();
 
@@ -854,7 +912,6 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
 */
 void QwsClientSocket::handleMessageSTAT(QwMessage &message)
 {
-    resetIdleTimer();
     QwsFile targetFile;
     targetFile.localFilesRoot = filesRootPath;
     targetFile.path = message.getStringArgument(0);
@@ -956,15 +1013,138 @@ void QwsClientSocket::handleMessageDELETE(QwMessage &message)
 }
 
 
+/*! MOVE - move a file or directory to another directory
+*/
 void QwsClientSocket::handleMessageMOVE(QwMessage &message)
 {
+    resetIdleTimer();
+
+    // Update the source file to see if it exists
+    QwsFile sourceFile;
+    sourceFile.localFilesRoot = filesRootPath;
+    sourceFile.path = message.getStringArgument(0);
+
+    if (!sourceFile.updateLocalPath()) {
+        // Check if the file to move exists
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    qDebug() << this << "Renaming source:" << sourceFile.localAbsolutePath;
+
+    // Update the destination (dir or file)
+    QwsFile destinationFile;
+    destinationFile.localFilesRoot = filesRootPath;
+    destinationFile.path = message.getStringArgument(1);
+
+    // Check if we are within the root
+    if (!destinationFile.isWithinLocalRoot()) {
+        qDebug() << this << "Preventing move outside of jail:" << destinationFile.path;
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    // Check if the target already exists
+    if (destinationFile.updateLocalPath()) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+     qDebug() << this << "Renaming target:" << destinationFile.localAbsolutePath;
+
+     QFile sourceItem(sourceFile.localAbsolutePath);
+     if (!sourceItem.rename(destinationFile.localAbsolutePath)) {
+         sendError(Qws::ErrorFileOrDirectoryNotFound);
+         return;
+     }
+
 
 }
 
 
+/*! GET - Download file from server
+*/
+void QwsClientSocket::handleMessageGET(QwMessage &message)
+{
+    QwsFile targetFile;
+    targetFile.localFilesRoot = filesRootPath;
+    targetFile.path = message.getStringArgument(0);
+    targetFile.offset = message.getStringArgument(1).toLongLong();
+
+    if (!targetFile.updateLocalPath()) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    emit receivedMessageGET(targetFile);
+}
+
+
+/*! PUT - Upload a file to the server
+  \todo Renaming to .WiredTransfer during transfer!
+*/
+void QwsClientSocket::handleMessagePUT(QwMessage &message)
+{
+    QString targetFileName = message.getStringArgument(0);
+    qint64 targetFileSize = message.getStringArgument(1).toLongLong();
+    QByteArray targetFileChecksum = message.getStringArgument(2).toAscii();
+
+
+    qDebug() << this << "Received PUT request:" << targetFileName;
+
+    QwsFile localFile;
+    localFile.localFilesRoot = filesRootPath;
+    localFile.path = targetFileName;
+
+    // Check for jail escape
+    if (!localFile.isWithinLocalRoot()) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    QFileInfo targetFileInfo(localFile.localAbsolutePath);
+    if (localFile.updateLocalPath()) {
+        // File exists - compare the file
+
+        // Checksums don't match.
+        if (localFile.checksum != targetFileChecksum) {
+            qDebug() << "Checksum mismatch!";
+            sendError(Qws::ErrorChecksumMismatch);
+            return;
+        }
+
+        // Checksums are the same, size is the same - abort
+        if (localFile.checksum == targetFileChecksum && localFile.size == targetFileSize ) {
+            qDebug() << "File exists!";
+            sendError(Qws::ErrorFileOrDirectoryExists);
+            return;
+        }
+
+        // Seems fine so far, let's hand off the request to the controller.
+        localFile.offset = localFile.size;
+        localFile.size = targetFileSize;
+        localFile.checksum = targetFileChecksum;
+        emit receivedMessagePUT(localFile);
+
+    } else {
+        // File does not exist yet.
+        if (! targetFileInfo.absoluteDir().exists()) {
+            qDebug() << "Parent does not exist!";
+            sendError(Qws::ErrorFileOrDirectoryNotFound);
+            return;
+        }
+
+        localFile.offset = 0;
+        localFile.checksum = targetFileChecksum;
+        localFile.size = targetFileSize;
+        emit receivedMessagePUT(localFile);
+    }
+}
+
+
+/* ===================== */
 /* === PRIVATE SLOTS === */
-
-
+/* ===================== */
 
 
 /*! Send information about the server. Happens during handshake or asynchronously.
@@ -977,8 +1157,8 @@ void QwsClientSocket::sendServerInfo()
      response.appendArg("Qwired Server");
      response.appendArg("A very early Qwired Server build.");
      response.appendArg(""); // start time
-     response.appendArg(0); // file count
-     response.appendArg(0); // total size
+     response.appendArg("31337"); // file count
+     response.appendArg("1024"); // total size
      sendMessage(response);
 }
 
