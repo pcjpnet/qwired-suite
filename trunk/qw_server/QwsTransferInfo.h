@@ -34,6 +34,12 @@ public:
     /*! The offset within the file. */
     qlonglong offset;
 
+    /*! The number of bytes (from the total length of the file) that have been transferred already. */
+    qint64 bytesTransferred;
+
+    /*! The current transfer speed in bytes/second. */
+    int currentTransferSpeed;
+
     /*! The ID of the user who requested the transfer. */
     int targetUserId;
 

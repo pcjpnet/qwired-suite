@@ -290,12 +290,48 @@ void QwsServerController::handleMessageINFO(const int userId)
         user->sendError(Qws::ErrorClientNotFound);
         return;
     }
+
     QwsClientSocket *target = sockets[userId];
     if (!target) { return; }
 
     // Send the information
     QwMessage reply("308");
     target->user.userInfoEntry(reply);
+
+    QList<QwsClientTransferSocket*> transfers = this->transfersWithUserId(user->user.pUserID);
+    //QList<QwsTransferInfo> queuedTransfers = this->transferPool->findTransfersWithUserId(user->user.pUserID);
+
+    // Transfers
+    QString transfersDownload;
+    QString transfersUpload;
+
+    QListIterator<QwsClientTransferSocket*> i(transfers);
+    while (i.hasNext()) {
+        QwsClientTransferSocket *item = i.next();
+        if (!item) { continue; }
+
+        QString *transferInfo = 0;
+        if (item->transferInfo.type == Qws::TransferTypeDownload) {
+            transferInfo = &transfersDownload;
+        } else {
+            transferInfo = &transfersUpload;
+        }
+
+        if (!transferInfo) { continue; }
+        transferInfo->append(item->transferInfo.file.path + "\x1E");
+        transferInfo->append(QString::number(item->transferInfo.bytesTransferred) + "\x1E");
+        transferInfo->append(QString::number(item->transferInfo.file.size) + "\x1E");
+        transferInfo->append(QString::number(item->transferInfo.currentTransferSpeed) + "\x1E"); // current speed
+
+        if (i.hasNext()) {
+            transferInfo->append("\x1D"); // RS
+        }
+    }
+
+    // Replace the fields of the info message
+    reply.arguments.replace(13, transfersDownload);
+    reply.arguments.replace(14, transfersUpload);
+
     user->sendMessage(reply);
 }
 
@@ -904,6 +940,7 @@ void QwsServerController::checkTransferQueue(int userId)
 
 void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
 {
+    Q_UNUSED(transfer);
     qDebug() << this << "Handle transfer done.";
     QwsClientTransferSocket *socket = qobject_cast<QwsClientTransferSocket*>(sender());
     if (!socket) { return; }
@@ -919,6 +956,7 @@ void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
 
 void QwsServerController::handleTransferError(Qws::TransferSocketError error, const QwsTransferInfo transfer)
 {
+    Q_UNUSED(transfer);
     qDebug() << this << "Transfer error.";
     QwsClientTransferSocket *socket = qobject_cast<QwsClientTransferSocket*>(sender());
     if (!socket) { return; }

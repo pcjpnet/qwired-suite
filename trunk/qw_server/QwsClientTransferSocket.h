@@ -60,8 +60,8 @@ public:
     qint64 readFromNetwork(qint64 maxLength);
     bool canTransferMore() const;
     qint64 bytesAvailable() const;
-    qint64 networkBytesAvailable() const
-    {
+
+    qint64 networkBytesAvailable() const {
         return socket->bytesAvailable();
     }
 
@@ -84,8 +84,8 @@ private:
     /*! This is a pointer to the raw socket that connects to the client. */
     QSslSocket *socket;
     /*! The target file we are reading data from. */
-    //QFile targetFile;
     QTimer transferTimer;
+    QTime transferSpeedTimer;
     qint64 speedLimit;
     void beginDataTransmission();
 
