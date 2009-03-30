@@ -33,6 +33,9 @@ void QwsClientTransferSocket::transmitFileChunk()
         dataBuffer = fileReader.read(chunkSize);
         socket->write(dataBuffer);
 
+        transferInfo.currentTransferSpeed = dataBuffer.size() / (transferSpeedTimer.restart()/1000);
+        transferInfo.bytesTransferred += dataBuffer.size();
+
 
     } else if (transferInfo.type == Qws::TransferTypeUpload) {
         // The upload is throttled. The buffer size was limited before and the timer is fired
@@ -196,6 +199,7 @@ bool QwsClientTransferSocket::openLocalFile()
                 emit transferError(Qws::TransferSocketErrorFileOpen, transferInfo);
                 return false;
             }
+            transferInfo.bytesTransferred = transferInfo.offset;
             return true;
         } else {
             qDebug() << this << "Error: Unable to read from file:" << fileReader.error();
@@ -206,6 +210,7 @@ bool QwsClientTransferSocket::openLocalFile()
     } else if (transferInfo.type == Qws::TransferTypeUpload) {
        if (fileReader.open(QIODevice::Append)) {
             qDebug() << this << "Opened file for appending, offset" << transferInfo.offset;
+            transferInfo.bytesTransferred = fileReader.size();
             return true;
         } else {
             qDebug() << this << "Error: Unable to write to file:" << fileReader.error();
@@ -220,12 +225,14 @@ bool QwsClientTransferSocket::openLocalFile()
 void QwsClientTransferSocket::beginTransfer()
 {
     if (!socket) { return; }
-    //openLocalFile();
     transferState = Qws::TransferSocketStatusWaitingForHash;
     qDebug() << this << "Beginning transfer - waiting for hash.";
 }
 
 
+/*! Finish the transfer and emit the transferDone() signal. At this point the transfer was
+    successfully completed.
+*/
 void QwsClientTransferSocket::finishTransfer()
 {
     qDebug() << this << "Finishing transfer.";
@@ -239,11 +246,9 @@ void QwsClientTransferSocket::finishTransfer()
         }
 
     }
-    //socket->waitForBytesWritten(5000);
     socket->disconnectFromHost();
     transferTimer.stop();
     emit transferDone(transferInfo);
-    //this->deleteLater();
 }
 
 
@@ -277,5 +282,5 @@ QwsClientTransferSocket::QwsClientTransferSocket(QObject *parent=0) : QObject(pa
 {
     qDebug() << this << "Created new transfer socket.";
     transferPool = NULL;
-    speedLimit = 0; //1024*1024;
+    speedLimit = 20*1024; //0; //1024*1024;
 }
