@@ -14,9 +14,7 @@ namespace WiredTransfer {
     enum TransferType { TypeDownload, TypeUpload, TypeFolderDownload, TypeFolderUpload };
 }
 
-/**
-        @author Bastian Bense <bastibense@gmail.com>
- */
+
 class QwcFiletransferInfo
 {
 
