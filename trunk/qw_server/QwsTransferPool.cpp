@@ -14,8 +14,6 @@ QwsTransferPool::QwsTransferPool()
 */
 QwsTransferInfo QwsTransferPool::takeTransferFromQueueWithHash(const QByteArray hash)
 {
-    QMutexLocker locker(&queueMutex);
-
     QMutableListIterator<QwsTransferInfo> i(transferQueue);
     while (i.hasNext()) {
         QwsTransferInfo item = i.next();
@@ -32,8 +30,6 @@ QwsTransferInfo QwsTransferPool::takeTransferFromQueueWithHash(const QByteArray 
      transfer exists. This method is thread-safe. */
 bool QwsTransferPool::hasTransferWithHash(const QByteArray hash)
 {
-    QMutexLocker locker(&queueMutex);
-
     QListIterator<QwsTransferInfo> i(transferQueue);
     while (i.hasNext()) {
         QwsTransferInfo item = i.next();
@@ -46,12 +42,14 @@ bool QwsTransferPool::hasTransferWithHash(const QByteArray hash)
 }
 
 /*! Append a new transfer to the queue and return the position of the added transfer within the
-    queue. This method is thread-safe.
+    queue. If a transfer with the same hash already exists, it is replaced.
 */
 void QwsTransferPool::appendTransferToQueue(const QwsTransferInfo transfer)
 {
-    QMutexLocker locker(&queueMutex);
-    transferQueue.append(transfer);
+    // Discard the old hash if it exists
+    takeTransferFromQueueWithHash(transfer.hash.toAscii());
+    // Prepend the new one (not append, because it would be at the end of the queue)
+    transferQueue.prepend(transfer);
 }
 
 
@@ -59,7 +57,6 @@ void QwsTransferPool::appendTransferToQueue(const QwsTransferInfo transfer)
 */
 int QwsTransferPool::deleteTransfersWithUserId(int userId)
 {
-    QMutexLocker locker(&queueMutex);
     int deleteCounter = 0;
 
     QMutableListIterator<QwsTransferInfo> i(transferQueue);
@@ -88,6 +85,21 @@ QList<QwsTransferInfo> QwsTransferPool::findTransfersWithUserId(int userId)
         }
     }
 
+    return resultList;
+}
+
+/*! Returns the transfers with a user ID of \a userId.
+*/
+QList<QwsTransferInfo> QwsTransferPool::findWaitingTransfersWithUserId(int userId)
+{
+    QList<QwsTransferInfo> resultList = findTransfersWithUserId(userId);
+    QMutableListIterator<QwsTransferInfo> i(resultList);
+    while (i.hasNext()) {
+        QwsTransferInfo &item = i.next();
+        if (item.state != Qws::TransferInfoStateWaiting) {
+            i.remove();
+        }
+    }
     return resultList;
 }
 

@@ -26,6 +26,7 @@ QwsFile::~QwsFile()
 
 
 /*! This method returns true if the path is within the current folder root - and thus secure.
+    localAbsolutePath is updated after this method has been called.
 */
 bool QwsFile::isWithinLocalRoot()
 {
@@ -104,17 +105,23 @@ void QwsFile::updateLocalChecksum()
 {
     QFile targetFile(localAbsolutePath);
     if (!targetFile.open(QIODevice::ReadOnly)) {
+        qDebug() << this << "Unable to calculate hash for file:" << localAbsolutePath << " - " << targetFile.error();
+        this->checksum = "";
         return;
     }
+    qDebug() << "Position:" << targetFile.pos();
+    targetFile.seek(0);
     QByteArray hashData = targetFile.read(1024*1024);
     QCryptographicHash hash(QCryptographicHash::Sha1);
     hash.addData(hashData);
     this->checksum = hash.result().toHex();
-    qDebug() << this << "Hash for path" << this->path << "=" << this->checksum;
+
+    qDebug() << this << "Calculated hash for file" << this->localAbsolutePath << "Bytes =" << hashData.size() << "=" << this->checksum;
 }
 
 
-QwsFile::QwsFile() {
+QwsFile::QwsFile()
+{
         path = "";
         type = Qws::FileTypeRegular;
         size = 0;

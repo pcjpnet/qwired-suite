@@ -3,7 +3,6 @@
 
 #include "QwsTransferInfo.h"
 #include <QQueue>
-#include <QMutex>
 
 class QwsTransferPool
 {
@@ -17,11 +16,10 @@ public:
 
     int deleteTransfersWithUserId(int userId);
     QList<QwsTransferInfo> findTransfersWithUserId(int userId);
+    QList<QwsTransferInfo> findWaitingTransfersWithUserId(int userId);
     QwsTransferInfo firstTransferWithUserId(int userId);
 
 private:
-    /*! The mutex that protects the queue from getting corrupted. */
-    QMutex queueMutex;
     /*! The server-wide list of transfers. */
     QQueue<QwsTransferInfo> transferQueue;
 

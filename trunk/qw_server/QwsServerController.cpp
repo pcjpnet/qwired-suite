@@ -18,7 +18,7 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
     publicRoom->pTopic = tr("Welcome to Qwired Server!");
     rooms[1] = publicRoom;
 
-    maxTransfersPerClient = 1;
+    maxTransfersPerClient = 2;
 }
 
 
@@ -41,16 +41,16 @@ bool QwsServerController::loadConfiguration()
         databasePath = tmpCmdArgs.value(index+1);
     }
 
-    qwLog(QString("Loading configuration database at '%1'").arg(databasePath));
+    qwLog(tr("Loading configuration database at '%1'").arg(databasePath));
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(databasePath);
     if (!db.open()) {
-        qwLog(QString("Warning: Unable to open configuration database. (%1)")
+        qwLog(tr("Warning: Unable to open configuration database. (%1)")
               .arg(db.lastError().text()));
         return false;
     } else {
-        qwLog("Successfully opened database.");
+        qwLog(tr("Successfully opened database."));
     }
 
     return true;
@@ -76,7 +76,7 @@ QVariant QwsServerController::getConfigurationParam(const QString key, const QVa
             return defaultValue;
         }
     } else {
-        qwLog(QString("Fatal: Unable to read configuration parameter '%1' from database. (SQL: %2)")
+        qwLog(tr("Fatal: Unable to read configuration parameter '%1' from database. (SQL: %2)")
               .arg(key).arg(query.lastError().text()));
         return QVariant();
     }
@@ -93,7 +93,7 @@ QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int use
     while (j.hasNext()) {
         QPointer<QwsClientTransferSocket> socket = j.next();
         if (socket.isNull()) { continue; }
-        if (socket->transferInfo.targetUserId == userId) {
+        if (socket->info().targetUserId == userId) {
             resultList.append(socket);
         }
     }
@@ -118,25 +118,25 @@ bool QwsServerController::startServer()
         return false;
     }
     if(!sessionTcpServer->listen(QHostAddress(tmpAddress), tmpPort)) {
-        qwLog(QString("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(sessionTcpServer->errorString()));
+        qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(sessionTcpServer->errorString()));
         return false;
     } else {
-        qwLog(QString("Started control socket listener on  %2:%1...").arg(tmpPort).arg(tmpAddress));
+        qwLog(tr("Started control socket listener on  %2:%1...").arg(tmpPort).arg(tmpAddress));
     }
 
 
     // File transfer socket
     this->transferTcpServer = new QwSslTcpServer(this);
-    this->transferTcpServer->initReadBufferSize = 2*1024;
+    //this->transferTcpServer->initReadBufferSize = 1024;
     connect(transferTcpServer, SIGNAL(newSslConnection()),
             this, SLOT(acceptTransferSslConnection()));
     if (!transferTcpServer->setCertificateFromFile(certificateFile)) {
-        qwLog(QString("Warning: Unable to set certificate file on file transfer listener - file transfers won't work."));
+        qwLog(tr("Warning: Unable to set certificate file on file transfer listener - file transfers won't work."));
     }
     if (!transferTcpServer->listen(QHostAddress(tmpAddress), tmpPort+1)) {
-        qwLog(QString("Fatal: Unable to listen on TCP port %1. %2. File transfers won't work.").arg(tmpPort+1).arg(sessionTcpServer->errorString()));
+        qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. File transfers won't work.").arg(tmpPort+1).arg(sessionTcpServer->errorString()));
     } else {
-        qwLog(QString("Started transfer socket listener on  %2:%1...").arg(tmpPort+1).arg(tmpAddress));
+        qwLog(tr("Started transfer socket listener on  %2:%1...").arg(tmpPort+1).arg(tmpAddress));
     }
 
     return true;
@@ -147,6 +147,7 @@ bool QwsServerController::startServer()
 */
 void QwsServerController::qwLog(QString message, Qws::LogType type)
 {
+
     std::cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString())
             .arg(message).toStdString() << std::endl;
 }
@@ -245,7 +246,7 @@ void QwsServerController::handleSocketDisconnected()
     while (j.hasNext()) {
         QPointer<QwsClientTransferSocket> socket = j.next();
         if (socket.isNull()) { continue; }
-        if (socket->transferInfo.targetUserId == client->user.pUserID) {
+        if (socket->info().targetUserId == client->user.pUserID) {
             qDebug() << this << "Aborting transfer" << socket;
             socket->abortTransfer();
         }
@@ -312,17 +313,17 @@ void QwsServerController::handleMessageINFO(const int userId)
         if (!item) { continue; }
 
         QString *transferInfo = 0;
-        if (item->transferInfo.type == Qws::TransferTypeDownload) {
+        if (item->info().type == Qws::TransferTypeDownload) {
             transferInfo = &transfersDownload;
         } else {
             transferInfo = &transfersUpload;
         }
 
         if (!transferInfo) { continue; }
-        transferInfo->append(item->transferInfo.file.path + "\x1E");
-        transferInfo->append(QString::number(item->transferInfo.bytesTransferred) + "\x1E");
-        transferInfo->append(QString::number(item->transferInfo.file.size) + "\x1E");
-        transferInfo->append(QString::number(item->transferInfo.currentTransferSpeed) + "\x1E"); // current speed
+        transferInfo->append(item->info().file.path + "\x1E");
+        transferInfo->append(QString::number(item->info().bytesTransferred) + "\x1E");
+        transferInfo->append(QString::number(item->info().file.size) + "\x1E");
+        transferInfo->append(QString::number(item->info().currentTransferSpeed) + "\x1E"); // current speed
 
         if (i.hasNext()) {
             transferInfo->append("\x1D"); // RS
@@ -860,6 +861,7 @@ void QwsServerController::handleMessageGET(const QwsFile file)
     transfer.hash = QUuid::createUuid().toString();
     transfer.type = Qws::TransferTypeDownload;
     transfer.offset = file.offset;
+    transfer.transferSpeedLimit = user->user.privDownloadSpeed;
     transfer.targetUserId = user->user.pUserID;
     transferPool->appendTransferToQueue(transfer);
 
@@ -882,25 +884,28 @@ void QwsServerController::handleMessagePUT(const QwsFile file)
     transfer.hash = QUuid::createUuid().toString();
     transfer.type = Qws::TransferTypeUpload;
     transfer.offset = file.offset;
-    qDebug() << "Reserving UP offset ="<<transfer.offset;
+    transfer.transferSpeedLimit = user->user.privUploadSpeed;
     transfer.targetUserId = user->user.pUserID;
     transferPool->appendTransferToQueue(transfer);
 
     checkTransferQueue(user->user.pUserID);
-
-    qDebug() << "Queueing up-transfer with hash" << transfer.hash;
 }
 
 
 
 void QwsServerController::checkTransferQueue(int userId)
 {
-    qDebug() << this << "Checking transfer queue of" << userId;
+    //qDebug() << this << "Checking transfer queue of" << userId;
     if (!sockets.contains(userId)) { return; }
     QwsClientSocket *socket = sockets[userId];
     if (!socket) { return; }
 
+    // Active transfers are currently running transfers (connected ones).
     QList<QwsClientTransferSocket*> activeTransfers = transfersWithUserId(userId);
+    // Waiting transfers are transfers that are ready, but where the transfer connection has not
+    // yet been established.
+    QList<QwsTransferInfo> waitingTransfers = transferPool->findWaitingTransfersWithUserId(userId);
+    // Queued transfers are server-side queued tranfers that are not yet started.
     QList<QwsTransferInfo> queuedTransfers = transferPool->findTransfersWithUserId(userId);
 
     qDebug() << this << "User" << userId << "Active=" << activeTransfers.count() << "Queued=" << queuedTransfers.count();
@@ -910,13 +915,25 @@ void QwsServerController::checkTransferQueue(int userId)
         return;
     };
 
-    if (activeTransfers.count() < maxTransfersPerClient) {
+    if (activeTransfers.count()+waitingTransfers.count() < maxTransfersPerClient) {
         // There are less transfers active than allowed. We can start the next transfers.
         // Take the next transfer from the stack and notify the client.
         QwsTransferInfo nextTransfer = transferPool->firstTransferWithUserId(userId);
+
+        // Update the state of the transfer
+        nextTransfer.state = Qws::TransferInfoStateWaiting;
+        transferPool->appendTransferToQueue(nextTransfer);
+
         qDebug() << this << "Sending transfer ready for transfer" << nextTransfer.hash;
         QwMessage reply("400"); // 400 - transfer ready
-        reply.appendArg(nextTransfer.file.path);
+
+        QString effectiveFilePath = nextTransfer.file.path;
+        if (effectiveFilePath.endsWith(".WiredTransfer")) {
+            effectiveFilePath.chop(14);
+        }
+        reply.appendArg(effectiveFilePath);
+
+
         reply.appendArg(QString::number(nextTransfer.offset));
         reply.appendArg(nextTransfer.hash);
         socket->sendMessage(reply);
@@ -924,8 +941,8 @@ void QwsServerController::checkTransferQueue(int userId)
     } else {
         // All active transfer slots are in use. We should notify the client about that state.
         int transferPosition = 1;
-        QList<QwsTransferInfo> queuedTransfers = transferPool->findTransfersWithUserId(userId);
-        QListIterator<QwsTransferInfo> i(queuedTransfers);
+        //QList<QwsTransferInfo> queuedTransfers = transferPool->findTransfersWithUserId(userId);
+        QListIterator<QwsTransferInfo> i(waitingTransfers);
         while (i.hasNext()) {
             QwsTransferInfo item = i.next();
             QwMessage reply("401"); // 401 - transfer queued
@@ -948,7 +965,7 @@ void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
     if (transferSockets.contains(socket)) {
         qDebug() << this << "Deleting obsolete socket:" << socket;
         transferSockets.removeOne(socket);
-        checkTransferQueue(socket->transferInfo.targetUserId);
+        checkTransferQueue(socket->info().targetUserId);
         socket->deleteLater();
     }
 
@@ -966,7 +983,7 @@ void QwsServerController::handleTransferError(Qws::TransferSocketError error, co
         transferSockets.removeOne(socket);
 
         if (error == Qws::TransferSocketErrorNetwork) {
-            checkTransferQueue(socket->transferInfo.targetUserId);
+            checkTransferQueue(socket->info().targetUserId);
         }
         socket->deleteLater();
     }
@@ -979,7 +996,6 @@ void QwsServerController::handleTransferError(Qws::TransferSocketError error, co
 void QwsServerController::acceptTransferSslConnection()
 {
     QSslSocket *newSocket = transferTcpServer->nextPendingSslSocket();
-    newSocket->setReadBufferSize(10*1024);
     QwsClientTransferSocket *transferSocket = new QwsClientTransferSocket(this);
     connect(transferSocket, SIGNAL(transferDone(QwsTransferInfo)),
             this, SLOT(handleTransferDone(QwsTransferInfo)));
@@ -988,7 +1004,5 @@ void QwsServerController::acceptTransferSslConnection()
     transferSocket->setSocket(newSocket);
     transferSocket->setTransferPool(transferPool);
     transferSockets.append(transferSocket);
-    transferSocket->beginTransfer();
-    qDebug() << transferSocket << "Beginning new transfer";
-
+    qDebug() << transferSocket << "Accepting new transfer connection from" << newSocket->peerAddress().toString();
 }
