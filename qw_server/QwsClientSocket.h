@@ -201,6 +201,9 @@ private:
     /*! Defines the current state of the session/socket. */
     Qws::SessionState sessionState;
 
+
+    void deleteDirRecursive(QString pathToDir);
+
     /*! This is the pointer to our SSL socket. We use this as input/output to the client. */
     QPointer<QSslSocket> pSocket;
 

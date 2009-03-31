@@ -41,37 +41,25 @@ public:
     QwsClientTransferSocket(QObject *parent);
     ~QwsClientTransferSocket();
 
-    void beginTransfer();
     void finishTransfer();
+    void abortTransfer();
+    void setMaximumTransferSpeed(qint64 bytesPerSecond);
 
     void setSocket(QSslSocket *socket);
     bool openLocalFile();
-    bool sendFileToClient();
     void setTransferPool(QwsTransferPool *pool);
+    void setTransferInfo(QwsTransferInfo info);
+
+    Qws::TransferSocketState state() const
+    { return this->transferState; }
+
+    const QwsTransferInfo info() const
+    { return this->transferInfo; }
 
     /*! This is a pointer to the relevant server controller. */
     QwsTransferPool *transferPool;
-
-    Qws::TransferSocketState transferState;
     QFile fileReader;
 
-    // Speed Throttling
-    qint64 writeToNetwork(qint64 maxLength);
-    qint64 readFromNetwork(qint64 maxLength);
-    bool canTransferMore() const;
-    qint64 bytesAvailable() const;
-
-    qint64 networkBytesAvailable() const {
-        return socket->bytesAvailable();
-    }
-
-    void abortTransfer();
-
-    /*! The ID of the user who owns this transfer. */
-    //int targetUserId;
-
-    /*! The transfer information for this file transfer. */
-    QwsTransferInfo transferInfo;
 
 
 
@@ -81,13 +69,14 @@ private slots:
     void transmitFileChunk();
 
 private:
-    QByteArray testBuffer;
+    Qws::TransferSocketState transferState;
+    /*! The transfer information for this file transfer. */
+    QwsTransferInfo transferInfo;
     /*! This is a pointer to the raw socket that connects to the client. */
     QSslSocket *socket;
     /*! The target file we are reading data from. */
     QTimer transferTimer;
     QTime transferSpeedTimer;
-    qint64 speedLimit;
     void beginDataTransmission();
 
 signals:

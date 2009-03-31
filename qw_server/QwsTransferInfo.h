@@ -37,6 +37,9 @@ public:
     /*! The number of bytes (from the total length of the file) that have been transferred already. */
     qint64 bytesTransferred;
 
+    /*! The maximum number of bytes that are allowed to be transmitted within a second. */
+    qint64 transferSpeedLimit;
+
     /*! The current transfer speed in bytes/second. */
     int currentTransferSpeed;
 

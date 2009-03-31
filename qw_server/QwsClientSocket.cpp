@@ -989,12 +989,9 @@ void QwsClientSocket::handleMessageDELETE(QwMessage &message)
     if (targetInfo.isDir()) {
         // Directory
 
-        QDirIterator it(targetFolder, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            it.next();
+        qDebug() << "Deleting a directory.";
 
-            qDebug() << "Deleting:" << it.filePath();
-        }
+        deleteDirRecursive(targetInfo.absoluteFilePath());
 
     } else {
         // File
@@ -1010,6 +1007,27 @@ void QwsClientSocket::handleMessageDELETE(QwMessage &message)
         }
     }
 
+}
+
+/*! Recursively delete a directory and its items.
+*/
+void QwsClientSocket::deleteDirRecursive(QString pathToDir)
+{
+    QDirIterator it(pathToDir, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        QString itemPath = it.next();
+        QFileInfo itemInfo = it.fileInfo();
+        if (itemInfo.isHidden()) { continue; }
+        if (itemInfo.isDir()) {
+            qDebug() << "Deleting recurse dir:" << itemInfo.absoluteFilePath();
+            deleteDirRecursive(itemInfo.absoluteFilePath());
+        } else if (itemInfo.isFile()) {
+            qDebug() << "Deleting file:" << itemInfo.absoluteFilePath();
+            QFile(itemInfo.absoluteFilePath()).remove();
+        }
+    }
+
+    QDir().rmdir(pathToDir);
 }
 
 
@@ -1103,42 +1121,111 @@ void QwsClientSocket::handleMessagePUT(QwMessage &message)
     }
 
     QFileInfo targetFileInfo(localFile.localAbsolutePath);
-    if (localFile.updateLocalPath()) {
-        // File exists - compare the file
 
-        // Checksums don't match.
-        if (localFile.checksum != targetFileChecksum) {
-            qDebug() << "Checksum mismatch!";
-            sendError(Qws::ErrorChecksumMismatch);
-            return;
-        }
-
-        // Checksums are the same, size is the same - abort
-        if (localFile.checksum == targetFileChecksum && localFile.size == targetFileSize ) {
-            qDebug() << "File exists!";
-            sendError(Qws::ErrorFileOrDirectoryExists);
-            return;
-        }
-
-        // Seems fine so far, let's hand off the request to the controller.
-        localFile.offset = localFile.size;
-        localFile.size = targetFileSize;
-        localFile.checksum = targetFileChecksum;
-        emit receivedMessagePUT(localFile);
+    if (targetFileInfo.exists() && targetFileInfo.size() > 0) {
+        // The file exists - abort here.
+        sendError(Qws::ErrorFileOrDirectoryExists);
 
     } else {
-        // File does not exist yet.
-        if (! targetFileInfo.absoluteDir().exists()) {
-            qDebug() << "Parent does not exist!";
+        // File does not exist yet - check for a file with .WiredTransfer suffix
+        localFile.path += ".WiredTransfer";
+        qDebug() << this << "Checking for local partial file:" << localFile.path;
+
+        // Check for jail escape
+        if (!localFile.isWithinLocalRoot()) {
             sendError(Qws::ErrorFileOrDirectoryNotFound);
             return;
         }
 
-        localFile.offset = 0;
-        localFile.checksum = targetFileChecksum;
-        localFile.size = targetFileSize;
-        emit receivedMessagePUT(localFile);
+        targetFileInfo = QFileInfo(localFile.localAbsolutePath);
+        if (targetFileInfo.exists()) {
+            // Partial file exists - check if the checksum is the same.
+            localFile.updateLocalChecksum();
+            if (localFile.checksum != targetFileChecksum) {
+                qDebug() << "Checksum mismatch - local =" << localFile.checksum << "expected = " << targetFileChecksum;
+                sendError(Qws::ErrorChecksumMismatch);
+                return;
+            }
+
+            // Checksums are the same - compare the file size to see what needs to be done.
+            if (localFile.size == targetFileSize) {
+                qDebug() << "File exists!";
+                sendError(Qws::ErrorFileOrDirectoryExists);
+                return;
+            }
+
+            // At this point we have a partial file with the same checksum and a file size
+            // smaller than the target file. We can resume.
+            qDebug() << this << "Resuming file:" << targetFileInfo.absoluteFilePath();
+
+            localFile.offset = localFile.size;
+            localFile.size = targetFileSize;
+            localFile.checksum = targetFileChecksum;
+            emit receivedMessagePUT(localFile);
+
+
+        } else {
+            // No partial file exists. Check if the parent directory exists and transfer the file.
+
+            if (!targetFileInfo.absoluteDir().exists()) {
+                qDebug() << "Parent does not exist!";
+                sendError(Qws::ErrorFileOrDirectoryNotFound);
+                return;
+            }
+
+            qDebug() << this << "Receiving new file:" << targetFileInfo.absoluteFilePath();
+
+            localFile.offset = 0;
+            localFile.checksum = targetFileChecksum;
+            localFile.size = targetFileSize;
+            emit receivedMessagePUT(localFile);
+
+        }
+
     }
+
+
+//    if (localFile.updateLocalPath()) {
+//        // File exists - compare the file
+//
+//        sendError(Qws::ErrorFileOrDirectoryExists);
+//
+//
+//        // Checksums are the same, size is the same - abort
+//        if (localFile.checksum == targetFileChecksum && localFile.size == targetFileSize ) {
+//            qDebug() << "File exists!";
+//            sendError(Qws::ErrorFileOrDirectoryExists);
+//            return;
+//        }
+//
+//        // Seems fine so far, let's hand off the request to the controller.
+//        localFile.offset = localFile.size;
+//        localFile.size = targetFileSize;
+//        localFile.checksum = targetFileChecksum;
+//        emit receivedMessagePUT(localFile);
+//
+//    } else {
+//        /
+//        localFile.path += ".WiredTransfer";
+//
+//        // Check if a partial file exists. If it does, check the file's checksum and size before
+//        // proceeding.
+//
+//        if (localFile.updateLocalPath()) {
+//
+//        }
+//
+//        if (!targetFileInfo.absoluteDir().exists()) {
+//            qDebug() << "Parent does not exist!";
+//            sendError(Qws::ErrorFileOrDirectoryNotFound);
+//            return;
+//        }
+//
+//        localFile.offset = 0;
+//        localFile.checksum = targetFileChecksum;
+//        localFile.size = targetFileSize;
+//        emit receivedMessagePUT(localFile);
+//    }
 }
 
 

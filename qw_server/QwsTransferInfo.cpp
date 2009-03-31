@@ -6,4 +6,5 @@ QwsTransferInfo::QwsTransferInfo()
     null = true;
     state = Qws::TransferInfoStateQueued;
     bytesTransferred = 0;
+    transferSpeedLimit = 0;
 }

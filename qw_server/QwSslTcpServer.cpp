@@ -43,16 +43,14 @@ bool QwSslTcpServer::setCertificateFromFile(QString file)
 
 void QwSslTcpServer::incomingConnection(int socketDescriptor)
 {
-    qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor;
+    qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor << "withBufferSize:" << initReadBufferSize;
     QSslSocket *conn = new QSslSocket(this);
     if(conn->setSocketDescriptor(socketDescriptor)) {
         qDebug() << "[ssltcpserver] Accepted connection, setting parameters and initing handshake.";
+        conn->setReadBufferSize(initReadBufferSize);
         conn->setProtocol(QSsl::TlsV1);
-
         conn->setPrivateKey(pPrivateKey);
         conn->setLocalCertificate(pLocalCert);
-        conn->startServerEncryption();
-        conn->setReadBufferSize(initReadBufferSize);
         pPendingSockets.append(conn);
         emit newSslConnection();
     } else {
@@ -66,7 +64,7 @@ void QwSslTcpServer::incomingConnection(int socketDescriptor)
  */
 bool QwSslTcpServer::hasPendingSslSocket()
 {
-    return pPendingSockets.size()>0;
+    return pPendingSockets.size() > 0;
 }
 
 
@@ -78,7 +76,10 @@ QSslSocket* QwSslTcpServer::nextPendingSslSocket()
     if (!pPendingSockets.size()) {
         return 0;
     }
-    return pPendingSockets.takeFirst();
+
+    QSslSocket *newSocket = pPendingSockets.takeFirst();
+    newSocket->startServerEncryption();
+    return newSocket;
 }
 
 
