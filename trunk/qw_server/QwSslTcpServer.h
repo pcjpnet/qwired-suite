@@ -42,6 +42,9 @@ public:
     QSslKey pPrivateKey;
     QSslCertificate pLocalCert;
 
+    /*! Initialize new sockets with the specified ReadBufferSize to prevent start-peaks. Default is 0. */
+    qint64 initReadBufferSize;
+
 signals:
     void newSslConnection();
 
