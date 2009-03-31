@@ -1,16 +1,10 @@
-/*
-  Things that need to be done:
-  - implement speed limits
-  - ask morris about those new limit parameters in the accounts
-  - file transfers, multi-threaded sockets
-  - fix STAT command and checksumming
-
-*/
-
 /*! \class QwsClientSocket
     \author Bastian Bense <bastibense@gmail.com>
     \brief General client management and local data store access.
     \date 2009-02-22
+
+    \todo (A) Add support for comments and folder types
+    \todo (B) Add support for separate user base directories
 
 */
 
@@ -984,13 +978,16 @@ void QwsClientSocket::handleMessageDELETE(QwMessage &message)
         return;
     }
 
+    if (targetBase.localAbsolutePath == filesRootPath) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
     QFileInfo targetInfo(targetBase.localAbsolutePath);
     QDir targetFolder(targetBase.localAbsolutePath);
     if (targetInfo.isDir()) {
         // Directory
-
         qDebug() << "Deleting a directory.";
-
         deleteDirRecursive(targetInfo.absoluteFilePath());
 
     } else {
@@ -1122,7 +1119,7 @@ void QwsClientSocket::handleMessagePUT(QwMessage &message)
 
     QFileInfo targetFileInfo(localFile.localAbsolutePath);
 
-    if (targetFileInfo.exists() && targetFileInfo.size() > 0) {
+    if (targetFileInfo.exists()) {
         // The file exists - abort here.
         sendError(Qws::ErrorFileOrDirectoryExists);
 
