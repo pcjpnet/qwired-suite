@@ -5,5 +5,5 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS = qw_library \
-    qw_client \
-    qw_server
+       qw_server \
+#qw_client

@@ -813,6 +813,22 @@ void QwsServerController::handleModifiedUserAccount(const QString name)
             reply = QwMessage("304");
             item->user.userStatusEntry(reply);
             broadcastMessage(reply, 1, true);
+
+            // Update the transfer sockets, if any
+            QList<QwsClientTransferSocket*> transferSockets = this->transfersWithUserId(item->user.pUserID);
+            QListIterator<QwsClientTransferSocket*> it(transferSockets);
+            while (it.hasNext()) {
+                QwsClientTransferSocket *transferSocket = it.next();
+                if (!transferSocket) { continue; }
+                if (transferSocket->info().type == Qws::TransferTypeDownload) {
+                    transferSocket->setMaximumTransferSpeed(item->user.privDownloadSpeed);
+                } else {
+                    transferSocket->setMaximumTransferSpeed(item->user.privUploadSpeed);
+                }
+            }
+
+
+
         }
     }
 
@@ -842,6 +858,20 @@ void QwsServerController::handleModifiedUserGroup(const QString name)
             reply = QwMessage("304");
             item->user.userStatusEntry(reply);
             broadcastMessage(reply, 1, true);
+
+            // Update the transfer sockets, if any
+            QList<QwsClientTransferSocket*> transferSockets = this->transfersWithUserId(item->user.pUserID);
+            QListIterator<QwsClientTransferSocket*> it(transferSockets);
+            while (it.hasNext()) {
+                QwsClientTransferSocket *transferSocket = it.next();
+                if (!transferSocket) { continue; }
+
+                if (transferSocket->info().type == Qws::TransferTypeDownload) {
+                    transferSocket->setMaximumTransferSpeed(item->user.privDownloadSpeed);
+                } else {
+                    transferSocket->setMaximumTransferSpeed(item->user.privUploadSpeed);
+                }
+            }
         }
     }
 
@@ -932,8 +962,6 @@ void QwsServerController::checkTransferQueue(int userId)
             effectiveFilePath.chop(14);
         }
         reply.appendArg(effectiveFilePath);
-
-
         reply.appendArg(QString::number(nextTransfer.offset));
         reply.appendArg(nextTransfer.hash);
         socket->sendMessage(reply);

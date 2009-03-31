@@ -24,6 +24,7 @@
 
 #include <QtCore>
 #include "QwsServerController.h"
+#include "QwTrackerClientSocket.h"
 
 const QString QWSERVER_VERSION("0.1.0");
 
@@ -31,13 +32,19 @@ int main (int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    QwsServerController controller;
-    if (!controller.loadConfiguration()) {
-        return 1;
-    }
-    if (!controller.startServer()) {
-        return 1;
-    }
+    QwTrackerClientSocket *trackerSocket = new QwTrackerClientSocket(0);
+    trackerSocket->connectToTracker("wired.zankasoftware.com");
+
+//    QwsServerController controller;
+//    if (!controller.loadConfiguration()) {
+//        return 1;
+//    }
+//    if (!controller.startServer()) {
+//        return 1;
+//    }
+
+
+
 
     return app.exec();
 }

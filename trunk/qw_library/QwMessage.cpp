@@ -37,7 +37,7 @@ void QwMessage::appendArg(const QString data)
 
 /*! Return the argument at position \a index or an empty value. The first item is 0.
 */
-QString QwMessage::getStringArgument(int index)
+QString QwMessage::getStringArgument(int index) const
 {
     QString result = arguments.value(index);
     if (result.isNull()) {

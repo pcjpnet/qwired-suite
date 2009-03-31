@@ -23,7 +23,7 @@ public:
     QwMessage(const QByteArray frameData);
 
     void appendArg(const QString data);
-    QString getStringArgument(int index);
+    QString getStringArgument(int index) const;
 
     QStringList arguments;
     QByteArray commandName;

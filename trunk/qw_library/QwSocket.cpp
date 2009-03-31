@@ -9,7 +9,7 @@
 QwSocket::QwSocket(QObject *parent) : QObject(parent)
 {
     qDebug() << this << "Initializing new connection.";
-    socket = NULL; //new QSslSocket(this);
+    socket = NULL;
 }
 
 
