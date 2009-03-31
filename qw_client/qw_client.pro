@@ -1,10 +1,10 @@
 TEMPLATE = app
 CONFIG += warn_on thread qt
 
-!debug_and_release:release:macx {
-  CONFIG += x86 ppc
-  message("Compiling Universal binary.")
-}
+#!debug_and_release:release:macx {
+#  CONFIG += x86 ppc
+#  message("Compiling Universal binary.")
+#}
 
 macx {
     TARGET = "Qwired Client"
