@@ -7,6 +7,8 @@
     This class implements the simple TRANSFER-protocol for file transfers to clients.
 */
 
+const int transferTimerInterval = 250; // transfer chunk interval
+
 bool QwsClientTransferSocket::sendFileToClient()
 {
     qDebug() << this << "Starting to send file to client.";
@@ -20,20 +22,26 @@ void QwsClientTransferSocket::transmitFileChunk()
 
     if (transferInfo.type == Qws::TransferTypeDownload) {
         qint64 chunkSize = 8*1024;
+
         if (speedLimit > 0) {
-            chunkSize = speedLimit;
+            chunkSize = speedLimit * (float(transferTimerInterval)/1000);
+            qDebug() << "Transfer chunk size:" << chunkSize;
         }
+
         if (socket->encryptedBytesToWrite() > 0) {
             return;
         }
+
         if (fileReader.atEnd()) {
             finishTransfer();
         }
+
         QByteArray dataBuffer;
         dataBuffer = fileReader.read(chunkSize);
         socket->write(dataBuffer);
 
-        transferInfo.currentTransferSpeed = dataBuffer.size() / (transferSpeedTimer.restart()/1000);
+        //transferInfo.currentTransferSpeed = dataBuffer.size() / (transferSpeedTimer.restart()/transferTimerInterval);
+        //qDebug() << "Current speed:" << transferInfo.currentTransferSpeed;
         transferInfo.bytesTransferred += dataBuffer.size();
 
 
@@ -41,11 +49,8 @@ void QwsClientTransferSocket::transmitFileChunk()
         // The upload is throttled. The buffer size was limited before and the timer is fired
         // every second. All we have to do is to read as much data as possible from the socket's
         // buffer and hand it off.
-       // qDebug() << "Reading:" << socket->bytesAvailable() << "Enc=" << socket->encryptedBytesAvailable();
-       // socket->readAll();
-       // qDebug() << "After: Reading:" << socket->bytesAvailable() << "Enc=" << socket->encryptedBytesAvailable();
-        //socket->read(speedLimit);
-//        handleSocketReadyRead();
+
+        handleSocketReadyRead();
     }
 
 }
@@ -72,14 +77,17 @@ void QwsClientTransferSocket::beginDataTransmission()
             } else {
                 // Throttled speed transfer
                 connect(&transferTimer, SIGNAL(timeout()), this, SLOT(transmitFileChunk()));
-                transferTimer.start(1024);
+                transferTimer.start(transferTimerInterval);
             }
         }
 
 
     } else if (transferInfo.type == Qws::TransferTypeUpload) {
         // Set the read buffer size according to the speed limit.
-        socket->setReadBufferSize(speedLimit);
+        qDebug() << "Current read buffer:" << socket->readBufferSize() << "Mode=" << socket->mode() << "Limit=" << speedLimit << "CanRead:" << socket->isReadable() << "IsOpen=" << socket->isOpen();
+
+        socket->setReadBufferSize(speedLimit * (float(transferTimerInterval)/1000));
+
         qDebug() << this << "Preparing data transmission";
         if (speedLimit > 0) {
             // Throttled speed transfer
@@ -87,7 +95,7 @@ void QwsClientTransferSocket::beginDataTransmission()
             // data from the socket every second.
             disconnect(socket, SIGNAL(readyRead()), this, SLOT(handleSocketReadyRead()));
             connect(&transferTimer, SIGNAL(timeout()), this, SLOT(transmitFileChunk()));
-            transferTimer.start(1024);
+            transferTimer.start(transferTimerInterval);
             qDebug() << "Starting timer";
         }
     }
@@ -167,9 +175,20 @@ void QwsClientTransferSocket::handleSocketReadyRead()
 
         if (transferInfo.type == Qws::TransferTypeUpload) {
             if (fileReader.isOpen()) {
-                fileReader.write(socket->readAll());
-                if (fileReader.size() == transferInfo.file.size) {
-                    finishTransfer();
+
+                QByteArray buf;
+                buf.resize(socket->bytesAvailable());
+                int readBytes = socket->read(buf.data(), socket->bytesAvailable());
+                socket->flush();
+                transferInfo.bytesTransferred += readBytes;
+                fileReader.write(buf);
+
+                if (socket->state() == QAbstractSocket::UnconnectedState) {
+                   // qDebug() << "Closed: Got ->" << testBuffer.size() << "IsOpen =" << socket->isOpen();
+                    if (fileReader.size() == transferInfo.file.size) {
+                       // qDebug() << "Done.";
+                        finishTransfer();
+                    }
                 }
             }
         }
@@ -180,7 +199,15 @@ void QwsClientTransferSocket::handleSocketReadyRead()
 
 void QwsClientTransferSocket::handleSocketError(QAbstractSocket::SocketError socketError)
 {
-    qDebug() << this << "Socket error:" << socketError;
+    return;
+    //qDebug() << "One last time.";
+    //transmitFileChunk();
+    qDebug() << this << "Socket error:" << socketError << "Read=" << transferInfo.bytesTransferred;
+
+    if (transferInfo.bytesTransferred == transferInfo.file.size) {
+        qDebug() << "Transfer COMPLETE" << transferInfo.bytesTransferred;
+        return;
+    }
     emit transferError(Qws::TransferSocketErrorNetwork, transferInfo);
 }
 
@@ -260,9 +287,10 @@ void QwsClientTransferSocket::setSocket(QSslSocket *socket)
     if (!socket) { return; }
     this->socket = socket;
     this->socket->setParent(this);
-    connect(socket, SIGNAL(readyRead()), this, SLOT(handleSocketReadyRead()));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(readyRead()),
+            this, SLOT(handleSocketReadyRead()));
+    //connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
+    //        this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
 }
 
 
@@ -282,5 +310,5 @@ QwsClientTransferSocket::QwsClientTransferSocket(QObject *parent=0) : QObject(pa
 {
     qDebug() << this << "Created new transfer socket.";
     transferPool = NULL;
-    speedLimit = 20*1024; //0; //1024*1024;
+    speedLimit = 30*1024; //0; //1024*1024;
 }

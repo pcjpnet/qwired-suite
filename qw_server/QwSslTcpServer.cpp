@@ -3,6 +3,7 @@
 
 QwSslTcpServer::QwSslTcpServer(QObject *parent) : QTcpServer(parent)
 {
+    initReadBufferSize = 0;
 }
 
 QwSslTcpServer::~QwSslTcpServer()
@@ -47,9 +48,11 @@ void QwSslTcpServer::incomingConnection(int socketDescriptor)
     if(conn->setSocketDescriptor(socketDescriptor)) {
         qDebug() << "[ssltcpserver] Accepted connection, setting parameters and initing handshake.";
         conn->setProtocol(QSsl::TlsV1);
+
         conn->setPrivateKey(pPrivateKey);
         conn->setLocalCertificate(pLocalCert);
         conn->startServerEncryption();
+        conn->setReadBufferSize(initReadBufferSize);
         pPendingSockets.append(conn);
         emit newSslConnection();
     } else {

@@ -81,6 +81,7 @@ private slots:
     void transmitFileChunk();
 
 private:
+    QByteArray testBuffer;
     /*! This is a pointer to the raw socket that connects to the client. */
     QSslSocket *socket;
     /*! The target file we are reading data from. */

@@ -127,6 +127,7 @@ bool QwsServerController::startServer()
 
     // File transfer socket
     this->transferTcpServer = new QwSslTcpServer(this);
+    this->transferTcpServer->initReadBufferSize = 2*1024;
     connect(transferTcpServer, SIGNAL(newSslConnection()),
             this, SLOT(acceptTransferSslConnection()));
     if (!transferTcpServer->setCertificateFromFile(certificateFile)) {
@@ -978,6 +979,7 @@ void QwsServerController::handleTransferError(Qws::TransferSocketError error, co
 void QwsServerController::acceptTransferSslConnection()
 {
     QSslSocket *newSocket = transferTcpServer->nextPendingSslSocket();
+    newSocket->setReadBufferSize(10*1024);
     QwsClientTransferSocket *transferSocket = new QwsClientTransferSocket(this);
     connect(transferSocket, SIGNAL(transferDone(QwsTransferInfo)),
             this, SLOT(handleTransferDone(QwsTransferInfo)));
