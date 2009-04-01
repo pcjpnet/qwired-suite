@@ -6,7 +6,17 @@ SOURCES += main.cpp \
     QwsClientTransferSocket.cpp \
     QwsUser.cpp \
     QwsTransferInfo.cpp \
-    QwsTransferPool.cpp
+    QwsTransferPool.cpp \
+    QwsConsoleSocket.cpp
+HEADERS += QwsServerController.h \
+    QwsClientSocket.h \
+    QwSslTcpServer.h \
+    QwsFile.h \
+    QwsClientTransferSocket.h \
+    QwsUser.h \
+    QwsTransferInfo.h \
+    QwsTransferPool.h \
+    QwsConsoleSocket.h
 INCLUDEPATH = ../qw_library
 LIBS += ../bin/libqwlibrary.a
 TEMPLATE = app
@@ -18,11 +28,3 @@ QT += network \
     sql
 TARGET = qwired_server
 DESTDIR = ../bin/
-HEADERS += QwsServerController.h \
-    QwsClientSocket.h \
-    QwSslTcpServer.h \
-    QwsFile.h \
-    QwsClientTransferSocket.h \
-    QwsUser.h \
-    QwsTransferInfo.h \
-    QwsTransferPool.h

@@ -26,6 +26,22 @@ QwsTransferInfo QwsTransferPool::takeTransferFromQueueWithHash(const QByteArray 
 }
 
 
+/*! Find a transfer info with the given hash and return it. If no hash is found, a default-
+    constructed value is returned. Please use hasTransferWithHash() to check if a hash exists.
+*/
+QwsTransferInfo QwsTransferPool::findTransferWithHash(const QByteArray hash) const
+{
+    QListIterator<QwsTransferInfo> i(transferQueue);
+    while (i.hasNext()) {
+        QwsTransferInfo item = i.next();
+        if (item.hash == hash) {
+            return item;
+        }
+    }
+    return QwsTransferInfo();
+}
+
+
  /*! Check if the pool contains a transfer with the provided hash \a hash. Returns true if a
      transfer exists. This method is thread-safe. */
 bool QwsTransferPool::hasTransferWithHash(const QByteArray hash)
@@ -41,6 +57,7 @@ bool QwsTransferPool::hasTransferWithHash(const QByteArray hash)
 
 }
 
+
 /*! Append a new transfer to the queue and return the position of the added transfer within the
     queue. If a transfer with the same hash already exists, it is replaced.
 */
@@ -50,6 +67,14 @@ void QwsTransferPool::appendTransferToQueue(const QwsTransferInfo transfer)
     takeTransferFromQueueWithHash(transfer.hash.toAscii());
     // Prepend the new one (not append, because it would be at the end of the queue)
     transferQueue.prepend(transfer);
+}
+
+
+/*! Returns all transfer entries from the queue as a QList.
+*/
+QList<QwsTransferInfo> QwsTransferPool::allTransfers() const
+{
+    return transferQueue;
 }
 
 

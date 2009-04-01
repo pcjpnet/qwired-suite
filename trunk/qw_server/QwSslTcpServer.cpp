@@ -20,21 +20,23 @@ bool QwSslTcpServer::setCertificateFromFile(QString file)
 {
     QFile tmpPEMFile(file);
     if(!tmpPEMFile.open(QIODevice::ReadOnly)) {
-        QwsServerController::qwLog(QString("Fatal: Unable to read certificate file '%1'. %2.").arg(file).arg(tmpPEMFile.errorString()));
+        std::cout << QString("Fatal: Unable to read certificate file '%1'. %2.")
+                .arg(file).arg(tmpPEMFile.errorString()).toStdString() << endl;
         return false;
     } else {
         QByteArray tmpCertData = tmpPEMFile.readAll();
         pPrivateKey = QSslKey(tmpCertData, QSsl::Rsa);
         pLocalCert = QSslCertificate(tmpCertData);
         if(pPrivateKey.isNull()) {
-            QwsServerController::qwLog(QString("Fatal: Unable to read prviate key from file '%1'.").arg(file));
+
+            std::cout << QString("Fatal: Unable to read prviate key from file '%1'.").arg(file).toStdString() << endl;
             return false;
         }
         if(pLocalCert.isNull()) {
-            QwsServerController::qwLog(QString("Fatal: Unable to read local certificate from file '%1'.").arg(file));
+            std::cout << QString("Fatal: Unable to read local certificate from file '%1'.").arg(file).toStdString() << endl;
             return false;
         }
-        QwsServerController::qwLog(QString("Loaded certificate and private key from '%1'.").arg(file));
+        std::cout << QString("Loaded certificate and private key from '%1'.").arg(file).toStdString() << endl;
     }
     return true;
 }

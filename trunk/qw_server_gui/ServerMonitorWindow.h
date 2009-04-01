@@ -11,7 +11,7 @@ public:
     explicit ServerMonitorWindow(QWidget *parent = 0);
 
 private slots:
-    void on_myButton_clicked();
+    //void on_myButton_clicked();
 
 };
 

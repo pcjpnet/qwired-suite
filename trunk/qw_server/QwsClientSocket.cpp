@@ -58,6 +58,7 @@ void QwsClientSocket::idleTimerTriggered()
 void QwsClientSocket::resetIdleTimer()
 {
     pIdleTimer->start();
+    user.pIdleTime = QDateTime::currentDateTime();
     if (!user.pIdle) { return; }
     user.pIdle = false;
     emit userStatusChanged();
@@ -1254,7 +1255,8 @@ void QwsClientSocket::disconnectClient()
 {
     qDebug() << this << "Called disconnectClient()";
     pSocket->disconnectFromHost();
-    this->deleteLater();
+    emit connectionLost();
+    //this->deleteLater();
 }
 
 

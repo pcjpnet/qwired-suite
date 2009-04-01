@@ -11,12 +11,14 @@ public:
     QwsTransferPool();
 
     bool hasTransferWithHash(const QByteArray hash);
+    QwsTransferInfo findTransferWithHash(const QByteArray hash) const;
     void appendTransferToQueue(const QwsTransferInfo transfer);
     QwsTransferInfo takeTransferFromQueueWithHash(const QByteArray hash);
 
     int deleteTransfersWithUserId(int userId);
     QList<QwsTransferInfo> findTransfersWithUserId(int userId);
     QList<QwsTransferInfo> findWaitingTransfersWithUserId(int userId);
+    QList<QwsTransferInfo> allTransfers() const;
     QwsTransferInfo firstTransferWithUserId(int userId);
 
 private:

@@ -46,6 +46,8 @@ void QwsClientTransferSocket::transmitFileChunk()
         dataBuffer = fileReader.read(chunkSize);
         socket->write(dataBuffer);
 
+        transferInfo.currentTransferSpeed = float(1000/qMax(1,transferSpeedTimer.restart())) * chunkSize;
+
         //transferInfo.currentTransferSpeed = dataBuffer.size() / (transferSpeedTimer.restart()/transferTimerInterval);
         //qDebug() << "Current speed:" << transferInfo.currentTransferSpeed;
         transferInfo.bytesTransferred += dataBuffer.size();
@@ -196,6 +198,8 @@ void QwsClientTransferSocket::handleSocketReadyRead()
             int readBytes = socket->read(buf.data(), socket->bytesAvailable());
             transferInfo.bytesTransferred += readBytes;
             fileReader.write(buf);
+
+            transferInfo.currentTransferSpeed = float(1000/transferTimerInterval) * readBytes;
 
             if (info().transferSpeedLimit > 0) {
                 // Workaround for stalling Qt socket bug!
