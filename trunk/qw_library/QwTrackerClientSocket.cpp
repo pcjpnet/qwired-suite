@@ -2,6 +2,14 @@
 
 QwTrackerClientSocket::QwTrackerClientSocket(QObject *parent) : QwSocket(parent)
 {
+    udpSocket = new QUdpSocket(this);
+    mode = Qw::TrackerClientSocketModeManual;
+
+    // Connect the tracker update timer
+    trackerUpdateTimer.setInterval(10*1000); // 60 seconds
+    connect(&trackerUpdateTimer, SIGNAL(timeout()),
+            this, SLOT(sendCommandUPDATE()));
+
     // Create a new SslSocket for this tracker client.
     QSslSocket *newSocket = new QSslSocket(this);
     newSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
@@ -15,10 +23,29 @@ QwTrackerClientSocket::QwTrackerClientSocket(QObject *parent) : QwSocket(parent)
     setSslSocket(newSocket);
 }
 
+/*! Send the UPDATE command to the tracker. This command does not require a SSL connection, since
+    the UPDATE command is sent via UDP.
+*/
+void QwTrackerClientSocket::sendCommandUPDATE()
+{
+    qDebug() << this << "Sending UPDATE to" << trackerIp << "port" << trackerPort;
+    QwMessage reply("UPDATE");
+    reply.appendArg(localServerInfo.registrationHash);
+    reply.appendArg(QString::number(localServerInfo.userCount));
+    reply.appendArg(QString::number(localServerInfo.canGuests));
+    reply.appendArg(QString::number(localServerInfo.canDownload));
+    reply.appendArg(QString::number(localServerInfo.filesCount));
+    reply.appendArg(QString::number(localServerInfo.filesSize));
+    QByteArray datagram = reply.generateFrame().append('\x04');
+    qDebug() << datagram.toHex();
+    qDebug() << "Write Datagram:" << udpSocket->writeDatagram(datagram, trackerIp, trackerPort);
+}
+
 
 void QwTrackerClientSocket::handleSocketConnected()
 {
     qDebug() << this << "Connection established - sending handshake";
+    trackerIp = socket->peerAddress();
     sendMessage(QwMessage("HELLO"));
 }
 
@@ -31,8 +58,11 @@ void QwTrackerClientSocket::handleSocketError(QAbstractSocket::SocketError error
 
 void QwTrackerClientSocket::connectToTracker(const QString host, const int port)
 {
+    trackerHost = host;
+    trackerPort = port;
+
     qDebug() << this << "Connecting to remote tracker at:" << host << port;
-    socket->connectToHostEncrypted(host, port);
+    socket->connectToHostEncrypted(trackerHost, trackerPort);
 }
 
 
@@ -59,6 +89,10 @@ void QwTrackerClientSocket::handleMessage200(const QwMessage &message)
     qDebug() << this << "Handshake complete - connected to" << trackerName;
     sendCommandCLIENT();
 
+    if (mode == Qw::TrackerClientSocketModeAutomatic) {
+        sendCommandREGISTER();
+    }
+
 }
 
 
@@ -71,6 +105,14 @@ void QwTrackerClientSocket::handleMessage700(const QwMessage &message)
     localServerInfo.registrationHash = message.getStringArgument(0);
     qDebug() << this << "Registration OK:" << localServerInfo.registrationHash;
     emit receivedRegistrationHash(localServerInfo.registrationHash);
+
+    localServerInfo.userCount = 2581;
+
+    if (mode == Qw::TrackerClientSocketModeAutomatic) {
+        qDebug() << this << "Disconnecting from tracker server, beginning automatic update";
+        socket->disconnectFromHost();
+        trackerUpdateTimer.start();
+    }
 }
 
 
