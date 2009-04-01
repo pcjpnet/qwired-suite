@@ -25,24 +25,29 @@ namespace Qws {
 
 class QwsServerController : public QObject
 {
-
     Q_OBJECT
+    friend class QwsConsoleSocket;
 
 public:
     QwsServerController(QObject *parent = 0);
     virtual ~QwsServerController();
 
-    static void qwLog(QString message, Qws::LogType type=Qws::LogTypeInfo);
+    void qwLog(QString message, Qws::LogType type=Qws::LogTypeInfo);
 
     // Database access/configuration
     QVariant getConfigurationParam(const QString key, const QVariant defaultValue=QVariant());
 
+    /*! The total amount of bytes sent to clients in file transfers. */
+    qint64 statsTotalSent;
+    /*! The total amount of bytes received from clients in file transfers. */
+    qint64 statsTotalReceived;
+
 private:
+
+
     int sessionIdCounter;
     int roomIdCounter;
     int maxTransfersPerClient;
-
-
 
     QPointer<QwSslTcpServer> sessionTcpServer;
     QPointer<QwSslTcpServer> transferTcpServer;
@@ -59,8 +64,8 @@ private:
 
 
 signals:
+    void serverLogMessage(const QString message);
     void qwBroadcastChat(int chatId, int userId, QString text, bool isEmote);
-
 
 private slots:
 
@@ -99,6 +104,10 @@ private slots:
     void handleMessagePUT(const QwsFile file);
     void handleTransferDone(const QwsTransferInfo transfer);
     void handleTransferError(Qws::TransferSocketError error, const QwsTransferInfo transfer);
+
+    // Console
+
+
 
 public slots:
     bool loadConfiguration();

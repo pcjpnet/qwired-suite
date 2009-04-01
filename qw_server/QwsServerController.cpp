@@ -6,6 +6,9 @@
 
 QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
 {
+    statsTotalSent = 0;
+    statsTotalReceived = 0;
+
     sessionIdCounter = 20;
     roomIdCounter = 10;
 
@@ -37,7 +40,7 @@ bool QwsServerController::loadConfiguration()
 
     // Override database path, if the user specifies it.
     QString databasePath = "qwired_server.db";
-    if (int index = tmpCmdArgs.indexOf("-c") > -1) {
+    if (int index = tmpCmdArgs.indexOf("-db") > -1) {
         databasePath = tmpCmdArgs.value(index+1);
     }
 
@@ -143,17 +146,19 @@ bool QwsServerController::startServer()
 }
 
 
+
+
+
 /*! Write a message to the server log, or standard output, or attached GUI client.
 */
 void QwsServerController::qwLog(QString message, Qws::LogType type)
 {
-
-    std::cout << QString("[%1] %2").arg(QDateTime::currentDateTime().toString())
-            .arg(message).toStdString() << std::endl;
+    QString data = QString("[%1] %2")
+                   .arg(QDateTime::currentDateTime().toString())
+                   .arg(message);
+    std::cout << data.toStdString() << std::endl;
+    emit serverLogMessage(data);
 }
-
-
-
 
 
 /*! Accepts a new connection. Connected to the newConnect() signal of sessionTcpServer.
@@ -165,6 +170,11 @@ void QwsServerController::acceptSessionSslConnection()
     QwsClientSocket *clientSocket = new QwsClientSocket(this);
     clientSocket->user.pUserID = ++sessionIdCounter;
     clientSocket->setSslSocket(newSocket);
+
+    qwLog(tr("[%1] Accepted new transfer connection from %2")
+          .arg(clientSocket->user.pUserID)
+          .arg(newSocket->peerAddress().toString()));
+
 
     connect(clientSocket, SIGNAL(connectionLost()),
             this, SLOT(handleSocketDisconnected()));
@@ -225,7 +235,8 @@ void QwsServerController::handleSocketDisconnected()
 {
     QwsClientSocket *client = qobject_cast<QwsClientSocket*>(sender());
     if (!client) { return; }
-    qDebug() << this << "Sending all clients the client-left event.";
+
+    qwLog(tr("%1 [%2] has disconnected.").arg(client->user.userNickname).arg(client->user.pUserID));
 
     // Remove the user from the chat rooms
     QHashIterator<int, QwRoom*> i(rooms);
@@ -241,7 +252,6 @@ void QwsServerController::handleSocketDisconnected()
     // Delete all transfers
     int deletedTransfers = transferPool->deleteTransfersWithUserId(client->user.pUserID);
     qDebug() << this << "Removed transfers from pool:" << deletedTransfers;
-
     QListIterator<QPointer<QwsClientTransferSocket> > j(transferSockets);
     while (j.hasNext()) {
         QPointer<QwsClientTransferSocket> socket = j.next();
@@ -267,6 +277,10 @@ void QwsServerController::handleSocketSessionStateChanged(const Qws::SessionStat
     if (state == Qws::StateActive) {
         // Client became active (logged in)
         addUserToRoom(1, client->user.pUserID);
+        qwLog(tr("[%1] '%2' successfully logged in as [%3].")
+              .arg(client->user.pUserID)
+              .arg(client->user.userNickname)
+              .arg(client->user.name));
     }
 }
 
@@ -895,9 +909,13 @@ void QwsServerController::handleMessageGET(const QwsFile file)
     transfer.targetUserId = user->user.pUserID;
     transferPool->appendTransferToQueue(transfer);
 
+    qwLog(tr("[%1] requested download of '%2' - assigned ID '%4'.")
+          .arg(user->user.pUserID)
+          .arg(transfer.file.path).arg(transfer.hash));
+
     checkTransferQueue(user->user.pUserID);
 
-    qDebug() << "Queueing down-transfer with hash" << transfer.hash;
+
 }
 
 
@@ -917,6 +935,10 @@ void QwsServerController::handleMessagePUT(const QwsFile file)
     transfer.transferSpeedLimit = user->user.privUploadSpeed;
     transfer.targetUserId = user->user.pUserID;
     transferPool->appendTransferToQueue(transfer);
+
+    qwLog(tr("[%1] requested upload of '%2' - assigned ID '%3'.")
+          .arg(user->user.pUserID)
+          .arg(transfer.file.path).arg(transfer.hash));
 
     checkTransferQueue(user->user.pUserID);
 }
@@ -958,9 +980,11 @@ void QwsServerController::checkTransferQueue(int userId)
         QwMessage reply("400"); // 400 - transfer ready
 
         QString effectiveFilePath = nextTransfer.file.path;
-        if (effectiveFilePath.endsWith(".WiredTransfer")) {
+        if (nextTransfer.type == Qws::TransferTypeUpload
+            && effectiveFilePath.endsWith(".WiredTransfer")) {
             effectiveFilePath.chop(14);
         }
+
         reply.appendArg(effectiveFilePath);
         reply.appendArg(QString::number(nextTransfer.offset));
         reply.appendArg(nextTransfer.hash);
@@ -990,8 +1014,19 @@ void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
     qDebug() << this << "Handle transfer done.";
     QwsClientTransferSocket *socket = qobject_cast<QwsClientTransferSocket*>(sender());
     if (!socket) { return; }
+
+    qwLog(tr("[%1] completed download of '%2'.")
+          .arg(socket->info().targetUserId)
+          .arg(socket->info().file.path));
+
     if (transferSockets.contains(socket)) {
-        qDebug() << this << "Deleting obsolete socket:" << socket;
+        // Update statistics
+        if (socket->info().type == Qws::TransferTypeDownload) {
+            statsTotalSent += socket->info().bytesTransferred-socket->info().offset;
+        } else {
+            statsTotalReceived += socket->info().bytesTransferred-socket->info().offset;
+        }
+
         transferSockets.removeOne(socket);
         checkTransferQueue(socket->info().targetUserId);
         socket->deleteLater();
@@ -1003,13 +1038,15 @@ void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
 void QwsServerController::handleTransferError(Qws::TransferSocketError error, const QwsTransferInfo transfer)
 {
     Q_UNUSED(transfer);
-    qDebug() << this << "Transfer error.";
     QwsClientTransferSocket *socket = qobject_cast<QwsClientTransferSocket*>(sender());
     if (!socket) { return; }
-    if (transferSockets.contains(socket)) {
-        qDebug() << this << "Deleting obsolete socket:" << socket;
-        transferSockets.removeOne(socket);
 
+    qwLog(tr("[%1] failed transfer of '%2'.")
+          .arg(socket->info().targetUserId)
+          .arg(socket->info().file.path));
+
+    if (transferSockets.contains(socket)) {
+        transferSockets.removeOne(socket);
         if (error == Qws::TransferSocketErrorNetwork) {
             checkTransferQueue(socket->info().targetUserId);
         }
@@ -1032,5 +1069,5 @@ void QwsServerController::acceptTransferSslConnection()
     transferSocket->setSocket(newSocket);
     transferSocket->setTransferPool(transferPool);
     transferSockets.append(transferSocket);
-    qDebug() << transferSocket << "Accepting new transfer connection from" << newSocket->peerAddress().toString();
+    qwLog(tr("Accepted new transfer connection from %1").arg(newSocket->peerAddress().toString()));
 }
