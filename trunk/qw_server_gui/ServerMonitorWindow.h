@@ -8,7 +8,7 @@ class ServerMonitorWindow : public QWidget, public Ui_ServerMonitorWindow
     Q_OBJECT
 
 public:
-    explicit ServerMonitorWindow(QWidget *parent = 0);
+    ServerMonitorWindow(QWidget *parent = 0);
 
 private slots:
     //void on_myButton_clicked();
