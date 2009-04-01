@@ -40,7 +40,6 @@ bool QwSslTcpServer::setCertificateFromFile(QString file)
 }
 
 
-
 void QwSslTcpServer::incomingConnection(int socketDescriptor)
 {
     qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor << "withBufferSize:" << initReadBufferSize;
@@ -58,6 +57,7 @@ void QwSslTcpServer::incomingConnection(int socketDescriptor)
         delete conn;
     }
 }
+
 
 /**
  * Returns true if there are any waiting SSL sockets in the queue.
