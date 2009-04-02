@@ -43,9 +43,9 @@ public:
 
     void finishTransfer();
     void abortTransfer();
-    void setMaximumTransferSpeed(qint64 bytesPerSecond);
 
     void setSocket(QSslSocket *socket);
+    void setMaximumTransferSpeed(qint64 bytesPerSecond);
     bool openLocalFile();
     void setTransferPool(QwsTransferPool *pool);
     void setTransferInfo(QwsTransferInfo info);

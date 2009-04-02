@@ -1,18 +1,26 @@
 #include "QwmMonitorController.h"
+#include <QApplication>
+#include <QMessageBox>
 
 QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
 {
+    // Daemon console socket
     socket = new QwmConsoleSocket(this);
     connect(socket, SIGNAL(receivedResponseSTAT(QHash<QString,QString>)),
             this, SLOT(handleCommandSTAT(QHash<QString,QString>)));
+    connect(socket, SIGNAL(receivedResponseTRANSFERS(QList<QwTransferInfo>)),
+            this, SLOT(handleCommandTRANSFERS(QList<QwTransferInfo>)));
     connect(socket, SIGNAL(receivedLogMessage(const QString)),
             this, SLOT(handleLogMessage(const QString)));
 
 
+    // Daemon Process
     connect(&daemonProcess, SIGNAL(started()),
             this, SLOT(handleDaemonStarted()));
     connect(&daemonProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(handleDaemonFinished(int,QProcess::ExitStatus)));
+    connect(&daemonProcess, SIGNAL(error(QProcess::ProcessError)),
+            this, SLOT(handleDaemonError(QProcess::ProcessError)));
     connect(&daemonProcess, SIGNAL(readyReadStandardOutput()),
             this, SLOT(handleDaemonReadyReadStdout()));
 }
@@ -29,9 +37,8 @@ void QwmMonitorController::startMonitor()
             this, SLOT(startDaemonProcess()));
     connect(monitorWindow->btnStopServer, SIGNAL(clicked()),
             this, SLOT(stopDaemonProcess()));
-
-
 }
+
 
 void QwmMonitorController::connectToConsole()
 {
@@ -45,9 +52,15 @@ void QwmMonitorController::startDaemonProcess()
     daemonProcess.start("./qwired_server", procArguments);
 }
 
+
 void QwmMonitorController::stopDaemonProcess()
 {
-    daemonProcess.terminate();
+    if (QMessageBox::question(monitorWindow, tr("Stop Server"),
+                              tr("Are you sure you want to shut down the server?"),
+                              QMessageBox::Yes | QMessageBox::No,
+                              QMessageBox::No) == QMessageBox::Yes) {
+        daemonProcess.terminate();
+    }
 }
 
 
@@ -62,11 +75,21 @@ void QwmMonitorController::handleDaemonStarted()
 
 void QwmMonitorController::handleDaemonFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
+    Q_UNUSED(exitStatus);
     handleLogMessage(tr("Server daemon terminated with a status of %1.").arg(exitCode));
     monitorWindow->btnStartServer->setEnabled(true);
     monitorWindow->btnStopServer->setEnabled(false);
     socket->resetSocket();
 }
+
+
+
+void QwmMonitorController::handleDaemonError(QProcess::ProcessError error)
+{
+    Q_UNUSED(error);
+    handleLogMessage(tr("Server daemon raised an error: %1").arg(daemonProcess.errorString()));
+}
+
 
 void QwmMonitorController::handleDaemonReadyReadStdout()
 {
@@ -85,6 +108,20 @@ void QwmMonitorController::handleCommandSTAT(QHash<QString,QString> parameters)
     monitorWindow->fStatsTransfers->setText(parameters["TRANSFERS"]);
     monitorWindow->fStatsDownloadTotal->setText(humanReadableSize(parameters["TOTAL_BYTES_SENT"].toLongLong()));
     monitorWindow->fStatsUploadTotal->setText(humanReadableSize(parameters["TOTAL_BYTES_RECEIVED"].toLongLong()));
+}
+
+
+void QwmMonitorController::handleCommandTRANSFERS(QList<QwTransferInfo> transfers)
+{
+    monitorWindow->fTransfersList->clear();
+    QListIterator<QwTransferInfo> i(transfers);
+    while (i.hasNext()) {
+        QwTransferInfo item = i.next();
+        QTreeWidgetItem *listItem = new QTreeWidgetItem;
+        listItem->setText(0, item.file.fileName());
+        monitorWindow->fTransfersList->addTopLevelItem(listItem);
+    }
+
 }
 
 

@@ -19,7 +19,7 @@ void QwsClientTransferSocket::transmitFileChunk()
         return;
     }
 
-    if (transferInfo.type == Qws::TransferTypeDownload) {
+    if (transferInfo.type == Qw::TransferTypeDownload) {
         qint64 chunkSize = 32*1024;
 
         if (transferInfo.transferSpeedLimit > 0) {
@@ -53,7 +53,7 @@ void QwsClientTransferSocket::transmitFileChunk()
         transferInfo.bytesTransferred += dataBuffer.size();
 
 
-    } else if (transferInfo.type == Qws::TransferTypeUpload) {
+    } else if (transferInfo.type == Qw::TransferTypeUpload) {
         // The upload is throttled. The buffer size was limited before and the timer is fired
         // every second. All we have to do is to read as much data as possible from the socket's
         // buffer and hand it off.
@@ -69,7 +69,7 @@ void QwsClientTransferSocket::transmitFileChunk()
 void QwsClientTransferSocket::beginDataTransmission()
 {
 
-    if (transferInfo.type == Qws::TransferTypeDownload) {
+    if (transferInfo.type == Qw::TransferTypeDownload) {
         // Download (to the client)
 
         if (!fileReader.isOpen()) {
@@ -90,7 +90,7 @@ void QwsClientTransferSocket::beginDataTransmission()
             transferTimer.start(transferTimerInterval);
         }*/
 
-    } else if (transferInfo.type == Qws::TransferTypeUpload) {
+    } else if (transferInfo.type == Qw::TransferTypeUpload) {
         // Set the read buffer size according to the speed limit.
         qDebug() << "Current read buffer:" << socket->readBufferSize() << "Mode=" << socket->mode() << "Limit=" << transferInfo.transferSpeedLimit << "CanRead:" << socket->isReadable() << "IsOpen=" << socket->isOpen();
 
@@ -186,7 +186,7 @@ void QwsClientTransferSocket::handleSocketReadyRead()
     } else if (transferState == Qws::TransferSocketStatusTransferring) {
         // The transfer is running and we should handle the upload of files somewhere else.
 
-        if (transferInfo.type == Qws::TransferTypeUpload) {
+        if (transferInfo.type == Qw::TransferTypeUpload) {
             if (!fileReader.isOpen()) {
                 qDebug() << "Warning: Unable to read from file:" << fileReader.fileName();
                 abortTransfer();
@@ -228,7 +228,7 @@ void QwsClientTransferSocket::handleSocketError(QAbstractSocket::SocketError soc
 {
     // We need error handling when not throttling the speed during an upload.
     qDebug() << this << "Socket error:" << socketError << "Read=" << transferInfo.bytesTransferred;
-    if (this->info().type == Qws::TransferTypeUpload && this->info().transferSpeedLimit == 0) {
+    if (this->info().type == Qw::TransferTypeUpload && this->info().transferSpeedLimit == 0) {
         // Read the last bit of data from the socket (the actual error is handled in transmitFileChunk();
         //socket->close();
         //transmitFileChunk();
@@ -252,7 +252,7 @@ bool QwsClientTransferSocket::openLocalFile()
     qDebug() << this << "Opening local file:" << transferInfo.file.localAbsolutePath;
     fileReader.setFileName(transferInfo.file.localAbsolutePath);
 
-    if (transferInfo.type == Qws::TransferTypeDownload) {
+    if (transferInfo.type == Qw::TransferTypeDownload) {
         // We only need to read the file.
         if (fileReader.open(QIODevice::ReadOnly)) {
             qDebug() << this << "Opened file for reading, offset" << transferInfo.offset;
@@ -269,7 +269,7 @@ bool QwsClientTransferSocket::openLocalFile()
             return false;
         }
 
-    } else if (transferInfo.type == Qws::TransferTypeUpload) {
+    } else if (transferInfo.type == Qw::TransferTypeUpload) {
        if (fileReader.open(QIODevice::Append)) {
             qDebug() << this << "Opened file for appending, offset" << transferInfo.offset;
             transferInfo.bytesTransferred = fileReader.size();
@@ -281,6 +281,7 @@ bool QwsClientTransferSocket::openLocalFile()
         }
 
     }
+    return false;
 }
 
 
@@ -292,7 +293,7 @@ void QwsClientTransferSocket::finishTransfer()
 {
     qDebug() << this << "Finishing transfer.";
 
-    if (transferInfo.type == Qws::TransferTypeUpload) {
+    if (transferInfo.type == Qw::TransferTypeUpload) {
         // Rename the upload file
         QFile targetFile(transferInfo.file.localAbsolutePath);
         if (targetFile.fileName().endsWith(".WiredTransfer")) {
@@ -342,7 +343,7 @@ void QwsClientTransferSocket::setMaximumTransferSpeed(qint64 bytesPerSecond)
 {
     qDebug() << this << "Setting transfer speed limit:" << bytesPerSecond;
     transferInfo.transferSpeedLimit = bytesPerSecond;
-    if (transferInfo.type == Qws::TransferTypeUpload) {
+    if (transferInfo.type == Qw::TransferTypeUpload) {
         // For uploads (client->server) set the read buffer size accordingly.
         socket->setReadBufferSize(transferInfo.transferSpeedLimit * (float(transferTimerInterval)/1000));
     }

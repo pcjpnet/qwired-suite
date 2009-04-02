@@ -1,26 +1,11 @@
 #include "QwsFile.h"
 
-
-
-/*
 #include <QtDebug>
-#include <QFile>
 #include <QDir>
 #include <QCryptographicHash>
-  */
-
-// Load data from the server file listing responses.
-QwsFile::QwsFile(QList<QByteArray> theParams)
-{
-	path = QString::fromUtf8( theParams.value(0) );
-        type = (Qws::FileType)theParams.value(1).toInt();
-	size = theParams.value(2).toInt();
-	created = QDateTime::fromString( theParams.value(3), Qt::ISODate );
-	modified = QDateTime::fromString( theParams.value(4), Qt::ISODate );
-}
 
 
-QwsFile::~QwsFile()
+QwsFile::QwsFile() : QwFile()
 {
 }
 
@@ -83,12 +68,12 @@ bool QwsFile::updateLocalPath(bool quickCheck)
     if (localPathInfo.isDir()) {
         // Read directory information
         QDir localPathDir(localAbsolutePath);
-        this->type = Qws::FileTypeFolder;
+        this->type = Qw::FileTypeFolder;
         this->size = localPathDir.count();
         this->checksum = "";
     } else {
         // Read regular file
-        this->type = Qws::FileTypeRegular;
+        this->type = Qw::FileTypeRegular;
         this->size = localPathInfo.size();
         if (!quickCheck) {
             updateLocalChecksum();
@@ -99,47 +84,7 @@ bool QwsFile::updateLocalPath(bool quickCheck)
 }
 
 
-/*! Calculate the checksum of the local path.
-*/
-void QwsFile::updateLocalChecksum()
-{
-    QFile targetFile(localAbsolutePath);
-    if (!targetFile.open(QIODevice::ReadOnly)) {
-        qDebug() << this << "Unable to calculate hash for file:" << localAbsolutePath << " - " << targetFile.error();
-        this->checksum = "";
-        return;
-    }
-    qDebug() << "Position:" << targetFile.pos();
-    targetFile.seek(0);
-    QByteArray hashData = targetFile.read(1024*1024);
-    QCryptographicHash hash(QCryptographicHash::Sha1);
-    hash.addData(hashData);
-    this->checksum = hash.result().toHex();
-
-    qDebug() << this << "Calculated hash for file" << this->localAbsolutePath << "Bytes =" << hashData.size() << "=" << this->checksum;
-}
 
 
-QwsFile::QwsFile()
-{
-        path = "";
-        type = Qws::FileTypeRegular;
-        size = 0;
-}
 
-// Return the name of the file without all the slashes.
-QString QwsFile::fileName() const
-{
-	return path.section("/", -1);
-}
 
-void QwsFile::setFromStat(QList<QByteArray> theParams)
-{
-	path = QString::fromUtf8( theParams.value(0) );
-        type = (Qws::FileType)theParams.value(1).toInt();
-	size = theParams.value(2).toInt();
-	created = QDateTime::fromString( theParams.value(3), Qt::ISODate );
-	modified = QDateTime::fromString( theParams.value(4), Qt::ISODate );
-	checksum = QString::fromUtf8( theParams.value(5) );
-	comment = QString::fromUtf8( theParams.value(6) );
-}

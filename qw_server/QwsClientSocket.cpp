@@ -817,7 +817,7 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
     }
 
     // Check if the target is a directory
-    if (!targetDirectory.type > Qws::FileTypeRegular) {
+    if (!targetDirectory.type > Qw::FileTypeRegular) {
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -871,7 +871,7 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(QwMessage &message)
     }
 
     // Check if the target is a directory
-    if (!targetDirectory.type > Qws::FileTypeRegular) {
+    if (!targetDirectory.type > Qw::FileTypeRegular) {
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }

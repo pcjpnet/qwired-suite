@@ -21,6 +21,8 @@ void QwmConsoleSocket::resetSocket()
     statTimer.stop();
     socket->disconnectFromHost();
     socket->reset();
+    commandQueue.clear();
+    inputBuffer.clear();
 }
 
 
@@ -31,11 +33,17 @@ void QwmConsoleSocket::connectToConsole(QString host, quint16 port)
 }
 
 
+void QwmConsoleSocket::sendCommand(QString command)
+{
+    commandQueue.append(command);
+    checkCommandQueue();
+}
+
+
 void QwmConsoleSocket::handleSocketConnected()
 {
     qDebug() << this << "Connected to remote console. Sending AUTH.";
-    socket->write(QString("AUTH %1\n").arg(authSecret).toUtf8());
-    activeCommand = "AUTH";
+    sendCommand(QString("AUTH %1\n").arg(authSecret));
 
 }
 
@@ -53,11 +61,27 @@ void QwmConsoleSocket::handleSocketReadyRead()
         qDebug() << lineData;
 
         if (lineData == "+OK") {
-
             if (activeCommand == "AUTH") {
-                activeCommand.clear();
                 statTimer.start(5000);
-                sendCommandLOG(true);
+
+            } else if (activeCommand == "TRANSFERS") {
+                QList<QwTransferInfo> results;
+                QStringListIterator i(inputBuffer);
+                while (i.hasNext()) {
+                    QStringList itemParams = i.next().split(";");
+                    QwTransferInfo item;
+                    item.state = itemParams.value(0) == "R" ? Qw::TransferInfoStateRunning : Qw::TransferInfoStateQueued;
+                    item.hash = itemParams.value(1);
+                    item.type = itemParams.value(2) == "D" ? Qw::TransferTypeDownload : Qw::TransferTypeUpload;
+                    item.targetUserId = itemParams.value(3).toInt();
+                    item.file.path = itemParams.value(4);
+                    item.bytesTransferred = itemParams.value(5).toLongLong();
+                    item.file.size = itemParams.value(6).toLongLong();
+                    item.currentTransferSpeed = itemParams.value(7).toLongLong();
+                    results.append(item);
+                }
+                emit receivedResponseTRANSFERS(results);
+
 
             } else if (activeCommand == "STATS") {
                 QHash<QString,QString> resultHash;
@@ -69,13 +93,16 @@ void QwmConsoleSocket::handleSocketReadyRead()
                 }
                 emit receivedResponseSTAT(resultHash);
             }
+
             emit commandCompleted(activeCommand);
             inputBuffer.clear();
             activeCommand.clear();
+            checkCommandQueue();
 
         } else if (lineData == "+ERROR") {
             emit commandError(activeCommand);
             activeCommand.clear();
+            checkCommandQueue();
 
         } else if (lineData.startsWith("+LOG")) {
             qDebug() << "Received log:" << lineData;
@@ -96,10 +123,17 @@ void QwmConsoleSocket::handleSocketReadyRead()
 */
 void QwmConsoleSocket::sendCommandSTATS()
 {
-    qDebug() << this << "Requesting STATS command";
-    if (!activeCommand.isEmpty()) { return; }
-    socket->write("STATS\n");
-    activeCommand = "STATS";
+    sendCommand("STATS");
+    sendCommand("TRANSFERS");
+}
+
+
+/*! TRANSFERS - Request list of transfers
+    Request a list of active and queued transfers from the console.
+*/
+void QwmConsoleSocket::sendCommandTRANSFERS()
+{
+    sendCommand("TRANSFERS");
 }
 
 
@@ -108,8 +142,20 @@ void QwmConsoleSocket::sendCommandSTATS()
 */
 void QwmConsoleSocket::sendCommandLOG(bool logEnabled)
 {
-    qDebug() << this << "Requesting LOG command";
-    if (!activeCommand.isEmpty()) { return; }
-    socket->write(logEnabled ? "LOG 1\n" : "LOG 0\n");
-    activeCommand = "LOG";
+    sendCommand(logEnabled ? "LOG 1" : "LOG 0");
+}
+
+
+void QwmConsoleSocket::checkCommandQueue()
+{
+    if (!activeCommand.isEmpty()) {
+        qDebug() << "Queueing because of active command:" << activeCommand;
+        return;
+    }
+    if (!commandQueue.isEmpty()) {
+        QString item = commandQueue.takeFirst();
+        activeCommand = item.section(" ", 0, 0);
+        socket->write(QString(item+"\n").toUtf8());
+        qDebug() << "Sending:" << item;
+    }
 }

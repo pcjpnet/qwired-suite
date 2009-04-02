@@ -2,12 +2,11 @@
 #define QWMMONITORCONTROLLER_H
 
 #include "QwmMonitorWindow.h"
+#include "QwmConsoleSocket.h"
 
 #include <QObject>
 #include <QPointer>
 #include <QProcess>
-
-#include "QwmConsoleSocket.h"
 
 
 class QwmMonitorController : public QObject
@@ -22,11 +21,13 @@ private:
 
 private slots:
     void handleCommandSTAT(QHash<QString,QString> parameters);
+    void handleCommandTRANSFERS(QList<QwTransferInfo> transfers);
     void handleLogMessage(const QString logMessage);
 
     // Daemon handling
     void handleDaemonStarted();
     void handleDaemonFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleDaemonError(QProcess::ProcessError error);
     void handleDaemonReadyReadStdout();
 
 public:

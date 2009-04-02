@@ -153,11 +153,12 @@ bool QwsServerController::startServer()
 */
 void QwsServerController::qwLog(QString message, Qws::LogType type)
 {
+    Q_UNUSED(type);
     QString data = QString("[%1] %2")
                    .arg(QDateTime::currentDateTime().toString())
                    .arg(message);
     std::cout << data.toStdString() << std::endl;
-    emit serverLogMessage(data);
+    emit serverLogMessage(message);
 }
 
 
@@ -327,7 +328,7 @@ void QwsServerController::handleMessageINFO(const int userId)
         if (!item) { continue; }
 
         QString *transferInfo = 0;
-        if (item->info().type == Qws::TransferTypeDownload) {
+        if (item->info().type == Qw::TransferTypeDownload) {
             transferInfo = &transfersDownload;
         } else {
             transferInfo = &transfersUpload;
@@ -834,7 +835,7 @@ void QwsServerController::handleModifiedUserAccount(const QString name)
             while (it.hasNext()) {
                 QwsClientTransferSocket *transferSocket = it.next();
                 if (!transferSocket) { continue; }
-                if (transferSocket->info().type == Qws::TransferTypeDownload) {
+                if (transferSocket->info().type == Qw::TransferTypeDownload) {
                     transferSocket->setMaximumTransferSpeed(item->user.privDownloadSpeed);
                 } else {
                     transferSocket->setMaximumTransferSpeed(item->user.privUploadSpeed);
@@ -880,7 +881,7 @@ void QwsServerController::handleModifiedUserGroup(const QString name)
                 QwsClientTransferSocket *transferSocket = it.next();
                 if (!transferSocket) { continue; }
 
-                if (transferSocket->info().type == Qws::TransferTypeDownload) {
+                if (transferSocket->info().type == Qw::TransferTypeDownload) {
                     transferSocket->setMaximumTransferSpeed(item->user.privDownloadSpeed);
                 } else {
                     transferSocket->setMaximumTransferSpeed(item->user.privUploadSpeed);
@@ -903,7 +904,7 @@ void QwsServerController::handleMessageGET(const QwsFile file)
     QwsTransferInfo transfer;
     transfer.file = file;
     transfer.hash = QUuid::createUuid().toString();
-    transfer.type = Qws::TransferTypeDownload;
+    transfer.type = Qw::TransferTypeDownload;
     transfer.offset = file.offset;
     transfer.transferSpeedLimit = user->user.privDownloadSpeed;
     transfer.targetUserId = user->user.pUserID;
@@ -930,7 +931,7 @@ void QwsServerController::handleMessagePUT(const QwsFile file)
     QwsTransferInfo transfer;
     transfer.file = file;
     transfer.hash = QUuid::createUuid().toString();
-    transfer.type = Qws::TransferTypeUpload;
+    transfer.type = Qw::TransferTypeUpload;
     transfer.offset = file.offset;
     transfer.transferSpeedLimit = user->user.privUploadSpeed;
     transfer.targetUserId = user->user.pUserID;
@@ -973,14 +974,14 @@ void QwsServerController::checkTransferQueue(int userId)
         QwsTransferInfo nextTransfer = transferPool->firstTransferWithUserId(userId);
 
         // Update the state of the transfer
-        nextTransfer.state = Qws::TransferInfoStateWaiting;
+        nextTransfer.state = Qw::TransferInfoStateWaiting;
         transferPool->appendTransferToQueue(nextTransfer);
 
         qDebug() << this << "Sending transfer ready for transfer" << nextTransfer.hash;
         QwMessage reply("400"); // 400 - transfer ready
 
         QString effectiveFilePath = nextTransfer.file.path;
-        if (nextTransfer.type == Qws::TransferTypeUpload
+        if (nextTransfer.type == Qw::TransferTypeUpload
             && effectiveFilePath.endsWith(".WiredTransfer")) {
             effectiveFilePath.chop(14);
         }
@@ -1021,7 +1022,7 @@ void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
 
     if (transferSockets.contains(socket)) {
         // Update statistics
-        if (socket->info().type == Qws::TransferTypeDownload) {
+        if (socket->info().type == Qw::TransferTypeDownload) {
             statsTotalSent += socket->info().bytesTransferred-socket->info().offset;
         } else {
             statsTotalReceived += socket->info().bytesTransferred-socket->info().offset;

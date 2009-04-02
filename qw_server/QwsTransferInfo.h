@@ -1,54 +1,16 @@
 #ifndef QWSTRANSFERINFO_H
 #define QWSTRANSFERINFO_H
 
+#include "QwTransferInfo.h"
 #include "QwsFile.h"
 
-namespace Qws {
-    /*! The type of the transfer, from the perspective of the client. */
-    enum TransferType { TransferTypeDownload, TransferTypeUpload };
-    enum TransferInfoState {
-        /*! The transfer info is queued and listed on the client. */
-        TransferInfoStateQueued,
-        /*! The transfer info is waiting to be accepted by the client (waiting for transfer connection. */
-        TransferInfoStateWaiting };
-}
 
-class QwsTransferInfo
+class QwsTransferInfo : public QwTransferInfo
 {
-
 public:
-    QwsTransferInfo();
-
-    /*! If true, this transfer info is unitialized. */
-    bool null;
-
-    /*! The file this transfer is refering to. */
+    /*! The file this transfer is refering to. This overrides the default implementation in
+        QwTransferInfo. */
     QwsFile file;
-
-    /*! The type of the transfer (up-/download). */
-    Qws::TransferType type;
-
-    /*! The unique hash used to identify the transfer. */
-    QString hash;
-
-    /*! The offset within the file. */
-    qlonglong offset;
-
-    /*! The number of bytes (from the total length of the file) that have been transferred already. */
-    qint64 bytesTransferred;
-
-    /*! The maximum number of bytes that are allowed to be transmitted within a second. */
-    qint64 transferSpeedLimit;
-
-    /*! The current transfer speed in bytes/second. */
-    int currentTransferSpeed;
-
-    /*! The ID of the user who requested the transfer. */
-    int targetUserId;
-
-    /*! The state of the transfer info. */
-    Qws::TransferInfoState state;
-
 
 };
 
