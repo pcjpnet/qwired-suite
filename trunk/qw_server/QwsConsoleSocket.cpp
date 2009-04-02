@@ -125,7 +125,7 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
             if (!item) { continue; }
             writeLine(QString("R;%1;%2;%3;%4;%5;%6;%7")
                       .arg(item->info().hash)
-                      .arg(item->info().type == Qws::TransferTypeDownload ? "D" : "U")
+                      .arg(item->info().type == Qw::TransferTypeDownload ? "D" : "U")
                       .arg(item->info().targetUserId)
                       .arg(item->info().file.path)
                       .arg(item->info().bytesTransferred)
@@ -201,7 +201,7 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         while (i.hasNext()) {
             QwsClientTransferSocket *item = i.next();
             if (!item) { continue; }
-            if (item->info().type == Qws::TransferTypeDownload) {
+            if (item->info().type == Qw::TransferTypeDownload) {
                 speedDownloadSum += item->info().currentTransferSpeed;
             } else {
                 speedUploadSum += item->info().currentTransferSpeed;

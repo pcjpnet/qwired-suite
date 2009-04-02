@@ -121,7 +121,7 @@ QList<QwsTransferInfo> QwsTransferPool::findWaitingTransfersWithUserId(int userI
     QMutableListIterator<QwsTransferInfo> i(resultList);
     while (i.hasNext()) {
         QwsTransferInfo &item = i.next();
-        if (item.state != Qws::TransferInfoStateWaiting) {
+        if (item.state != Qw::TransferInfoStateWaiting) {
             i.remove();
         }
     }
@@ -140,5 +140,5 @@ QwsTransferInfo QwsTransferPool::firstTransferWithUserId(int userId)
             return item;
         }
     }
-
+    return QwsTransferInfo();
 }

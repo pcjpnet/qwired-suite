@@ -52,6 +52,7 @@ void QwTrackerClientSocket::handleSocketConnected()
 
 void QwTrackerClientSocket::handleSocketError(QAbstractSocket::SocketError error)
 {
+    Q_UNUSED(error);
     qDebug() << this << "Socket error:" << socket->errorString();
 }
 
