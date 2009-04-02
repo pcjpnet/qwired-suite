@@ -1,6 +1,5 @@
 #include "QwmMonitorController.h"
 
-
 QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
 {
     socket = new QwmConsoleSocket(this);
@@ -9,6 +8,13 @@ QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
     connect(socket, SIGNAL(receivedLogMessage(const QString)),
             this, SLOT(handleLogMessage(const QString)));
 
+
+    connect(&daemonProcess, SIGNAL(started()),
+            this, SLOT(handleDaemonStarted()));
+    connect(&daemonProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(handleDaemonFinished(int,QProcess::ExitStatus)));
+    connect(&daemonProcess, SIGNAL(readyReadStandardOutput()),
+            this, SLOT(handleDaemonReadyReadStdout()));
 }
 
 
@@ -21,8 +27,15 @@ void QwmMonitorController::startMonitor()
 
     connect(monitorWindow->btnStartServer, SIGNAL(clicked()),
             this, SLOT(startDaemonProcess()));
+    connect(monitorWindow->btnStopServer, SIGNAL(clicked()),
+            this, SLOT(stopDaemonProcess()));
 
-    socket->connectToConsole("127.0.0.1", 2010);
+
+}
+
+void QwmMonitorController::connectToConsole()
+{
+    socket->connectToConsole("127.0.0.1", 2011);
 }
 
 
@@ -30,14 +43,37 @@ void QwmMonitorController::startDaemonProcess()
 {
     QStringList procArguments("-r");
     daemonProcess.start("./qwired_server", procArguments);
-    qDebug() << "pid:" << daemonProcess.pid() << daemonProcess.errorString();
+}
 
-    daemonProcess.waitForFinished();
-    if (!daemonProcess.isOpen()) {
-        qDebug() << "Argh";
+void QwmMonitorController::stopDaemonProcess()
+{
+    daemonProcess.terminate();
+}
+
+
+void QwmMonitorController::handleDaemonStarted()
+{
+    monitorWindow->btnStartServer->setEnabled(false);
+    monitorWindow->btnStopServer->setEnabled(true);
+    QTimer::singleShot(500, this, SLOT(connectToConsole()));
+    handleLogMessage(tr("Server daemon started with PID %1.").arg(daemonProcess.pid()));
+}
+
+
+void QwmMonitorController::handleDaemonFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    handleLogMessage(tr("Server daemon terminated with a status of %1.").arg(exitCode));
+    monitorWindow->btnStartServer->setEnabled(true);
+    monitorWindow->btnStopServer->setEnabled(false);
+    socket->resetSocket();
+}
+
+void QwmMonitorController::handleDaemonReadyReadStdout()
+{
+    while (daemonProcess.canReadLine()) {
+        QByteArray lineData = daemonProcess.readLine().trimmed();
+        handleLogMessage(lineData);
     }
-    qDebug() << "Done:" << daemonProcess.readAll();
-
 }
 
 
@@ -56,7 +92,6 @@ void QwmMonitorController::handleCommandSTAT(QHash<QString,QString> parameters)
 */
 void QwmMonitorController::handleLogMessage(const QString logMessage)
 {
-    qDebug() << "Got log Message:" << logMessage;
     monitorWindow->fStatsLog->append(logMessage);
 }
 

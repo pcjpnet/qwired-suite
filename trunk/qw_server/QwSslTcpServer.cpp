@@ -20,8 +20,9 @@ bool QwSslTcpServer::setCertificateFromFile(QString file)
 {
     QFile tmpPEMFile(file);
     if(!tmpPEMFile.open(QIODevice::ReadOnly)) {
-        std::cout << QString("Fatal: Unable to read certificate file '%1'. %2.")
-                .arg(file).arg(tmpPEMFile.errorString()).toStdString() << endl;
+        //QString msg = QString("Fatal: Unable to read certificate file '%1'. %2.")
+        //        .arg(file).arg(tmpPEMFile.errorString());
+        //std::cout << msg.toStdString() << endl;
         return false;
     } else {
         QByteArray tmpCertData = tmpPEMFile.readAll();
@@ -29,14 +30,14 @@ bool QwSslTcpServer::setCertificateFromFile(QString file)
         pLocalCert = QSslCertificate(tmpCertData);
         if(pPrivateKey.isNull()) {
 
-            std::cout << QString("Fatal: Unable to read prviate key from file '%1'.").arg(file).toStdString() << endl;
+            //std::cout << QString("Fatal: Unable to read prviate key from file '%1'.").arg(file).toStdString() << endl;
             return false;
         }
         if(pLocalCert.isNull()) {
-            std::cout << QString("Fatal: Unable to read local certificate from file '%1'.").arg(file).toStdString() << endl;
+            //std::cout << QString("Fatal: Unable to read local certificate from file '%1'.").arg(file).toStdString() << endl;
             return false;
         }
-        std::cout << QString("Loaded certificate and private key from '%1'.").arg(file).toStdString() << endl;
+        //std::cout << QString("Loaded certificate and private key from '%1'.").arg(file).toStdString() << endl;
     }
     return true;
 }
