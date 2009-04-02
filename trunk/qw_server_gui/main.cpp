@@ -1,12 +1,12 @@
 
 #include <QApplication>
-#include "ServerMonitorController.h"
+#include "QwmMonitorController.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    ServerMonitorController controller;
+    QwmMonitorController controller;
     controller.startMonitor();
 
     return app.exec();

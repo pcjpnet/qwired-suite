@@ -1,7 +1,7 @@
-#include "ServerMonitorController.h"
+#include "QwmMonitorController.h"
 
 
-ServerMonitorController::ServerMonitorController(QObject *parent) : QObject(parent)
+QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
 {
     socket = new QwmConsoleSocket(this);
     connect(socket, SIGNAL(receivedResponseSTAT(QHash<QString,QString>)),
@@ -12,16 +12,38 @@ ServerMonitorController::ServerMonitorController(QObject *parent) : QObject(pare
 }
 
 
-void ServerMonitorController::startMonitor()
+/*! Initialize the monitor window and display it to the user.
+*/
+void QwmMonitorController::startMonitor()
 {
-    monitorWindow = new ServerMonitorWindow;
+    monitorWindow = new QwmMonitorWindow();
     monitorWindow->show();
+
+    connect(monitorWindow->btnStartServer, SIGNAL(clicked()),
+            this, SLOT(startDaemonProcess()));
 
     socket->connectToConsole("127.0.0.1", 2010);
 }
 
 
-void ServerMonitorController::handleCommandSTAT(QHash<QString,QString> parameters)
+void QwmMonitorController::startDaemonProcess()
+{
+    QStringList procArguments("-r");
+    daemonProcess.start("./qwired_server", procArguments);
+    qDebug() << "pid:" << daemonProcess.pid() << daemonProcess.errorString();
+
+    daemonProcess.waitForFinished();
+    if (!daemonProcess.isOpen()) {
+        qDebug() << "Argh";
+    }
+    qDebug() << "Done:" << daemonProcess.readAll();
+
+}
+
+
+/*! Handle the result of a STAT command and display the parameters to the user.
+*/
+void QwmMonitorController::handleCommandSTAT(QHash<QString,QString> parameters)
 {
     monitorWindow->fStatsUsers->setText(parameters["USERS"]);
     monitorWindow->fStatsTransfers->setText(parameters["TRANSFERS"]);
@@ -30,14 +52,19 @@ void ServerMonitorController::handleCommandSTAT(QHash<QString,QString> parameter
 }
 
 
-void ServerMonitorController::handleLogMessage(const QString logMessage)
+/*! Handle a new log message from the remote console and display it in the log window.
+*/
+void QwmMonitorController::handleLogMessage(const QString logMessage)
 {
     qDebug() << "Got log Message:" << logMessage;
     monitorWindow->fStatsLog->append(logMessage);
 }
 
 
-QString ServerMonitorController::humanReadableSize(qlonglong theBytes) {
+/*! Return a human readable presentation of a information size.
+*/
+QString QwmMonitorController::humanReadableSize(qlonglong theBytes)
+{
         qlonglong a=1024;
         float b=1024;
 

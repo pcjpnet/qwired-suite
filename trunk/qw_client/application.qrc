@@ -21,6 +21,8 @@
         <file>icons/16x16/folder-new.png</file>
         <file>icons/16x16/view-refresh.png</file>
         <file>icons/16x16/edit-delete.png</file>
+        <file>icons/16x16/media-playback-start.png</file>
+        <file>icons/16x16/media-playback-stop.png</file>
         <file>icons/about_sidebar.png</file>
         <file>icons/qwired_splash.png</file>
         <file>icons/accounts.png</file>

@@ -66,8 +66,8 @@ void QwmConsoleSocket::handleSocketReadyRead()
                 }
                 emit receivedResponseSTAT(resultHash);
             }
-
             emit commandCompleted(activeCommand);
+            inputBuffer.clear();
             activeCommand.clear();
 
         } else if (lineData == "+ERROR") {
@@ -88,6 +88,9 @@ void QwmConsoleSocket::handleSocketReadyRead()
 }
 
 
+/*! STATS - Request serv statistics
+    Request general server statistics about the server.
+*/
 void QwmConsoleSocket::sendCommandSTATS()
 {
     qDebug() << this << "Requesting STATS command";
@@ -97,6 +100,9 @@ void QwmConsoleSocket::sendCommandSTATS()
 }
 
 
+/*! LOG - Enable/Disable log messages
+    Enables/Disables log message from the server.
+*/
 void QwmConsoleSocket::sendCommandLOG(bool logEnabled)
 {
     qDebug() << this << "Requesting LOG command";
