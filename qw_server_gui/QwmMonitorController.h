@@ -24,12 +24,19 @@ private slots:
     void handleCommandSTAT(QHash<QString,QString> parameters);
     void handleLogMessage(const QString logMessage);
 
+    // Daemon handling
+    void handleDaemonStarted();
+    void handleDaemonFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleDaemonReadyReadStdout();
+
 public:
     QwmMonitorController(QObject *parent=0);
 
 public slots:
     void startMonitor();
+    void connectToConsole();
     void startDaemonProcess();
+    void stopDaemonProcess();
 
 };
 

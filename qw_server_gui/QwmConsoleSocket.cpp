@@ -18,6 +18,9 @@ QwmConsoleSocket::QwmConsoleSocket(QObject *parent) : QObject(parent)
 void QwmConsoleSocket::resetSocket()
 {
     qDebug() << this << "Resetting socket.";
+    statTimer.stop();
+    socket->disconnectFromHost();
+    socket->reset();
 }
 
 

@@ -8,8 +8,6 @@ SOURCES += main.cpp \
     QwmMonitorController.cpp \
     QwmConsoleSocket.cpp
 
-
-
 FORMS += QwmMonitorWindow.ui
 DESTDIR = ../bin
 TARGET = qw_server_gui
