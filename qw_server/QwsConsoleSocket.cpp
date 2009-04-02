@@ -296,6 +296,7 @@ QwsConsoleSocketController::QwsConsoleSocketController(QObject *parent) : QObjec
 
 }
 
+
 QwsConsoleSocketController::~QwsConsoleSocketController()
 {
     qDebug() << "Destroying QwsConsoleSocketController";
@@ -348,6 +349,7 @@ void QwsConsoleSocketController::handleConsoleError(QAbstractSocket::SocketError
     target->deleteLater();
     qDebug() << "Removed old console connection";
 }
+
 
 void QwsConsoleSocketController::handleServerLogMessage(const QString message)
 {

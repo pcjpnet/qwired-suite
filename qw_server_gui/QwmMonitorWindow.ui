@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ServerMonitorWindow</class>
- <widget class="QWidget" name="ServerMonitorWindow">
+ <class>QwmMonitorWindow</class>
+ <widget class="QWidget" name="QwmMonitorWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -45,12 +45,6 @@
            <layout class="QGridLayout" name="gridLayout">
             <item row="0" column="0">
              <widget class="QLabel" name="label">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
               <property name="text">
                <string>Connected Users:</string>
               </property>
@@ -65,12 +59,6 @@
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_4">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
               <property name="text">
                <string>Active Transfers:</string>
               </property>
@@ -85,12 +73,6 @@
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_8">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
               <property name="text">
                <string>Total Downloaded:</string>
               </property>
@@ -112,12 +94,6 @@
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_9">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
               <property name="text">
                <string>Total Uploaded:</string>
               </property>
@@ -148,19 +124,51 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QPushButton" name="btnStartServer">
+           <widget class="QToolButton" name="btnStartServer">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Start the server daemon on the local system.</string>
+            </property>
             <property name="text">
              <string>Start Server</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../qw_client/application.qrc">
+              <normaloff>:/icons/16x16/media-playback-start.png</normaloff>:/icons/16x16/media-playback-start.png</iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextBesideIcon</enum>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btnStopServer">
+           <widget class="QToolButton" name="btnStopServer">
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Stop the server daemon on the local system.</string>
+            </property>
             <property name="text">
              <string>Stop Server</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../qw_client/application.qrc">
+              <normaloff>:/icons/16x16/media-playback-stop.png</normaloff>:/icons/16x16/media-playback-stop.png</iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextBesideIcon</enum>
             </property>
            </widget>
           </item>
@@ -178,9 +186,25 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="btnRebuildIndex">
+           <widget class="QToolButton" name="btnRebuildIndex">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Purge and rebuild file index database.</string>
+            </property>
             <property name="text">
              <string>Rebuild File Index</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../qw_client/application.qrc">
+              <normaloff>:/icons/16x16/view-refresh.png</normaloff>:/icons/16x16/view-refresh.png</iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextBesideIcon</enum>
             </property>
            </widget>
           </item>
@@ -214,15 +238,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="icon">
-       <iconset resource="../qw_client/application.qrc">
-        <normaloff>:/icons/icn_quit.png</normaloff>:/icons/icn_quit.png</iconset>
-      </attribute>
-      <attribute name="title">
-       <string>Configuration</string>
-      </attribute>
-     </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="icon">
        <iconset resource="../qw_client/application.qrc">
@@ -231,36 +246,91 @@
       <attribute name="title">
        <string>Transfers</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0" colspan="2">
-        <widget class="QListWidget" name="listWidget"/>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QListWidget" name="fTransfersList"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Transfers: 15, Download: 0 KB/s, Upload: 0 KB/s</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="btnTransfersAbort">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Abort the selected file transfer.</string>
+             </property>
+             <property name="text">
+              <string>Abort</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../qw_client/application.qrc">
+               <normaloff>:/icons/btn_ban.png</normaloff>:/icons/btn_ban.png</iconset>
+             </property>
+             <property name="toolButtonStyle">
+              <enum>Qt::ToolButtonTextBesideIcon</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Transfers: 15, Download: 0 KB/s, Upload: 0 KB/s</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Abort Transfer</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../qw_client/application.qrc">
-           <normaloff>:/icons/btn_ban.png</normaloff>:/icons/btn_ban.png</iconset>
-         </property>
-        </widget>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QListView" name="fTransfersUsers"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QToolButton" name="btnTransfersDisconnectUser">
+             <property name="toolTip">
+              <string>Disconnect the selected user.</string>
+             </property>
+             <property name="text">
+              <string>Disconnect</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../qw_client/application.qrc">
+               <normaloff>:/icons/btn_kick.png</normaloff>:/icons/btn_kick.png</iconset>
+             </property>
+             <property name="toolButtonStyle">
+              <enum>Qt::ToolButtonTextBesideIcon</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

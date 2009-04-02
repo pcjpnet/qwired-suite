@@ -1,33 +1,36 @@
-#ifndef SERVERMONITORCONTROLLER_H
-#define SERVERMONITORCONTROLLER_H
+#ifndef QWMMONITORCONTROLLER_H
+#define QWMMONITORCONTROLLER_H
 
-#include "ServerMonitorWindow.h"
+#include "QwmMonitorWindow.h"
 
 #include <QObject>
 #include <QPointer>
+#include <QProcess>
+
 #include "QwmConsoleSocket.h"
 
 
-class ServerMonitorController : public QObject
+class QwmMonitorController : public QObject
 {
     Q_OBJECT
 
 private:
     QPointer<QwmConsoleSocket> socket;
-    QPointer<ServerMonitorWindow> monitorWindow;
-
+    QPointer<QwmMonitorWindow> monitorWindow;
     QString humanReadableSize(qlonglong theBytes);
+    QProcess daemonProcess;
 
 private slots:
     void handleCommandSTAT(QHash<QString,QString> parameters);
     void handleLogMessage(const QString logMessage);
 
 public:
-    ServerMonitorController(QObject *parent=0);
+    QwmMonitorController(QObject *parent=0);
 
 public slots:
     void startMonitor();
+    void startDaemonProcess();
 
 };
 
-#endif // SERVERMONITORCONTROLLER_H
+#endif // QWMMONITORCONTROLLER_H
