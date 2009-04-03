@@ -183,7 +183,6 @@ void QwcSession::setupConnections() {
     connect(pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
             this,   SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
 
-    connect(pWiredSocket, SIGNAL(onServerBroadcast(QwcUserInfo,QString)), this, SLOT(doHandleBroadcast(QwcUserInfo,QString)) );
     connect(pWiredSocket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onLoginSuccessful()) );
 
     connect(pWiredSocket, SIGNAL(onServerUserlistDone(int)), this, SLOT(onUserlistComplete(int)) );
@@ -369,30 +368,6 @@ void QwcSession::doHandlePublicChatInput(QString theText, bool theIsAction)
 //
 //}
 
-// Handle a broadcast
-/*! Handle a broadcast message and display it in the private messenger.
-    \todo This need to be ported to the messenger!
-*/
-void QwcSession::doHandleBroadcast(QwcUserInfo theUser, QString theMessage)
-{
-//    Q_UNUSED(theUser);
-//    QStringList tmpParams;
-//    tmpParams << theUser.pNick;
-//    tmpParams << theMessage;
-//    triggerEvent("BroadcastReceived",tmpParams);
-//
-//    SendPrivateMessageWidget *msg = new SendPrivateMessageWidget();
-//    msg->setParent(pMainChat, Qt::Window);
-//    msg->setWindowTitle(tr("Broadcast Message"));
-//    msg->fMsg->setReadOnly(true);
-//    msg->fMsg->setText(theMessage);
-//    msg->show();
-//
-//    QStringList tmpParms;
-//    tmpParms << theUser.pNick;
-//    tmpParms << theMessage;
-//    triggerEvent("BroadcastReceived", tmpParms);
-}
 
 
 // Display received user info in a new window.

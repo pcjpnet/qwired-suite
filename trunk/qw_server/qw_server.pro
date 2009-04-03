@@ -5,7 +5,6 @@ SOURCES += main.cpp \
     QwsFile.cpp \
     QwsClientTransferSocket.cpp \
     QwsUser.cpp \
-    QwsTransferInfo.cpp \
     QwsTransferPool.cpp \
     QwsConsoleSocket.cpp
 HEADERS += QwsServerController.h \

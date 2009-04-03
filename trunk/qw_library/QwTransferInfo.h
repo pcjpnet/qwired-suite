@@ -56,4 +56,6 @@ public:
 
 };
 
+Q_DECLARE_METATYPE(QwTransferInfo);
+
 #endif // QWSTRANSFERINFO_H

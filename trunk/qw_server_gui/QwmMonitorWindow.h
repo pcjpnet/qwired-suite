@@ -12,6 +12,7 @@ public:
 
 private slots:
     //void on_myButton_clicked();
+    void on_fTransfersList_currentRowChanged(int index);
 
 };
 

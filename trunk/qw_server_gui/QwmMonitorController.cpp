@@ -42,7 +42,7 @@ void QwmMonitorController::startMonitor()
 
 void QwmMonitorController::connectToConsole()
 {
-    socket->connectToConsole("127.0.0.1", 2011);
+    socket->connectToConsole("127.0.0.1", 2010);
 }
 
 
@@ -108,6 +108,11 @@ void QwmMonitorController::handleCommandSTAT(QHash<QString,QString> parameters)
     monitorWindow->fStatsTransfers->setText(parameters["TRANSFERS"]);
     monitorWindow->fStatsDownloadTotal->setText(humanReadableSize(parameters["TOTAL_BYTES_SENT"].toLongLong()));
     monitorWindow->fStatsUploadTotal->setText(humanReadableSize(parameters["TOTAL_BYTES_RECEIVED"].toLongLong()));
+
+    monitorWindow->fTransfersStatus->setText(tr("Transfers: %1, Download: %2/s, Upload: %3/s")
+                                 .arg(monitorWindow->fTransfersList->count())
+                                 .arg(humanReadableSize(parameters["SPEED_DOWNLOADS"].toLongLong()))
+                                 .arg(humanReadableSize(parameters["SPEED_UPLOADS"].toLongLong())));
 }
 
 
@@ -117,9 +122,19 @@ void QwmMonitorController::handleCommandTRANSFERS(QList<QwTransferInfo> transfer
     QListIterator<QwTransferInfo> i(transfers);
     while (i.hasNext()) {
         QwTransferInfo item = i.next();
-        QTreeWidgetItem *listItem = new QTreeWidgetItem;
-        listItem->setText(0, item.file.fileName());
-        monitorWindow->fTransfersList->addTopLevelItem(listItem);
+        QListWidgetItem *listItem = new QListWidgetItem;
+        listItem->setData(Qt::UserRole, QVariant::fromValue(item));
+        listItem->setText(tr("%1\nUser: %2, Speed: %3/s")
+                          .arg(item.file.fileName())
+                          .arg(item.targetUserId)
+                          .arg(humanReadableSize(item.currentTransferSpeed)));
+        if (item.type == Qw::TransferTypeDownload) {
+            listItem->setIcon(QIcon(":/icons/32x32/go-down.png"));
+        } else {
+            listItem->setIcon(QIcon(":/icons/32x32/go-up.png"));
+        }
+
+        monitorWindow->fTransfersList->addItem(listItem);
     }
 
 }

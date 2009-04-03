@@ -6,7 +6,7 @@
         <file alias="lang_es.qm" >lang/lang_es.qm</file>
         <file alias="lang_fr.qm" >lang/lang_fr.qm</file>
         <file alias="lang_jp.qm" >lang/lang_jp.qm</file>
-	<file alias="lang_nl.qm" >lang/lang_nl.qm</file>
+        <file alias="lang_nl.qm" >lang/lang_nl.qm</file>
         <file>icons/32x32/network-server.png</file>
         <file>icons/32x32/start-here.png</file>
         <file>icons/32x32/go-down.png</file>
@@ -93,5 +93,6 @@
         <file>icons/icn_quit.png</file>
         <file>icons/icn_event.png</file>
         <file>tranzlator.txt</file>
+        <file>icons/16x16/system-users.png</file>
     </qresource>
 </RCC>
