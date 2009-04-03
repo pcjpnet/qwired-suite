@@ -55,7 +55,17 @@ void QwmMonitorController::startMonitor()
 void QwmMonitorController::startDaemonProcess()
 {
     QStringList procArguments("-r");
-    daemonProcess.start("./qwired_server", procArguments);
+    QString command;
+
+#ifdef Q_OS_WIN32
+    command = "./qwired_server.exe";
+#elif Q_OS_LINUX
+    command = "./qwired_server";
+#elif Q_OS_MAC
+    command = "../../../qwired_server";
+#endif
+
+    daemonProcess.start(command, procArguments);
 }
 
 
@@ -75,7 +85,7 @@ void QwmMonitorController::handleDaemonStarted()
     monitorWindow->btnStartServer->setEnabled(false);
     monitorWindow->btnStopServer->setEnabled(true);
     //QTimer::singleShot(500, this, SLOT(connectToConsole()));
-    handleLogMessage(tr("Server daemon started with PID %1.").arg(daemonProcess.pid()));
+    //handleLogMessage(tr("Server daemon started with PID %1.").arg(daemonProcess.pid()));
 }
 
 

@@ -1,3 +1,14 @@
+INCLUDEPATH = ../qw_library
+LIBS += ../bin/libqwlibrary.a
+DESTDIR = ../bin/
+TARGET = qwired_server
+TEMPLATE = app
+QT -= gui
+CONFIG -= app_bundle
+win32:CONFIG += console
+QT += network \
+    xml \
+    sql
 SOURCES += main.cpp \
     QwsServerController.cpp \
     QwsClientSocket.cpp \
@@ -16,14 +27,4 @@ HEADERS += QwsServerController.h \
     QwsTransferInfo.h \
     QwsTransferPool.h \
     QwsConsoleSocket.h
-INCLUDEPATH = ../qw_library
-LIBS += ../bin/libqwlibrary.a
-TEMPLATE = app
-QT -= gui
-CONFIG += debug
-CONFIG -= app_bundle
-QT += network \
-    xml \
-    sql
-TARGET = qwired_server
-DESTDIR = ../bin/
+RESOURCES += qw_server.qrc
