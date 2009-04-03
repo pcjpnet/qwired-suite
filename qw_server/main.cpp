@@ -1,42 +1,45 @@
 
 #include "QwsServerController.h"
 #include "QwsConsoleSocket.h"
+//#include "QwTrackerClientSocket.h"
 
-#include <iostream>
-#include <QtCore>
+#include <QCoreApplication>
+#include <QtDebug>
 #include <QSqlQuery>
-#include "QwTrackerClientSocket.h"
+
 
 const QString QWSERVER_VERSION("0.1.0");
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
-    QStringList cliArgs = app.arguments();
+    QCoreApplication a(argc, argv);
+    QStringList cliArgs = a.arguments();
 
-    // Check command line parameters
+    /*! Print version if requested. */
     if (cliArgs.contains("-v")) {
         QTextStream so(stdout);
         so << "Qwired Server Version " << QWSERVER_VERSION << "\n"
                 "Copyright (c) " << QDate::currentDate().year()
                 << " by Bastian Bense <bastibense@gmail.com>\n";
-        return 0;
 
-    } else if (cliArgs.contains("-h") || cliArgs.contains("--help")) {
-        if (cliArgs.count() == 1) {
-            QTextStream so(stdout);
-            so << app.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
-            so << app.tr("Server-mode commands:\n"
-                         "    -d            Run in daemon mode.\n"
-                         "    -r            Enable console socket for GUI.\n"
-                         "    -db <file>    Override default path to configuration database.\n"
-                         "\nAdministration commands:\n"
-                         "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
-                         "                  more information about available configuration keys.\n"
-                         "    -v            Print version and exit.\n"
-                         "\n");
-            return 0;
-        }
+        return 0;
+    }
+
+
+    /*! Print help if requested. */
+    if (cliArgs.contains("-h") || cliArgs.contains("--help")) {
+        QTextStream so(stdout);
+        so << a.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
+        so << a.tr("Server-mode commands:\n"
+                   "    -d            Run in daemon mode.\n"
+                   "    -r            Enable console socket for GUI.\n"
+                   "    -db <file>    Override default path to configuration database.\n"
+                   "\nAdministration commands:\n"
+                   "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
+                   "                  more information about available configuration keys.\n"
+                   "    -v            Print version and exit.\n"
+                   "\n");
+        return 0;
     }
 
 
@@ -59,7 +62,7 @@ int main (int argc, char *argv[])
             QString confKey = itemValue.section("=", 0, 0);
             QString confValue = itemValue.section("=", 1, 1);
             if (confKey.isEmpty() || confKey.indexOf("%")>-1 ) { continue; }
-            controller.qwLog(app.tr("Setting configuration parameter '%1' to '%2'").arg(confKey).arg(confValue));
+            controller.qwLog(a.tr("Setting configuration parameter '%1' to '%2'").arg(confKey).arg(confValue));
             QSqlQuery query;
 
             // Delete old configuration entry
@@ -78,6 +81,7 @@ int main (int argc, char *argv[])
 
     // Attempt to start the server socket
     if (!controller.startServer()) {
+        controller.qwLog(a.tr("Warning: Unable to start session listener socket."));
         return 1;
     }
 
@@ -90,11 +94,11 @@ int main (int argc, char *argv[])
         QHostAddress listenInterface(controller.getConfigurationParam("console/address", "127.0.0.1").toString());
         quint16 listenPort = controller.getConfigurationParam("server/port", 2000).toInt()+2;
 
-        controller.qwLog(app.tr("Starting remote console listener on %1:%2...")
+        controller.qwLog(a.tr("Starting remote console listener on %1:%2...")
                          .arg(listenInterface.toString()).arg(listenPort));
 
         if (!consoleController.startConsole(listenInterface, listenPort)) {
-            controller.qwLog(app.tr("Fatal: Unable to start console listener on %1:%2: %3")
+            controller.qwLog(a.tr("Fatal: Unable to start console listener on %1:%2: %3")
                              .arg(listenInterface.toString()).arg(listenPort).arg(consoleController.tcpServer()->errorString()));
             return 1;
         }
@@ -114,7 +118,7 @@ int main (int argc, char *argv[])
 
 
 
-    return app.exec();
+    return a.exec();
 }
 
 

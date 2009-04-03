@@ -57,7 +57,7 @@ void QwcFiletransferDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 	progressBarOption.state = QStyle::State_Enabled;
 	progressBarOption.direction = QApplication::layoutDirection();
 	QRect tmp;
-	int tmpX = option.rect.width()-10-(option.rect.width()*0.4);
+        int tmpX = option.rect.width()-10-int(option.rect.width()*0.4);
 	tmp.setRight(option.rect.width()-10);
 	tmp.setBottom(26);
 	tmp.setLeft(tmpX);
@@ -82,9 +82,11 @@ void QwcFiletransferDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 	
 	// Set up the progressbar
 	int progress=0;
-	if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
-			progress = (float(tmpT.pFolderDone+tmpT.pDoneSize)/float(tmpT.pFolderSize))*100;
-	else	progress = (float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100;
+        if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload) {
+            progress = int((float(tmpT.pFolderDone+tmpT.pDoneSize)/float(tmpT.pFolderSize))*100);
+        } else {
+            progress = int((float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100);
+        }
 	
 	progressBarOption.progress = progress<0 ? 0 : progress;
 

@@ -34,6 +34,8 @@ public:
 
     void qwLog(QString message, Qws::LogType type=Qws::LogTypeInfo);
 
+    static bool generateNewCertificate(QString path);
+
     // Database access/configuration
     QVariant getConfigurationParam(const QString key, const QVariant defaultValue=QVariant());
 

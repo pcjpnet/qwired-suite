@@ -5,7 +5,6 @@
     \date 2009-02-23
     \brief This class implements the simple TRANSFER-protocol for file transfers to clients.
 
-    \todo (B) Apply speed limitiations live if a user account is edited.
     \todo (A/B) Try to get that Qt-SSL bug fixed!
 */
 

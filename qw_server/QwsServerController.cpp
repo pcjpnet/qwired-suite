@@ -22,6 +22,8 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
     rooms[1] = publicRoom;
 
     maxTransfersPerClient = 2;
+
+    logToStdout = true;
 }
 
 
@@ -54,6 +56,26 @@ bool QwsServerController::loadConfiguration()
         return false;
     } else {
         qwLog(tr("Successfully opened database."));
+        if (db.tables().isEmpty()) {
+            QResource sqlDataResource(":/resources/server_db.sql");
+            QByteArray sqlData;
+            sqlData.resize(sqlDataResource.size());
+            memcpy(sqlData.data(), sqlDataResource.data(), sqlDataResource.size());
+
+            QStringList commands = QString::fromUtf8(sqlData).split(";", QString::SkipEmptyParts);
+            QStringListIterator i(commands);
+            while (i.hasNext()) {
+                QString sqlCmd = i.next();
+                qDebug() << sqlCmd;
+                db.exec(sqlCmd);
+            }
+
+//            QSqlQuery query;
+//            if (!query.exec(QString::fromUtf8(sqlData))) {
+//                qwLog(tr("Warning: Unable to create tables in empty database: %1")
+//                      .arg(query.lastError().text()));
+//            }
+        }
     }
 
     return true;
@@ -109,15 +131,29 @@ QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int use
 */
 bool QwsServerController::startServer()
 {
+
     int tmpPort = getConfigurationParam("server/port", 2000).toInt();
     QString tmpAddress = getConfigurationParam("server/address", "0.0.0.0").toString();
-    QString certificateFile = getConfigurationParam("server/certificate", "qwired_server.crt").toString();
+    QString certificateFile = getConfigurationParam("server/certificate", "qwired_server.pem").toString();
+    qwLog(tr("Loading certificate file (%1)...").arg(certificateFile));
+
+    QFileInfo certificateFileInfo(certificateFile);
+    if (!certificateFileInfo.exists()) {
+        qwLog(tr("Certificate file does not exist. Attempting to create one..."));
+        if (!generateNewCertificate(certificateFile)) {
+            qwLog(tr("Unable to create new certificate file. Please see the documentation on more information about how to create a certificate."));
+            return false;
+        } else {
+            qwLog(tr("Successfully created new certificate file."));
+        }
+    }
 
     sessionTcpServer = new QwSslTcpServer(this);
     connect(sessionTcpServer, SIGNAL(newSslConnection()),
             this, SLOT(acceptSessionSslConnection()));
 
     if (!sessionTcpServer->setCertificateFromFile(certificateFile)) {
+        qwLog(tr("Warning: Unable to load certificate from file."));
         return false;
     }
     if(!sessionTcpServer->listen(QHostAddress(tmpAddress), tmpPort)) {
@@ -162,6 +198,31 @@ void QwsServerController::qwLog(QString message, Qws::LogType type)
     }
 
     emit serverLogMessage(message);
+}
+
+
+/*! Generate a new certificate file (using command-like OpenSSL).
+*/
+bool QwsServerController::generateNewCertificate(QString path)
+{
+    QProcess createCommand;
+
+    QStringList commandArguments;
+    commandArguments << "req" << "-x509"
+              << "-newkey" << "rsa:1024" << "-subj"
+              << QString("/CN=%1").arg(QHostInfo::localHostName())
+              << "-days" << "365" << "-nodes"
+              << "-keyout" << path << "-out" << path;
+
+    qDebug() << commandArguments;
+    createCommand.start("openssl", commandArguments);
+    createCommand.waitForFinished();
+
+    if (createCommand.exitCode() != 0 ) {
+        qDebug() << "OpenSSL failed:" << createCommand.errorString() << createCommand.readAllStandardError();
+        return false;
+    }
+    return true;
 }
 
 

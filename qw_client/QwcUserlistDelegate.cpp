@@ -139,8 +139,8 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     // Unread Count (only for message sessions)
     if (session.unreadCount) {
         painter->save();
-        QRect badgeRect(0, 0, iconSize.width(), iconSize.height()*0.5);
-        font.setPixelSize(badgeRect.height()*0.8);
+        QRect badgeRect(0, 0, int(iconSize.width()), int(iconSize.height()*0.5));
+        font.setPixelSize(int(badgeRect.height()*0.8));
         font.setBold(true);
         painter->translate(itemRect.width()-iconSize.width()-8, itemRect.height()/2 - badgeRect.height()/2);
         painter->setFont(font);
