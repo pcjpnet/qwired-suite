@@ -64,6 +64,12 @@ void QwsClientSocket::resetIdleTimer()
     emit userStatusChanged();
 }
 
+void QwsClientSocket::resolveHostname()
+{
+    qDebug() << this << "Beginning host lookup for:" << user.userIpAddress;
+    QHostInfo::lookupHost(user.userIpAddress, this, SLOT(handleHostLookupResult(QHostInfo)));
+}
+
 
 // Called by the socket and indicates the an SSL error has occoured.
 void QwsClientSocket::on_socket_sslErrors(const QList<QSslError> & errors)
@@ -80,6 +86,16 @@ void QwsClientSocket::on_socket_error()
     qDebug() << "[qws] socket error:"<<pSocket->errorString()<<pSocket->error();
     disconnectClient();
 }
+
+
+/*! Handles the response of an asynchronous DNS lookup on the user's IP address.
+*/
+void QwsClientSocket::handleHostLookupResult(QHostInfo hostInfo)
+{
+    qDebug() << "Received host lookup response:" << hostInfo.hostName();
+    user.userHostName = hostInfo.hostName();
+}
+
 
 
 /*! This method handles any incoming messages, checks the command name and passes the control to

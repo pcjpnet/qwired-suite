@@ -30,7 +30,7 @@ class QwsServerController : public QObject
 
 public:
     QwsServerController(QObject *parent = 0);
-    virtual ~QwsServerController();
+    ~QwsServerController();
 
     void qwLog(QString message, Qws::LogType type=Qws::LogTypeInfo);
 
@@ -41,10 +41,10 @@ public:
     qint64 statsTotalSent;
     /*! The total amount of bytes received from clients in file transfers. */
     qint64 statsTotalReceived;
+    /*! If true, log messages will be sent to stdout. */
+    bool logToStdout;
 
 private:
-
-
     int sessionIdCounter;
     int roomIdCounter;
     int maxTransfersPerClient;
@@ -104,9 +104,6 @@ private slots:
     void handleMessagePUT(const QwsFile file);
     void handleTransferDone(const QwsTransferInfo transfer);
     void handleTransferError(Qws::TransferSocketError error, const QwsTransferInfo transfer);
-
-    // Console
-
 
 
 public slots:

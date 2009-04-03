@@ -10,6 +10,8 @@ QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
             this, SLOT(handleCommandSTAT(QHash<QString,QString>)));
     connect(socket, SIGNAL(receivedResponseTRANSFERS(QList<QwTransferInfo>)),
             this, SLOT(handleCommandTRANSFERS(QList<QwTransferInfo>)));
+    connect(socket, SIGNAL(receivedResponseUSERS(QList<QwUser>)),
+            this, SLOT(handleCommandUSERS(QList<QwUser>)));
     connect(socket, SIGNAL(receivedLogMessage(const QString)),
             this, SLOT(handleLogMessage(const QString)));
 
@@ -37,13 +39,17 @@ void QwmMonitorController::startMonitor()
             this, SLOT(startDaemonProcess()));
     connect(monitorWindow->btnStopServer, SIGNAL(clicked()),
             this, SLOT(stopDaemonProcess()));
+    connect(monitorWindow, SIGNAL(requestedTransferAbort(QString)),
+            socket, SLOT(sendCommandABORT(QString)));
+    connect(monitorWindow, SIGNAL(requestedUserKick(int)),
+            socket, SLOT(sendCommandKICK(int)));
 }
 
 
-void QwmMonitorController::connectToConsole()
-{
-    socket->connectToConsole("127.0.0.1", 2010);
-}
+//void QwmMonitorController::connectToConsole()
+//{
+//    socket->connectToConsole("127.0.0.1", 2010);
+//}
 
 
 void QwmMonitorController::startDaemonProcess()
@@ -68,7 +74,7 @@ void QwmMonitorController::handleDaemonStarted()
 {
     monitorWindow->btnStartServer->setEnabled(false);
     monitorWindow->btnStopServer->setEnabled(true);
-    QTimer::singleShot(500, this, SLOT(connectToConsole()));
+    //QTimer::singleShot(500, this, SLOT(connectToConsole()));
     handleLogMessage(tr("Server daemon started with PID %1.").arg(daemonProcess.pid()));
 }
 
@@ -93,9 +99,22 @@ void QwmMonitorController::handleDaemonError(QProcess::ProcessError error)
 
 void QwmMonitorController::handleDaemonReadyReadStdout()
 {
+    // I know, I know. This works for now, though. :-)
+    static quint16 remotePort = 2002;
+
     while (daemonProcess.canReadLine()) {
-        QByteArray lineData = daemonProcess.readLine().trimmed();
-        handleLogMessage(lineData);
+        QString lineData = daemonProcess.readLine().trimmed();
+        if (lineData.startsWith("+REMOTE_PORT=")) {
+            remotePort = lineData.section("=", 1, 1).toInt();
+        } else if (lineData.startsWith("+REMOTE_AUTH_CODE=")) {
+            socket->authSecret = lineData.section(": ", 1, 1);
+        } else if (lineData.startsWith("+REMOTE_READY")) {
+            socket->connectToConsole("127.0.0.1", remotePort);
+            handleLogMessage(tr("Connecting to remote console on port %1...").arg(remotePort));
+        } else {
+            // Otherwise print to the log
+            handleLogMessage(lineData);
+        }
     }
 }
 
@@ -118,6 +137,7 @@ void QwmMonitorController::handleCommandSTAT(QHash<QString,QString> parameters)
 
 void QwmMonitorController::handleCommandTRANSFERS(QList<QwTransferInfo> transfers)
 {
+    int currentIndex = monitorWindow->fTransfersList->currentRow();
     monitorWindow->fTransfersList->clear();
     QListIterator<QwTransferInfo> i(transfers);
     while (i.hasNext()) {
@@ -136,6 +156,41 @@ void QwmMonitorController::handleCommandTRANSFERS(QList<QwTransferInfo> transfer
 
         monitorWindow->fTransfersList->addItem(listItem);
     }
+    monitorWindow->fTransfersList->setCurrentRow(currentIndex);
+
+}
+
+
+void QwmMonitorController::handleCommandUSERS(QList<QwUser> users)
+{
+    QString selectedUserId;
+    if (monitorWindow->fUsersList->currentItem()) {
+        selectedUserId = monitorWindow->fUsersList->currentItem()->text(0);
+    }
+    monitorWindow->fUsersList->clear();
+    QListIterator<QwUser> i(users);
+    while (i.hasNext()) {
+        QwUser item = i.next();
+        QTreeWidgetItem *listItem = new QTreeWidgetItem;
+        listItem->setData(0, Qt::UserRole, QVariant::fromValue(item));
+        listItem->setText(0, QString::number(item.pUserID));
+        listItem->setText(1, item.userNickname);
+        listItem->setText(2, item.name);
+        if (item.userHostName.isEmpty()) {
+            listItem->setText(3, item.userIpAddress);
+        } else {
+            listItem->setText(3, QString("%1 (%2)").arg(item.userHostName).arg(item.userIpAddress));
+        }
+        int idleTimeSeconds = item.pIdleTime.secsTo(QDateTime::currentDateTime())/60;
+        listItem->setText(4, tr("%1h %2m").arg(idleTimeSeconds/60).arg(idleTimeSeconds % 60));
+        listItem->setText(5, item.userStatus);
+        monitorWindow->fUsersList->addTopLevelItem(listItem);
+    }
+
+    QList<QTreeWidgetItem*> results = monitorWindow->fUsersList->findItems(selectedUserId, Qt::MatchExactly);
+    if (!results.isEmpty()) {
+        monitorWindow->fUsersList->setCurrentItem(results.takeFirst());
+    }
 
 }
 
@@ -152,21 +207,23 @@ void QwmMonitorController::handleLogMessage(const QString logMessage)
 */
 QString QwmMonitorController::humanReadableSize(qlonglong theBytes)
 {
-        qlonglong a=1024;
-        float b=1024;
+    qlonglong a=1024;
+    float b=1024;
 
-        if(theBytes<0) {
-            return QString("-");
-        } else if(theBytes < a) {
-            return QString("%1").arg(theBytes);
-        } else if(theBytes < a*a) {
-            return QString("%1 KB").arg(float(theBytes/b), 0, 'f', 2);
-        } else if(theBytes < a*a*a) {
-            return QString("%1 MB").arg(float(theBytes/b/b), 0, 'f', 2);
-        } else if(theBytes < a*a*a*a) {
-            return QString("%1 GB").arg(float(theBytes/b/b/b), 0, 'f', 2);
-        } else if(theBytes < a*a*a*a*a) {
-            return QString("%1 TB").arg(float(theBytes/b/b/b/b), 0, 'f', 2);
-        }
-        return "?";
+    if(theBytes<0) {
+        return QString("-");
+    } else if(theBytes < a) {
+        return QString("%1").arg(theBytes);
+    } else if(theBytes < a*a) {
+        return QString("%1 KB").arg(float(theBytes/b), 0, 'f', 2);
+    } else if(theBytes < a*a*a) {
+        return QString("%1 MB").arg(float(theBytes/b/b), 0, 'f', 2);
+    } else if(theBytes < a*a*a*a) {
+        return QString("%1 GB").arg(float(theBytes/b/b/b), 0, 'f', 2);
+    } else if(theBytes < a*a*a*a*a) {
+        return QString("%1 TB").arg(float(theBytes/b/b/b/b), 0, 'f', 2);
+    } else if(theBytes < a*a*a*a*a*a) {
+        return QString("%1 PB").arg(float(theBytes/b/b/b/b/b), 0, 'f', 2);
     }
+    return "?";
+}

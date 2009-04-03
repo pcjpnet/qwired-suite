@@ -13,32 +13,38 @@ int main (int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     QStringList cliArgs = app.arguments();
-    QTextStream so(stdout);
-
-    //    if (cliArgs.count() == 1) {
-    //
-    //        so << app.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
-    //        so << app.tr("Server-mode commands:\n"
-    //                     "    -d            Run in daemon mode.\n"
-    //                     "    -r            Enable console socket for GUI.\n"
-    //                     "    -db <file>    Override default path to configuration database.\n"
-    //                     "\nAdministration commands:\n"
-    //                     "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
-    //                     "                  more information about available configuration keys.\n"
-    //                     "    -v            Print version and exit.\n"
-    //                     "\n");
-    //        return 1;
-    //    }
 
     // Check command line parameters
     if (cliArgs.contains("-v")) {
+        QTextStream so(stdout);
         so << "Qwired Server Version " << QWSERVER_VERSION << "\n"
-                "Copyright (c) " << QDate::currentDate().year() << " by Bastian Bense <bastibense@gmail.com>\n";
+                "Copyright (c) " << QDate::currentDate().year()
+                << " by Bastian Bense <bastibense@gmail.com>\n";
         return 0;
+
+    } else if (cliArgs.contains("-h") || cliArgs.contains("--help")) {
+        if (cliArgs.count() == 1) {
+            QTextStream so(stdout);
+            so << app.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
+            so << app.tr("Server-mode commands:\n"
+                         "    -d            Run in daemon mode.\n"
+                         "    -r            Enable console socket for GUI.\n"
+                         "    -db <file>    Override default path to configuration database.\n"
+                         "\nAdministration commands:\n"
+                         "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
+                         "                  more information about available configuration keys.\n"
+                         "    -v            Print version and exit.\n"
+                         "\n");
+            return 0;
+        }
     }
 
 
     QwsServerController controller;
+
+    // Don't print to std when in remote mode!
+    controller.logToStdout = !cliArgs.contains("-r");
+
     if (!controller.loadConfiguration()) {
         return 1;
     }
@@ -53,7 +59,7 @@ int main (int argc, char *argv[])
             QString confKey = itemValue.section("=", 0, 0);
             QString confValue = itemValue.section("=", 1, 1);
             if (confKey.isEmpty() || confKey.indexOf("%")>-1 ) { continue; }
-            so << app.tr("Setting configuration parameter '%1' to '%2'").arg(confKey).arg(confValue);
+            controller.qwLog(app.tr("Setting configuration parameter '%1' to '%2'").arg(confKey).arg(confValue));
             QSqlQuery query;
 
             // Delete old configuration entry
@@ -88,12 +94,16 @@ int main (int argc, char *argv[])
                          .arg(listenInterface.toString()).arg(listenPort));
 
         if (!consoleController.startConsole(listenInterface, listenPort)) {
-            controller.qwLog(app.tr("Warning: Unable to start console listener on %1:%2: %3")
+            controller.qwLog(app.tr("Fatal: Unable to start console listener on %1:%2: %3")
                              .arg(listenInterface.toString()).arg(listenPort).arg(consoleController.tcpServer()->errorString()));
+            return 1;
         }
+
+        QTextStream(stdout) << QString("+REMOTE_PORT=%1\n+REMOTE_AUTH_CODE=%2\n+REMOTE_READY\n")
+                .arg(listenPort).arg(consoleController.authSecret);
+
     }
 
-    so.flush();
     //
     //    QwTrackerClientSocket *trackerSocket = new QwTrackerClientSocket(0);
     //    trackerSocket->mode = Qw::TrackerClientSocketModeAutomatic;

@@ -2,6 +2,7 @@
 #define QWMCONSOLESOCKET_H
 
 #include "QwTransferInfo.h"
+#include "QwUser.h"
 
 #include <QTcpSocket>
 #include <QTimer>
@@ -24,6 +25,8 @@ public slots:
     void sendCommandLOG(bool logEnabled);
     void sendCommandSTATS();
     void sendCommandTRANSFERS();
+    void sendCommandABORT(QString transferId);
+    void sendCommandKICK(int userId);
 
 private slots:
     void sendCommand(QString command);
@@ -32,10 +35,12 @@ private slots:
     void handleSocketError(QAbstractSocket::SocketError error);
 
 signals:
+    void connectedToConsole();
     void commandCompleted(const QString commandName);
     void commandError(const QString commandName);
     void receivedResponseSTAT(QHash<QString,QString> data);
     void receivedResponseTRANSFERS(QList<QwTransferInfo> transfers);
+    void receivedResponseUSERS(QList<QwUser> users);
     void receivedLogMessage(const QString logMessage);
 
 private:

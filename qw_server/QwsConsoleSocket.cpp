@@ -73,13 +73,13 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         } else if (commandArg == "USERS") {
             writeLine("USERS  Lists all currently connected users, one user per line in the\n"
                       "following format:");
-            writeLine("<id>;<nickname>;<login>;<status>;<idle_secs>");
+            writeLine("<id>;<nickname>;<login>;<status>;<idle_secs>;<ip>;<hostname>");
             writeLine("+OK");
             return;
 
         } else if (commandArg == "STATS") {
             writeLine("STATS  returns some basic information about the running server manager.\n"
-                      "Values are one-per-line separated by ': '. Possible values are:\n"
+                      "Values are one-per-line separated by '='. Possible values are:\n"
                       "USERS for the number of currently connected users, TRANSFERS for the number\n"
                       "of currently active transfers, SPEED_UPLOADS and SPEED_DOWNLOADS for the\n"
                       "total speed of all up-/downloads. TOTAL_BYTES_SENT for the total amount of\n"
@@ -123,15 +123,27 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         while (i.hasNext()) {
             QwsClientTransferSocket *item = i.next();
             if (!item) { continue; }
-            writeLine(QString("R;%1;%2;%3;%4;%5;%6;%7")
-                      .arg(item->info().hash)
-                      .arg(item->info().type == Qw::TransferTypeDownload ? "D" : "U")
-                      .arg(item->info().targetUserId)
-                      .arg(item->info().file.path)
-                      .arg(item->info().bytesTransferred)
-                      .arg(item->info().file.size)
-                      .arg(item->info().currentTransferSpeed)
-                      .toUtf8());
+
+            QStringList paramItems;
+            paramItems << item->info().hash
+                    << QString(item->info().type == Qw::TransferTypeDownload ? "D" : "U")
+                    << QString::number(item->info().targetUserId)
+                    << item->info().file.path
+                    << QString::number(item->info().bytesTransferred)
+                    << QString::number(item->info().file.size)
+                    << QString::number(item->info().currentTransferSpeed);
+            paramItems.replaceInStrings(";", ":");
+            writeLine(paramItems.join(";").toUtf8());
+
+//            writeLine(QString("R;%1;%2;%3;%4;%5;%6;%7")
+//                      .arg(item->info().hash)
+//                      .arg(item->info().type == Qw::TransferTypeDownload ? "D" : "U")
+//                      .arg(item->info().targetUserId)
+//                      .arg(item->info().file.path)
+//                      .arg(item->info().bytesTransferred)
+//                      .arg(item->info().file.size)
+//                      .arg(item->info().currentTransferSpeed)
+//                      .toUtf8());
         }
 
         // Queued transfers
@@ -209,12 +221,12 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         }
 
 
-        writeLine(QString("USERS: %1\nTRANSFERS: %2\nSPEED_DOWNLOADS: %3\nSPEED_UPLOADS: %4")
+        writeLine(QString("USERS=%1\nTRANSFERS=%2\nSPEED_DOWNLOADS=%3\nSPEED_UPLOADS=%4")
                   .arg(controller->serverController->sockets.count())
                   .arg(controller->serverController->transferSockets.count())
                   .arg(speedDownloadSum).arg(speedUploadSum)
                   .toUtf8());
-        writeLine(QString("TOTAL_BYTES_SENT: %1\nTOTAL_BYTES_RECEIVED: %2")
+        writeLine(QString("TOTAL_BYTES_SENT=%1\nTOTAL_BYTES_RECEIVED=%2")
                   .arg(controller->serverController->statsTotalSent)
                   .arg(controller->serverController->statsTotalReceived)
                   .toUtf8());
@@ -231,10 +243,10 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         QwsClientSocket *user = controller->serverController->sockets.value(commandArg.toInt());
         if (!user) { return; }
 
-        writeLine(QString("ID: %1\nLOGIN: %2\nNICKNAME: %3\nSTATUS: %4\nIP: %5")
+        writeLine(QString("ID=%1\nLOGIN=%2\nNICKNAME=%3\nSTATUS=%4\nIP=%5")
                   .arg(user->user.pUserID).arg(user->user.name).arg(user->user.userNickname)
                   .arg(user->user.userStatus).arg(user->user.userIpAddress).toUtf8());
-        writeLine(QString("HOST: %1\nCLIENT_VERSION: %2\nIDLE_TIME: %3")
+        writeLine(QString("HOST=%1\nCLIENT_VERSION=%2\nIDLE_TIME=%3")
                   .arg(user->user.userHostName).arg(user->user.pClientVersion)
                   .arg(user->user.pIdleTime.secsTo(QDateTime::currentDateTime()))
                   .toUtf8());
@@ -249,13 +261,26 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         while (i.hasNext()) {
             i.next();
             QwsClientSocket *item = i.value();
-            writeLine(QString("%1;%2;%3;%4;%5")
-                      .arg(item->user.pUserID)
-                      .arg(item->user.userNickname)
-                      .arg(item->user.name)
-                      .arg(item->user.userStatus)
-                      .arg(item->user.pIdleTime.secsTo(QDateTime::currentDateTime()))
-                      .toUtf8());
+            QStringList paramItems = QStringList()
+                        << QString::number(item->user.pUserID)
+                        << item->user.userNickname
+                        << item->user.name
+                        << item->user.userStatus
+                        << QString::number(item->user.pIdleTime.secsTo(QDateTime::currentDateTime()))
+                        << item->user.userIpAddress
+                        << item->user.userHostName;
+            paramItems.replaceInStrings(";", ":");
+            writeLine(paramItems.join(";").toUtf8());
+//            ;
+//            writeLine(QString("%1;%2;%3;%4;%5;%6;%7")
+//                      .arg(item->user.pUserID)
+//                      .arg(item->user.userNickname)
+//                      .arg(item->user.name)
+//                      .arg(item->user.userStatus)
+//                      .arg(item->user.pIdleTime.secsTo(QDateTime::currentDateTime()))
+//                      .arg(item->user.userIpAddress)
+//                      .arg(item->user.userHostName)
+//                      .toUtf8());
         }
         writeLine("+OK");
 
@@ -310,7 +335,6 @@ bool QwsConsoleSocketController::startConsole(QHostAddress listenHost, int liste
     consoleServer = new QTcpServer(this);
     connect(consoleServer, SIGNAL(newConnection()),
             this, SLOT(handleNewConsoleConnection()));
-    qDebug() << "Console listening on:" << listenHost << listenPort;
     return consoleServer->listen(listenHost, listenPort);
 }
 

@@ -42,9 +42,10 @@ void QwmConsoleSocket::sendCommand(QString command)
 
 void QwmConsoleSocket::handleSocketConnected()
 {
-    qDebug() << this << "Connected to remote console. Sending AUTH.";
+    emit receivedLogMessage(tr("Connected to remote console."));
     sendCommand(QString("AUTH %1\n").arg(authSecret));
 
+    emit connectedToConsole();
 }
 
 
@@ -57,12 +58,14 @@ void QwmConsoleSocket::handleSocketError(QAbstractSocket::SocketError error)
 void QwmConsoleSocket::handleSocketReadyRead()
 {
     while (socket->canReadLine()) {
-        QString lineData = socket->readLine().trimmed();
+        QString lineData = QString::fromUtf8(socket->readLine()).trimmed();
         qDebug() << lineData;
 
         if (lineData == "+OK") {
             if (activeCommand == "AUTH") {
-                statTimer.start(5000);
+                statTimer.start(2500);
+                sendCommandSTATS();
+                sendCommandLOG(true);
 
             } else if (activeCommand == "TRANSFERS") {
                 QList<QwTransferInfo> results;
@@ -82,13 +85,30 @@ void QwmConsoleSocket::handleSocketReadyRead()
                 }
                 emit receivedResponseTRANSFERS(results);
 
+            } else if (activeCommand == "USERS") {
+                QList<QwUser> results;
+                QStringListIterator i(inputBuffer);
+                while (i.hasNext()) {
+                    QStringList itemParams = i.next().split(";");
+                    QwUser item;
+                    item.pUserID = itemParams.value(0).toInt();
+                    item.userNickname = itemParams.value(1);
+                    item.name = itemParams.value(2);
+                    item.userStatus = itemParams.value(3);
+                    item.pIdleTime = QDateTime::currentDateTime().addSecs(-itemParams.value(4).toInt());
+                    item.userIpAddress = itemParams.value(5);
+                    item.userHostName = itemParams.value(6);
+                    results.append(item);
+                }
+                emit receivedResponseUSERS(results);
+
 
             } else if (activeCommand == "STATS") {
                 QHash<QString,QString> resultHash;
                 QStringListIterator i(inputBuffer);
                 while (i.hasNext()) {
                     QString item = i.next();
-                    int separatorPos = item.indexOf(": ");
+                    int separatorPos = item.indexOf("=");
                     resultHash[item.left(separatorPos)] = item.mid(separatorPos+1);
                 }
                 emit receivedResponseSTAT(resultHash);
@@ -125,6 +145,7 @@ void QwmConsoleSocket::sendCommandSTATS()
 {
     sendCommand("STATS");
     sendCommand("TRANSFERS");
+    sendCommand("USERS");
 }
 
 
@@ -135,6 +156,18 @@ void QwmConsoleSocket::sendCommandTRANSFERS()
 {
     sendCommand("TRANSFERS");
 }
+
+
+void QwmConsoleSocket::sendCommandABORT(QString transferId)
+{
+    sendCommand("ABORT "+transferId);
+}
+
+void QwmConsoleSocket::sendCommandKICK(int userId)
+{
+    sendCommand(QString("KICK %1").arg(userId));
+}
+
 
 
 /*! LOG - Enable/Disable log messages

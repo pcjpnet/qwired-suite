@@ -94,5 +94,7 @@
         <file>icons/icn_event.png</file>
         <file>tranzlator.txt</file>
         <file>icons/16x16/system-users.png</file>
+        <file>icons/16x16/system-lock-screen.png</file>
+        <file>icons/16x16/emblem-readonly.png</file>
     </qresource>
 </RCC>
