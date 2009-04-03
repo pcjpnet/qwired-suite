@@ -59,9 +59,9 @@ void QwmMonitorController::startDaemonProcess()
 
 #ifdef Q_OS_WIN32
     command = "./qwired_server.exe";
-#elif Q_OS_LINUX
+#elif defined(Q_OS_LINUX)
     command = "./qwired_server";
-#elif Q_OS_MAC
+#elif defined(Q_OS_MAC)
     command = "../../../qwired_server";
 #endif
 
