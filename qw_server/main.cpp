@@ -5,40 +5,30 @@
 #include <iostream>
 #include <QtCore>
 #include <QSqlQuery>
-// #include "QwTrackerClientSocket.h"
+#include "QwTrackerClientSocket.h"
 
 const QString QWSERVER_VERSION("0.1.0");
 
 int main (int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-
-//    QwTrackerClientSocket *trackerSocket = new QwTrackerClientSocket(0);
-//    trackerSocket->mode = Qw::TrackerClientSocketModeAutomatic;
-//    trackerSocket->localServerInfo.name = "Test Servar";
-//    trackerSocket->localServerInfo.description = "No Comment";
-//    trackerSocket->localServerInfo.url = "wired://qwired.neo.de/";
-//    trackerSocket->connectToTracker("wired.zankasoftware.com");
-
-
-
     QStringList cliArgs = app.arguments();
     QTextStream so(stdout);
 
-    if (cliArgs.count() == 1) {
-
-        so << app.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
-        so << app.tr("Server-mode commands:\n"
-                     "    -d            Run in daemon mode.\n"
-                     "    -r            Enable console socket for GUI.\n"
-                     "    -db <file>    Override default path to configuration database.\n"
-                     "\nAdministration commands:\n"
-                     "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
-                     "                  more information about available configuration keys.\n"
-                     "    -v            Print version and exit.\n"
-                     "\n");
-        return 1;
-    }
+    //    if (cliArgs.count() == 1) {
+    //
+    //        so << app.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
+    //        so << app.tr("Server-mode commands:\n"
+    //                     "    -d            Run in daemon mode.\n"
+    //                     "    -r            Enable console socket for GUI.\n"
+    //                     "    -db <file>    Override default path to configuration database.\n"
+    //                     "\nAdministration commands:\n"
+    //                     "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
+    //                     "                  more information about available configuration keys.\n"
+    //                     "    -v            Print version and exit.\n"
+    //                     "\n");
+    //        return 1;
+    //    }
 
     // Check command line parameters
     if (cliArgs.contains("-v")) {
@@ -90,14 +80,29 @@ int main (int argc, char *argv[])
     if (cliArgs.contains("-r")) {
         consoleController.authSecret = controller.getConfigurationParam("console/secret", "").toString();
         consoleController.setServerController(&controller);
-        so << app.tr("Starting remote console socket\n");
-        if (!consoleController.startConsole(QHostAddress(controller.getConfigurationParam("console/address", "127.0.0.1").toString()),
-                               controller.getConfigurationParam("server/port", 2000).toInt()+2)) {
-            so << app.tr("Warning: Unable to open remote console!\n");
+
+        QHostAddress listenInterface(controller.getConfigurationParam("console/address", "127.0.0.1").toString());
+        quint16 listenPort = controller.getConfigurationParam("server/port", 2000).toInt()+2;
+
+        controller.qwLog(app.tr("Starting remote console listener on %1:%2...")
+                         .arg(listenInterface.toString()).arg(listenPort));
+
+        if (!consoleController.startConsole(listenInterface, listenPort)) {
+            controller.qwLog(app.tr("Warning: Unable to start console listener on %1:%2: %3")
+                             .arg(listenInterface.toString()).arg(listenPort).arg(consoleController.tcpServer()->errorString()));
         }
     }
 
     so.flush();
+    //
+    //    QwTrackerClientSocket *trackerSocket = new QwTrackerClientSocket(0);
+    //    trackerSocket->mode = Qw::TrackerClientSocketModeAutomatic;
+    //    trackerSocket->localServerInfo.name = "Test Servar";
+    //    trackerSocket->localServerInfo.description = "No Comment";
+    //    trackerSocket->localServerInfo.url = "wired://qwired.neo.de/";
+    //    trackerSocket->connectToTracker("wired.zankasoftware.com");
+
+
 
     return app.exec();
 }

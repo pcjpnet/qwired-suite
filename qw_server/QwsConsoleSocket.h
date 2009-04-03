@@ -56,6 +56,8 @@ public:
     void setServerController(QwsServerController *serverController);
     bool startConsole(QHostAddress listenHost, int listenPort);
     QPointer<QwsServerController> serverController;
+    const QTcpServer* tcpServer() const
+    { return consoleServer; }
 
 private:
     QPointer<QTcpServer> consoleServer;

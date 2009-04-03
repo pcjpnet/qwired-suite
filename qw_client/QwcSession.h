@@ -158,8 +158,6 @@ public slots:
 
     // Socket handlers
     void doHandleChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
-//    void doHandlePrivMsg(QwcUserInfo theUser, QString theMessage);
-    void doHandleBroadcast(QwcUserInfo theUser, QString theMessage);
     void doHandleUserInfo(QwcUserInfo theUser);
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
     void doCreateNewChat(int theChatID);
