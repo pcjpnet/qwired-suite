@@ -67,19 +67,19 @@ Q_DECLARE_METATYPE(Qws::SessionState);
 
 class QwsClientSocket : public QwSocket
 {
-    friend class QwsServerController;
     Q_OBJECT
+    friend class QwsServerController;
 
 public:
     QwsClientSocket(QObject *parent=0);
     ~QwsClientSocket();
 
 
+    /*! This timer is responsible for automatically setting the user as "inactive" after a certain
+        period of time. */
     QTimer *pIdleTimer;
-
     /*! This is an instace representing the user account and information for this connection. */
     QwsUser user;
-
     /*! Defines the root path of the files directory for this connection. */
     QString filesRootPath;
 		
@@ -133,9 +133,13 @@ public slots:
     void disconnectClient();
     void idleTimerTriggered();
     void resetIdleTimer();
+    void resolveHostname();
 
 
 private slots:
+
+    // TCP/IP/SSL
+    void handleHostLookupResult(QHostInfo hostInfo);
     void handleIncomingMessage(QwMessage message);
 
     // Protocol

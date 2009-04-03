@@ -154,10 +154,13 @@ bool QwsServerController::startServer()
 void QwsServerController::qwLog(QString message, Qws::LogType type)
 {
     Q_UNUSED(type);
-    QString data = QString("[%1] %2")
-                   .arg(QDateTime::currentDateTime().toString())
-                   .arg(message);
-    std::cout << data.toStdString() << std::endl;
+    QString data = QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(message);
+
+    if (logToStdout) {
+        QTextStream stream(stdout);
+        stream << data << "\n";
+    }
+
     emit serverLogMessage(message);
 }
 
@@ -171,6 +174,8 @@ void QwsServerController::acceptSessionSslConnection()
     QwsClientSocket *clientSocket = new QwsClientSocket(this);
     clientSocket->user.pUserID = ++sessionIdCounter;
     clientSocket->setSslSocket(newSocket);
+    clientSocket->user.userIpAddress = clientSocket->socket->peerAddress().toString();
+    clientSocket->resolveHostname();
 
     qwLog(tr("[%1] Accepted new transfer connection from %2")
           .arg(clientSocket->user.pUserID)

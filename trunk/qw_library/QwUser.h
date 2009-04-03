@@ -76,4 +76,6 @@ public:
 
 };
 
+Q_DECLARE_METATYPE(QwUser);
+
 #endif

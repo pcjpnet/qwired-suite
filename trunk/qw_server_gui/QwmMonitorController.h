@@ -22,6 +22,7 @@ private:
 private slots:
     void handleCommandSTAT(QHash<QString,QString> parameters);
     void handleCommandTRANSFERS(QList<QwTransferInfo> transfers);
+    void handleCommandUSERS(QList<QwUser> users);
     void handleLogMessage(const QString logMessage);
 
     // Daemon handling
@@ -35,7 +36,7 @@ public:
 
 public slots:
     void startMonitor();
-    void connectToConsole();
+//    void connectToConsole();
     void startDaemonProcess();
     void stopDaemonProcess();
 
