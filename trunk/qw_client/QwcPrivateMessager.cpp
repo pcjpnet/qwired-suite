@@ -9,7 +9,11 @@
 */
 
 #include <QtDebug>
+#include <QSettings>
+#include <QTextFrame>
+#include <QFileDialog>
 #include <QGraphicsItemAnimation>
+#include <QMessageBox>
 
 
 // Session intialization
@@ -275,7 +279,7 @@ void QwcPrivateMessager::handleUserLeft(int chatId, QwcUserInfo user)
         QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
         if (itemSession.userInfo.pUserID != user.pUserID) { continue; }
         itemSession.inactive = true;
-        itemSession.userInfo.pNick = tr("%1 [user left]").arg(itemSession.userInfo.pNick);
+        itemSession.userInfo.userNickname = tr("%1 [user left]").arg(itemSession.userInfo.userNickname);
         item->setData(Qt::UserRole, QVariant::fromValue(itemSession));
         fMessageList->update();
 

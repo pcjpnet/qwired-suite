@@ -4,6 +4,7 @@
 #include "QwcUserInfo.h"
 #include "ui_QwcPrivateMessager.h"
 #include <QWidget>
+#include <QGraphicsScene>
 
 
 /*! The session contains the QTextDocument and user information for a specific conversation (session)

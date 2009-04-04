@@ -5,7 +5,10 @@
     This is the account administration widget for the Qwired client.
 */
 
+
 #include "QwcAccountsWidget.h"
+
+#include <QMessageBox>
 
 QwcAccountsWidget::QwcAccountsWidget(QWidget *parent) : QWidget(parent)
 {
@@ -73,9 +76,9 @@ void QwcAccountsWidget::on_fList_currentItemChanged(QListWidgetItem * current, Q
 void QwcAccountsWidget::on_fBtnApply_clicked()
 {
     QwcUserInfo u;
-    u.pLogin = fName->text();
+    u.name = fName->text();
     u.pPassword = fPassword->text();
-    u.pAccountType = fType->currentIndex(); // 0=user, 1=group
+    u.userType = (Qws::UserType)fType->currentIndex(); // 0=user, 1=group
     if(fGroup->currentIndex()>0)
         u.pGroupName = fGroup->currentText();
     u.privGetUserInfo = fBasicGetUserInfo->isChecked();
@@ -99,7 +102,7 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
     u.privCannotBeKicked = fUsersNoKick->isChecked();
     u.privDownloadLimit = fLimitDown->text().toInt();
     u.privUploadLimit = fLimitUp->text().toInt();
-    if(u.pAccountType==0) {
+    if(u.userType == Qws::UserTypeAccount) {
         u.pPassword = fPassword->text();
         if(pCurrentUser.pPassword != u.pPassword)// password, changed - reencode
             u.pPassword = u.cryptedPassword();
@@ -108,7 +111,7 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
 
     if(pNewMode) {
         QListWidgetItem *newItem = new QListWidgetItem;
-        newItem->setText(u.pLogin);
+        newItem->setText(u.name);
         if(fType->currentIndex()==0) {
             emit createUser(u);
             newItem->setIcon( QIcon(":/icons/icon_account.png") );
@@ -234,14 +237,14 @@ void QwcAccountsWidget::enableGui(bool e)
 
 void QwcAccountsWidget::loadGroupSpec(QwcUserInfo u)
 {
-    fName->setText(u.pLogin);
+    fName->setText(u.name);
     enableGui(true);
     setPrivFlags(u);
 }
 
 void QwcAccountsWidget::loadUserSpec(QwcUserInfo u)
 {
-    fName->setText(u.pLogin);
+    fName->setText(u.name);
     enableGui(true);
     setPrivFlags(u);
 }
@@ -253,11 +256,11 @@ void QwcAccountsWidget::setPrivFlags(QwcUserInfo u)
     fGroupLimits->setEnabled(u.pGroupName.isEmpty());
     fGroupFiles->setEnabled(u.pGroupName.isEmpty());
     fGroupAdmin->setEnabled(u.pGroupName.isEmpty());
-    fGroup->setEnabled(u.pAccountType==0);
-    fType->setCurrentIndex(u.pAccountType);
+    fGroup->setEnabled(u.userType == Qws::UserTypeAccount);
+    fType->setCurrentIndex(u.userType);
     fType->setEnabled(false);
     fName->setEnabled(false);
-    fPassword->setEnabled(u.pAccountType==0);
+    fPassword->setEnabled(u.userType == Qws::UserTypeAccount);
     fPassword->setText(u.pPassword);
 
     fLimitDown->setText( QString::number(u.privDownloadLimit) );

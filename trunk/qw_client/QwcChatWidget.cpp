@@ -415,7 +415,7 @@ void QwcChatWidget::updateInviteMenu()
     while (i.hasNext()) {
         QwcUserInfo tmpUsr = i.next();
         if (tmpUsr.pUserID!=pSession->wiredSocket()->sessionUser.pUserID) {
-            QAction *tmpAct = pInviteMenu->addAction(tmpUsr.pNick);
+            QAction *tmpAct = pInviteMenu->addAction(tmpUsr.userNickname);
             tmpAct->setIcon(QPixmap::fromImage(tmpUsr.userImage));
             tmpAct->setData(tmpUsr.pUserID);
         }

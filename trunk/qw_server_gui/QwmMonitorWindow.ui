@@ -15,13 +15,13 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../qw_client/application.qrc">
-    <normaloff>:/icons/qwired_logo_18.png</normaloff>:/icons/qwired_logo_18.png</iconset>
+    <normaloff>:/icons/16x16/qwired-server-logo.png</normaloff>:/icons/16x16/qwired-server-logo.png</iconset>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <property name="iconSize">
       <size>
