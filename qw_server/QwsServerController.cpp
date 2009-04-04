@@ -183,20 +183,31 @@ bool QwsServerController::startServer()
 
 
 
+/*! Start a new file-indexer thread and purge the contents of the index table. Only one indexer
+    thread can run at the same time (checked internally).
+*/
+void QwsServerController::reindexFiles()
+{
+    qDebug() << this << "Starting new file indexer thread.";
+    if (!filesIndexerThread.isNull()) { return; }
+    filesIndexerThread = new QwsFileIndexerThread(this);
+    connect(filesIndexerThread, SIGNAL(logMessage(QString)),
+            this, SLOT(qwLog(QString)));
+    filesIndexerThread->filesRootPath = getConfigurationParam("files/root", "./files").toString();
+    filesIndexerThread->run();
+}
+
 
 
 /*! Write a message to the server log, or standard output, or attached GUI client.
 */
-void QwsServerController::qwLog(QString message, Qws::LogType type)
+void QwsServerController::qwLog(QString message)
 {
-    Q_UNUSED(type);
     QString data = QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(message);
-
     if (logToStdout) {
         QTextStream stream(stdout);
         stream << data << "\n";
     }
-
     emit serverLogMessage(message);
 }
 
@@ -971,7 +982,7 @@ void QwsServerController::handleMessageGET(const QwsFile file)
     transfer.file = file;
     transfer.hash = QUuid::createUuid().toString();
     transfer.type = Qw::TransferTypeDownload;
-    transfer.offset = file.offset;
+//    transfer.offset = file.offset;
     transfer.transferSpeedLimit = user->user.privDownloadSpeed;
     transfer.targetUserId = user->user.pUserID;
     transferPool->appendTransferToQueue(transfer);
@@ -998,14 +1009,15 @@ void QwsServerController::handleMessagePUT(const QwsFile file)
     transfer.file = file;
     transfer.hash = QUuid::createUuid().toString();
     transfer.type = Qw::TransferTypeUpload;
-    transfer.offset = file.offset;
+//    transfer.offset = file.offset; // the size of the existing partial file
     transfer.transferSpeedLimit = user->user.privUploadSpeed;
     transfer.targetUserId = user->user.pUserID;
     transferPool->appendTransferToQueue(transfer);
 
-    qwLog(tr("[%1] requested upload of '%2' - assigned ID '%3'.")
+    qwLog(tr("[%1] requested upload of '%2' with ID '%3'.")
           .arg(user->user.pUserID)
-          .arg(transfer.file.path).arg(transfer.hash));
+          .arg(transfer.file.path)
+          .arg(transfer.hash));
 
     checkTransferQueue(user->user.pUserID);
 }
@@ -1043,33 +1055,40 @@ void QwsServerController::checkTransferQueue(int userId)
         nextTransfer.state = Qw::TransferInfoStateWaiting;
         transferPool->appendTransferToQueue(nextTransfer);
 
+        // Notify the client of the ready transfer.
         qDebug() << this << "Sending transfer ready for transfer" << nextTransfer.hash;
         QwMessage reply("400"); // 400 - transfer ready
 
         QString effectiveFilePath = nextTransfer.file.path;
-        if (nextTransfer.type == Qw::TransferTypeUpload
-            && effectiveFilePath.endsWith(".WiredTransfer")) {
+        if (nextTransfer.type == Qw::TransferTypeUpload && effectiveFilePath.endsWith(".WiredTransfer")) {
+            // Remove the suffix so the remote client can identify the transfer properly.
+            effectiveFilePath.chop(14);
+        }
+        reply.appendArg(effectiveFilePath);
+        reply.appendArg(QString::number(nextTransfer.file.offset));
+        reply.appendArg(nextTransfer.hash);
+        socket->sendMessage(reply);
+
+    }
+
+
+    // Notify the client of re-queueing of the remaining transfers (if any)
+    int transferPosition = 1;
+    QListIterator<QwsTransferInfo> i(waitingTransfers);
+    while (i.hasNext()) {
+        QwsTransferInfo item = i.next();
+        if (item.state != Qw::TransferInfoStateQueued) { continue; }
+        QwMessage reply("401"); // 401 - transfer queued
+
+        QString effectiveFilePath = item.file.path;
+        if (item.type == Qw::TransferTypeUpload && effectiveFilePath.endsWith(".WiredTransfer")) {
+            // Remove the suffix so the remote client can identify the transfer properly.
             effectiveFilePath.chop(14);
         }
 
         reply.appendArg(effectiveFilePath);
-        reply.appendArg(QString::number(nextTransfer.offset));
-        reply.appendArg(nextTransfer.hash);
+        reply.appendArg(QString::number(transferPosition++));
         socket->sendMessage(reply);
-
-    } else {
-        // All active transfer slots are in use. We should notify the client about that state.
-        int transferPosition = 1;
-        //QList<QwsTransferInfo> queuedTransfers = transferPool->findTransfersWithUserId(userId);
-        QListIterator<QwsTransferInfo> i(waitingTransfers);
-        while (i.hasNext()) {
-            QwsTransferInfo item = i.next();
-            QwMessage reply("401"); // 401 - transfer queued
-            reply.appendArg(item.file.path);
-            reply.appendArg(QString::number(transferPosition));
-            socket->sendMessage(reply);
-            transferPosition += 1;
-        }
     }
 
 }
@@ -1089,9 +1108,9 @@ void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
     if (transferSockets.contains(socket)) {
         // Update statistics
         if (socket->info().type == Qw::TransferTypeDownload) {
-            statsTotalSent += socket->info().bytesTransferred-socket->info().offset;
+            statsTotalSent += socket->info().bytesTransferred-socket->info().file.offset;
         } else {
-            statsTotalReceived += socket->info().bytesTransferred-socket->info().offset;
+            statsTotalReceived += socket->info().bytesTransferred-socket->info().file.offset;
         }
 
         transferSockets.removeOne(socket);

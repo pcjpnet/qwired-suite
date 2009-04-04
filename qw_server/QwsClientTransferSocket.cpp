@@ -254,13 +254,13 @@ bool QwsClientTransferSocket::openLocalFile()
     if (transferInfo.type == Qw::TransferTypeDownload) {
         // We only need to read the file.
         if (fileReader.open(QIODevice::ReadOnly)) {
-            qDebug() << this << "Opened file for reading, offset" << transferInfo.offset;
-            if (!fileReader.seek(transferInfo.offset)) {
-                qDebug() << this << "Unable to seek to pos" << transferInfo.offset;
+            qDebug() << this << "Opened file for reading, offset" << transferInfo.file.offset;
+            if (!fileReader.seek(transferInfo.file.offset)) {
+                qDebug() << this << "Unable to seek to pos" << transferInfo.file.offset;
                 emit transferError(Qws::TransferSocketErrorFileOpen, transferInfo);
                 return false;
             }
-            transferInfo.bytesTransferred = transferInfo.offset;
+            transferInfo.bytesTransferred = transferInfo.file.offset;
             return true;
         } else {
             qDebug() << this << "Error: Unable to read from file:" << fileReader.error();
@@ -270,7 +270,7 @@ bool QwsClientTransferSocket::openLocalFile()
 
     } else if (transferInfo.type == Qw::TransferTypeUpload) {
        if (fileReader.open(QIODevice::Append)) {
-            qDebug() << this << "Opened file for appending, offset" << transferInfo.offset;
+            qDebug() << this << "Opened file for appending, offset" << transferInfo.file.offset;
             transferInfo.bytesTransferred = fileReader.size();
             return true;
         } else {

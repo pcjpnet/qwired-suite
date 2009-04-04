@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     QwsClientTransferSocket.cpp \
     QwsUser.cpp \
     QwsTransferPool.cpp \
-    QwsConsoleSocket.cpp
+    QwsConsoleSocket.cpp \
+    QwsFileIndexerThread.cpp
 HEADERS += QwsServerController.h \
     QwsClientSocket.h \
     QwSslTcpServer.h \
@@ -26,5 +27,6 @@ HEADERS += QwsServerController.h \
     QwsUser.h \
     QwsTransferInfo.h \
     QwsTransferPool.h \
-    QwsConsoleSocket.h
+    QwsConsoleSocket.h \
+    QwsFileIndexerThread.h
 RESOURCES += qw_server.qrc

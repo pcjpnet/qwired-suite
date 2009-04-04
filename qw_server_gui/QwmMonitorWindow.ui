@@ -139,6 +139,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnRebuildIndex">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -168,6 +171,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnRegenerateCertificate">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -197,6 +203,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnResetAdminPassword">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -226,6 +235,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnPurgeNews">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>

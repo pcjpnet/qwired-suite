@@ -30,7 +30,8 @@ QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
     pIdleTimer = new QTimer(this);
     pIdleTimer->setInterval(1000*60*10); // 10 minutes
     pIdleTimer->setSingleShot(true);
-    connect(pIdleTimer, SIGNAL(timeout()), this, SLOT(idleTimerTriggered()));
+    connect(pIdleTimer, SIGNAL(timeout()),
+            this, SLOT(idleTimerTriggered()));
 }
 
 
@@ -161,6 +162,7 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
     } else if (message.commandName == "MOVE") {        handleMessageMOVE(message);
     } else if (message.commandName == "GET") {         handleMessageGET(message);
     } else if (message.commandName == "PUT") {         handleMessagePUT(message);
+    } else if (message.commandName == "SEARCH") {      handleMessageSEARCH(message);
     }
  }
 
@@ -1055,13 +1057,11 @@ void QwsClientSocket::handleMessageMOVE(QwMessage &message)
     QwsFile sourceFile;
     sourceFile.localFilesRoot = filesRootPath;
     sourceFile.path = message.getStringArgument(0);
-
     if (!sourceFile.updateLocalPath()) {
         // Check if the file to move exists
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
-
     qDebug() << this << "Renaming source:" << sourceFile.localAbsolutePath;
 
     // Update the destination (dir or file)
@@ -1081,16 +1081,12 @@ void QwsClientSocket::handleMessageMOVE(QwMessage &message)
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
-
-     qDebug() << this << "Renaming target:" << destinationFile.localAbsolutePath;
-
-     QFile sourceItem(sourceFile.localAbsolutePath);
-     if (!sourceItem.rename(destinationFile.localAbsolutePath)) {
-         sendError(Qws::ErrorFileOrDirectoryNotFound);
-         return;
-     }
-
-
+    qDebug() << this << "Renaming target:" << destinationFile.localAbsolutePath;
+    QFile sourceItem(sourceFile.localAbsolutePath);
+    if (!sourceItem.rename(destinationFile.localAbsolutePath)) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
 }
 
 
@@ -1102,26 +1098,21 @@ void QwsClientSocket::handleMessageGET(QwMessage &message)
     targetFile.localFilesRoot = filesRootPath;
     targetFile.path = message.getStringArgument(0);
     targetFile.offset = message.getStringArgument(1).toLongLong();
-
     if (!targetFile.updateLocalPath()) {
         sendError(Qws::ErrorFileOrDirectoryNotFound);
         return;
     }
-
     emit receivedMessageGET(targetFile);
 }
 
 
 /*! PUT - Upload a file to the server
-  \todo Renaming to .WiredTransfer during transfer!
 */
 void QwsClientSocket::handleMessagePUT(QwMessage &message)
 {
     QString targetFileName = message.getStringArgument(0);
     qint64 targetFileSize = message.getStringArgument(1).toLongLong();
     QByteArray targetFileChecksum = message.getStringArgument(2).toAscii();
-
-
     qDebug() << this << "Received PUT request:" << targetFileName;
 
     QwsFile localFile;
@@ -1135,7 +1126,6 @@ void QwsClientSocket::handleMessagePUT(QwMessage &message)
     }
 
     QFileInfo targetFileInfo(localFile.localAbsolutePath);
-
     if (targetFileInfo.exists()) {
         // The file exists - abort here.
         sendError(Qws::ErrorFileOrDirectoryExists);
@@ -1155,6 +1145,7 @@ void QwsClientSocket::handleMessagePUT(QwMessage &message)
         if (targetFileInfo.exists()) {
             // Partial file exists - check if the checksum is the same.
             localFile.updateLocalChecksum();
+
             if (localFile.checksum != targetFileChecksum) {
                 qDebug() << "Checksum mismatch - local =" << localFile.checksum << "expected = " << targetFileChecksum;
                 sendError(Qws::ErrorChecksumMismatch);
@@ -1162,7 +1153,7 @@ void QwsClientSocket::handleMessagePUT(QwMessage &message)
             }
 
             // Checksums are the same - compare the file size to see what needs to be done.
-            if (localFile.size == targetFileSize) {
+            if (targetFileInfo.size() == targetFileSize) {
                 qDebug() << "File exists!";
                 sendError(Qws::ErrorFileOrDirectoryExists);
                 return;
@@ -1170,82 +1161,66 @@ void QwsClientSocket::handleMessagePUT(QwMessage &message)
 
             // At this point we have a partial file with the same checksum and a file size
             // smaller than the target file. We can resume.
-            qDebug() << this << "Resuming file:" << targetFileInfo.absoluteFilePath();
+            qDebug() << this << "Resuming file:" << targetFileInfo.absoluteFilePath()
+                    << "already got" << targetFileInfo.size() << "of" << targetFileSize;
 
-            localFile.offset = localFile.size;
+            localFile.offset = targetFileInfo.size();
             localFile.size = targetFileSize;
             localFile.checksum = targetFileChecksum;
             emit receivedMessagePUT(localFile);
 
-
         } else {
             // No partial file exists. Check if the parent directory exists and transfer the file.
-
             if (!targetFileInfo.absoluteDir().exists()) {
                 qDebug() << "Parent does not exist!";
                 sendError(Qws::ErrorFileOrDirectoryNotFound);
                 return;
             }
-
             qDebug() << this << "Receiving new file:" << targetFileInfo.absoluteFilePath();
-
             localFile.offset = 0;
             localFile.checksum = targetFileChecksum;
             localFile.size = targetFileSize;
             emit receivedMessagePUT(localFile);
-
         }
-
     }
-
-
-//    if (localFile.updateLocalPath()) {
-//        // File exists - compare the file
-//
-//        sendError(Qws::ErrorFileOrDirectoryExists);
-//
-//
-//        // Checksums are the same, size is the same - abort
-//        if (localFile.checksum == targetFileChecksum && localFile.size == targetFileSize ) {
-//            qDebug() << "File exists!";
-//            sendError(Qws::ErrorFileOrDirectoryExists);
-//            return;
-//        }
-//
-//        // Seems fine so far, let's hand off the request to the controller.
-//        localFile.offset = localFile.size;
-//        localFile.size = targetFileSize;
-//        localFile.checksum = targetFileChecksum;
-//        emit receivedMessagePUT(localFile);
-//
-//    } else {
-//        /
-//        localFile.path += ".WiredTransfer";
-//
-//        // Check if a partial file exists. If it does, check the file's checksum and size before
-//        // proceeding.
-//
-//        if (localFile.updateLocalPath()) {
-//
-//        }
-//
-//        if (!targetFileInfo.absoluteDir().exists()) {
-//            qDebug() << "Parent does not exist!";
-//            sendError(Qws::ErrorFileOrDirectoryNotFound);
-//            return;
-//        }
-//
-//        localFile.offset = 0;
-//        localFile.checksum = targetFileChecksum;
-//        localFile.size = targetFileSize;
-//        emit receivedMessagePUT(localFile);
-//    }
 }
 
+/*! SEARCH - Search for files on the server.
+*/
+void QwsClientSocket::handleMessageSEARCH(QwMessage &message)
+{
+    QString searchTerm = message.getStringArgument(0);
+    searchTerm.remove("%");
+    if (searchTerm.isEmpty()) {
+        sendMessage(QwMessage("421 Done"));
+    }
 
-/* ===================== */
-/* === PRIVATE SLOTS === */
-/* ===================== */
+    QSqlQuery query("SELECT file_dir_path, file_name, file_size "
+                    "FROM qws_files_index "
+                    "WHERE file_name LIKE :_term LIMIT 250");
+    query.bindValue(":_term", QString("%%1%").arg(searchTerm));
+    if (!query.exec()) {
+        qDebug() << this << "Unable to query database:" << query.lastError().text();
+        sendMessage(QwMessage("421 Done"));
+        return;
+    }
+
+    while (query.next()) {
+        QwMessage response("420");
+        response.appendArg(QString("%1/%2")
+                           .arg(query.value(0).toString())
+                           .arg(query.value(1).toString()));
+        response.appendArg(QString::number(Qw::FileTypeRegular));
+        response.appendArg(query.value(2).toString());
+        response.appendArg(QDateTime::currentDateTime().toString(Qt::ISODate)+"+00:00");
+        response.appendArg(QDateTime::currentDateTime().toString(Qt::ISODate)+"+00:00");
+        sendMessage(response);
+    }
+
+    // End of results
+    sendMessage(QwMessage("421 Done"));
+}
+
 
 
 /*! Send information about the server. Happens during handshake or asynchronously.
@@ -1272,7 +1247,6 @@ void QwsClientSocket::disconnectClient()
     qDebug() << this << "Called disconnectClient()";
     pSocket->disconnectFromHost();
     emit connectionLost();
-    //this->deleteLater();
 }
 
 

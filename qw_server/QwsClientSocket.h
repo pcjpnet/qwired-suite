@@ -196,6 +196,7 @@ private slots:
     void handleMessageMOVE(QwMessage &message);
     void handleMessageGET(QwMessage &message);
     void handleMessagePUT(QwMessage &message);
+    void handleMessageSEARCH(QwMessage &message);
 
     void on_socket_sslErrors(const QList<QSslError> & errors);
     void on_socket_error();

@@ -6,6 +6,7 @@ QwSslTcpServer::QwSslTcpServer(QObject *parent) : QTcpServer(parent)
     initReadBufferSize = 0;
 }
 
+
 QwSslTcpServer::~QwSslTcpServer()
 {
 }

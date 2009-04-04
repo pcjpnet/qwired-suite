@@ -77,6 +77,12 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
             writeLine("+OK");
             return;
 
+        } else if (commandArg == "SHUTDOWN") {
+            writeLine("SHUTDOWN  causes the server daemon to shut down immediately. This can be\n"
+                      "used to shut down the server remotely in emergency cases.");
+            writeLine("+OK");
+            return;
+
         } else if (commandArg == "STATS") {
             writeLine("STATS  returns some basic information about the running server manager.\n"
                       "Values are one-per-line separated by '='. Possible values are:\n"
@@ -97,6 +103,13 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
                       "<R|Q>;<id>;<type>;<user_id>;<path>;<bytes_done>;<bytes_total>;<bytes_per_sec>");
             writeLine("+OK");
             return;
+
+        } else if (commandArg == "REINDEX") {
+            writeLine("REINDEX  starts the file indexer thread on the server. The file index allows\n"
+                      "the server to quickly find files and calculate total sums. By default the\n"
+                      "file indexer is started every 24 hours.");
+            writeLine("+OK");
+            return;
         }
 
         writeLine("ABORT <id>     (admin) Abort a specific file transfer.");
@@ -105,9 +118,9 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         writeLine("LOG <1|0>      (admin) Enable/Disable live log transmission.");
         writeLine("KICK <id>      (admin) Kick a user off the server.");
         writeLine("QUIT           Close the connection.");
-//        writeLine("REINDEX        (admin) Re-index the file search database.");
+        writeLine("REINDEX        (admin) Re-index the file search database.");
 //        writeLine("RELOAD         (admin) Reload configuration from the database.");
-//        writeLine("SHUTDOWN       (admin) Shut down the server daemon.");
+        writeLine("SHUTDOWN       (admin) Shut down the server daemon.");
         writeLine("STATS          (admin) Print general statistics about the server.");
         writeLine("TRANSFERS      (admin) Print currently active and queued transfers.");
         writeLine("USER <id>      (admin) Display information about a specific user.");
@@ -177,6 +190,12 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
             }
         }
         writeLine("+ERROR");
+
+
+    } else if (commandName == "REINDEX") {
+        if (state != Qws::ConsoleSocketStateAuthenticated) { writeLine("+ERROR"); return; }
+        controller->serverController->reindexFiles();
+        writeLine("+OK");
 
 
     } else if (commandName == "AUTH") {
@@ -271,18 +290,15 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
                         << item->user.userHostName;
             paramItems.replaceInStrings(";", ":");
             writeLine(paramItems.join(";").toUtf8());
-//            ;
-//            writeLine(QString("%1;%2;%3;%4;%5;%6;%7")
-//                      .arg(item->user.pUserID)
-//                      .arg(item->user.userNickname)
-//                      .arg(item->user.name)
-//                      .arg(item->user.userStatus)
-//                      .arg(item->user.pIdleTime.secsTo(QDateTime::currentDateTime()))
-//                      .arg(item->user.userIpAddress)
-//                      .arg(item->user.userHostName)
-//                      .toUtf8());
         }
         writeLine("+OK");
+
+
+    } else if (commandName == "SHUTDOWN") {
+        if (state != Qws::ConsoleSocketStateAuthenticated) { writeLine("+ERROR"); return; }
+        writeLine("+OK");
+        qApp->quit();
+
 
     } else if (commandName == "QUIT") {
         writeLine("+OK");

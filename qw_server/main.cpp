@@ -1,8 +1,7 @@
 
 /*! \todo Make tracker registration work
-    \todo Resume bug on file transfers?
     \todo Support COMMENT and folder types, and check them in file operations
-    \todo Free disk space information is still missing
+    \todo Free disk space information is not reported in LIST requests
     \todo Banlist feature is missing
     \todo Allow configuration of server name, description, etc.
     \todo Enforce ban limits (possibly the same step as ban lists)
@@ -12,7 +11,6 @@
 
 #include "QwsServerController.h"
 #include "QwsConsoleSocket.h"
-
 
 #include <QCoreApplication>
 #include <QtDebug>
@@ -118,7 +116,6 @@ int main(int argc, char *argv[])
                 .arg(listenPort).arg(consoleController.authSecret);
 
     }
-
     //
     //    QwTrackerClientSocket *trackerSocket = new QwTrackerClientSocket(0);
     //    trackerSocket->mode = Qw::TrackerClientSocketModeAutomatic;
