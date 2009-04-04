@@ -17,6 +17,8 @@ private slots:
     void on_btnTransfersDisconnectUser_clicked();
     void on_fUsersList_itemSelectionChanged();
 
+
+
 signals:
     void requestedTransferAbort(QString transferId);
     void requestedUserKick(int userId);

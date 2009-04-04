@@ -6,7 +6,9 @@
 
 QwFile::QwFile()
 {
+    size = 0;
 }
+
 
 
 /*! Returns the base name of the file (last element of path).
@@ -32,7 +34,6 @@ void QwFile::updateLocalChecksum()
     QCryptographicHash hash(QCryptographicHash::Sha1);
     hash.addData(hashData);
     this->checksum = hash.result().toHex();
-
     qDebug() << this << "Calculated hash for file" << this->localAbsolutePath << "Bytes =" << hashData.size() << "=" << this->checksum;
 }
 

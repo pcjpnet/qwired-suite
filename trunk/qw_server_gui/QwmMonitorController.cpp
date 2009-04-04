@@ -6,6 +6,8 @@ QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
 {
     // Daemon console socket
     socket = new QwmConsoleSocket(this);
+    connect(socket, SIGNAL(commandCompleted(QString)),
+            this, SLOT(handleCommandCompleted(QString)));
     connect(socket, SIGNAL(receivedResponseSTAT(QHash<QString,QString>)),
             this, SLOT(handleCommandSTAT(QHash<QString,QString>)));
     connect(socket, SIGNAL(receivedResponseTRANSFERS(QList<QwTransferInfo>)),
@@ -43,6 +45,9 @@ void QwmMonitorController::startMonitor()
             socket, SLOT(sendCommandABORT(QString)));
     connect(monitorWindow, SIGNAL(requestedUserKick(int)),
             socket, SLOT(sendCommandKICK(int)));
+
+    connect(monitorWindow->btnRebuildIndex, SIGNAL(clicked()),
+            this, SLOT(handle_btnRebuildIndex_clicked()));
 }
 
 
@@ -84,6 +89,8 @@ void QwmMonitorController::handleDaemonStarted()
 {
     monitorWindow->btnStartServer->setEnabled(false);
     monitorWindow->btnStopServer->setEnabled(true);
+
+    monitorWindow->btnRebuildIndex->setEnabled(true);
     //QTimer::singleShot(500, this, SLOT(connectToConsole()));
     //handleLogMessage(tr("Server daemon started with PID %1.").arg(daemonProcess.pid()));
 }
@@ -95,6 +102,8 @@ void QwmMonitorController::handleDaemonFinished(int exitCode, QProcess::ExitStat
     handleLogMessage(tr("Server daemon terminated with a status of %1.").arg(exitCode));
     monitorWindow->btnStartServer->setEnabled(true);
     monitorWindow->btnStopServer->setEnabled(false);
+
+    monitorWindow->btnRebuildIndex->setEnabled(false);
     socket->resetSocket();
 }
 
@@ -103,7 +112,9 @@ void QwmMonitorController::handleDaemonFinished(int exitCode, QProcess::ExitStat
 void QwmMonitorController::handleDaemonError(QProcess::ProcessError error)
 {
     Q_UNUSED(error);
-    handleLogMessage(tr("Server daemon raised an error: %1").arg(daemonProcess.errorString()));
+
+
+    //handleLogMessage(tr("Server daemon raised an error: %1").arg(daemonProcess.errorString()));
 }
 
 
@@ -125,6 +136,13 @@ void QwmMonitorController::handleDaemonReadyReadStdout()
             // Otherwise print to the log
             handleLogMessage(lineData);
         }
+    }
+}
+
+void QwmMonitorController::handleCommandCompleted(QString command)
+{
+    if (command == "REINDEX") {
+        monitorWindow->btnRebuildIndex->setEnabled(true);
     }
 }
 
@@ -212,6 +230,12 @@ void QwmMonitorController::handleLogMessage(const QString logMessage)
     monitorWindow->fStatsLog->append(logMessage);
 }
 
+
+void QwmMonitorController::handle_btnRebuildIndex_clicked()
+{
+    monitorWindow->btnRebuildIndex->setEnabled(false);
+    socket->sendCommand("REINDEX");
+}
 
 /*! Return a human readable presentation of a information size.
 */

@@ -7,6 +7,7 @@
 
 QwsFile::QwsFile() : QwFile()
 {
+    offset = 0;
 }
 
 

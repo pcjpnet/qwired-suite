@@ -22,6 +22,8 @@ public:
     { return socket; }
 
 public slots:
+    void sendCommand(QString command);
+
     void sendCommandLOG(bool logEnabled);
     void sendCommandSTATS();
     void sendCommandTRANSFERS();
@@ -29,7 +31,7 @@ public slots:
     void sendCommandKICK(int userId);
 
 private slots:
-    void sendCommand(QString command);
+
     void handleSocketConnected();
     void handleSocketReadyRead();
     void handleSocketError(QAbstractSocket::SocketError error);

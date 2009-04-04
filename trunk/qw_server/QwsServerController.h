@@ -16,8 +16,8 @@
 #include "QwSslTcpServer.h"
 #include "QwsClientTransferSocket.h"
 #include "QwsTransferInfo.h"
-
 #include "QwsTransferPool.h"
+#include "QwsFileIndexerThread.h"
 
 namespace Qws {
     enum LogType { LogTypeInfo, LogTypeWarning, LogTypeFatal, LogTypeDebug };
@@ -32,7 +32,7 @@ public:
     QwsServerController(QObject *parent = 0);
     ~QwsServerController();
 
-    void qwLog(QString message, Qws::LogType type=Qws::LogTypeInfo);
+
 
     static bool generateNewCertificate(QString path);
 
@@ -53,7 +53,12 @@ private:
 
     QPointer<QwSslTcpServer> sessionTcpServer;
     QPointer<QwSslTcpServer> transferTcpServer;
+
     QwsTransferPool *transferPool;
+
+    /*! The pointer to the currently running indexer thread. If no thread is active, this pointer
+        will return NULL. */
+    QPointer<QwsFileIndexerThread> filesIndexerThread;
 
     /*! The list of active transfer sockets. Active transfers are not in the \a transfers list. */
     QList<QPointer<QwsClientTransferSocket> > transferSockets;
@@ -109,8 +114,11 @@ private slots:
 
 
 public slots:
+    void qwLog(QString message);
+
     bool loadConfiguration();
     bool startServer();
+    void reindexFiles();
 
 
 };

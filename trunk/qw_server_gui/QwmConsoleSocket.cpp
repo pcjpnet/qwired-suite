@@ -49,6 +49,7 @@ void QwmConsoleSocket::handleSocketConnected()
 }
 
 
+
 void QwmConsoleSocket::handleSocketError(QAbstractSocket::SocketError error)
 {
     qDebug() << this << "Socket error:" << error;

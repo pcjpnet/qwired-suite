@@ -40,3 +40,6 @@ void QwmMonitorWindow::on_btnTransfersDisconnectUser_clicked()
     QwUser info = item->data(0, Qt::UserRole).value<QwUser>();
     emit requestedUserKick(info.pUserID);
 }
+
+
+

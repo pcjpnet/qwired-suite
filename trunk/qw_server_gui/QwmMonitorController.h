@@ -20,6 +20,7 @@ private:
     QProcess daemonProcess;
 
 private slots:
+    void handleCommandCompleted(QString command);
     void handleCommandSTAT(QHash<QString,QString> parameters);
     void handleCommandTRANSFERS(QList<QwTransferInfo> transfers);
     void handleCommandUSERS(QList<QwUser> users);
@@ -30,6 +31,9 @@ private slots:
     void handleDaemonFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleDaemonError(QProcess::ProcessError error);
     void handleDaemonReadyReadStdout();
+
+    // Status
+    void handle_btnRebuildIndex_clicked();
 
 public:
     QwmMonitorController(QObject *parent=0);
