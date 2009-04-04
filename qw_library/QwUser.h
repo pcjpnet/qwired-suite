@@ -1,14 +1,15 @@
 #ifndef QWUSER_H
 #define QWUSER_H
 
+#include "QwMessage.h"
+
 #include <QHostAddress>
 #include <QDateTime>
 
-#include "QwMessage.h"
-
 
 namespace Qws {
-    enum UserType { UserTypeAccount, UserTypeGroup };
+    enum UserType { UserTypeAccount,
+                    UserTypeGroup };
 }
 
 

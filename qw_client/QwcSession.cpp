@@ -279,12 +279,12 @@ void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theT
     QwcUserInfo tmpUsr = pWiredSocket->getUserByID(theUserID); // Find the user
     if(theChat==1) {
         // Public chat
-        pMainChat->writeToChat(tmpUsr.pNick, theText, theIsAction);
+        pMainChat->writeToChat(tmpUsr.userNickname, theText, theIsAction);
 
         // Trigger the event
         QStringList tmpParams;
-        tmpParams << tmpUsr.pNick;
-        if(theIsAction) tmpParams << QString("*** %1 %2").arg(tmpUsr.pNick).arg(theText);
+        tmpParams << tmpUsr.userNickname;
+        if(theIsAction) tmpParams << QString("*** %1 %2").arg(tmpUsr.userNickname).arg(theText);
         else tmpParams << theText;
         triggerEvent("ChatReceived", tmpParams);
 
@@ -295,7 +295,7 @@ void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theT
             return;
         }
         QwcChatWidget *chat = pChats[theChat];
-        chat->writeToChat(tmpUsr.pNick, theText, theIsAction);
+        chat->writeToChat(tmpUsr.userNickname, theText, theIsAction);
 
         // Find the index on the tab panel
         int tmpIdx = pMainTabWidget->indexOf(chat);
@@ -399,7 +399,7 @@ void QwcSession::doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUse
 {
     QMessageBox messageBox(pConnWindow);
     messageBox.setWindowTitle(tr("Private Chat Invitation"));
-    messageBox.setText(tr("%1 has invited you to a private chat.\nJoin to open a separate private chat with %1.").arg(theUser.pNick) );
+    messageBox.setText(tr("%1 has invited you to a private chat.\nJoin to open a separate private chat with %1.").arg(theUser.userNickname) );
     messageBox.setIconPixmap( QPixmap(":/icons/btn_chat.png") );
     QAbstractButton *ignoreButton = messageBox.addButton(tr("Ignore"), QMessageBox::DestructiveRole);
     QAbstractButton *rejectButton = messageBox.addButton(tr("Reject"), QMessageBox::RejectRole);
@@ -459,10 +459,13 @@ void QwcSession::onSocketLoginFailed()
 /// Connect to the remote server.
 void QwcSession::onDoConnect(QString theHost, QString theLogin, QString thePassword)
 {
-    if(theLogin=="") pWiredSocket->setUserAccount("guest","");
-    else pWiredSocket->setUserAccount(theLogin,thePassword);
+    if (theLogin.isEmpty()) {
+        // Log in as guest if no login/password defined.
+        pWiredSocket->setUserAccount("guest", "");
+    } else {
+        pWiredSocket->setUserAccount(theLogin,thePassword);
+    }
     pWiredSocket->connectToWiredServer(theHost);
-    //pConnectWindow->setEnabled(false);
 }
 
 
@@ -664,23 +667,23 @@ void QwcSession::triggerEvent(QString event, QStringList params)
 void QwcSession::userJoined(int theChat, QwcUserInfo theUser)
 {
     if(theChat!=1) return;
-    triggerEvent("UserJoined", QStringList() << theUser.pNick);
+    triggerEvent("UserJoined", QStringList() << theUser.userNickname);
 }
 
 
 void QwcSession::userLeft(int theChat, QwcUserInfo theUser)
 {
     if(theChat!=1) return;
-    triggerEvent("UserLeft", QStringList() << theUser.pNick);
+    triggerEvent("UserLeft", QStringList() << theUser.userNickname);
 }
 
 
 void QwcSession::userChanged(QwcUserInfo theOld, QwcUserInfo theNew)
 {
-    if(theOld.pNick != theNew.pNick)
-        triggerEvent("UserChangedNick", QStringList() << theOld.pNick << theNew.pNick);
-    if(theOld.pStatus != theNew.pStatus)
-        triggerEvent("UserChangedStatus", QStringList() << theNew.pNick << theNew.pStatus);
+    if(theOld.userNickname != theNew.userNickname)
+        triggerEvent("UserChangedNick", QStringList() << theOld.userNickname << theNew.userNickname);
+    if(theOld.userStatus != theNew.userStatus)
+        triggerEvent("UserChangedStatus", QStringList() << theNew.userNickname << theNew.userStatus);
 }
 
 
@@ -745,11 +748,14 @@ void QwcSession::initWiredSocket()
 void QwcSession::reloadPreferences()
 {
     QSettings s;
-    if(pWiredSocket->sessionUser.pNick!=s.value("general/nickname", "Unnamed").toString())
-        pWiredSocket->setUserNick(s.value("general/nickname").toString());
 
-    if(pWiredSocket->sessionUser.pStatus!=s.value("general/status", "Qwired Newbie").toString())
+    if (pWiredSocket->sessionUser.userNickname != s.value("general/nickname", "Unnamed").toString()) {
+        pWiredSocket->setUserNick(s.value("general/nickname").toString());
+    }
+
+    if (pWiredSocket->sessionUser.userStatus != s.value("general/status", "Qwired Newbie").toString()) {
         pWiredSocket->setUserStatus(s.value("general/status").toString());
+    }
 
     QImage tmpNew = s.value("general/icon", QImage()).value<QImage>();
     pWiredSocket->setUserIcon(tmpNew);

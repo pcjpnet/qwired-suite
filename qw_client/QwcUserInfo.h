@@ -1,50 +1,21 @@
 #ifndef QWCUSERINFO_H
 #define QWCUSERINFO_H
 
-#include <QHostAddress>
-#include <QDateTime>
-#include <QtGui>
+#include "QwUser.h"
+
+#include <QImage>
 
 #include <QCryptographicHash>
 
-class QwcUserInfo
+class QwcUserInfo : public QwUser
 {
-        public:
-    QwcUserInfo()
+
+public:
+    QImage userImage;
+
+    QwcUserInfo() : QwUser()
     {
-        pUserID = 0;
-        pIdle = false;
-        pAdmin = false;
-        pIcon = 0;
-        pAccountType = 0;
-
-        // Default privs
-        privGetUserInfo = true;
-        privBroadcast = false;
-        privPostNews = true;
-        privClearNews = false;
-        privDownload = false;
-        privUpload = false;
-        privUploadAnywhere = false;
-        privCreateFolders = false;
-        privAlterFiles = false;
-        privDeleteFiles = false;
-        privViewDropboxes = false;;
-        privCreateAccounts = false;
-        privEditAccounts = false;
-        privDeleteAccounts = false;
-        privElevatePrivileges = false;
-        privKickUsers = false;
-        privBanUsers = false;
-        privCannotBeKicked = false;
-        privDownloadSpeed = 0;
-        privUploadSpeed = 0;
-        privDownloadLimit = 0;
-        privUploadLimit = 0;
-        privChangeTopic = false;
-
-    };
-
+    }
 
     QwcUserInfo(QList<QByteArray> theParams)
     {
@@ -53,33 +24,29 @@ class QwcUserInfo
         pIdle = theParams.value(2,"").toInt()==1;
         pAdmin = theParams.value(3,"").toInt()==1;
         pIcon = theParams.value(4,"").toInt();
-        pNick = QString::fromUtf8(theParams.value(5,""));
-        pLogin = QString::fromUtf8(theParams.value(6,""));
-        pIP = theParams.value(7,"");
-        pHost = theParams.value(8,"");
-        pStatus = QString::fromUtf8(theParams.value(9,""));
+        userNickname = QString::fromUtf8(theParams.value(5,""));
+        name = QString::fromUtf8(theParams.value(6,""));
+        userIpAddress = theParams.value(7,"");
+        userHostName = theParams.value(8,"");
+        userStatus = QString::fromUtf8(theParams.value(9,""));
         setImageFromData(QByteArray::fromBase64(theParams.value(10,"")));
-        pAccountType = 0;
+        userType = Qws::UserTypeAccount;
     };
-
-
-    ~QwcUserInfo()
-    { };
 
 
     // Fill parameters from a Get User Info response.
     static QwcUserInfo fromUserInfo(QList<QByteArray> theParams)
     {
         QwcUserInfo usr;
-        usr.pAccountType = 0;
+        usr.userType = Qws::UserTypeAccount;
         usr.pUserID = theParams.value(0,"").toInt();
         usr.pIdle = theParams.value(1,"").toInt()==1;
         usr.pAdmin = theParams.value(2,"").toInt()==1;
         usr.pIcon = theParams.value(3,"").toInt();
-        usr.pNick = QString::fromUtf8(theParams.value(4,""));
-        usr.pLogin = QString::fromUtf8(theParams.value(5,""));
-        usr.pIP = theParams.value(6,"");
-        usr.pHost = theParams.value(7,"");
+        usr.userNickname = QString::fromUtf8(theParams.value(4,""));
+        usr.name = QString::fromUtf8(theParams.value(5,""));
+        usr.userIpAddress = theParams.value(6,"");
+        usr.userHostName = theParams.value(7,"");
         usr.pClientVersion = QString::fromUtf8(theParams.value(8,""));
         usr.pCipherName = theParams.value(9,"");
         usr.pCipherBits = theParams.value(10,"").toInt();
@@ -87,7 +54,7 @@ class QwcUserInfo
         usr.pIdleTime = QDateTime::fromString( theParams.value(12,""), Qt::ISODate);
         usr.pDownloads = theParams.value(13,"");
         usr.pUploads = theParams.value(14,"");
-        usr.pStatus = theParams.value(15,"");
+        usr.userStatus = theParams.value(15,"");
         usr.setImageFromData(QByteArray::fromBase64(theParams.value(16,"")));
         return usr;
     };
@@ -128,7 +95,7 @@ class QwcUserInfo
     QByteArray privilegesFlags()
     {
         QByteArray tmpPrivs;
-        if((pAccountType==0 && pGroupName.isEmpty()) || pAccountType==1) {
+        if( (userType == Qws::UserTypeAccount && pGroupName.isEmpty()) || userType == Qws::UserTypeAccount) {
             tmpPrivs += QByteArray::number(privGetUserInfo); tmpPrivs += 0x1C;
             tmpPrivs += QByteArray::number(privBroadcast); tmpPrivs += 0x1C;
             tmpPrivs += QByteArray::number(privPostNews); tmpPrivs += 0x1C;
@@ -202,57 +169,6 @@ class QwcUserInfo
         return false;
     };
 
-    int pUserID;
-    bool pIdle;
-    bool pAdmin;
-    int pIcon;
-    QString pNick; // Nickname of user, or name of group.
-    QString pLogin;
-    QString pIP;
-    QString pHost;
-    QString pStatus;
-    QImage userImage;
-    //QByteArray pImage;
-
-    // Session specific
-    QString pPassword;
-
-    // Extended user info (get info)
-    QString pClientVersion;
-    QString pCipherName;
-    int pCipherBits;
-    QDateTime pLoginTime;
-    QDateTime pIdleTime;
-    QByteArray pDownloads;
-    QByteArray pUploads;
-
-    QString pGroupName; // Only in 600 User Specification
-
-    // Privileges management
-    int pAccountType; // 0 = user, 1 = group
-    bool privGetUserInfo;
-    bool privBroadcast;
-    bool privPostNews;
-    bool privClearNews;
-    bool privDownload;
-    bool privUpload;
-    bool privUploadAnywhere;
-    bool privCreateFolders;
-    bool privAlterFiles;
-    bool privDeleteFiles;
-    bool privViewDropboxes;
-    bool privCreateAccounts;
-    bool privEditAccounts;
-    bool privDeleteAccounts;
-    bool privElevatePrivileges;
-    bool privKickUsers;
-    bool privBanUsers;
-    bool privCannotBeKicked;
-    int privDownloadSpeed;
-    int privUploadSpeed;
-    int privDownloadLimit;
-    int privUploadLimit;
-    bool privChangeTopic;
 };
 
 Q_DECLARE_METATYPE(QwcUserInfo);

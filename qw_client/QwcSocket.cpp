@@ -203,7 +203,7 @@ QwcUserInfo QwcSocket::getUserByID(int theID) {
     }
 
     QwcUserInfo wu; // Fallback object
-    wu.pNick = tr("(invalid user)");
+    wu.userNickname = tr("(invalid user)");
     return wu;
 }
 
@@ -221,7 +221,7 @@ void QwcSocket::on_server_userlist_item(QList<QByteArray> theParams) {
 
 // Set the username and password for the login sequence.
 void QwcSocket::setUserAccount(QString theAcct, QString thePass) {
-    sessionUser.pLogin = theAcct;
+    sessionUser.name = theAcct;
     sessionUser.pPassword = thePass;
 }
 
@@ -233,7 +233,7 @@ void QwcSocket::setCaturday(bool b) {
         pTranzlator.clear();
         setUserIcon( QImage(":/icons/icon_happycat.png") );
         setUserStatus(tr("kittehday nait fevrar"));
-        QString tmpNick = sessionUser.pNick;
+        QString tmpNick = sessionUser.userNickname;
         tmpNick = tmpNick.replace("s","z");
         tmpNick = tmpNick.replace("e","3");
         tmpNick = tmpNick.replace("i","ie");
@@ -345,7 +345,7 @@ const QwcUserInfo QwcSocket::userByIndex(const int theChatID, const int theIndex
 
     QwcUserInfo wu; // Fallback user item
     wu.pUserID = -1;
-    wu.pNick = "(invalid user)";
+    wu.userNickname = "(invalid user)";
     return wu;
 }
 
@@ -368,8 +368,8 @@ void QwcSocket::on_server_userlist_changed(QList<QByteArray> theParams) {
                 tmpUsr.pIdle = theParams.value(1).toInt();
                 tmpUsr.pAdmin = theParams.value(2).toInt();
                 tmpUsr.pIcon = theParams.value(3).toInt();
-                tmpUsr.pNick = QString::fromUtf8( theParams.value(4) );
-                tmpUsr.pStatus = QString::fromUtf8( theParams.value(5) );
+                tmpUsr.userNickname = QString::fromUtf8( theParams.value(4) );
+                tmpUsr.userStatus = QString::fromUtf8( theParams.value(5) );
                 j.setValue(tmpUsr);
 
                 // Fire a signal, only for the main list!
@@ -418,11 +418,11 @@ void QwcSocket::on_server_userlist_joined(QList< QByteArray > theParams )
     usr.pIdle = theParams.value(2).toInt();
     usr.pAdmin = theParams.value(3).toInt();
     usr.pIcon = theParams.value(4).toInt();
-    usr.pNick = QString::fromUtf8(theParams.value(5));
-    usr.pLogin = QString::fromUtf8(theParams.value(6));
-    usr.pIP = QString::fromUtf8(theParams.value(7));
-    usr.pHost = QString::fromAscii(theParams.value(8));
-    usr.pStatus = QString::fromAscii(theParams.value(9));
+    usr.userNickname = QString::fromUtf8(theParams.value(5));
+    usr.name = QString::fromUtf8(theParams.value(6));
+    usr.userIpAddress = QString::fromUtf8(theParams.value(7));
+    usr.userHostName = QString::fromAscii(theParams.value(8));
+    usr.userStatus = QString::fromAscii(theParams.value(9));
     usr.setImageFromData(QByteArray::fromBase64(theParams.value(10)));
 
     QList<QwcUserInfo> &tmpList = pUsers[tmpChatID];
@@ -834,8 +834,8 @@ void QwcSocket::on_server_users_done() {
 
 void QwcSocket::on_server_user_spec(QList< QByteArray > theParams) {
     QwcUserInfo tmpAcct;
-    tmpAcct.pAccountType = 0;
-    tmpAcct.pLogin = QString::fromUtf8( theParams.value(0) );
+    tmpAcct.userType = Qws::UserTypeAccount;
+    tmpAcct.name = QString::fromUtf8( theParams.value(0) );
     tmpAcct.pPassword = QString::fromUtf8( theParams.value(1) );
     tmpAcct.pGroupName =  QString::fromUtf8( theParams.value(2) );
     theParams.removeFirst();
@@ -847,8 +847,8 @@ void QwcSocket::on_server_user_spec(QList< QByteArray > theParams) {
 
 void QwcSocket::on_server_group_spec(QList< QByteArray > theParams) {
     QwcUserInfo tmpAcct;
-    tmpAcct.pLogin = QString::fromUtf8( theParams.value(0) );
-    tmpAcct.pAccountType = 1;
+    tmpAcct.name = QString::fromUtf8( theParams.value(0) );
+    tmpAcct.userType = Qws::UserTypeGroup;
     theParams.removeFirst();
     tmpAcct.setFromPrivileges(theParams);
     emit groupSpecReceived(tmpAcct);
@@ -1003,25 +1003,26 @@ void QwcSocket::on_server_privileges(QList< QByteArray > theParams) {
 // Send the login sequence to the server (reponses: 201 or 510)
 void QwcSocket::do_send_user_login() {
     sendClientInfo();
-    setUserNick(sessionUser.pNick.toUtf8());
+    setUserNick(sessionUser.userNickname);
     setUserIcon(sessionUser.userImage);
-    setUserStatus(sessionUser.pStatus);
+    setUserStatus(sessionUser.userStatus);
 
     QByteArray tmpCmd;
-    tmpCmd += "USER "+sessionUser.pLogin.toUtf8(); sendWiredCommand(tmpCmd); tmpCmd.clear();
+    tmpCmd += "USER "+sessionUser.name.toUtf8(); sendWiredCommand(tmpCmd); tmpCmd.clear();
     tmpCmd += "PASS "+sessionUser.cryptedPassword().toUtf8(); sendWiredCommand(tmpCmd);
 }
 
 // Set the nickname of the current user session.
-void QwcSocket::setUserNick(QString theNick) {
-    sessionUser.pNick = theNick;
+void QwcSocket::setUserNick(QString theNick)
+{
+    sessionUser.userNickname = theNick;
     sendWiredCommand(QByteArray("NICK ")+theNick.toUtf8());
 }
 
 // Update the user status for the session
 void QwcSocket::setUserStatus(QString theStatus) {
-    sessionUser.pStatus = theStatus;
-    sendWiredCommand(QByteArray("STATUS ")+sessionUser.pStatus.toUtf8());
+    sessionUser.userStatus = theStatus;
+    sendWiredCommand(QByteArray("STATUS ")+sessionUser.userStatus.toUtf8());
 }
 
 // Reject/Decline a private chat.
@@ -1120,7 +1121,7 @@ void QwcSocket::getUsers() { sendWiredCommand("USERS"); }
 // Create a user account on the server.
 void QwcSocket::createUser(QwcUserInfo tmpUser) {
     QByteArray tmpBuf("CREATEUSER ");
-    tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
+    tmpBuf += tmpUser.name.toUtf8() + (char)kFS;
     tmpBuf += tmpUser.pPassword.toUtf8() + (char)kFS;
     tmpBuf += tmpUser.pGroupName.toUtf8() + (char)kFS;
     tmpBuf += tmpUser.privilegesFlags();
@@ -1130,7 +1131,7 @@ void QwcSocket::createUser(QwcUserInfo tmpUser) {
 // Modify a user account on the server.
 void QwcSocket::editUser(QwcUserInfo tmpUser) {
     QByteArray tmpBuf("EDITUSER ");
-    tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
+    tmpBuf += tmpUser.name.toUtf8() + (char)kFS;
     tmpBuf += tmpUser.pPassword.toUtf8() + (char)kFS;
     tmpBuf += kFS;	tmpBuf += tmpUser.pGroupName.toUtf8() + (char)kFS;
     tmpBuf += tmpUser.privilegesFlags();
@@ -1140,7 +1141,7 @@ void QwcSocket::editUser(QwcUserInfo tmpUser) {
 // Create a group on the server.
 void QwcSocket::createGroup(QwcUserInfo tmpUser) {
     QByteArray tmpBuf("CREATEGROUP ");
-    tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
+    tmpBuf += tmpUser.name.toUtf8() + (char)kFS;
     tmpBuf += tmpUser.privilegesFlags();
     sendWiredCommand(tmpBuf);
 }
@@ -1148,7 +1149,7 @@ void QwcSocket::createGroup(QwcUserInfo tmpUser) {
 // Modify a user account on the server.
 void QwcSocket::editGroup(QwcUserInfo tmpUser) {
     QByteArray tmpBuf("EDITGROUP ");
-    tmpBuf += tmpUser.pLogin.toUtf8() + (char)kFS;
+    tmpBuf += tmpUser.name.toUtf8() + (char)kFS;
     tmpBuf += tmpUser.privilegesFlags();
     sendWiredCommand(tmpBuf);
 }

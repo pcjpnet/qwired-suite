@@ -24,6 +24,8 @@ QT += gui network
 DESTDIR = ../bin/
 ICON = qwired.icns
 RC_FILE = qwired.rc
+
+LIBS += ../bin/libqwlibrary.a
 INCLUDEPATH += ../qw_library
 
 

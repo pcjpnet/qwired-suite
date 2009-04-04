@@ -35,12 +35,12 @@ QwcUserInfoWidget::~QwcUserInfoWidget()
 
 void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
 {
-	fStatus->setText( theUser.pStatus );
-	fNick->setText( theUser.pNick );
-	fLogin->setText( theUser.pLogin );
+        fStatus->setText( theUser.userStatus );
+        fNick->setText( theUser.userNickname );
+        fLogin->setText( theUser.name );
 	fID->setText( QString::number(theUser.pUserID) );
-	fAddress->setText( theUser.pIP );
-	fHost->setText( theUser.pHost );
+        fAddress->setText( theUser.userIpAddress );
+        fHost->setText( theUser.userHostName );
 	fVersion->setText( theUser.pClientVersion );
 	fCipher->setText( theUser.pCipherName+QString(" (%1 bits)").arg(theUser.pCipherBits) );
 	fLoginTime->setText( theUser.pLoginTime.toString() );
@@ -54,7 +54,7 @@ void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
 //			icon = icon.scaled(128, 128, Qt::KeepAspectRatio);
 //		fIcon->setPixmap(icon);
 //	}
-	setWindowTitle(tr("User Information: %1").arg(theUser.pNick));
+        setWindowTitle(tr("User Information: %1").arg(theUser.userNickname));
 	pUserID = theUser.pUserID;
 	setTransfers(0, theUser);
 	setTransfers(1, theUser);

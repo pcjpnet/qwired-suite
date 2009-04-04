@@ -1,3 +1,7 @@
+/*! \todo Support comments, folder types and respect them in file operations.
+
+*/
+
 
 #include <QApplication>
 #include "QwmMonitorController.h"
