@@ -48,9 +48,40 @@ public:
         user.userIpAddress = message.getStringArgument(7);
         user.userHostName = message.getStringArgument(8);
         user.userStatus = message.getStringArgument(9);
-        user.setImageFromData(message.getStringArgument(10).toAscii());
+        user.setImageFromData(QByteArray::fromBase64(message.getStringArgument(10).toAscii()));
         return user;
-    }
+    };
+
+
+    /*! Set the user privileges from a 602 privileges message.
+    */
+    void setPrivilegesFromMessage602(const QwMessage &message)
+    {
+        int n = 0;
+        privGetUserInfo = message.getStringArgument(n++).toInt();
+        privBroadcast = message.getStringArgument(n++).toInt();
+        privPostNews = message.getStringArgument(n++).toInt();
+        privClearNews = message.getStringArgument(n++).toInt();
+        privDownload = message.getStringArgument(n++).toInt();
+        privUpload = message.getStringArgument(n++).toInt();
+        privUploadAnywhere = message.getStringArgument(n++).toInt();
+        privCreateFolders = message.getStringArgument(n++).toInt();
+        privAlterFiles = message.getStringArgument(n++).toInt();
+        privDeleteFiles = message.getStringArgument(n++).toInt();
+        privViewDropboxes = message.getStringArgument(n++).toInt();
+        privCreateAccounts = message.getStringArgument(n++).toInt();
+        privEditAccounts = message.getStringArgument(n++).toInt();
+        privDeleteAccounts = message.getStringArgument(n++).toInt();
+        privElevatePrivileges = message.getStringArgument(n++).toInt();
+        privKickUsers = message.getStringArgument(n++).toInt();
+        privBanUsers = message.getStringArgument(n++).toInt();
+        privCannotBeKicked = message.getStringArgument(n++).toInt();
+        privDownloadSpeed = message.getStringArgument(n++).toInt();
+        privUploadSpeed = message.getStringArgument(n++).toInt();
+        privDownloadLimit = message.getStringArgument(n++).toInt();
+        privUploadLimit = message.getStringArgument(n++).toInt();
+        privChangeTopic = message.getStringArgument(n++).toInt();
+    };
 
 
     // Fill parameters from a Get User Info response.

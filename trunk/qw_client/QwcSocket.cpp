@@ -54,11 +54,20 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
 {
     qDebug() << this << "Received message:" << message.commandName;
     int commandId = message.commandName.toInt();
-    if (commandId == 200) {           handleMessage200(message);
-    } else if (commandId == 201) {    handleMessage201(message);
-    } else if (commandId == 203) {    handleMessage203(message);
-    } else if (commandId == 310) {    handleMessage310(message);
-    } else if (commandId == 311) {    handleMessage311(message);
+    if (commandId == 200) {           handleMessage200(message); // Login Successful
+    } else if (commandId == 201) {    handleMessage201(message); // Server Information
+    } else if (commandId == 203) {    handleMessage203(message); // Server Banner
+    } else if (commandId == 300) {    handleMessage300(message); // Chat
+    } else if (commandId == 301) {    handleMessage301(message); // Action Chat
+    } else if (commandId == 302) {    handleMessage302(message); // Client Join
+    } else if (commandId == 303) {    handleMessage303(message); // Client Leave
+    } else if (commandId == 304) {    handleMessage304(message); // Status Change
+    } else if (commandId == 306) {    handleMessage306(message); // Client Kicked
+    } else if (commandId == 307) {    handleMessage307(message); // Client Banned
+    } else if (commandId == 310) {    handleMessage310(message); // User List
+    } else if (commandId == 311) {    handleMessage311(message); // User List Done
+    } else if (commandId == 602) {    handleMessage602(message); // 602 Privileges Specification
+
     }
 }
 
@@ -109,11 +118,174 @@ void QwcSocket::handleMessage201(const QwMessage &message)
 */
 void QwcSocket::handleMessage203(const QwMessage &message)
 {
-    QPixmap banner;
-    banner.loadFromData(QByteArray::fromBase64(message.getStringArgument(0).toAscii()));
-    if (banner.isNull()) { return; }
-    pServerBanner = banner;
-    emit onServerBanner(banner);
+    pServerBanner.loadFromData(QByteArray::fromBase64(message.getStringArgument(0).toAscii()));
+    emit onServerBanner(pServerBanner);
+}
+
+
+/*! 300 Chat
+    A chat message has been posted in a room.
+*/
+void QwcSocket::handleMessage300(const QwMessage &message)
+{
+    emit receivedChatMessage(message.getStringArgument(0).toInt(),
+                             message.getStringArgument(1).toInt(),
+                             message.getStringArgument(2),
+                             false);
+}
+
+
+/*! 301 Action Chat
+    A "action" chat message has been posted in a room.
+*/
+void QwcSocket::handleMessage301(const QwMessage &message)
+{
+    emit receivedChatMessage(message.getStringArgument(0).toInt(),
+                             message.getStringArgument(1).toInt(),
+                             message.getStringArgument(2),
+                             true);
+}
+
+
+/*! 302 Client Join
+    A client has joined a room.
+*/
+void QwcSocket::handleMessage302(const QwMessage &message)
+{
+    int roomId = message.getStringArgument(0).toInt();
+    QwcUserInfo newUser = QwcUserInfo::fromMessage310(message);
+    pUsers[roomId].append(newUser);
+    emit userJoinedRoom(roomId, newUser);
+}
+
+
+/*! 303 Client Leave
+    A client has left a room.
+*/
+void QwcSocket::handleMessage303(const QwMessage &message)
+{
+    // The user left a chat or the server.
+    int roomId = message.getStringArgument(0).toInt();
+    int userId = message.getStringArgument(1).toInt();
+
+    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
+    while (i.hasNext()) {
+        i.next();
+
+        // If tmpChatID==1, the user has disconnected completely. Remove him/her form all chats, respectively.
+        if (roomId == 1 || (roomId == i.key()) ) {
+            QList<QwcUserInfo> tmpList = i.value();
+            QMutableListIterator<QwcUserInfo> j(tmpList);
+            while(j.hasNext()) {
+                QwcUserInfo tmpUsr = j.next();
+                if(tmpUsr.pUserID == userId) {
+                    j.remove();
+                    emit userLeftRoom(roomId, tmpUsr);
+                }
+            }
+            i.setValue(tmpList);
+        }
+    }
+}
+
+
+/*! 304 Status Change
+    A client has changed nickame or other parameters.
+*/
+void QwcSocket::handleMessage304(const QwMessage &message)
+{
+    int userId = message.getStringArgument(0).toInt();
+
+    // We have to run through all chats and update the user items accordingly.
+    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
+    while(i.hasNext()) {
+        i.next();
+        QList<QwcUserInfo> tmpList = i.value();
+        QMutableListIterator<QwcUserInfo> j(tmpList);
+        while(j.hasNext()) {
+            QwcUserInfo itemUser = j.next();
+            if (itemUser.pUserID == userId) {
+                QwcUserInfo newUser = itemUser;
+                newUser.pIdle = message.getStringArgument(1).toInt();
+                newUser.pAdmin = message.getStringArgument(2).toInt();
+                newUser.pIcon = message.getStringArgument(3).toInt();
+                newUser.userNickname = message.getStringArgument(4);
+                newUser.userStatus = message.getStringArgument(4);
+                j.setValue(newUser);
+
+                // Fire a signal, only for the main list!
+                if(i.key() == 1) {
+                    emit userChanged(itemUser, newUser);
+                }
+
+            }
+        }
+        i.setValue(tmpList);
+    }
+}
+
+
+/*! 305 Private Message
+    Another client has sent a private message.
+*/
+void QwcSocket::handleMessage305(const QwMessage &message)
+{
+    emit onPrivateMessage(getUserByID(message.getStringArgument(0).toInt()),
+                          message.getStringArgument(1) );
+}
+
+
+/*! 306 Client Kicked
+    A client was kicked by an administrator.
+*/
+void QwcSocket::handleMessage306(const QwMessage &message)
+{
+    QwcUserInfo victim = getUserByID(message.getStringArgument(0).toInt());
+    QwcUserInfo killer = getUserByID(message.getStringArgument(1).toInt());
+    QString reason = message.getStringArgument(2);
+
+    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
+    while(i.hasNext()) {
+        i.next();
+        QList<QwcUserInfo> tmpList = i.value();
+        QMutableListIterator<QwcUserInfo> j(tmpList);
+        while(j.hasNext()) {
+            QwcUserInfo itemUser = j.next();
+            if (itemUser.pUserID == victim.pUserID) {
+                j.remove();
+                emit userLeftRoom(i.key(), itemUser);
+            }
+        }
+        i.setValue(tmpList);
+    }
+    emit userKicked(victim, killer, reason);
+}
+
+
+/*! 307 Client Banned
+    A client was banned by an administrator.
+*/
+void QwcSocket::handleMessage307(const QwMessage &message)
+{
+    QwcUserInfo victim = getUserByID(message.getStringArgument(0).toInt());
+    QwcUserInfo killer = getUserByID(message.getStringArgument(1).toInt());
+    QString reason = message.getStringArgument(2);
+
+    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
+    while(i.hasNext()) {
+        i.next();
+        QList<QwcUserInfo> tmpList = i.value();
+        QMutableListIterator<QwcUserInfo> j(tmpList);
+        while(j.hasNext()) {
+            QwcUserInfo itemUser = j.next();
+            if (itemUser.pUserID == victim.pUserID) {
+                j.remove();
+                emit userLeftRoom(i.key(), itemUser);
+            }
+        }
+        i.setValue(tmpList);
+    }
+    emit userBanned(victim, killer, reason);
 }
 
 
@@ -126,6 +298,7 @@ void QwcSocket::handleMessage310(const QwMessage &message)
     pUsers[tmpChannel].append(QwcUserInfo::fromMessage310(message));
 }
 
+
 /*! 311 User List Done
     Received after a list of 310 messages and indicates the end of the list.
 */
@@ -135,6 +308,15 @@ void QwcSocket::handleMessage311(const QwMessage &message)
     emit receivedUserlist(tmpChannel);
 }
 
+
+/*! 602 Privileges Specification
+    Received from the server or after PRIVILEGES command.
+*/
+void QwcSocket::handleMessage602(const QwMessage &message)
+{
+    sessionUser.setPrivilegesFromMessage602(message);
+    emit receivedUserPrivileges(sessionUser);
+}
 
 /// Disconnect from the server and clean up
 void QwcSocket::disconnectFromServer() {
@@ -177,15 +359,6 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
 
     switch(tmpCmdID) {
 
-
-                case 300: emit onServerChat(tmpParams.value(0).toInt(), tmpParams.value(1).toInt(), QString::fromUtf8(tmpParams.value(2)), false); break;
-                case 301: emit onServerChat(tmpParams.value(0).toInt(), tmpParams.value(1).toInt(), tmpParams.value(2), true); break;
-                case 302: on_server_userlist_joined(tmpParams); break;
-                case 303: on_server_userlist_left(tmpParams); break;
-                case 304: on_server_userlist_changed(tmpParams); break;
-                case 305: emit onPrivateMessage(getUserByID(tmpParams.value(0).toInt()), QString::fromUtf8(tmpParams.value(1)) ); break;
-                case 306: on_server_userlist_kicked(tmpParams); break;
-                case 307: on_server_userlist_banned(tmpParams); break;
                 case 308: on_server_userinfo(tmpParams); break;
                 case 309: on_server_broadcast(tmpParams); break;
 
@@ -194,13 +367,14 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
                                       QString::fromAscii(tmpParams.value(1)),
                                       QString::fromUtf8(tmpParams.value(2)) );
                     break;
+                case 321: emit onServerNewsDone(); break;
 
                 case 322: // News Posted
                     emit onServerNewsPosted(QString::fromUtf8(tmpParams.value(0)),
                                             QString::fromAscii(tmpParams.value(1)),
                                             QString::fromUtf8(tmpParams.value(2)) );
                     break;
-                case 321: emit onServerNewsDone(); break;
+
                 case 330: on_server_new_chat_created(tmpParams); break;
                 case 331: emit onServerPrivateChatInvitation( tmpParams.value(0).toInt(), getUserByID(tmpParams.value(1).toInt()) ); break;
                 case 340: on_server_userlist_imagechanged(tmpParams); break;
@@ -250,7 +424,6 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
 
                 case 600: on_server_user_spec(tmpParams); break;
                 case 601: on_server_group_spec(tmpParams); break;
-                case 602: on_server_privileges(tmpParams); break;
                 case 610: on_server_users_listing(tmpParams); break;
                 case 611: on_server_users_done();
                 case 620: on_server_groups_listing(tmpParams); break;
@@ -429,37 +602,6 @@ const QwcUserInfo QwcSocket::userByIndex(const int theChatID, const int theIndex
 }
 
 
-
-// A user/status has changed on the server. Update the user element accordingly.
-void QwcSocket::on_server_userlist_changed(QList<QByteArray> theParams) {
-    int tmpID = theParams.value(0).toInt();
-
-    // We have to run through all chats and update the user items accordingly.
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) {
-        i.next();
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo tmpUsrOld = j.next();
-            if(tmpUsrOld.pUserID==tmpID) {
-                QwcUserInfo tmpUsr = tmpUsrOld;
-                tmpUsr.pIdle = theParams.value(1).toInt();
-                tmpUsr.pAdmin = theParams.value(2).toInt();
-                tmpUsr.pIcon = theParams.value(3).toInt();
-                tmpUsr.userNickname = QString::fromUtf8( theParams.value(4) );
-                tmpUsr.userStatus = QString::fromUtf8( theParams.value(5) );
-                j.setValue(tmpUsr);
-
-                // Fire a signal, only for the main list!
-                if(i.key()==1)
-                    emit onServerUserChanged(tmpUsrOld, tmpUsr);
-            }
-        }
-        i.setValue(tmpList);
-    }
-}
-
 void QwcSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
 {
     // A user has changed his/her user image.
@@ -480,35 +622,13 @@ void QwcSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
 
                 // Fire a signal, only for the main list!
                 if(i.key()==1)
-                    emit onServerUserChanged(tmpUsrOld, tmpUsr);
+                    emit userChanged(tmpUsrOld, tmpUsr);
             }
         }
         i.setValue(tmpList);
     }
 }
 
-void QwcSocket::on_server_userlist_joined(QList< QByteArray > theParams )
-{
-    // A user has joined the server/chat.
-    int tmpChatID = theParams.value(0).toInt();
-
-    QwcUserInfo usr;
-    usr.pUserID = theParams.value(1).toInt();
-    usr.pIdle = theParams.value(2).toInt();
-    usr.pAdmin = theParams.value(3).toInt();
-    usr.pIcon = theParams.value(4).toInt();
-    usr.userNickname = QString::fromUtf8(theParams.value(5));
-    usr.name = QString::fromUtf8(theParams.value(6));
-    usr.userIpAddress = QString::fromUtf8(theParams.value(7));
-    usr.userHostName = QString::fromAscii(theParams.value(8));
-    usr.userStatus = QString::fromAscii(theParams.value(9));
-    usr.setImageFromData(QByteArray::fromBase64(theParams.value(10)));
-
-    QList<QwcUserInfo> &tmpList = pUsers[tmpChatID];
-    tmpList.append(usr);
-
-    emit onServerUserJoined(tmpChatID, usr);
-}
 
 // Find a user by the user id and return the index.
 int QwcSocket::userIndexByID(const int theID, const int theChat) {
@@ -526,30 +646,6 @@ int QwcSocket::userIndexByID(const int theID, const int theChat) {
     return -1;
 }
 
-void QwcSocket::on_server_userlist_left(QList<QByteArray> theParams ) {
-    // The user left a chat or the server.
-    int tmpChatID = theParams.value(0).toInt();
-    int tmpUserID = theParams.value(1).toInt();
-
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) { i.next();
-        // If tmpChatID==1, the user has disconnected completely. Remove him/her form all chats, respectively.
-        if( tmpChatID==1 || (tmpChatID==i.key()) ) {
-            QList<QwcUserInfo> tmpList = i.value();
-            QMutableListIterator<QwcUserInfo> j(tmpList);
-            while(j.hasNext()) {
-                QwcUserInfo tmpUsr = j.next();
-                if(tmpUsr.pUserID==tmpUserID) {
-                    j.remove();
-                    emit onServerUserLeft(tmpChatID, tmpUsr);
-                }
-            }
-            i.setValue(tmpList);
-
-        }
-    }
-
-}
 
 void QwcSocket::sendPrivateMessage(int theUserID, QString theMessage) {
     if(pIzCaturday)
@@ -570,51 +666,7 @@ void QwcSocket::leaveChat(int theChatID) {
         pUsers.remove(theChatID);
 }
 
-void QwcSocket::on_server_userlist_kicked(QList<QByteArray> theParams) {
-    // A user got kicked from the server.
-    QwcUserInfo tmpVictim = getUserByID(theParams.value(0).toInt());
-    QwcUserInfo tmpKiller = getUserByID(theParams.value(1).toInt());
-    QString tmpReason = QString::fromUtf8(theParams.value(2));
 
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) { i.next();
-        // If tmpChatID==1, the user has disconnected completely. Remove him/her form all chats, respectively.
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo tmpUsr = j.next();
-            if(tmpUsr.pUserID==tmpVictim.pUserID) {
-                j.remove();
-                emit onServerUserLeft(i.key(), tmpUsr);
-            }
-        }
-        i.setValue(tmpList);
-    }
-    emit onServerUserKicked(tmpVictim, tmpKiller, tmpReason);
-}
-
-void QwcSocket::on_server_userlist_banned(QList<QByteArray> theParams) {
-    // A user got kicked from the server.
-    QwcUserInfo tmpVictim = getUserByID(theParams.value(0).toInt());
-    QwcUserInfo tmpKiller = getUserByID(theParams.value(1).toInt());
-    QString tmpReason = QString::fromUtf8(theParams.value(2));
-
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) { i.next();
-        // If tmpChatID==1, the user has disconnected completely. Remove him/her form all chats, respectively.
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo tmpUsr = j.next();
-            if(tmpUsr.pUserID==tmpVictim.pUserID) {
-                j.remove();
-                emit onServerUserLeft(i.key(), tmpUsr);
-            }
-        }
-        i.setValue(tmpList);
-    }
-    emit onServerUserBanned(tmpVictim, tmpKiller, tmpReason);
-}
 
 void QwcSocket::on_server_userinfo(QList<QByteArray> theParams) {
     // Received user info from the server.
@@ -1049,13 +1101,6 @@ void QwcSocket::putFile(const QString theLocalPath, const QString theRemotePath,
 
 
 
-// Handle a privileges response/info
-void QwcSocket::on_server_privileges(QList< QByteArray > theParams) {
-    qDebug() << "QwcSocket: Updating privileges on session";
-    sessionUser.setFromPrivileges(theParams);
-    emit userPrivileges(sessionUser);
-}
-
 // ///
 // /// Request Commands ///
 // ///
@@ -1123,17 +1168,20 @@ void QwcSocket::getClientInfo(int theUserID) {
     sendWiredCommand(QByteArray("INFO "+QByteArray::number(theUserID)));
 }
 
-// Send a chat message to the server.
-void QwcSocket::sendChat(int theChatID, QString theText, bool theIsAction) {
-    QByteArray buf;
-    if(pIzCaturday)
-        theText = tranzlate(theText);
 
-    if(!theIsAction) buf+="SAY "; else buf+="ME ";
-    buf += QByteArray::number(theChatID) + (char)kFS;
-    buf += theText.toUtf8();
-    sendWiredCommand(buf);
+/*! Send a chat message to the chat room with id \a theChatID.
+*/
+void QwcSocket::sendChatToRoom(int theChatID, QString theText, bool theIsAction)
+{
+    if(pIzCaturday) {
+        theText = tranzlate(theText);
+    }
+    QwMessage reply(theIsAction ? "ME" : "SAY");
+    reply.appendArg(QString::number(theChatID));
+    reply.appendArg(theText);
+    sendMessage(reply);
 }
+
 
 // Request some file information.
 void QwcSocket::statFile(const QString thePath) {

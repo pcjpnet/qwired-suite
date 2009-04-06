@@ -34,9 +34,9 @@ private:
 
 private slots:
     void onDataUpdate(int theChatID);
-    void onServerUserChanged(const QwcUserInfo theOld, const QwcUserInfo theNew);
-    void onServerUserJoined(int theChatID, const QwcUserInfo theUser);
-    void onServerUserLeft(int theChatID, const QwcUserInfo theUser);
+    void userChanged(const QwcUserInfo theOld, const QwcUserInfo theNew);
+    void userJoinedRoom(int theChatID, const QwcUserInfo theUser);
+    void userLeftRoom(int theChatID, const QwcUserInfo theUser);
     void reloadPreferences();
 
 };

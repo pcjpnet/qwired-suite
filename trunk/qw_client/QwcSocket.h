@@ -127,7 +127,7 @@ public slots:
     void readUser(QString theName);
     void rejectChat(int theChatID);
     void searchFiles(const QString theSearch);
-    void sendChat(int theChatID, QString theText, bool theIsAction);
+    void sendChatToRoom(int theChatID, QString theText, bool theIsAction);
     void sendPrivateMessage(int theUserID, QString theMessage);
     void setCaturday(bool);
     void setChatTopic(int theChatID, QString theTopic);
@@ -153,19 +153,13 @@ private slots:
     void on_socket_readyRead();
     void on_server_filelist_item(QList<QByteArray>);
     void on_server_filelist_done(QList<QByteArray>);
-    void on_server_userlist_changed(QList<QByteArray>);
     void on_server_userlist_imagechanged(QList<QByteArray>);
-    void on_server_userlist_joined(QList<QByteArray>);
-    void on_server_userlist_left(QList<QByteArray>);
-    void on_server_userlist_kicked(QList<QByteArray>);
-    void on_server_userlist_banned(QList<QByteArray>);
     void on_server_userinfo(QList<QByteArray> theParams);
     void on_server_new_chat_created(QList<QByteArray> theParams);
     void on_server_broadcast(QList<QByteArray> theParams);
     void on_server_transfer_ready(QList<QByteArray> theParams);
     void on_server_transfer_queued(QList<QByteArray> theParams);
     void on_server_file_info(QList<QByteArray> theParams);
-    void on_server_privileges(QList<QByteArray> theParams);
 
     void on_server_search_listing(QList<QByteArray> theParams);
     void on_server_search_done(QList<QByteArray> theParams);
@@ -198,14 +192,14 @@ signals:
     void onServerBanner(const QPixmap);
 
 
-    void onServerUserChanged(const QwcUserInfo theOld, const QwcUserInfo theNew);
-    void onServerUserJoined(int theChatID, const QwcUserInfo theUser);
-    void onServerUserLeft(int theChatID, const QwcUserInfo theUser);
-    void onServerUserKicked(QwcUserInfo theVictim, QwcUserInfo theKiller, QString theReason);
-    void onServerUserBanned(QwcUserInfo theVictim, QwcUserInfo theKiller, QString theReason);
+    void userChanged(const QwcUserInfo theOld, const QwcUserInfo theNew);
+    void userJoinedRoom(int theChatID, const QwcUserInfo theUser);
+    void userLeftRoom(int theChatID, const QwcUserInfo theUser);
+    void userKicked(QwcUserInfo theVictim, QwcUserInfo theKiller, QString theReason);
+    void userBanned(QwcUserInfo theVictim, QwcUserInfo theKiller, QString theReason);
     void onServerUserInfo(QwcUserInfo theUser);
 
-    void onServerChat(int theChatID, int theUserID, QString theText, bool theIsAction);
+    void receivedChatMessage(int theChatID, int theUserID, QString theText, bool theIsAction);
     void onChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
     void onPrivateMessage(QwcUserInfo theUser, QString theMessage);
     void onServerBroadcast(QwcUserInfo theUser, QString theMessage);
@@ -254,7 +248,7 @@ signals:
     void errorFileExists();
     void errorChecksumMismatch();
     void errorOccoured(int theError);
-    void userPrivileges(const QwcUserInfo theSession);
+    void receivedUserPrivileges(const QwcUserInfo theSession);
     void fileTransferSocketError(QAbstractSocket::SocketError);
 
     // TRACKER
@@ -267,8 +261,17 @@ private:
     void handleMessage200(const QwMessage &message);
     void handleMessage201(const QwMessage &message);
     void handleMessage203(const QwMessage &message);
+    void handleMessage300(const QwMessage &message);
+    void handleMessage301(const QwMessage &message);
+    void handleMessage302(const QwMessage &message);
+    void handleMessage303(const QwMessage &message);
+    void handleMessage304(const QwMessage &message);
+    void handleMessage305(const QwMessage &message);
+    void handleMessage306(const QwMessage &message);
+    void handleMessage307(const QwMessage &message);
     void handleMessage310(const QwMessage &message);
     void handleMessage311(const QwMessage &message);
+    void handleMessage602(const QwMessage &message);
 
     // Comments
     void sendMessageINFO();
