@@ -33,6 +33,25 @@ public:
         userType = Qws::UserTypeAccount;
     };
 
+    /*! Create a new user info object from objects as expected from the 310 User List message
+        and return it.
+    */
+    static QwcUserInfo fromMessage310(const QwMessage &message)
+    {
+        QwcUserInfo user;
+        user.pUserID = message.getStringArgument(1).toInt();
+        user.pIdle = message.getStringArgument(2).toInt();
+        user.pAdmin = message.getStringArgument(3).toInt();
+        user.pIcon = message.getStringArgument(4).toInt();
+        user.userNickname = message.getStringArgument(5);
+        user.name = message.getStringArgument(6);
+        user.userIpAddress = message.getStringArgument(7);
+        user.userHostName = message.getStringArgument(8);
+        user.userStatus = message.getStringArgument(9);
+        user.setImageFromData(message.getStringArgument(10).toAscii());
+        return user;
+    }
+
 
     // Fill parameters from a Get User Info response.
     static QwcUserInfo fromUserInfo(QList<QByteArray> theParams)

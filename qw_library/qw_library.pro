@@ -18,7 +18,7 @@ HEADERS += QwMessage.h \
     QwRoom.h \
     QwUser.h \
     QwTrackerClientSocket.h \
-    QwTrackerServerInfo.h \
+    QwServerInfo.h \
     QwTransferInfo.h \
     QwFile.h
 

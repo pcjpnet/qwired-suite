@@ -8,6 +8,9 @@
 #include "QwcSocket.h"
 #include "QwcTrackerServerInfo.h"
 
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+
 /**
 	@author Bastian Bense <bb@bense.de>
 */

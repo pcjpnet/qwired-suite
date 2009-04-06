@@ -24,9 +24,8 @@ QwSocket::~QwSocket()
 */
 void QwSocket::sendMessage(const QwMessage &message)
 {
-    if(!socket) {
-        return;
-    }
+    if (!socket) { return; }
+    if (!socket->isOpen()) { return; }
     QByteArray buffer;
     QDataStream stream(&buffer, QIODevice::WriteOnly);
     buffer += message.generateFrame();

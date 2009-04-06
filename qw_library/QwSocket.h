@@ -18,7 +18,6 @@
 
 class QwSocket : public QObject
 {
-
     Q_OBJECT
 
 public:

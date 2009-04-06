@@ -29,9 +29,10 @@ QwMessage::QwMessage(const QByteArray frameData)
 
 /*! Append an argument to the list of arguments of this message.
 */
-void QwMessage::appendArg(const QString data)
+QwMessage& QwMessage::appendArg(const QString data)
 {
     arguments.append(data);
+    return *this;
 }
 
 

@@ -22,7 +22,7 @@ public:
     QwMessage();
     QwMessage(const QByteArray frameData);
 
-    void appendArg(const QString data);
+    QwMessage& appendArg(const QString data);
     QString getStringArgument(int index) const;
 
     QStringList arguments;

@@ -185,7 +185,7 @@ void QwcSession::setupConnections() {
 
     connect(pWiredSocket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onLoginSuccessful()) );
 
-    connect(pWiredSocket, SIGNAL(onServerUserlistDone(int)), this, SLOT(onUserlistComplete(int)) );
+    connect(pWiredSocket, SIGNAL(receivedUserlist(int)), this, SLOT(onUserlistComplete(int)) );
 
     connect(pWiredSocket, SIGNAL(onServerUserInfo(QwcUserInfo)), this, SLOT(doHandleUserInfo(QwcUserInfo)) );
     connect(pWiredSocket, SIGNAL(onServerPrivateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
@@ -443,7 +443,7 @@ void QwcSession::onSocketServerInfo()
 {
     pConnectWindow->setStatus(tr("Connecting. Starting session..."));
     if(pConnectWindow>0) pConnectWindow->setProgressBar(1,3);
-    if(pTrayMenuItem) pTrayMenuItem->setTitle(pWiredSocket->pServerName);
+    if(pTrayMenuItem) pTrayMenuItem->setTitle(pWiredSocket->serverInfo.name);
 }
 
 
@@ -642,7 +642,7 @@ void QwcSession::triggerEvent(QString event, QStringList params)
     // Show a message in the system tray
     if(conf.value(QString("events/%1/traymsg").arg(event)).toBool()) {
         QwcSingleton *tmpS = &WSINGLETON::Instance();
-        tmpS->pTrayIcon->showMessage( pWiredSocket->pServerName, tmpMsg );
+        tmpS->pTrayIcon->showMessage( pWiredSocket->serverInfo.name, tmpMsg );
     }
 
     if(conf.contains(QString("events/%1/sound").arg(event)) ) {
@@ -792,8 +792,8 @@ void QwcSession::doActionDisconnect()
         pMainChat->resetForm();
         pConnectWindow->resetForm();
         pWiredSocket->disconnectFromServer();
-        pWiredSocket->pServerName="";
         pContainerLayout->setCurrentIndex(0); // go to connect dialog
+        pWiredSocket->serverInfo = QwServerInfo();
     }
 }
 
