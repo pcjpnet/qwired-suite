@@ -253,7 +253,7 @@ void QwcChatWidget::postChatInputText()
 {
     QString msg = fChatInput->toPlainText();
     if(msg.startsWith("/me ")) {
-        pSession->wiredSocket()->sendChat(pChatID, msg.mid(4), true);
+        pSession->wiredSocket()->sendChatToRoom(pChatID, msg.mid(4), true);
     } else if(msg.startsWith("/topic ")) {
         pSession->wiredSocket()->setChatTopic(pChatID, msg.mid(7));
     } else if(msg.startsWith("/status ")) {
@@ -268,14 +268,14 @@ void QwcChatWidget::postChatInputText()
             QProcess tmpProc;
             tmpProc.start(tmpCmd);
             if(tmpProc.waitForFinished())
-                pSession->wiredSocket()->sendChat(pChatID, tmpProc.readAllStandardOutput(), false);
+                pSession->wiredSocket()->sendChatToRoom(pChatID, tmpProc.readAllStandardOutput(), false);
         }
     } else if(msg.startsWith("/caturday")) {
         //   Caturday mode   :3
         pSession->wiredSocket()->setCaturday(true);
 
     } else {
-        pSession->wiredSocket()->sendChat(pChatID, msg, false);
+        pSession->wiredSocket()->sendChatToRoom(pChatID, msg, false);
     }
     fChatInput->clear();
 }

@@ -137,12 +137,12 @@ void QwcUserlistModel::setWiredSocket(QwcSocket *theSocket)
     if (!wiredSocket) { return; }
     connect( wiredSocket, SIGNAL(receivedUserlist(int)),
              this, SLOT(onDataUpdate(int)) );
-    connect( wiredSocket, SIGNAL(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)),
-             this, SLOT(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)) );
-    connect( wiredSocket, SIGNAL(onServerUserJoined(int, const QwcUserInfo)),
-             this, SLOT(onServerUserJoined(int, const QwcUserInfo)) );
-    connect( wiredSocket, SIGNAL(onServerUserLeft(int, const QwcUserInfo)),
-             this, SLOT(onServerUserLeft(int, const QwcUserInfo)) );
+    connect( wiredSocket, SIGNAL(userChanged(const QwcUserInfo, const QwcUserInfo)),
+             this, SLOT(userChanged(const QwcUserInfo, const QwcUserInfo)) );
+    connect( wiredSocket, SIGNAL(userJoinedRoom(int, const QwcUserInfo)),
+             this, SLOT(userJoinedRoom(int, const QwcUserInfo)) );
+    connect( wiredSocket, SIGNAL(userLeftRoom(int, const QwcUserInfo)),
+             this, SLOT(userLeftRoom(int, const QwcUserInfo)) );
 }
 
 
@@ -166,7 +166,7 @@ void QwcUserlistModel::reloadPreferences()
 
 /*! This slot is called from the socket if a user name, status or other information has changed.
 */
-void QwcUserlistModel::onServerUserChanged(const QwcUserInfo, const QwcUserInfo theNew)
+void QwcUserlistModel::userChanged(const QwcUserInfo, const QwcUserInfo theNew)
 {
     if (!wiredSocket) { return; }
     int userIndex = wiredSocket->userIndexByID(theNew.pUserID);
@@ -176,7 +176,7 @@ void QwcUserlistModel::onServerUserChanged(const QwcUserInfo, const QwcUserInfo 
 
 /*! This slot is called from the socket if a user has joined the server or a room.
 */
-void QwcUserlistModel::onServerUserJoined(int theChatID, const QwcUserInfo theUser)
+void QwcUserlistModel::userJoinedRoom(int theChatID, const QwcUserInfo theUser)
 {
     Q_UNUSED(theUser);
     if (!wiredSocket) { return; }
@@ -187,7 +187,7 @@ void QwcUserlistModel::onServerUserJoined(int theChatID, const QwcUserInfo theUs
 
 /*! This slot is called from the socket if a user has left the room/server.
 */
-void QwcUserlistModel::onServerUserLeft(int theChatID, const QwcUserInfo)
+void QwcUserlistModel::userLeftRoom(int theChatID, const QwcUserInfo)
 {
     if (!wiredSocket) { return; }
     if (theChatID != chatID) { return; }

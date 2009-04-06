@@ -173,13 +173,13 @@ void QwcSession::setupConnections() {
             pWiredSocket, SLOT(sendPrivateMessage(int,QString)));
     connect(pMainChat, SIGNAL(userDoubleClicked(const QwcUserInfo)),
             this, SLOT(showMessagerForUser(const QwcUserInfo)));
-    connect(pWiredSocket, SIGNAL(onServerUserChanged(QwcUserInfo, QwcUserInfo)),
+    connect(pWiredSocket, SIGNAL(userChanged(QwcUserInfo, QwcUserInfo)),
             privateMessager, SLOT(handleUserChanged(QwcUserInfo, QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(onServerUserLeft(int, QwcUserInfo)),
+    connect(pWiredSocket, SIGNAL(userLeftRoom(int, QwcUserInfo)),
             privateMessager, SLOT(handleUserLeft(int, QwcUserInfo)));
 
 
-    connect(pWiredSocket, SIGNAL(onServerChat(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
+    connect(pWiredSocket, SIGNAL(receivedChatMessage(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
     connect(pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
             this,   SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
 
@@ -198,12 +198,12 @@ void QwcSession::setupConnections() {
     connect(pWiredSocket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
     connect(pWiredSocket, SIGNAL(errorOccoured(int)), this, SLOT(handleErrorOccoured(int)) );
     connect(pWiredSocket, SIGNAL(errorLoginFailed()), this, SLOT(onSocketLoginFailed()) );
-    connect(pWiredSocket, SIGNAL(userPrivileges(QwcUserInfo)), this, SLOT(onSocketPrivileges(QwcUserInfo)) );
+    connect(pWiredSocket, SIGNAL(receivedUserPrivileges(QwcUserInfo)), this, SLOT(onSocketPrivileges(QwcUserInfo)) );
     connect(pWiredSocket, SIGNAL(onServerFileInfo(QwcFileInfo)), this, SLOT(onServerFileInfo(QwcFileInfo)) );
 
-    connect(pWiredSocket, SIGNAL(onServerUserJoined(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(onServerUserLeft(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(onServerUserChanged(QwcUserInfo,QwcUserInfo)), this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
+    connect(pWiredSocket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
+    connect(pWiredSocket, SIGNAL(userLeftRoom(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
+    connect(pWiredSocket, SIGNAL(userChanged(QwcUserInfo,QwcUserInfo)), this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
     connect(pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), this, SLOT(newsPosted(QString,QString,QString)) );
 
     // File transfer signals
@@ -323,7 +323,7 @@ void QwcSession::doHandleChatTopic(int theChatID, QString theNick, QString theLo
 // Handle user public chat input.
 void QwcSession::doHandlePublicChatInput(QString theText, bool theIsAction)
 {
-    pWiredSocket->sendChat(1, theText, theIsAction);
+    pWiredSocket->sendChatToRoom(1, theText, theIsAction);
 }
 
 //
