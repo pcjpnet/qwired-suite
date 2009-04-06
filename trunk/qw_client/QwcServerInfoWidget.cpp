@@ -31,17 +31,17 @@ void QwcServerInfoWidget::loadInfo(QwcSocket *socket)
 {
 	if(!socket) this->close();
 	fBanner->setPixmap(socket->pServerBanner );
-	fServerName->setText( socket->pServerName );
-	fUptime->setText( socket->pServerStartTime.toString() );
-	fDescription->setText( socket->pServerDescription );
+        fServerName->setText( socket->serverInfo.name );
+        fUptime->setText( socket->serverInfo.startTime.toString() );
+        fDescription->setText( socket->serverInfo.description );
 	fURL->setText( QString("wired://%1/").arg(socket->pSocket->peerAddress().toString() ) );
-	fFiles->setText( QString::number(socket->pServerFileCount) );
-	fSize->setText( QString("%1 GB").arg( (float)socket->pServerFileSize/1024/1024/1024 )  );
-	fVersion->setText( socket->pServerAppVersion );
-	fProtocol->setText(socket->pServerProtoVersion);
+        fFiles->setText( QString::number(socket->serverInfo.filesCount) );
+        fSize->setText( QString("%1 GB").arg( (float)socket->serverInfo.filesSize/1024/1024/1024 )  );
+        fVersion->setText( socket->serverInfo.serverVersion );
+        fProtocol->setText(socket->serverInfo.protocolVersion);
 	
 		// Protocol
-	QSsl::SslProtocol proto = socket->pSocket->protocol();
+        QSsl::SslProtocol proto = socket->pSocket->protocol();
 	QString protoname = "Unknown";
 	switch(proto){
 		case QSsl::SslV3: protoname="SSLv3"; break;

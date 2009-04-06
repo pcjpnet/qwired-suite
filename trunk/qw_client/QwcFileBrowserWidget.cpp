@@ -4,6 +4,9 @@
 #include <math.h>
 
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QInputDialog>
+
 
 QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) : QWidget(parent)
 {

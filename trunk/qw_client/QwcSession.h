@@ -2,7 +2,6 @@
 #define QWCSESSION_H
 
 #include <QObject>
-
 #include <QStackedLayout>
 
 #include "QwcChatWidget.h"
@@ -34,7 +33,6 @@ class QwcFileBrowserWidget;
 
 class QwcSession : public QObject
 {
-
     Q_OBJECT
 
 public:
@@ -83,7 +81,6 @@ public:
 
 private:
     QPointer<QwcSocket> pWiredSocket;
-
     void setupConnections();
     void setConnectionToolButtonsEnabled(bool);
 

@@ -4,6 +4,7 @@
 #include "QwcUserInfo.h"
 //#include <QtGui>
 //#include <QtCore>
+#include <QMimeData>
 
 QwcUserlistModel::QwcUserlistModel(QObject *parent) : QAbstractListModel(parent)
 {
@@ -134,7 +135,8 @@ void QwcUserlistModel::setWiredSocket(QwcSocket *theSocket)
 {
     wiredSocket = theSocket;
     if (!wiredSocket) { return; }
-    connect( wiredSocket, SIGNAL(onServerUserlistDone(int)), this, SLOT(onDataUpdate(int)) );
+    connect( wiredSocket, SIGNAL(receivedUserlist(int)),
+             this, SLOT(onDataUpdate(int)) );
     connect( wiredSocket, SIGNAL(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)),
              this, SLOT(onServerUserChanged(const QwcUserInfo, const QwcUserInfo)) );
     connect( wiredSocket, SIGNAL(onServerUserJoined(int, const QwcUserInfo)),

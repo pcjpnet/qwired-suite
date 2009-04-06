@@ -1,5 +1,7 @@
 #include "QwcTrackerlistWidget.h"
 
+#include <QSettings>
+#include <QMessageBox>
 
 QwcTrackerlistWidget::QwcTrackerlistWidget(QWidget *parent) : QWidget(parent)
 {

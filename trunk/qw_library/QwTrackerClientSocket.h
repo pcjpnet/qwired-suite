@@ -6,7 +6,7 @@
 #include <QTimer>
 
 #include "QwSocket.h"
-#include "QwTrackerServerInfo.h"
+#include "QwServerInfo.h"
 
 namespace Qw {
     enum TrackerClientSocketMode { TrackerClientSocketModeManual,
@@ -24,7 +24,7 @@ public:
     Qw::TrackerClientSocketMode mode;
 
     // Information fields when registering a server.
-    QwTrackerServerInfo localServerInfo;
+    QwServerInfo localServerInfo;
 
     // Information about the tracker
     QString trackerVersion;

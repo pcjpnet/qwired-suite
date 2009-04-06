@@ -1,6 +1,10 @@
 #include "QwcSocket.h"
 #include "QwcGlobals.h"
 
+#include <QProcess>
+#include <QBuffer>
+#include <QDirIterator>
+
 
 /*! \class QwcSocket
     \author Bastian Bense <bastibense@gmail.com>
@@ -8,29 +12,129 @@
     \brief This class implements the basic protocol and state handling for the client.
 */
 
-QwcSocket::QwcSocket(QObject *parent) : QObject(parent)
+QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
 {
-    // Initialize the socket
-    pSocket = new QSslSocket(this);
-    pSocket->setProtocol(QSsl::TlsV1);
+    connect(this, SIGNAL(messageReceived(QwMessage)),
+            this, SLOT(handleMessageReceived(QwMessage)));
+
+    // Initialize the SSL socket
+    QSslSocket *newSocket = new QSslSocket(this);
+    newSocket->setProtocol(QSsl::TlsV1);
+    newSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
+    setSslSocket(newSocket);
+
+    connect(newSocket, SIGNAL(encrypted()),
+            this, SLOT(handleSocketConnected()));
+    connect(this, SIGNAL(connectionLost()),
+            this, SLOT(handleSocketConnectionLost()));
+
+    // Set some basic information
     pClientName = "Qwired SVN";
     pClientVersion = QWIRED_VERSION;
+    pIzCaturday = false;
+
+    // Initialize the socket
+//    pSocket = new QSslSocket(this);
+
     pIndexingFiles = false;
-    connect( pSocket, SIGNAL(encrypted()), this, SLOT(on_socket_encrypted()) );
-    connect( pSocket, SIGNAL(readyRead()), this, SLOT(on_socket_readyRead()) );
-    connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>)));
-    connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-             this, SLOT(on_socket_error(QAbstractSocket::SocketError)) );
     pInvitedUserID = 0;
-    pIzCaturday = false; // :< no iz caturday?
+
+
+
+
+//    connect( pSocket, SIGNAL(readyRead()), this, SLOT(on_socket_readyRead()) );
+//    connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>)));
+//    connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+//             this, SLOT(on_socket_error(QAbstractSocket::SocketError)) );
+
 }
 
-// Called by the socket and indicates the an SSL error has occoured.
-void QwcSocket::on_socket_sslErrors(const QList<QSslError> & errors)
+
+void QwcSocket::handleMessageReceived(const QwMessage &message)
 {
-    qDebug() << "QwcSocket.on_socket_sslErrors(): "<<errors;
-    pSocket->ignoreSslErrors();
+    qDebug() << this << "Received message:" << message.commandName;
+    int commandId = message.commandName.toInt();
+    if (commandId == 200) {           handleMessage200(message);
+    } else if (commandId == 201) {    handleMessage201(message);
+    } else if (commandId == 203) {    handleMessage203(message);
+    } else if (commandId == 310) {    handleMessage310(message);
+    } else if (commandId == 311) {    handleMessage311(message);
+    }
 }
+
+
+/*! 200 Server Information
+    Received right after login and HELLO request.
+*/
+void QwcSocket::handleMessage200(const QwMessage &message)
+{
+    // Server Information
+    serverInfo.serverVersion = message.getStringArgument(0);
+    serverInfo.protocolVersion = message.getStringArgument(1);
+    serverInfo.name = message.getStringArgument(2);
+    serverInfo.description = message.getStringArgument(3);
+    serverInfo.startTime = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate);
+
+    if (serverInfo.protocolVersion == "1.1") {
+        serverInfo.filesCount = message.getStringArgument(5).toInt();
+        serverInfo.filesSize = message.getStringArgument(6).toLongLong();
+    }
+
+    // Send login sequence
+    sendMessageINFO();
+    setUserNick(sessionUser.userNickname);
+    setUserIcon(sessionUser.userImage);
+    setUserStatus(sessionUser.userStatus);
+    sendMessage(QwMessage("USER").appendArg(sessionUser.name));
+    sendMessage(QwMessage("PASS").appendArg(sessionUser.cryptedPassword()));
+    emit onServerInformation();
+}
+
+
+/*! 201 Login Succeeded
+    Received right after login succeeded and the session is active.
+*/
+void QwcSocket::handleMessage201(const QwMessage &message)
+{
+    sessionUser.pUserID = message.getStringArgument(0).toInt();
+    sendMessage(QwMessage("WHO").appendArg("1"));
+    sendMessage(QwMessage("BANNER"));
+    sendMessage(QwMessage("PRIVILEGES"));
+    emit onServerLoginSuccessful();
+}
+
+
+/*! 203 Server Banner
+    Received in response to BANNER.
+*/
+void QwcSocket::handleMessage203(const QwMessage &message)
+{
+    QPixmap banner;
+    banner.loadFromData(QByteArray::fromBase64(message.getStringArgument(0).toAscii()));
+    if (banner.isNull()) { return; }
+    pServerBanner = banner;
+    emit onServerBanner(banner);
+}
+
+
+/*! 310 User List
+    One item of the user list of a specific room. In response to WHO.
+*/
+void QwcSocket::handleMessage310(const QwMessage &message)
+{
+    int tmpChannel = message.getStringArgument(0).toInt();
+    pUsers[tmpChannel].append(QwcUserInfo::fromMessage310(message));
+}
+
+/*! 311 User List Done
+    Received after a list of 310 messages and indicates the end of the list.
+*/
+void QwcSocket::handleMessage311(const QwMessage &message)
+{
+    int tmpChannel = message.getStringArgument(0).toInt();
+    emit receivedUserlist(tmpChannel);
+}
+
 
 /// Disconnect from the server and clean up
 void QwcSocket::disconnectFromServer() {
@@ -70,37 +174,10 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
         return;
 
 
+
     switch(tmpCmdID) {
-                case 200:
-        // Server Information
-        pServerAppVersion = QString::fromUtf8(tmpParams.value(0));
-        pServerProtoVersion = QString::fromUtf8(tmpParams.value(1));
-        pServerName = QString::fromUtf8(tmpParams.value(2));
-        pServerDescription = QString::fromUtf8(tmpParams.value(3));
-        pServerStartTime = QDateTime::fromString( QString::fromUtf8(tmpParams.value(4)), Qt::ISODate );
-        if(pServerProtoVersion=="1.1" && pSocketType==Wired::QwcSocket) {
-            pServerFileCount = tmpParams.value(5).toInt();
-            pServerFileSize = tmpParams.value(6).toLongLong();
-        }
-        emit onServerInformation();
-        if(pSocketType==Wired::QwcSocket) { // Wired
-            do_send_user_login();
-        } else { // Tracker
-            tracker_request_servers();
-        }
-        qDebug() << "QwcSocket: Session established with '"<<pServerName<<"'";
-        break;
 
-                case 201: // Login successful
-                    sessionUser.pUserID = tmpParams.value(0).toInt();
-                    qDebug() << "QwcSocket: Login successful with ID"<<sessionUser.pUserID;
-                    emit onServerLoginSuccessful();
-                    do_request_user_list(1);
-                    getServerBanner();
-                    getPrivileges();
-                    break;
 
-                case 203: on_server_banner(tmpParams); break;
                 case 300: emit onServerChat(tmpParams.value(0).toInt(), tmpParams.value(1).toInt(), QString::fromUtf8(tmpParams.value(2)), false); break;
                 case 301: emit onServerChat(tmpParams.value(0).toInt(), tmpParams.value(1).toInt(), tmpParams.value(2), true); break;
                 case 302: on_server_userlist_joined(tmpParams); break;
@@ -111,8 +188,6 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
                 case 307: on_server_userlist_banned(tmpParams); break;
                 case 308: on_server_userinfo(tmpParams); break;
                 case 309: on_server_broadcast(tmpParams); break;
-                case 310: on_server_userlist_item(tmpParams); break;
-                case 311: emit onServerUserlistDone(tmpParams.value(0,"").toInt()); break;
 
                 case 320: // News Post
                     emit onServerNews(QString::fromUtf8(tmpParams.value(0)),
@@ -208,17 +283,6 @@ QwcUserInfo QwcSocket::getUserByID(int theID) {
 }
 
 
-// Called whenever a type 310 message arrives.
-// Process an incoming user list entry, append it to the list of chats.
-void QwcSocket::on_server_userlist_item(QList<QByteArray> theParams) {
-    int tmpChannel = theParams.value(0,"").toInt();
-    QwcUserInfo tmpUsr(theParams);
-    QList<QwcUserInfo> &tmpList = pUsers[tmpChannel];
-    tmpList.append(tmpUsr);
-    emit onServerUserlistItem(tmpChannel, tmpUsr);
-}
-
-
 // Set the username and password for the login sequence.
 void QwcSocket::setUserAccount(QString theAcct, QString thePass) {
     sessionUser.name = theAcct;
@@ -275,20 +339,22 @@ void QwcSocket::connectToTracker(QString theHostName, int thePort) {
 }
 
 
-// Wrapper that allows other code to tell this socket to connect to a remote server.
-void QwcSocket::connectToWiredServer(QString theHostName, int thePort) {
+/*! Attempt to establish a connection to a remote server.
+*/
+void QwcSocket::connectToWiredServer(QString hostName, int port)
+{
     QString tmpHost;
     pSocketType = Wired::QwcSocket;
     int tmpPort;
-    if( theHostName.contains(":") ) { // Has port defined
-        tmpHost = theHostName.section(":",0,0);
-        tmpPort = theHostName.section(":",1,1).toInt();
+    if( hostName.contains(":") ) { // Has port defined
+        tmpHost = hostName.section(":",0,0);
+        tmpPort = hostName.section(":",1,1).toInt();
     } else { // No port defined
-        tmpPort = thePort;
-        tmpHost = theHostName;
+        tmpPort = port;
+        tmpHost = hostName;
     }
-    qDebug() << "QwcSocket: Connecting to wired server at"<<tmpHost<<"port"<<tmpPort;
-    pSocket->connectToHostEncrypted(tmpHost, tmpPort);
+    qDebug() << this << "Connecting to wired server at"<<tmpHost<<"port"<<tmpPort;
+    socket->connectToHostEncrypted(tmpHost, tmpPort);
 }
 
 // Called by the socket once it has received some data.
@@ -305,15 +371,28 @@ void QwcSocket::on_socket_readyRead() {
     }
 }
 
-// First off, let's send the HELLO command for the handshake.
-// We will get a 200 or 511 response to this.
-void QwcSocket::on_socket_encrypted() {
-    sendWiredCommand("HELLO");
-    qDebug() << "QwcSocket: SSL/TLS connection established.";
+
+/*! The SSL connection was established. Now send the session request HELLO.
+*/
+void QwcSocket::handleSocketConnected()
+{
+    sendMessage(QwMessage("HELLO"));
 }
 
+
+/*! The connection to the server was lost.
+*/
+void QwcSocket::handleSocketConnectionLost()
+{
+    disconnectFromServer();
+    pSocket->disconnectFromHost();
+    emit onSocketError();
+}
+
+
 QwcSocket::~QwcSocket()
-{ }
+{
+}
 
 
 /**
@@ -570,16 +649,7 @@ void QwcSocket::inviteClientToChat(int theChatID, int theUserID) {
     sendWiredCommand(buf);
 }
 
-void QwcSocket::getServerBanner() { sendWiredCommand("BANNER"); }
 
-void QwcSocket::on_server_banner(QList< QByteArray > theParams) {
-    QPixmap banner;
-    banner.loadFromData( QByteArray::fromBase64(theParams.value(0)) );
-    if( !banner.isNull() ) {
-        pServerBanner = banner;
-        emit onServerBanner(banner);
-    }
-}
 
 void QwcSocket::on_server_broadcast(QList< QByteArray > theParams)
 {
@@ -607,22 +677,12 @@ void QwcSocket::setUserIcon(QImage icon)
     QBuffer imageDataBuffer(&imageData);
     imageDataBuffer.open(QIODevice::WriteOnly);
     icon.save(&imageDataBuffer, "PNG");
-    tmpCmd += "ICON 0"; // unused since 1.1
-    tmpCmd += kFS;
-    tmpCmd += imageData.toBase64();
     sessionUser.userImage = icon;
-    sendWiredCommand(tmpCmd);
-
+    sendMessage(QwMessage("ICON").appendArg("0").appendArg(imageData.toBase64()));
 }
 
 
-/// Handle a socket error and generate a signal
-void QwcSocket::on_socket_error(QAbstractSocket::SocketError error)
-{
-    disconnectFromServer();
-    pSocket->disconnectFromHost();
-    emit onSocketError(error);
-}
+
 
 
 void QwcSocket::getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally)
@@ -1000,29 +1060,21 @@ void QwcSocket::on_server_privileges(QList< QByteArray > theParams) {
 // /// Request Commands ///
 // ///
 
-// Send the login sequence to the server (reponses: 201 or 510)
-void QwcSocket::do_send_user_login() {
-    sendClientInfo();
-    setUserNick(sessionUser.userNickname);
-    setUserIcon(sessionUser.userImage);
-    setUserStatus(sessionUser.userStatus);
 
-    QByteArray tmpCmd;
-    tmpCmd += "USER "+sessionUser.name.toUtf8(); sendWiredCommand(tmpCmd); tmpCmd.clear();
-    tmpCmd += "PASS "+sessionUser.cryptedPassword().toUtf8(); sendWiredCommand(tmpCmd);
-}
-
-// Set the nickname of the current user session.
+/*! Set the current user nickname and send it to the server.
+*/
 void QwcSocket::setUserNick(QString theNick)
 {
     sessionUser.userNickname = theNick;
-    sendWiredCommand(QByteArray("NICK ")+theNick.toUtf8());
+    sendMessage(QwMessage("NICK").appendArg(theNick));
 }
 
-// Update the user status for the session
+
+/*! Set the current user status and send it to the server.
+*/
 void QwcSocket::setUserStatus(QString theStatus) {
     sessionUser.userStatus = theStatus;
-    sendWiredCommand(QByteArray("STATUS ")+sessionUser.userStatus.toUtf8());
+    sendMessage(QwMessage("STATUS").appendArg(sessionUser.userStatus));
 }
 
 // Reject/Decline a private chat.
@@ -1059,7 +1111,7 @@ void QwcSocket::do_request_user_list(int theChannel) {
 }
 
 void QwcSocket::getNews() { sendWiredCommand("NEWS"); }
-void QwcSocket::getPrivileges() { sendWiredCommand("PRIVILEGES"); }
+
 
 // Post news to the news board
 void QwcSocket::postNews(QString thePost) {
@@ -1138,54 +1190,87 @@ void QwcSocket::editUser(QwcUserInfo tmpUser) {
     sendWiredCommand(tmpBuf);
 }
 
-// Create a group on the server.
-void QwcSocket::createGroup(QwcUserInfo tmpUser) {
-    QByteArray tmpBuf("CREATEGROUP ");
-    tmpBuf += tmpUser.name.toUtf8() + (char)kFS;
-    tmpBuf += tmpUser.privilegesFlags();
-    sendWiredCommand(tmpBuf);
+
+/*! Send the CREATEGROUP command to the server. Creates a user group on the server (uses login and
+    privileges from \a user object.
+*/
+void QwcSocket::createGroup(QwcUserInfo user)
+{
+    QwMessage reply("CREATEGROUP");
+    reply.appendArg(user.name);
+    reply.appendArg(user.privilegesFlags());
+    sendMessage(reply);
 }
 
-// Modify a user account on the server.
-void QwcSocket::editGroup(QwcUserInfo tmpUser) {
-    QByteArray tmpBuf("EDITGROUP ");
-    tmpBuf += tmpUser.name.toUtf8() + (char)kFS;
-    tmpBuf += tmpUser.privilegesFlags();
-    sendWiredCommand(tmpBuf);
+
+/*! Send the EDITGROUP command to the server. Modify a group on the server (uses login and
+    privileges flags).
+*/
+void QwcSocket::editGroup(QwcUserInfo user)
+{
+    QwMessage reply("EDITGROUP");
+    reply.appendArg(user.name);
+    reply.appendArg(user.privilegesFlags());
+    sendMessage(reply);
 }
 
-void QwcSocket::deleteGroup(QString theName) {
-    sendWiredCommand(QByteArray("DELETEGROUP ")+theName.toUtf8());
+
+/*! Send the DELETEGROUP command to the server. Deletes a user group from the server.
+*/
+void QwcSocket::deleteGroup(QString theName)
+{
+    QwMessage reply("DELETEGROUP");
+    reply.appendArg(theName);
+    sendMessage(reply);
 }
 
-void QwcSocket::deleteUser(QString theName) {
-    sendWiredCommand(QByteArray("DELETEUSER ")+theName.toUtf8());
+
+/*! Send the DELETEUSER command. Deletes a user account from the database.
+*/
+void QwcSocket::deleteUser(QString theName)
+{
+    QwMessage reply("DELETEUSER");
+    reply.appendArg(theName);
+    sendMessage(reply);
 }
 
-void QwcSocket::readUser(QString theName) {
-    sendWiredCommand(QByteArray("READUSER ")+theName.toUtf8());
+
+void QwcSocket::readUser(QString theName)
+{
+    QwMessage reply("READUSER");
+    reply.appendArg(theName);
+    sendMessage(reply);
 }
 
-void QwcSocket::readGroup(QString theName) {
-    sendWiredCommand(QByteArray("READGROUP ")+theName.toUtf8());
+
+void QwcSocket::readGroup(QString theName)
+{
+    QwMessage reply("READGROUP");
+    reply.appendArg(theName);
+    sendMessage(reply);
 }
 
-void QwcSocket::tracker_request_servers() {
-    sendWiredCommand("SERVERS");
+
+void QwcSocket::tracker_request_servers()
+{
+    sendMessage(QwMessage("SERVERS"));
 }
 
 void QwcSocket::searchFiles(const QString theSearch)
 {
-    sendWiredCommand(QByteArray("SEARCH ")+theSearch.toUtf8());
+    QwMessage reply("SEARCH");
+    reply.appendArg(theSearch);
+    sendMessage(reply);
 }
 
 
-void QwcSocket::sendClientInfo()
+void QwcSocket::sendMessageINFO()
 {
     QString tmpV("%1/%2 (%3; %4; %5)");
     QString tmpOsVersion("Unknown");
     QString tmpOsName("Unknown");
     QString tmpOsArch("Unknown");
+
 #ifdef Q_WS_MAC
     tmpOsName = "Mac OS X";
     switch(QSysInfo::MacintoshVersion) {
@@ -1212,34 +1297,29 @@ void QwcSocket::sendClientInfo()
 
 #ifdef Q_OS_LINUX
     tmpOsName = "Linux";
+    tmpOsVersion = tmpOsVersion.trimmed();
     QProcess shell;
     shell.start("uname -r");
-    if(shell.waitForFinished())
+    if(shell.waitForFinished()) {
         tmpOsVersion = shell.readAllStandardOutput();
-    tmpOsVersion = tmpOsVersion.trimmed();
-
+    }
 #endif
 
 
 #ifdef __i386__
     tmpOsArch = "Intel";
 #endif
+
 #ifdef __ia64__
     tmpOsArch = "IA64";
 #endif
+
 #ifdef __powerpc__
     tmpOsArch = "PowerPC";
 #endif
 
-    QByteArray tmpBuf("CLIENT ");
-    tmpBuf += tmpV.arg(
-            pClientName,
-            pClientVersion,
-            tmpOsName,
-            tmpOsVersion,
-            tmpOsArch
-            );
-    sendWiredCommand(tmpBuf);
+    sendMessage(QwMessage("CLIENT")
+                .appendArg(tmpV.arg(pClientName, pClientVersion, tmpOsName, tmpOsVersion, tmpOsArch)));
 }
 
 // ///

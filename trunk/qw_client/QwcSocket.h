@@ -1,9 +1,12 @@
 #ifndef QWCSOCKET_H
 #define QWCSOCKET_H
 
-#include <QtGui>
-#include <QtCore>
-#include <QSslSocket>
+#include "QwSocket.h"
+#include "QwServerInfo.h"
+
+//#include <QtGui>
+//#include <QtCore>
+//#include <QSslSocket>
 
 #include "QwcUserInfo.h"
 #include "QwcFiletransferInfo.h"
@@ -11,9 +14,6 @@
 #include "QwcTrackerServerInfo.h"
 #include "QwcFiletransferSocket.h"
 
-/**
-        @author Bastian Bense <bastibense@gmail.com>
- */
 
 namespace Wired {
     enum SocketType { QwcSocket, TrackerSocket };
@@ -22,22 +22,21 @@ namespace Wired {
 const int kEOF = 0x04;
 const int kFS = 0x1C;
 
-class QwcSocket : public QObject
+class QwcSocket : public QwSocket
 {
     Q_OBJECT
 
 public:
+    QwcSocket(QObject *parent = 0);
+    ~QwcSocket();
 
-    // Server Information
-    QString pServerAppVersion;
-    QString pServerProtoVersion;
-    QString pServerName;
-    QString pServerDescription;
-    QDateTime pServerStartTime;
+    QwServerInfo serverInfo;
+
     QPixmap pServerBanner;
-    int pServerFileCount;
-    int	pServerFileSize;
+
+    /*! The name of the client (software name). */
     QString pClientName;
+    /*! The version of the client software. */
     QString pClientVersion;
 
     Wired::SocketType pSocketType;
@@ -64,10 +63,9 @@ public:
     int userIndexByID(const int theID, const int theChat=1);
     const QwcUserInfo userByIndex(const int theChatID, const int theIndex);
 
-    void connectToWiredServer(QString theHostName, int thePort=2000);
+    void connectToWiredServer(QString hostName, int port=2000);
 
-    QwcSocket(QObject *parent = 0);
-    ~QwcSocket();
+
     QPointer<QSslSocket> pSocket;
     QList<QPointer<QwcFiletransferSocket> > pTransferSockets;
 
@@ -85,9 +83,14 @@ public:
     void proceedFolderDownload(QwcFiletransferSocket *);
     void proceedFolderUpload(QwcFiletransferSocket *);
 
-        public slots:
 
+public slots:
     void disconnectSocketFromServer();
+
+
+    void createGroup(QwcUserInfo user);
+    void editGroup(QwcUserInfo user);
+    void deleteGroup(QString theName);
 
     // Wired Subsystem (not for Trackers)
     //
@@ -96,13 +99,13 @@ public:
     void clearNews();
     void createChatWithClient(int theUserID);
     void createFolder(const QString thePath);
-    void createGroup(QwcUserInfo);
+
     void createUser(QwcUserInfo);
     void deleteFile(const QString thePath);
-    void deleteGroup(QString theName);
+
     void deleteUser(QString theLogin);
     void disconnectFromServer();
-    void editGroup(QwcUserInfo);
+
     void editUser(QwcUserInfo);
     void getClientInfo(int theUserID);
     void getFile(const QString thePath, const QString theLocalPath, const bool queueLocally);
@@ -111,8 +114,6 @@ public:
     void getFileListRecusive(const QString &path);
     void getGroups();
     void getNews();
-    void getPrivileges();
-    void getServerBanner();
     void getUsers();
     void inviteClientToChat(int theChatID, int theUserID);
     void joinChat(int theChatID);
@@ -137,17 +138,21 @@ public:
     void runTransferQueue(WiredTransfer::TransferType type);
 
 
-        private slots:
+private slots:
+    void handleMessageReceived(const QwMessage &message);
+
+    // Connection
+    void handleSocketConnected();
+    void handleSocketConnectionLost();
+
+
     QList<QByteArray> GetFieldArray(QByteArray theData);
     void do_handle_wiredmessage(QByteArray);
     void do_request_user_list(int theChannel);
-    void do_send_user_login();
-    void on_socket_encrypted();
+
     void on_socket_readyRead();
-    void on_socket_sslErrors(const QList<QSslError> &errors);
     void on_server_filelist_item(QList<QByteArray>);
     void on_server_filelist_done(QList<QByteArray>);
-    void on_server_userlist_item(QList<QByteArray>);
     void on_server_userlist_changed(QList<QByteArray>);
     void on_server_userlist_imagechanged(QList<QByteArray>);
     void on_server_userlist_joined(QList<QByteArray>);
@@ -156,13 +161,12 @@ public:
     void on_server_userlist_banned(QList<QByteArray>);
     void on_server_userinfo(QList<QByteArray> theParams);
     void on_server_new_chat_created(QList<QByteArray> theParams);
-    void on_server_banner(QList<QByteArray> theParams);
     void on_server_broadcast(QList<QByteArray> theParams);
     void on_server_transfer_ready(QList<QByteArray> theParams);
     void on_server_transfer_queued(QList<QByteArray> theParams);
     void on_server_file_info(QList<QByteArray> theParams);
     void on_server_privileges(QList<QByteArray> theParams);
-    void on_socket_error(QAbstractSocket::SocketError error);
+
     void on_server_search_listing(QList<QByteArray> theParams);
     void on_server_search_done(QList<QByteArray> theParams);
     void on_server_groups_listing(QList<QByteArray> theParams);
@@ -182,15 +186,18 @@ public:
     //
     void fileTransferFileDone(const QwcFiletransferInfo);
 
-        signals:
-    void onSocketError(QAbstractSocket::SocketError);
+
+signals:
+    void receivedUserlist(int theChatID);
+
+
+    void onSocketError();
     void onServerInformation();
 
     void onServerLoginSuccessful();
     void onServerBanner(const QPixmap);
 
-    void onServerUserlistItem(int theChatID, const QwcUserInfo);
-    void onServerUserlistDone(int theChatID);
+
     void onServerUserChanged(const QwcUserInfo theOld, const QwcUserInfo theNew);
     void onServerUserJoined(int theChatID, const QwcUserInfo theUser);
     void onServerUserLeft(int theChatID, const QwcUserInfo theUser);
@@ -254,12 +261,23 @@ public:
     //
     void trackerServersReceived(QList<QwcTrackerServerInfo>);
 
+
 private:
+    // Responses
+    void handleMessage200(const QwMessage &message);
+    void handleMessage201(const QwMessage &message);
+    void handleMessage203(const QwMessage &message);
+    void handleMessage310(const QwMessage &message);
+    void handleMessage311(const QwMessage &message);
+
+    // Comments
+    void sendMessageINFO();
 
     // Tracker subsystem
     //
     void tracker_request_servers();
-    void sendClientInfo();
+
+
 
     // Buffers while receiving the list of groups and users (admin mode)
     QStringList pAdminGroups;

@@ -1,10 +1,12 @@
-#ifndef QWTRACKERSERVERINFO_H
-#define QWTRACKERSERVERINFO_H
+#ifndef QWSERVERINFO_H
+#define QWSERVERINFO_H
 
-class QwTrackerServerInfo
+#include <QDateTime>
+
+class QwServerInfo
 {
 public:
-    QwTrackerServerInfo() {
+    QwServerInfo() {
         bandwidth = 0;
         canDownload = false;
         canGuests = false;
@@ -33,6 +35,14 @@ public:
     qint64 filesCount;
     /*! The total size of all files on the server. */
     qint64 filesSize;
+
+    /*! The software release version of the server. */
+    QString serverVersion;
+    /*! The protocol version used by the server. */
+    QString protocolVersion;
+    /*! The date and time when the server was started. */
+    QDateTime startTime;
+
 
     /*! The registration hash received from the tracker server when registering our own server.
         For normal client usage this one is always empty. */
