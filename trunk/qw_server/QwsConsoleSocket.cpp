@@ -70,6 +70,15 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
             writeLine("+OK");
             return;
 
+        } else if (commandArg == "CONFIG") {
+            writeLine("CONFIG  provides commands to read and write values to and from the\n"
+                      "configuration database. The configuration database contains all relevant\n"
+                      "parameters. Data is encapsulated base64 to prevent problems with binary data.\n"
+                      "Usage:  CONFIG WRITE <key>:<value>     Write a value to the database.\n"
+                      "        CONFIG READ <key>              Read a value from the database.");
+            writeLine("+OK");
+            return;
+
         } else if (commandArg == "USERS") {
             writeLine("USERS  Lists all currently connected users, one user per line in the\n"
                       "following format:");
@@ -120,6 +129,7 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         writeLine("QUIT           Close the connection.");
         writeLine("REINDEX        (admin) Re-index the file search database.");
 //        writeLine("RELOAD         (admin) Reload configuration from the database.");
+        writeLine("CONFIG         (admin) Read and write to the configuration database.");
         writeLine("SHUTDOWN       (admin) Shut down the server daemon.");
         writeLine("STATS          (admin) Print general statistics about the server.");
         writeLine("TRANSFERS      (admin) Print currently active and queued transfers.");
@@ -250,6 +260,29 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
                   .arg(controller->serverController->statsTotalReceived)
                   .toUtf8());
         writeLine("+OK");
+
+
+    } else if (commandName == "CONFIG") {
+        if (state != Qws::ConsoleSocketStateAuthenticated) { writeLine("+ERROR"); return; }
+        QString subCommand = commandArg.section(" ", 0, 0);
+
+        if (subCommand == "READ") {
+            writeLine(controller->serverController->getConfigurationParam(
+                    commandArg.section(" ", 1, 1)).toByteArray().toBase64());
+            writeLine("+OK");
+
+        } else if (subCommand == "WRITE") {
+            QString commandPayload = commandArg.section(" ", 1, 1);
+            if (controller->serverController->setConfigurationParam(
+                    commandPayload.section(":", 0, 0),
+                    QByteArray::fromBase64(commandPayload.section(":", 1, 1).toUtf8()))) {
+                writeLine("+OK");
+            } else {
+                writeLine ("+ERROR");
+            }
+        } else {
+            writeLine("+ERROR");
+        }
 
 
     } else if (commandName == "USER") {
