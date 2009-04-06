@@ -7,7 +7,7 @@ Qwired Server is server daemon for the Wired protocol and offers pretty features
 Enjoy! :)
 
 Basti');
-CREATE TABLE qws_files (id INTEGER PRIMARY KEY AUTOINCREMENT, file_path TEXT, file_type INTEGER, file_comment TEXT);
+CREATE TABLE qws_files (id INTEGER PRIMARY KEY AUTOINCREMENT, file_path TEXT, file_name TEXT, file_type INTEGER, file_comment TEXT);
 CREATE TABLE qws_files_index (id INTEGER PRIMARY KEY AUTOINCREMENT, file_dir_path TEXT, file_name TEXT, file_size INTEGER);
 CREATE INDEX file_names ON qws_files_index (file_name);
 CREATE INDEX file_dirs ON qws_files_index (file_dir_path);

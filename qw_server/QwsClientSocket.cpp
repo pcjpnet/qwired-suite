@@ -163,6 +163,8 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
     } else if (message.commandName == "GET") {         handleMessageGET(message);
     } else if (message.commandName == "PUT") {         handleMessagePUT(message);
     } else if (message.commandName == "SEARCH") {      handleMessageSEARCH(message);
+    } else if (message.commandName == "COMMENT") {     handleMessageCOMMENT(message);
+    } else if (message.commandName == "TYPE") {        handleMessageTYPE(message);
     }
  }
 
@@ -934,6 +936,9 @@ void QwsClientSocket::handleMessageSTAT(QwMessage &message)
         return;
     }
 
+    // Try to load additional information from the database
+    targetFile.loadMetaInformation();
+
     // Send file info reply
     QwMessage reply("402");
     reply.appendArg(targetFile.path);
@@ -1028,7 +1033,7 @@ void QwsClientSocket::handleMessageDELETE(QwMessage &message)
 /*! Recursively delete a directory and its items.
 */
 void QwsClientSocket::deleteDirRecursive(QString pathToDir)
-{
+{    
     QDirIterator it(pathToDir, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         QString itemPath = it.next();
@@ -1222,6 +1227,67 @@ void QwsClientSocket::handleMessageSEARCH(QwMessage &message)
 }
 
 
+/*! COMMENT - Set a comment on a file or directory
+*/
+void QwsClientSocket::handleMessageCOMMENT(QwMessage &message)
+{
+    resetIdleTimer();
+    if (!user.privAlterFiles) { sendError(Qws::ErrorPermissionDenied); return; }
+
+    QwsFile localFile;
+    localFile.localFilesRoot = this->filesRootPath;
+    localFile.path = message.getStringArgument(0);;
+    if (!localFile.updateLocalPath(true)) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    localFile.comment = message.getStringArgument(1);
+    if (!localFile.saveMetaInformation()) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+}
+
+
+/*! TYPE - Set the type of a file (more commonly of a directory)
+*/
+void QwsClientSocket::handleMessageTYPE(QwMessage &message)
+{
+    resetIdleTimer();
+    if (!user.privAlterFiles) { sendError(Qws::ErrorPermissionDenied); return; }
+
+    Qw::FileType targetType = (Qw::FileType)message.getStringArgument(1).toInt();
+
+    QwsFile localFile;
+    localFile.localFilesRoot = this->filesRootPath;
+    localFile.path = message.getStringArgument(0);;
+    if (!localFile.updateLocalPath(true)) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    QFileInfo targetInfo(localFile.localAbsolutePath);
+    if (!targetInfo.isDir()) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+
+    // Check if type is valid
+    if (targetType < 0 || targetType > 3) {
+        sendError(Qws::ErrorSyntaxError);
+        return;
+    }
+
+    localFile.loadMetaInformation();
+    localFile.type = targetType;
+    if (!localFile.saveMetaInformation()) {
+        sendError(Qws::ErrorFileOrDirectoryNotFound);
+        return;
+    }
+}
+
+
 
 /*! Send information about the server. Happens during handshake or asynchronously.
 */
@@ -1229,7 +1295,7 @@ void QwsClientSocket::sendServerInfo()
 {
      QwMessage response("200");
      response.appendArg("1.0"); // app-version
-     response.appendArg("1.1"); // proto-version
+     response.appendArg("3.0"); // proto-version
      response.appendArg("Qwired Server");
      response.appendArg("A very early Qwired Server build.");
      response.appendArg(""); // start time
@@ -1237,7 +1303,6 @@ void QwsClientSocket::sendServerInfo()
      response.appendArg("1024"); // total size
      sendMessage(response);
 }
-
 
 
 /*! The client needs to be removed from the server. Delete the socket and this object.

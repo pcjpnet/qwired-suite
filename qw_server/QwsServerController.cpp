@@ -108,6 +108,33 @@ QVariant QwsServerController::getConfigurationParam(const QString key, const QVa
 }
 
 
+/*! Write a configuration parameter to the database. If the configuration parameter already exists,
+    it is automatically overwritten. Otherwise it is created.
+*/
+bool QwsServerController::setConfigurationParam(const QString key, const QVariant value)
+{
+    QSqlQuery query;
+    query.prepare("DELETE FROM qws_config WHERE conf_key = :_key");
+    query.bindValue(":_key", key);
+    if (!query.exec()) {
+        qDebug() << this << "Unable to delete configuration parameter from database:" << query.lastError().text();
+        return false;
+    }
+
+    query.clear();
+    query.prepare("INSERT INTO qws_config (conf_key, conf_value) "
+                  "VALUES (:_key, :_value)");
+    query.bindValue(":_key", key);
+    query.bindValue(":_value", value);
+
+    if (!query.exec()) {
+        qDebug() << this << "Unable to write configuration parameter to database:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}
+
+
 /*! Returns the active transfers identified by \a userId.
 */
 QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int userId)

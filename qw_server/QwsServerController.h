@@ -38,6 +38,7 @@ public:
 
     // Database access/configuration
     QVariant getConfigurationParam(const QString key, const QVariant defaultValue=QVariant());
+    bool setConfigurationParam(const QString key, const QVariant value);
 
     /*! The total amount of bytes sent to clients in file transfers. */
     qint64 statsTotalSent;
