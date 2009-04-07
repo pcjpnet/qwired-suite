@@ -834,7 +834,7 @@ void QwcSession::doActionNews()
         pWinNews = new QwcNewsWidget();
         connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
         connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
-        connect( pWiredSocket, SIGNAL(onServerNewsDone()), pWinNews, SLOT(onServerNewsDone()) );
+        connect( pWiredSocket, SIGNAL(newsDone()), pWinNews, SLOT(newsDone()) );
         connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
 
         // We check for the proper purrmissions

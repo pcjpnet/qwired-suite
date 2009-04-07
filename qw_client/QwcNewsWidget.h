@@ -29,7 +29,7 @@ signals:
 public slots:
     void addNewsItem(QString theNick, QString theTime, QString thePost);
     void addFreshNewsItem(QString theNick, QString theTime, QString thePost);
-    void onServerNewsDone();
+    void newsDone();
     void doSendNews();
     void dontSendNews();
     void setDisabledPostButton(bool b);

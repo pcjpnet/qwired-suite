@@ -209,7 +209,7 @@ signals:
 
     void onServerNews(QString theNick, QString theTime, QString thePost);
     void onServerNewsPosted(QString theNick, QString theTime, QString thePost);
-    void onServerNewsDone();
+    void newsDone();
 
 
     void fileSearchDone(QList<QwcFileInfo> theResults);
@@ -271,6 +271,9 @@ private:
     void handleMessage307(const QwMessage &message);
     void handleMessage310(const QwMessage &message);
     void handleMessage311(const QwMessage &message);
+    void handleMessage320(const QwMessage &message);
+    void handleMessage321(const QwMessage &message);
+    void handleMessage322(const QwMessage &message);
     void handleMessage602(const QwMessage &message);
 
     // Comments
