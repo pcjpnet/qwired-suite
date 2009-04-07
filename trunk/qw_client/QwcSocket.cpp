@@ -66,6 +66,8 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
     } else if (commandId == 307) {    handleMessage307(message); // Client Banned
     } else if (commandId == 310) {    handleMessage310(message); // User List
     } else if (commandId == 311) {    handleMessage311(message); // User List Done
+    } else if (commandId == 320) {    handleMessage320(message); // News
+    } else if (commandId == 321) {    handleMessage321(message); // News Done
     } else if (commandId == 602) {    handleMessage602(message); // 602 Privileges Specification
 
     }
@@ -309,6 +311,37 @@ void QwcSocket::handleMessage311(const QwMessage &message)
 }
 
 
+/*! 320 News
+    Received after a NEWS request.
+*/
+void QwcSocket::handleMessage320(const QwMessage &message)
+{
+    emit onServerNews(message.getStringArgument(0),
+                      message.getStringArgument(1),
+                      message.getStringArgument(2));
+}
+
+
+/*! 321 News Done
+    Received after a list of 320 News messages.
+*/
+void QwcSocket::handleMessage321(const QwMessage &message)
+{
+    emit newsDone();
+}
+
+
+/*! 322 News Posted
+    A user has posted a news item.
+*/
+void QwcSocket::handleMessage322(const QwMessage &message)
+{
+    emit onServerNewsPosted(message.getStringArgument(0),
+                            message.getStringArgument(1),
+                            message.getStringArgument(2));
+}
+
+
 /*! 602 Privileges Specification
     Received from the server or after PRIVILEGES command.
 */
@@ -361,19 +394,6 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
 
                 case 308: on_server_userinfo(tmpParams); break;
                 case 309: on_server_broadcast(tmpParams); break;
-
-                case 320: // News Post
-                    emit onServerNews(QString::fromUtf8(tmpParams.value(0)),
-                                      QString::fromAscii(tmpParams.value(1)),
-                                      QString::fromUtf8(tmpParams.value(2)) );
-                    break;
-                case 321: emit onServerNewsDone(); break;
-
-                case 322: // News Posted
-                    emit onServerNewsPosted(QString::fromUtf8(tmpParams.value(0)),
-                                            QString::fromAscii(tmpParams.value(1)),
-                                            QString::fromUtf8(tmpParams.value(2)) );
-                    break;
 
                 case 330: on_server_new_chat_created(tmpParams); break;
                 case 331: emit onServerPrivateChatInvitation( tmpParams.value(0).toInt(), getUserByID(tmpParams.value(1).toInt()) ); break;

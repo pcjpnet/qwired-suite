@@ -150,7 +150,7 @@ void QwcNewsWidget::clearTextArea() {
     fNews->clear();
 }
 
-void QwcNewsWidget::onServerNewsDone()
+void QwcNewsWidget::newsDone()
 {
     fProc->setVisible(false);
 }
