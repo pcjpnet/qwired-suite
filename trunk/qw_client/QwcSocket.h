@@ -151,18 +151,7 @@ private slots:
     void do_request_user_list(int theChannel);
 
     void on_socket_readyRead();
-    void on_server_filelist_item(QList<QByteArray>);
-    void on_server_filelist_done(QList<QByteArray>);
-    void on_server_userlist_imagechanged(QList<QByteArray>);
-    void on_server_userinfo(QList<QByteArray> theParams);
-    void on_server_new_chat_created(QList<QByteArray> theParams);
-    void on_server_broadcast(QList<QByteArray> theParams);
-    void on_server_transfer_ready(QList<QByteArray> theParams);
-    void on_server_transfer_queued(QList<QByteArray> theParams);
-    void on_server_file_info(QList<QByteArray> theParams);
 
-    void on_server_search_listing(QList<QByteArray> theParams);
-    void on_server_search_done(QList<QByteArray> theParams);
     void on_server_groups_listing(QList<QByteArray> theParams);
     void on_server_groups_done();
     void on_server_users_listing(QList<QByteArray> theParams);
@@ -197,15 +186,15 @@ signals:
     void userLeftRoom(int theChatID, const QwcUserInfo theUser);
     void userKicked(QwcUserInfo theVictim, QwcUserInfo theKiller, QString theReason);
     void userBanned(QwcUserInfo theVictim, QwcUserInfo theKiller, QString theReason);
-    void onServerUserInfo(QwcUserInfo theUser);
+    void userInformation(QwcUserInfo theUser);
 
     void receivedChatMessage(int theChatID, int theUserID, QString theText, bool theIsAction);
     void onChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
     void onPrivateMessage(QwcUserInfo theUser, QString theMessage);
-    void onServerBroadcast(QwcUserInfo theUser, QString theMessage);
+    void broadcastMessage(QwcUserInfo theUser, QString theMessage);
 
-    void onServerPrivateChatCreated(int theChatID);
-    void onServerPrivateChatInvitation(int theChatID, QwcUserInfo theUser);
+    void privateChatCreated(int theChatID);
+    void privateChatInvitation(int theChatID, QwcUserInfo theUser);
 
     void onServerNews(QString theNick, QString theTime, QString thePost);
     void onServerNewsPosted(QString theNick, QString theTime, QString thePost);
@@ -218,7 +207,7 @@ signals:
     void onFilesListRecursiveDone(const QList<QwcFileInfo>);
     void onServerFileTransferReady(QwcFiletransferInfo theTransfer);
     void onServerFileTransferQueued(QwcFiletransferInfo theTransfer);
-    void onServerFileInfo(QwcFileInfo theFile);
+    void fileInformation(QwcFileInfo theFile);
 
     void fileTransferDone(const QwcFiletransferInfo theTransfer);
     void fileTransferStarted(const QwcFiletransferInfo theTransfer);
@@ -269,11 +258,25 @@ private:
     void handleMessage305(const QwMessage &message);
     void handleMessage306(const QwMessage &message);
     void handleMessage307(const QwMessage &message);
+    void handleMessage308(const QwMessage &message);
+    void handleMessage309(const QwMessage &message);
     void handleMessage310(const QwMessage &message);
     void handleMessage311(const QwMessage &message);
     void handleMessage320(const QwMessage &message);
     void handleMessage321(const QwMessage &message);
     void handleMessage322(const QwMessage &message);
+    void handleMessage330(const QwMessage &message);
+    void handleMessage331(const QwMessage &message);
+    void handleMessage340(const QwMessage &message);
+    void handleMessage341(const QwMessage &message);
+    void handleMessage400(const QwMessage &message);
+    void handleMessage401(const QwMessage &message);
+    void handleMessage402(const QwMessage &message);
+    void handleMessage410(const QwMessage &message);
+    void handleMessage411(const QwMessage &message);
+    void handleMessage420(const QwMessage &message);
+    void handleMessage421(const QwMessage &message);
+    void handleMessage5xx(const int &errorId);
     void handleMessage602(const QwMessage &message);
 
     // Comments

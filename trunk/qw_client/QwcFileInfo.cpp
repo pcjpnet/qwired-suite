@@ -46,6 +46,31 @@ void QwcFileInfo::setFromStat(QList<QByteArray> theParams)
 }
 
 
+/*! Set the file info properties to values from the 402-type message.
+*/
+void QwcFileInfo::setFromMessage402(const QwMessage &message)
+{
+    path = message.getStringArgument(0);
+    type = (WiredTransfer::FileType)message.getStringArgument(1).toInt();
+    size = message.getStringArgument(2).toInt();
+    created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
+    modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
+    checksum = message.getStringArgument(5);
+    comment = message.getStringArgument(6);
+}
+
+
+/*! Set the file info properties to values from the 410-type message.
+*/
+void QwcFileInfo::setFromMessage410(const QwMessage &message)
+{
+    path = message.getStringArgument(0);
+    type = (WiredTransfer::FileType)message.getStringArgument(1).toInt();
+    size = message.getStringArgument(2).toInt();
+    created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
+    modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
+}
+
 
 /**
  * Return a human readable representation of the size of a file.

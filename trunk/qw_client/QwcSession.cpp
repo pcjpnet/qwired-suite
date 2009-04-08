@@ -187,9 +187,9 @@ void QwcSession::setupConnections() {
 
     connect(pWiredSocket, SIGNAL(receivedUserlist(int)), this, SLOT(onUserlistComplete(int)) );
 
-    connect(pWiredSocket, SIGNAL(onServerUserInfo(QwcUserInfo)), this, SLOT(doHandleUserInfo(QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(onServerPrivateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(onServerPrivateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
+    connect(pWiredSocket, SIGNAL(userInformation(QwcUserInfo)), this, SLOT(doHandleUserInfo(QwcUserInfo)) );
+    connect(pWiredSocket, SIGNAL(privateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
+    connect(pWiredSocket, SIGNAL(privateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
 
     connect(pWiredSocket, SIGNAL(onSocketError(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)) );
     connect(pWiredSocket, SIGNAL(onServerInformation()), this, SLOT(onSocketServerInfo()) );
@@ -199,7 +199,7 @@ void QwcSession::setupConnections() {
     connect(pWiredSocket, SIGNAL(errorOccoured(int)), this, SLOT(handleErrorOccoured(int)) );
     connect(pWiredSocket, SIGNAL(errorLoginFailed()), this, SLOT(onSocketLoginFailed()) );
     connect(pWiredSocket, SIGNAL(receivedUserPrivileges(QwcUserInfo)), this, SLOT(onSocketPrivileges(QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(onServerFileInfo(QwcFileInfo)), this, SLOT(onServerFileInfo(QwcFileInfo)) );
+    connect(pWiredSocket, SIGNAL(fileInformation(QwcFileInfo)), this, SLOT(fileInformation(QwcFileInfo)) );
 
     connect(pWiredSocket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
     connect(pWiredSocket, SIGNAL(userLeftRoom(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
@@ -242,7 +242,7 @@ void QwcSession::setupConnections() {
  * display the old window respectively.
  * @param theFile The information about the file.
  */
-void QwcSession::onServerFileInfo(QwcFileInfo theFile)
+void QwcSession::fileInformation(QwcFileInfo theFile)
 {
     QwcFileInfoWidget *win=0;
 
