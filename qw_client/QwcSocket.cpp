@@ -635,9 +635,9 @@ void QwcSocket::handleMessage421(const QwMessage &message)
 void QwcSocket::handleMessage5xx(const int &errorId)
 {
     if (errorId == Qw::ErrorLoginFailed) {
-        pSocket->disconnectFromHost();        
+        socket->disconnectFromHost();
     } else if (errorId == Qw::ErrorBanned) {
-        pSocket->disconnectFromHost();
+        socket->disconnectFromHost();
     }
     emit protocolError((Qw::ProtocolError)errorId);
 }
@@ -731,7 +731,7 @@ void QwcSocket::handleMessage621(const QwMessage &message)
 */
 void QwcSocket::disconnectFromServer()
 {
-    pSocket->disconnectFromHost();
+    socket->disconnectFromHost();
     pAdminGroups.clear();
     pAdminUsers.clear();
     pInvitedUserID = 0;
@@ -821,7 +821,7 @@ void QwcSocket::handleSocketConnected()
 void QwcSocket::handleSocketConnectionLost()
 {
     disconnectFromServer();
-    pSocket->disconnectFromHost();
+    socket->disconnectFromHost();
 }
 
 
@@ -937,7 +937,7 @@ void QwcSocket::getFolder(const QString &remotePath, const QString &localPath, c
     connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcFiletransferInfo)), this, SLOT(fileTransferFileDone(const QwcFiletransferInfo))); // for folder transfers
     connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 
-    tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
+    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
     tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
     qDebug() << "Transfer Phase 1/3: LocalQueued:"<<remotePath<<"to"<<localPath;
     emit fileTransferStarted(tmpSock->pTransfer);
@@ -980,7 +980,7 @@ void QwcSocket::putFolder(const QString localPath, const QString remotePath, con
     connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcFiletransferInfo)), this, SLOT(fileTransferFileDone(const QwcFiletransferInfo))); // for folder transfers
     connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 
-    tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
+    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
     tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
     qDebug() << "Transfer Phase 1/3: LocalQueued:"<<localPath<<"to"<<remotePath;
     emit fileTransferStarted(tmpSock->pTransfer);
@@ -1016,28 +1016,12 @@ void QwcSocket::getFile(const QString thePath, const QString theLocalPath, const
     connect(tmpSock, SIGNAL(fileTransferStatus(QwcFiletransferInfo)), this, SIGNAL(fileTransferStatus(QwcFiletransferInfo)));
     connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
 
-    tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
+    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
     tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
     qDebug() << "Transfer Phase 1/3: LocalQueued:"<<thePath<<"to"<<theLocalPath;
     emit fileTransferStarted(tmpSock->pTransfer);
 }
 
-
-
-// Tracker handling code
-//
-
-void QwcSocket::on_tracker_listing_item(QList< QByteArray > theParams) {
-    QwcTrackerServerInfo ts;
-    ts.loadFromTrackerResponse(theParams);
-    pTrackerServers.append(ts);
-}
-
-void QwcSocket::on_tracker_listing_done() {
-    emit trackerServersReceived(pTrackerServers);
-    pTrackerServers.clear();
-    this->disconnectFromServer();
-}
 
 
 // Request uploading of a file to the server
@@ -1063,7 +1047,7 @@ void QwcSocket::putFile(const QString theLocalPath, const QString theRemotePath,
         connect(tmpSock, SIGNAL(fileTransferStarted(QwcFiletransferInfo)), this, SIGNAL(fileTransferStarted(QwcFiletransferInfo)));
         connect(tmpSock, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)));
         connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-        tmpSock->setServer( pSocket->peerAddress().toString(), pSocket->peerPort() );
+        tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
         tmpSock->pTransfer.pTransferType = WiredTransfer::TypeUpload;
         tmpSock->pTransfer.pRemotePath = remotePath;
         tmpSock->pTransfer.pLocalPath = theLocalPath;
@@ -1426,9 +1410,9 @@ QString QwcSocket::tranzlate(QString theText)
 /// Mainly used during connection cancellation.
 void QwcSocket::disconnectSocketFromServer()
 {
-    if(!pSocket) return;
+    if (!socket) return;
     qDebug() << this << ": Aborting connection to server.";
-    pSocket->abort();
+    socket->abort();
 }
 
 

@@ -170,7 +170,7 @@ public slots:
     void onSocketServerInfo();
     void onLoginSuccessful();
 
-    void setBannerView(const QPixmap theBanner);
+    void setBannerView(const QImage theBanner);
 
     void downloadFile(const QString &remotePath, const QString &localPath);
     void downloadFolder(const QString &remotePath, const QString &localPath);
