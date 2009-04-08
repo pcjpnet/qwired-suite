@@ -17,7 +17,7 @@ void QwcEventFilter::setSocket(QwcSocket *s)
 bool QwcEventFilter::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::Close
-       && socket->pSocket->state() == QAbstractSocket::ConnectedState
+       && socket->sslSocket()->state() == QAbstractSocket::ConnectedState
        && socket->serverInfo.name != "") {
         if(QwcEventFilter::disconnectionPrompt(event)) {
             return true;

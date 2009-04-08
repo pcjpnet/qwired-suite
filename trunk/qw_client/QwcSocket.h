@@ -23,10 +23,13 @@ public:
     QwcSocket(QObject *parent = 0);
     ~QwcSocket();
 
+    /*! Attempt to establish a connection to the specified server. */
+    void connectToWiredServer(QString hostName, int port=2000);
+
     /*! Information about the server, as provided during handshake. */
     QwServerInfo serverInfo;
     /*! The banner of the server as transmitted during handshake. */
-    QPixmap pServerBanner;
+    QImage pServerBanner;
     /*! The name of the client (software name). */
     QString pClientName;
     /*! The version of the client software. */
@@ -47,14 +50,6 @@ public:
     bool pIzCaturday;
     QString tranzlate(QString);
 
-    int userCountByChat(const int theChatID);
-    int userIndexByID(const int theID, const int theChat=1);
-    const QwcUserInfo userByIndex(const int theChatID, const int theIndex);
-
-    void connectToWiredServer(QString hostName, int port=2000);
-
-
-    QPointer<QSslSocket> pSocket;
     QList<QPointer<QwcFiletransferSocket> > pTransferSockets;
 
     // File Transfers
@@ -134,11 +129,6 @@ private slots:
 
     void cleanTransfers();
 
-    // Tracker
-    //
-    void on_tracker_listing_item(QList<QByteArray> theParams);
-    void on_tracker_listing_done();
-
     // Transfers
     //
     void fileTransferFileDone(const QwcFiletransferInfo);
@@ -157,7 +147,7 @@ signals:
     void onServerInformation();
 
     void onServerLoginSuccessful();
-    void onServerBanner(const QPixmap);
+    void onServerBanner(const QImage banner);
 
 
     void userChanged(const QwcUserInfo theOld, const QwcUserInfo theNew);
@@ -256,15 +246,11 @@ private:
     // Buffers while receiving the list of groups and users (admin mode)
     QStringList pAdminGroups;
     QStringList pAdminUsers;
-
     QHash<QString,QString> pTranzlator;
 
     /// Buffer for the user id we have invited before. Unfortunately Wired has no
     /// transactions, so we have to hope that this works well enough for now.
     int pInvitedUserID;
-
-    /// Our function that formats a Wired message and sends it to the server.
-    void sendWiredCommand(const QByteArray);
 
     /// The temporary list of items for the search results.
     QList<QwcFileInfo> pSearchResults;
@@ -272,7 +258,6 @@ private:
 
     /// This is our TCP buffer. Could possibly be optimized, but works for now.
     QByteArray pBuffer;
-
 };
 
 #endif

@@ -499,7 +499,7 @@ void QwcSession::setConnectionToolButtonsEnabled(bool theEnable)
 
 
 /// Set the banner image to the toolbar of the main window.
-void QwcSession::setBannerView(const QPixmap theBanner)
+void QwcSession::setBannerView(const QImage theBanner)
 {
     if(bannerSpace) {
         delete bannerSpace;
@@ -519,7 +519,7 @@ void QwcSession::setBannerView(const QPixmap theBanner)
     pConnWindow->fToolBar->addWidget(bannerSpace);
 
     bannerView = new QLabel(pConnWindow->fToolBar);
-    bannerView->setPixmap(theBanner);
+    bannerView->setPixmap(QPixmap::fromImage(theBanner));
     pConnWindow->fToolBar->addWidget(bannerView);
 
     bannerSpace2 = new QWidget(pConnWindow->fToolBar);
