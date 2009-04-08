@@ -259,7 +259,7 @@ void QwcChatWidget::postChatInputText()
     } else if(msg.startsWith("/status ")) {
         pSession->wiredSocket()->setUserStatus(msg.mid(8));
     } else if(msg.startsWith("/nick ")) {
-        pSession->wiredSocket()->setUserNick(msg.mid(6));
+        pSession->wiredSocket()->setNickname(msg.mid(6));
     } else if(msg.startsWith("/clear")) {
         fChatLog->clear();
     } else if(msg.startsWith("/exec ")) {
@@ -409,16 +409,14 @@ void QwcChatWidget::updateInviteMenu()
     }
 
     pInviteMenu->clear();
-
-    QList<QwcUserInfo> &tmpList = pSession->wiredSocket()->pUsers[1];
-    QListIterator<QwcUserInfo> i(tmpList);
+    QHashIterator<int, QwcUserInfo> i(pSession->wiredSocket()->users);
     while (i.hasNext()) {
-        QwcUserInfo tmpUsr = i.next();
-        if (tmpUsr.pUserID!=pSession->wiredSocket()->sessionUser.pUserID) {
-            QAction *tmpAct = pInviteMenu->addAction(tmpUsr.userNickname);
-            tmpAct->setIcon(QPixmap::fromImage(tmpUsr.userImage));
-            tmpAct->setData(tmpUsr.pUserID);
-        }
+        i.next();
+        const QwcUserInfo &item = i.value();
+        if (item.pUserID == pSession->wiredSocket()->sessionUser.pUserID) { continue; }
+        QAction *tmpAct = pInviteMenu->addAction(item.userNickname);
+        tmpAct->setIcon(QPixmap::fromImage(item.userImage));
+        tmpAct->setData(item.pUserID);
     }
 }
 

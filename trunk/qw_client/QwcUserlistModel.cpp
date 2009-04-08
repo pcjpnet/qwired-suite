@@ -69,53 +69,12 @@ bool QwcUserlistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 QVariant QwcUserlistModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) { return QVariant(); }
-    if (index.row() >= wiredSocket->userCountByChat(chatID)) { qDebug() << "row"; return QVariant();  }
+    if (index.row() >= wiredSocket->rooms[chatID].pUsers.count()) { return QVariant();  }
     if (role == Qt::UserRole) {
-        QwcUserInfo userInfo = wiredSocket->userByIndex(chatID, index.row());
+        QwcUserInfo userInfo = wiredSocket->users[wiredSocket->rooms[chatID].pUsers.value(index.row())];
         return QVariant::fromValue(userInfo);
     }
-    /*else if (role == Qt::ToolTipRole) {
-        QwcUserInfo userInfo = wiredSocket->userByIndex(chatID, index.row());
-
-        QString tooltipText = tr("<b>Nickname:</b> %1<br><b>Login:</b> %2<br><b>Status:</b> %3<br>"
-                                 "<b>IP-Address:</b> %4<br><b>Hostname:</b> %5<br><b>Logged in:</b> %6")
-                              .arg(userInfo.pNick).arg(userInfo.pLogin).arg(userInfo.pStatus)
-                              .arg(userInfo.pIP).arg(userInfo.pHost).arg(userInfo.pLoginTime.toLocalTime().toString());
-
-        return tooltipText;
-    }*/
-
     return QVariant();
-
-/*
-    if(role == Qt::DisplayRole) {
-
-        return wu.pNick;
-    } else if( role == Qt::DecorationRole ) { // Nickname
-        QwcUserInfo wu = wiredSocket->userByIndex(chatID, index.row());
-        QImage img;
-        if(!wu.pImage.isEmpty()) {
-            img = QImage::fromData(wu.pImage);
-            img = img.scaled(32,32,Qt::KeepAspectRatio);
-        }
-        return img;
-    } else if( role == Qt::UserRole+4 ) { // Status text
-        QwcUserInfo wu = wiredSocket->userByIndex(chatID, index.row());
-        return wu.pStatus;
-    } else if( role == Qt::UserRole+1 ) { // Admin Flag
-        QwcUserInfo wu = wiredSocket->userByIndex(chatID, index.row());
-        return wu.pAdmin;
-    } else if( role == Qt::UserRole+2 ) { // Idle Flag
-        QwcUserInfo wu = wiredSocket->userByIndex(chatID, index.row());
-        return wu.pIdle;
-    } else if( role == Qt::UserRole) { // User ID
-        QwcUserInfo wu = wiredSocket->userByIndex(chatID, index.row());
-        return wu.pUserID;
-    } else {
-        return QVariant();
-    }
-
-    */
 }
 
 
@@ -124,7 +83,7 @@ QVariant QwcUserlistModel::data(const QModelIndex &index, int role) const
 int QwcUserlistModel::rowCount(const QModelIndex &) const
 {
     if (!wiredSocket) { return 0; }
-    return wiredSocket->userCountByChat(chatID);
+    return wiredSocket->rooms[chatID].pUsers.count();
 }
 
 
@@ -169,7 +128,7 @@ void QwcUserlistModel::reloadPreferences()
 void QwcUserlistModel::userChanged(const QwcUserInfo, const QwcUserInfo theNew)
 {
     if (!wiredSocket) { return; }
-    int userIndex = wiredSocket->userIndexByID(theNew.pUserID);
+    int userIndex = wiredSocket->rooms[1].pUsers.indexOf(theNew.pUserID);//wiredSocket->userIndexByID(theNew.pUserID);
     emit dataChanged(createIndex(userIndex,0), createIndex(userIndex,0));
 }
 

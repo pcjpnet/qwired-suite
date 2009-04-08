@@ -22,7 +22,6 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
     newSocket->setProtocol(QSsl::TlsV1);
     newSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
     setSslSocket(newSocket);
-
     connect(newSocket, SIGNAL(encrypted()),
             this, SLOT(handleSocketConnected()));
     connect(this, SIGNAL(connectionLost()),
@@ -33,19 +32,8 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
     pClientVersion = QWIRED_VERSION;
     pIzCaturday = false;
 
-    // Initialize the socket
-//    pSocket = new QSslSocket(this);
-
     pIndexingFiles = false;
     pInvitedUserID = 0;
-
-
-
-
-//    connect( pSocket, SIGNAL(readyRead()), this, SLOT(on_socket_readyRead()) );
-//    connect( pSocket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(on_socket_sslErrors(QList<QSslError>)));
-//    connect( pSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-//             this, SLOT(on_socket_error(QAbstractSocket::SocketError)) );
 
 }
 
@@ -112,8 +100,8 @@ void QwcSocket::handleMessage200(const QwMessage &message)
 
     // Send login sequence
     sendMessageINFO();
-    setUserNick(sessionUser.userNickname);
-    setUserIcon(sessionUser.userImage);
+    setNickname(sessionUser.userNickname);
+    setIconImage(sessionUser.userImage);
     setUserStatus(sessionUser.userStatus);
     sendMessage(QwMessage("USER").appendArg(sessionUser.name));
     sendMessage(QwMessage("PASS").appendArg(sessionUser.cryptedPassword()));
@@ -175,7 +163,13 @@ void QwcSocket::handleMessage302(const QwMessage &message)
 {
     int roomId = message.getStringArgument(0).toInt();
     QwcUserInfo newUser = QwcUserInfo::fromMessage310(message);
-    pUsers[roomId].append(newUser);
+    if (roomId == 1) {
+        users[newUser.pUserID] = newUser;
+        rooms[1].pUsers.append(newUser.pUserID);
+    } else {
+        if (!rooms.contains(roomId)) { return; }
+        rooms[roomId].pUsers.append(newUser.pUserID);
+    }
     emit userJoinedRoom(roomId, newUser);
 }
 
@@ -185,26 +179,24 @@ void QwcSocket::handleMessage302(const QwMessage &message)
 */
 void QwcSocket::handleMessage303(const QwMessage &message)
 {
-    // The user left a chat or the server.
     int roomId = message.getStringArgument(0).toInt();
     int userId = message.getStringArgument(1).toInt();
-
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while (i.hasNext()) {
-        i.next();
-
-        // If tmpChatID==1, the user has disconnected completely. Remove him/her form all chats, respectively.
-        if (roomId == 1 || (roomId == i.key()) ) {
-            QList<QwcUserInfo> tmpList = i.value();
-            QMutableListIterator<QwcUserInfo> j(tmpList);
-            while(j.hasNext()) {
-                QwcUserInfo tmpUsr = j.next();
-                if(tmpUsr.pUserID == userId) {
-                    j.remove();
-                    emit userLeftRoom(roomId, tmpUsr);
-                }
-            }
-            i.setValue(tmpList);
+    QwcUserInfo targetUser = users.value(userId);
+    if (!rooms.contains(roomId)) { return; }
+    if (roomId == 1) {
+        // If the client leaves room 1, it has disconnected and should be removed from all rooms.
+        QMutableHashIterator<int, QwRoom> i(rooms);
+        while (i.hasNext()) {
+            i.next();
+            i.value().pUsers.removeAll(userId);
+            emit userLeftRoom(i.key(), targetUser);
+        }
+    } else {
+        // Remove the user from a single room
+        QwRoom &targetRoom = rooms[roomId];
+        if (targetRoom.pUsers.contains(userId)) {
+            targetRoom.pUsers.removeAll(userId);
+            emit userLeftRoom(roomId, targetUser);
         }
     }
 }
@@ -216,33 +208,15 @@ void QwcSocket::handleMessage303(const QwMessage &message)
 void QwcSocket::handleMessage304(const QwMessage &message)
 {
     int userId = message.getStringArgument(0).toInt();
-
-    // We have to run through all chats and update the user items accordingly.
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) {
-        i.next();
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo itemUser = j.next();
-            if (itemUser.pUserID == userId) {
-                QwcUserInfo newUser = itemUser;
-                newUser.pIdle = message.getStringArgument(1).toInt();
-                newUser.pAdmin = message.getStringArgument(2).toInt();
-                newUser.pIcon = message.getStringArgument(3).toInt();
-                newUser.userNickname = message.getStringArgument(4);
-                newUser.userStatus = message.getStringArgument(4);
-                j.setValue(newUser);
-
-                // Fire a signal, only for the main list!
-                if(i.key() == 1) {
-                    emit userChanged(itemUser, newUser);
-                }
-
-            }
-        }
-        i.setValue(tmpList);
-    }
+    if (!users.contains(userId)) { return; }
+    QwcUserInfo targetUserOld = users[userId];
+    QwcUserInfo &targetUser = users[userId];
+    targetUser.pIdle = message.getStringArgument(1).toInt();
+    targetUser.pAdmin = message.getStringArgument(2).toInt();
+    targetUser.pIcon = message.getStringArgument(3).toInt();
+    targetUser.userNickname = message.getStringArgument(4);
+    targetUser.userStatus = message.getStringArgument(5);
+    emit userChanged(targetUserOld, targetUser);
 }
 
 
@@ -251,8 +225,8 @@ void QwcSocket::handleMessage304(const QwMessage &message)
 */
 void QwcSocket::handleMessage305(const QwMessage &message)
 {
-    emit onPrivateMessage(getUserByID(message.getStringArgument(0).toInt()),
-                          message.getStringArgument(1) );
+    QwcUserInfo senderUser = users[message.getStringArgument(0).toInt()];
+    emit onPrivateMessage(senderUser, message.getStringArgument(1) );
 }
 
 
@@ -261,25 +235,11 @@ void QwcSocket::handleMessage305(const QwMessage &message)
 */
 void QwcSocket::handleMessage306(const QwMessage &message)
 {
-    QwcUserInfo victim = getUserByID(message.getStringArgument(0).toInt());
-    QwcUserInfo killer = getUserByID(message.getStringArgument(1).toInt());
-    QString reason = message.getStringArgument(2);
-
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) {
-        i.next();
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo itemUser = j.next();
-            if (itemUser.pUserID == victim.pUserID) {
-                j.remove();
-                emit userLeftRoom(i.key(), itemUser);
-            }
-        }
-        i.setValue(tmpList);
-    }
-    emit userKicked(victim, killer, reason);
+    QwcUserInfo victim = users[message.getStringArgument(0).toInt()];
+    QwcUserInfo killer = users[message.getStringArgument(1).toInt()];
+    // User message handler for 303 Client Left to remove the user
+    handleMessage303(QwMessage().appendArg("0").appendArg(QString::number(victim.pUserID)));
+    emit userKicked(victim, killer, message.getStringArgument(2));
 }
 
 
@@ -288,25 +248,11 @@ void QwcSocket::handleMessage306(const QwMessage &message)
 */
 void QwcSocket::handleMessage307(const QwMessage &message)
 {
-    QwcUserInfo victim = getUserByID(message.getStringArgument(0).toInt());
-    QwcUserInfo killer = getUserByID(message.getStringArgument(1).toInt());
-    QString reason = message.getStringArgument(2);
-
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) {
-        i.next();
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo itemUser = j.next();
-            if (itemUser.pUserID == victim.pUserID) {
-                j.remove();
-                emit userLeftRoom(i.key(), itemUser);
-            }
-        }
-        i.setValue(tmpList);
-    }
-    emit userBanned(victim, killer, reason);
+    QwcUserInfo victim = users[message.getStringArgument(0).toInt()];
+    QwcUserInfo killer = users[message.getStringArgument(1).toInt()];
+    // User message handler for 303 Client Left to remove the user
+    handleMessage303(QwMessage().appendArg("0").appendArg(QString::number(victim.pUserID)));
+    emit userBanned(victim, killer, message.getStringArgument(2));
 }
 
 
@@ -324,8 +270,8 @@ void QwcSocket::handleMessage308(const QwMessage &message)
 */
 void QwcSocket::handleMessage309(const QwMessage &message)
 {
-    emit broadcastMessage(getUserByID(message.getStringArgument(0).toInt()),
-                           message.getStringArgument(1));
+    QwcUserInfo senderUser = users[message.getStringArgument(0).toInt()];
+    emit broadcastMessage(senderUser, message.getStringArgument(1));
 }
 
 
@@ -334,8 +280,12 @@ void QwcSocket::handleMessage309(const QwMessage &message)
 */
 void QwcSocket::handleMessage310(const QwMessage &message)
 {
-    int tmpChannel = message.getStringArgument(0).toInt();
-    pUsers[tmpChannel].append(QwcUserInfo::fromMessage310(message));
+    int roomId = message.getStringArgument(0).toInt();
+    QwcUserInfo targetUser = QwcUserInfo::fromMessage310(message);
+    if (roomId == 1) {
+        users[targetUser.pUserID] = targetUser;
+    }
+    rooms[roomId].pUsers.append(targetUser.pUserID);
 }
 
 
@@ -387,10 +337,15 @@ void QwcSocket::handleMessage322(const QwMessage &message)
 void QwcSocket::handleMessage330(const QwMessage &message)
 {
     int roomId = message.getStringArgument(0).toInt();
-    pUsers[roomId].append(sessionUser);
+    QwRoom newRoom;
+    newRoom.pChatId = roomId;
+    newRoom.pUsers.append(sessionUser.pUserID);
+    rooms[roomId] = newRoom;
     emit privateChatCreated(roomId);
-    inviteClientToChat(roomId, pInvitedUserID);
-    pInvitedUserID = 0;
+    if (pInvitedUserID > 0) {
+        inviteClientToChat(roomId, pInvitedUserID);
+        pInvitedUserID = 0;
+    }
 }
 
 
@@ -399,8 +354,8 @@ void QwcSocket::handleMessage330(const QwMessage &message)
 */
 void QwcSocket::handleMessage331(const QwMessage &message)
 {
-    emit privateChatInvitation(message.getStringArgument(0).toInt(), // Room ID
-                                       getUserByID(message.getStringArgument(0).toInt()));
+    QwcUserInfo senderUser = users[message.getStringArgument(1).toInt()];
+    emit privateChatInvitation(message.getStringArgument(0).toInt(), senderUser);
 }
 
 
@@ -409,30 +364,11 @@ void QwcSocket::handleMessage331(const QwMessage &message)
 */
 void QwcSocket::handleMessage340(const QwMessage &message)
 {
-    // A user has changed his/her user image.
-    int tmpID = message.getStringArgument(0).toInt();
-
-    // We have to run through all chats and update the user items accordingly.
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) {
-        i.next();
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo tmpUsrOld = j.next();
-            if(tmpUsrOld.pUserID==tmpID) {
-                QwcUserInfo tmpUsr = tmpUsrOld;
-                tmpUsr.setImageFromData(QByteArray::fromBase64(message.getStringArgument(1).toAscii()));
-                j.setValue(tmpUsr);
-
-                // Fire a signal, only for the main list!
-                if(i.key()==1) {
-                    emit userChanged(tmpUsrOld, tmpUsr);
-                }
-            }
-        }
-        i.setValue(tmpList);
-    }
+    int userId = message.getStringArgument(0).toInt();
+    if (!users.contains(userId)) { return; }
+    QwcUserInfo targetUserOld = users[userId];
+    users[userId].setImageFromData(QByteArray::fromBase64(message.getStringArgument(1).toAscii()));
+    emit userChanged(targetUserOld, users[userId]);
 }
 
 
@@ -791,14 +727,17 @@ void QwcSocket::handleMessage621(const QwMessage &message)
 }
 
 
-/// Disconnect from the server and clean up
-void QwcSocket::disconnectFromServer() {
+/*! Clean up the socket after disconnecting to be prepared for new connections.
+*/
+void QwcSocket::disconnectFromServer()
+{
     pSocket->disconnectFromHost();
     pAdminGroups.clear();
     pAdminUsers.clear();
     pInvitedUserID = 0;
     pBuffer.clear();
-    pUsers.clear();
+    users.clear();
+    rooms.clear();
 
     QMutableListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
     while(i.hasNext()) {
@@ -810,24 +749,9 @@ void QwcSocket::disconnectFromServer() {
 }
 
 
-// Find a user by the ID specified in the list of publically connected users.
-QwcUserInfo QwcSocket::getUserByID(int theID) {
-    QList<QwcUserInfo> tmpList = pUsers[1]; // server user list
-    QListIterator<QwcUserInfo> i(tmpList);
-    while (i.hasNext()) {
-        QwcUserInfo usr = i.next();
-        if( usr.pUserID==theID )
-            return usr;
-    }
-
-    QwcUserInfo wu; // Fallback object
-    wu.userNickname = tr("(invalid user)");
-    return wu;
-}
-
-
 // Set the username and password for the login sequence.
-void QwcSocket::setUserAccount(QString theAcct, QString thePass) {
+void QwcSocket::setUserAccount(QString theAcct, QString thePass)
+{
     sessionUser.name = theAcct;
     sessionUser.pPassword = thePass;
 }
@@ -838,14 +762,14 @@ void QwcSocket::setCaturday(bool b) {
     // everyday iz caturday!  :3
     if(b) {
         pTranzlator.clear();
-        setUserIcon( QImage(":/icons/icon_happycat.png") );
+        setIconImage( QImage(":/icons/icon_happycat.png") );
         setUserStatus(tr("kittehday nait fevrar"));
         QString tmpNick = sessionUser.userNickname;
         tmpNick = tmpNick.replace("s","z");
         tmpNick = tmpNick.replace("e","3");
         tmpNick = tmpNick.replace("i","ie");
         tmpNick = tmpNick.replace("y","eh");
-        setUserNick(tmpNick);
+        setNickname(tmpNick);
         QFile tmpF(":/tranzlator.txt");
         if(tmpF.exists() && tmpF.open(QIODevice::ReadOnly)) {
             while(!tmpF.atEnd()) {
@@ -862,24 +786,6 @@ void QwcSocket::setCaturday(bool b) {
     }
     pIzCaturday = false;
 }
-
-
-// Tracker subsystem
-//
-//void QwcSocket::connectToTracker(QString theHostName, int thePort) {
-//    QString tmpHost;
-//    pSocketType = Wired::TrackerSocket;
-//    int tmpPort;
-//    if( theHostName.contains(":") ) { // Has port defined
-//        tmpHost = theHostName.section(":",0,0);
-//        tmpPort = theHostName.section(":",1,1).toInt();
-//    } else { // No port defined
-//        tmpPort = thePort;
-//        tmpHost = theHostName;
-//    }
-//    qDebug() << "QwcSocket: Connecting to tracker at"<<tmpHost<<"port"<<tmpPort;
-//    pSocket->connectToHostEncrypted(tmpHost, tmpPort);
-//}
 
 
 /*! Attempt to establish a connection to a remote server.
@@ -924,59 +830,6 @@ QwcSocket::~QwcSocket()
 }
 
 
-/**
- * Get the number of users in the chat specified by theChatID.
- * @param theChatID The ID of the chat.
- * @return The number of users in the given chat. If theChatID is invalid, 0 will be returned.
- */
-int QwcSocket::userCountByChat(const int theChatID) {
-    if( pUsers.contains(theChatID) ) {
-        QList<QwcUserInfo> *tmpList = &pUsers[theChatID];
-        //qDebug() << "QwcSocket::userCountByChat channel"<<theChatID<<"="<<tmpList->size();
-        return tmpList->size();
-    }
-    return 0;
-}
-
-
-/**
- * Find a user within a specific chat by id and return it.
- * @param theChatID The ID of the chat.
- * @param theIndex The index of the user within the chat.
- * @return The QwcUserInfo object. If the user is not found, a default object will be returned with user id -1.
- */
-const QwcUserInfo QwcSocket::userByIndex(const int theChatID, const int theIndex) {
-    if( pUsers.contains(theChatID) ) {
-        QList<QwcUserInfo> *tmpList = &pUsers[theChatID];
-        return tmpList->value(theIndex);
-    }
-
-    QwcUserInfo wu; // Fallback user item
-    wu.pUserID = -1;
-    wu.userNickname = "(invalid user)";
-    return wu;
-}
-
-
-
-
-// Find a user by the user id and return the index.
-int QwcSocket::userIndexByID(const int theID, const int theChat) {
-    if( pUsers.contains(theChat) ) {
-        QList<QwcUserInfo> tmpList = pUsers[theChat];
-        QListIterator<QwcUserInfo> j(tmpList);
-        int tmpIdx = 0;
-        while(j.hasNext()) {
-            QwcUserInfo tmpUsr = j.next();
-            if( tmpUsr.pUserID==theID )
-                return tmpIdx;
-            tmpIdx++;
-        }
-    }
-    return -1;
-}
-
-
 /*! Send a private message to the user with the id \a userId. If \a userId is 0, the private is sent
     as a broadcast message to all connected users, provided that the broadcast privilege is set.
 */
@@ -998,8 +851,9 @@ void QwcSocket::sendPrivateMessage(int userId, QString message)
 void QwcSocket::leaveChat(int roomId)
 {
     sendMessage(QwMessage("LEAVE").appendArg(QString::number(roomId)));
-//    if (pUsers.contains(theChatID))
-//        pUsers.remove(theChatID);
+    if (rooms.contains(roomId)) {
+        rooms.remove(roomId);
+    }
 }
 
 
@@ -1041,7 +895,7 @@ void QwcSocket::getFileList(QString path)
 
 /*! Send a new user icon to the remote server and update the local user info.
 */
-void QwcSocket::setUserIcon(QImage icon)
+void QwcSocket::setIconImage(QImage icon)
 {
     // Send a new user icon to the server
     QByteArray tmpCmd;
@@ -1234,7 +1088,7 @@ void QwcSocket::putFile(const QString theLocalPath, const QString theRemotePath,
 
 /*! Set the current user nickname and send it to the server.
 */
-void QwcSocket::setUserNick(QString theNick)
+void QwcSocket::setNickname(QString theNick)
 {
     sessionUser.userNickname = theNick;
     sendMessage(QwMessage("NICK").appendArg(theNick));

@@ -8,6 +8,7 @@
 //#include <QtCore>
 //#include <QSslSocket>
 
+#include "QwRoom.h"
 #include "QwcUserInfo.h"
 #include "QwcFiletransferInfo.h"
 #include "QwcFileInfo.h"
@@ -24,28 +25,23 @@ public:
 
     /*! Information about the server, as provided during handshake. */
     QwServerInfo serverInfo;
-
     /*! The banner of the server as transmitted during handshake. */
     QPixmap pServerBanner;
-
     /*! The name of the client (software name). */
     QString pClientName;
     /*! The version of the client software. */
     QString pClientVersion;
-
-    /// The class that contains most of the user-specific information for this
-    /// session. We use this to keep the clutter of the class to a minimum.
+    /*! The client user object which keeps track of available information of the current session. */
     QwcUserInfo sessionUser;
-
-    /// This contains all users registered for the public user list (1) and
-    /// all private chats. It automatically maintained and changes are
-    /// signalled.
-    QHash<int, QList<QwcUserInfo> > pUsers;
+    /*! This contains all users registered for the public user list (1). */
+    QHash<int, QwcUserInfo> users;
+    /*! A list of all currently used chat rooms. Chat rooms contain user lists and refer to them by
+        their user ID. */
+    QHash<int, QwRoom> rooms;
 
     // User Information
-    void setUserNick(QString);
+    void setNickname(QString);
     void setUserAccount(QString, QString);
-    QwcUserInfo getUserByID(int);
 
     // No further comment on those, and, no, you can not has cheezeburger.
     bool pIzCaturday;
@@ -119,7 +115,7 @@ public slots:
     void sendPrivateMessage(int userId, QString message);
     void setCaturday(bool);
     void setChatTopic(int chatId, QString topic);
-    void setUserIcon(QImage icon);
+    void setIconImage(QImage icon);
     void setUserStatus(QString theStatus);
     void statFile(const QString thePath);
 
