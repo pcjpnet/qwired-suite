@@ -104,7 +104,7 @@ private slots:
     void onSocketPrivileges(QwcUserInfo);
     void doActionTrackers();
 
-    void onServerFileInfo(QwcFileInfo theFile);
+    void fileInformation(QwcFileInfo theFile);
 
     void userJoined(int theChat, QwcUserInfo theUser);
     void userLeft(int theChat, QwcUserInfo theUser);

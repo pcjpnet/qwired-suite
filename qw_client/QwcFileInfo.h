@@ -7,6 +7,8 @@
 #include <QDateTime>
 #include <QIcon>
 
+#include "QwMessage.h"
+
 namespace WiredTransfer {
     enum FileType { RegularFile, Directory, Uploads, DropBox };
 }
@@ -22,7 +24,8 @@ public:
     
     static QString humanReadableSize(qlonglong theBytes);
     void setFromStat(QList<QByteArray> theParams);
-
+    void setFromMessage402(const QwMessage &message);
+    void setFromMessage410(const QwMessage &message);
     
     // Default parameters
     QString path;

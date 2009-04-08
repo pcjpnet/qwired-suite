@@ -64,11 +64,25 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
     } else if (commandId == 304) {    handleMessage304(message); // Status Change
     } else if (commandId == 306) {    handleMessage306(message); // Client Kicked
     } else if (commandId == 307) {    handleMessage307(message); // Client Banned
+    } else if (commandId == 308) {    handleMessage308(message); // Client Information
     } else if (commandId == 310) {    handleMessage310(message); // User List
     } else if (commandId == 311) {    handleMessage311(message); // User List Done
     } else if (commandId == 320) {    handleMessage320(message); // News
     } else if (commandId == 321) {    handleMessage321(message); // News Done
-    } else if (commandId == 602) {    handleMessage602(message); // 602 Privileges Specification
+    } else if (commandId == 330) {    handleMessage330(message); // Private Chat Created
+    } else if (commandId == 331) {    handleMessage331(message); // Private Chat Invitation
+    } else if (commandId == 340) {    handleMessage340(message); // Client Image Change
+    } else if (commandId == 341) {    handleMessage341(message); // Chat Topic
+    } else if (commandId == 400) {    handleMessage400(message); // Transfer Ready
+    } else if (commandId == 401) {    handleMessage401(message); // Transfer Queued
+    } else if (commandId == 402) {    handleMessage402(message); // File Information
+    } else if (commandId == 410) {    handleMessage410(message); // File Listing
+    } else if (commandId == 411) {    handleMessage411(message); // File Listing Done
+    } else if (commandId == 420) {    handleMessage420(message); // Search Listing
+    } else if (commandId == 421) {    handleMessage421(message); // Search Listing Done
+    } else if (commandId >= 500 && commandId <= 599) {
+                                      handleMessage5xx(commandId); // Server Errors
+    } else if (commandId == 602) {    handleMessage602(message); // Privileges Specification
 
     }
 }
@@ -291,6 +305,25 @@ void QwcSocket::handleMessage307(const QwMessage &message)
 }
 
 
+/*! 308 Client Information
+    Client information, in response to INFO.
+*/
+void QwcSocket::handleMessage308(const QwMessage &message)
+{
+    emit userInformation(QwcUserInfo::fromMessage308(message));
+}
+
+
+/*! 309 Broadcast Message
+    A administrator sent a broadcast message.
+*/
+void QwcSocket::handleMessage309(const QwMessage &message)
+{
+    emit broadcastMessage(getUserByID(message.getStringArgument(0).toInt()),
+                           message.getStringArgument(1));
+}
+
+
 /*! 310 User List
     One item of the user list of a specific room. In response to WHO.
 */
@@ -327,6 +360,7 @@ void QwcSocket::handleMessage320(const QwMessage &message)
 */
 void QwcSocket::handleMessage321(const QwMessage &message)
 {
+    Q_UNUSED(message);
     emit newsDone();
 }
 
@@ -342,6 +376,335 @@ void QwcSocket::handleMessage322(const QwMessage &message)
 }
 
 
+/*! 330 Private Chat Created
+    A new private chat was created on the server.
+*/
+void QwcSocket::handleMessage330(const QwMessage &message)
+{
+    int roomId = message.getStringArgument(0).toInt();
+    pUsers[roomId].append(sessionUser);
+    emit privateChatCreated(roomId);
+    inviteClientToChat(roomId, pInvitedUserID);
+    pInvitedUserID = 0;
+}
+
+
+/*! 331 Private Chat Invitation
+    User was invited to a private chat..
+*/
+void QwcSocket::handleMessage331(const QwMessage &message)
+{
+    emit privateChatInvitation(message.getStringArgument(0).toInt(), // Room ID
+                                       getUserByID(message.getStringArgument(0).toInt()));
+}
+
+
+/*! 340 Client Image Change
+    The image of a client was changed.
+*/
+void QwcSocket::handleMessage340(const QwMessage &message)
+{
+    // A user has changed his/her user image.
+    int tmpID = message.getStringArgument(0).toInt();
+
+    // We have to run through all chats and update the user items accordingly.
+    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
+    while(i.hasNext()) {
+        i.next();
+        QList<QwcUserInfo> tmpList = i.value();
+        QMutableListIterator<QwcUserInfo> j(tmpList);
+        while(j.hasNext()) {
+            QwcUserInfo tmpUsrOld = j.next();
+            if(tmpUsrOld.pUserID==tmpID) {
+                QwcUserInfo tmpUsr = tmpUsrOld;
+                tmpUsr.setImageFromData(QByteArray::fromBase64(message.getStringArgument(1).toAscii()));
+                j.setValue(tmpUsr);
+
+                // Fire a signal, only for the main list!
+                if(i.key()==1) {
+                    emit userChanged(tmpUsrOld, tmpUsr);
+                }
+            }
+        }
+        i.setValue(tmpList);
+    }
+}
+
+
+/*! 341 Chat Topic
+    Server informs about the topic of a chat room.
+*/
+void QwcSocket::handleMessage341(const QwMessage &message)
+{
+    emit onChatTopic(message.getStringArgument(0).toInt(), // chat id
+                     message.getStringArgument(1), // nickname
+                     message.getStringArgument(2), // login
+                     QHostAddress( message.getStringArgument(3) ), // ip
+                     QDateTime::fromString(message.getStringArgument(4), Qt::ISODate), // date-time
+                     message.getStringArgument(5)); // topic
+}
+
+
+/*! 400 Transfer Ready
+    A transfer is ready and the server is waiting for a transfer connection.
+*/
+void QwcSocket::handleMessage400(const QwMessage &message)
+{
+    QString tmpPath = message.getStringArgument(0);
+    qlonglong tmpOffset = message.getStringArgument(1).toLongLong();
+    QString tmpHash = message.getStringArgument(2);
+
+    qDebug() << this << "Transfer ready:" << tmpPath;
+
+    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
+    while(i.hasNext()) {
+        QwcFiletransferSocket *tmpT = i.next();
+        if(!tmpT) continue;
+        QwcFiletransferInfo tmpTrans = tmpT->pTransfer;
+        qDebug() << "CHECKING FILE"<<tmpTrans.pRemotePath<<"with main status"<<tmpTrans.pStatus<<"file status"<<tmpTrans.pFileStatus;
+
+        if( tmpTrans.pRemotePath==tmpPath && (
+                (tmpTrans.pTransferType==WiredTransfer::TypeUpload && tmpTrans.pStatus==WiredTransfer::StatusWaitingForStat)
+                || (tmpTrans.pTransferType==WiredTransfer::TypeDownload && tmpTrans.pStatus==WiredTransfer::StatusQueued)
+                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued)
+                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued) )) {
+            qDebug() << this << "Transfer Phase 2/3: Transfer ready for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
+            tmpT->pTransfer.pOffset = tmpOffset;
+            tmpT->pTransfer.pHash = tmpHash;
+            tmpT->pTransfer.pQueuePosition = 0;
+            if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload || tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload)
+                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusActive;
+            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
+            tmpT->start();
+            return;
+        }
+
+    }
+
+    // Duh! Something went wrong.
+    qDebug() << "Transfer Phase 2/3: Transfer ready, but we didn't request it?";
+}
+
+
+/*! 401 Transfer Queued
+    A transfer has changed position in the server queue.
+*/
+void QwcSocket::handleMessage401(const QwMessage &message)
+{
+    QString tmpPath = message.getStringArgument(0);
+    int tmpPosition = message.getStringArgument(1).toInt();
+    qDebug() << "Transfer Phase 2/3: File"<<tmpPath<<"queued at position"<<tmpPosition<<" . o ( Zz..zzzZ..zzZ )";
+
+    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
+    while( i.hasNext() ) {
+        QwcFiletransferSocket *tmpT = i.next();
+        if(!tmpT) continue;
+        QwcFiletransferInfo &tmpTrans = tmpT->pTransfer;
+        if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==WiredTransfer::StatusQueued ) {
+            tmpT->pTransfer.pQueuePosition = tmpPosition;
+            emit fileTransferStatus(tmpTrans);
+            return;
+        }
+    }
+
+}
+
+
+/*! 402 File Information
+    The server returned information about a file.
+*/
+void QwcSocket::handleMessage402(const QwMessage &message)
+{
+    QString tmpPath = message.getStringArgument(0);
+    qlonglong tmpSize = message.getStringArgument(2).toLongLong();
+    QDateTime tmpCreated = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
+    QDateTime tmpModified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
+    QString tmpChecksum = message.getStringArgument(5);
+    QString tmpComment = message.getStringArgument(6);
+
+    // Check if we are waiting for a stat
+    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
+    int tmpIdx=0;
+    while( i.hasNext() ) {
+        QwcFiletransferSocket *tmpT = i.next();
+        if(!tmpT) continue;
+
+
+        if( (tmpT->pTransfer.pTransferType==WiredTransfer::TypeDownload
+             && tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat
+             && tmpT->pTransfer.pRemotePath==tmpPath)
+            || (tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
+                && tmpT->pTransfer.pFileStatus==WiredTransfer::StatusWaitingForStat
+                && tmpT->pTransfer.pRemotePath==tmpPath) ) {
+
+            qDebug() << "Transfer Phase 1/3:"<<tmpPath<<": received stat, requesting transfer:"<<tmpPath<<tmpChecksum;
+
+            // Check if we need to resume
+            tmpT->pTransfer.pOffset = 0;
+            tmpT->pTransfer.pDoneSize = 0;
+
+            QString tmpFilePath = tmpT->pTransfer.pLocalPath+".WiredTransfer";
+            QFile tmpFile(tmpFilePath);
+            if(tmpFile.exists()) {
+                if(tmpFile.open(QIODevice::ReadOnly)) {
+                    QByteArray tmpDat = tmpFile.read(1024*1024);
+                    QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
+                    qDebug() << "QwcSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
+                    if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
+                        qDebug() << "QwcSocket: Checksums are identical. Offset is"<<tmpFile.size();
+                        tmpT->pTransfer.pOffset = tmpFile.size();
+                        tmpT->pTransfer.pDoneSize = tmpFile.size();
+                    } else {
+                        qDebug() << "QwcSocket: Checksums are NOT identical, deleting file.";
+                        tmpFile.close();
+                        tmpFile.remove();
+                    }
+                }
+            }
+
+            // Set some more info
+            tmpT->pTransfer.pChecksum = tmpChecksum;
+            tmpT->pTransfer.pTotalSize = tmpSize;
+
+            if(tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
+                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
+            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
+
+            // Request a file download from the server
+            sendMessage(QwMessage("GET").appendArg(tmpPath)
+                        .appendArg(QByteArray::number(tmpT->pTransfer.pOffset)));
+
+            qDebug() << "QwcSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset<<"main status"<<tmpT->pTransfer.pStatus<<"file status"<<tmpT->pTransfer.pFileStatus;
+            return;
+        }
+    }
+    tmpIdx++;
+
+
+    // Not in the transfer queue, pass the event to the user code.
+    QwcFileInfo tmpFile;
+    tmpFile.setFromMessage402(message);
+    emit fileInformation(tmpFile);
+
+}
+
+
+/*! 410 File Listing
+    Received a single entry of the requested list of files.
+*/
+void QwcSocket::handleMessage410(const QwMessage &message)
+{
+    QwcFileInfo file;
+    file.setFromMessage410(message);
+    if(!pIndexingFiles) {
+        emit onFilesListItem(file);
+    } else {
+        file.isIndexed = false;
+        pRecursiveFileListing.append(file);
+    }
+}
+
+
+/*! 411 File Listing Done
+    Received from the server or after PRIVILEGES command.
+*/
+void QwcSocket::handleMessage411(const QwMessage &message)
+{
+    if(!pIndexingFiles) {
+        emit onFilesListDone(message.getStringArgument(0),
+                             message.getStringArgument(1).toLongLong() );
+    } else {
+        // Listing of directory complete. Continue the listing.
+        int maxIndexingDepth = 16;
+        QMutableListIterator<QwcFileInfo> i(pRecursiveFileListing);
+        while(i.hasNext()) {
+            QwcFileInfo &file = i.next();
+            if(file.type==WiredTransfer::Directory && !file.isIndexed && file.size && file.path.count("/")<=maxIndexingDepth ) {
+                // 				qDebug() << this << "Indexing next directory:" << file.path;
+                file.isIndexed = true;
+                getFileList(file.path);
+                return;
+            }
+        }
+
+        // Find a transfer socket
+        QListIterator<QPointer<QwcFiletransferSocket> > j(pTransferSockets);
+        while(j.hasNext()) {
+            QwcFiletransferSocket *tmpT = j.next();
+            if(!tmpT) continue;
+            QwcFiletransferInfo &transfer = tmpT->pTransfer;
+            if(transfer.pRemotePath==pRecursivePath
+               && transfer.pTransferType==WiredTransfer::TypeFolderDownload
+               && transfer.pStatus==WiredTransfer::StatusWaitingForStat) {
+                qDebug() << this << "Waiting folder transfer socket found.";
+                transfer.fileList = pRecursiveFileListing;
+                transfer.pFilesCount = pRecursiveFileListing.count();
+                transfer.pFilesDone = 0;
+                transfer.pFolderDone = 0;
+                transfer.pFolderSize = 0;
+                QListIterator<QwcFileInfo> k(pRecursiveFileListing);
+                while(k.hasNext()) { transfer.pFolderSize+=k.next().size; }
+
+                transfer.pRemoteFolder = pRecursivePath;
+                transfer.pStatus = WiredTransfer::StatusActive;
+                proceedFolderDownload(tmpT);
+                return;
+            }
+        }
+
+        // Finished, if we are here.
+        pIndexingFiles = false;
+        pRecursivePath.clear();
+
+    }
+}
+
+
+/*! 420 Search Listing
+    Received a result from the current search.
+*/
+void QwcSocket::handleMessage420(const QwMessage &message)
+{
+    QwcFileInfo tmpFile;
+    tmpFile.path = message.getStringArgument(0);
+    tmpFile.type = (WiredTransfer::FileType)message.getStringArgument(1).toInt();
+    tmpFile.size = message.getStringArgument(2).toLongLong();
+    tmpFile.created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
+    tmpFile.modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
+    if(pSearchResults.count()<1024) {
+        pSearchResults.append(tmpFile);
+    }
+
+}
+
+/*! 421 Search Listing Done
+    Search result list complete.
+*/
+void QwcSocket::handleMessage421(const QwMessage &message)
+{
+    Q_UNUSED(message);
+    emit fileSearchDone(pSearchResults);
+    pSearchResults.clear();
+}
+
+
+/*! 5xx Error Message
+    Handle some errors, otherwise pass them to the application code.
+*/
+void QwcSocket::handleMessage5xx(const int &errorId)
+{
+    if (errorId == 510) { // Login Failed
+        pSocket->disconnectFromHost();
+        emit errorOccoured(tmpCmdID);
+        emit errorLoginFailed();
+    } else if (errorId == 511) { // Login Failed (Banned)
+        pSocket->disconnectFromHost();
+        emit errorOccoured(tmpCmdID);
+        emit errorBanned();
+    }
+}
+
+
 /*! 602 Privileges Specification
     Received from the server or after PRIVILEGES command.
 */
@@ -350,6 +713,7 @@ void QwcSocket::handleMessage602(const QwMessage &message)
     sessionUser.setPrivilegesFromMessage602(message);
     emit receivedUserPrivileges(sessionUser);
 }
+
 
 /// Disconnect from the server and clean up
 void QwcSocket::disconnectFromServer() {
@@ -392,46 +756,12 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
 
     switch(tmpCmdID) {
 
-                case 308: on_server_userinfo(tmpParams); break;
-                case 309: on_server_broadcast(tmpParams); break;
 
-                case 330: on_server_new_chat_created(tmpParams); break;
-                case 331: emit onServerPrivateChatInvitation( tmpParams.value(0).toInt(), getUserByID(tmpParams.value(1).toInt()) ); break;
-                case 340: on_server_userlist_imagechanged(tmpParams); break;
-
-                case 341: // Chat Topic
-                    emit onChatTopic ( tmpParams.value(0).toInt(), // chat id
-                                       QString::fromUtf8( tmpParams.value(1)), // nickname
-                                       QString::fromUtf8( tmpParams.value(2)), // login
-                                       QHostAddress( QString::fromAscii(tmpParams.value(3)) ), // ip
-                                       QDateTime::fromString( tmpParams.value(4), Qt::ISODate ), // date-time
-                                       QString::fromUtf8( tmpParams.value(5) ) ); // topic
-                    break;
-
-
-                case 400: on_server_transfer_ready(tmpParams); break; // File transfer ready
-                case 401: on_server_transfer_queued(tmpParams); break; // File transfer queued/status
-                case 402: on_server_file_info(tmpParams); break; // File Information
-                case 410: on_server_filelist_item(tmpParams); break;
-                case 411: on_server_filelist_done(tmpParams); break;
-
-                case 420: on_server_search_listing(tmpParams); break;
-                case 421: on_server_search_done(tmpParams); break;
 
                 case 500: emit errorOccoured(tmpCmdID); emit errorCommandFailed(); break;
                 case 501: emit errorOccoured(tmpCmdID); emit errorCommandNotRecognized(); break;
                 case 502: emit errorOccoured(tmpCmdID); emit errorCommandNotImplemented(); break;
                 case 503: emit errorOccoured(tmpCmdID); emit errorCommandSyntaxError(); break;
-                case 510: // Login failed
-                    pSocket->disconnectFromHost();
-                    emit errorOccoured(tmpCmdID);
-                    emit errorLoginFailed();
-                    break;
-                case 511: // Banned
-                    pSocket->disconnectFromHost();
-                    emit errorOccoured(tmpCmdID);
-                    emit errorBanned();
-                    break;
                 case 512: emit errorOccoured(tmpCmdID); emit errorClientNotFound(); break;
                 case 513: emit errorOccoured(tmpCmdID); emit errorAccountNotFound(); break;
                 case 514: emit errorOccoured(tmpCmdID); emit errorAccountExists(); break;
@@ -453,9 +783,6 @@ void QwcSocket::do_handle_wiredmessage(QByteArray theData) {
                     //
                 case 720: on_tracker_listing_item(tmpParams); break;
                 case 721: on_tracker_listing_done(); break;
-
-                default: qDebug() << "QwcSocket: Unhandled command:"<<tmpCmdID; break;
-
                 }
 }
 
@@ -622,32 +949,6 @@ const QwcUserInfo QwcSocket::userByIndex(const int theChatID, const int theIndex
 }
 
 
-void QwcSocket::on_server_userlist_imagechanged(QList< QByteArray > theParams)
-{
-    // A user has changed his/her user image.
-    int tmpID = theParams.value(0).toInt();
-
-    // We have to run through all chats and update the user items accordingly.
-    QMutableHashIterator<int,QList<QwcUserInfo> > i(pUsers);
-    while(i.hasNext()) {
-        i.next();
-        QList<QwcUserInfo> tmpList = i.value();
-        QMutableListIterator<QwcUserInfo> j(tmpList);
-        while(j.hasNext()) {
-            QwcUserInfo tmpUsrOld = j.next();
-            if(tmpUsrOld.pUserID==tmpID) {
-                QwcUserInfo tmpUsr = tmpUsrOld;
-                tmpUsr.setImageFromData(QByteArray::fromBase64(theParams.value(1,"")));
-                j.setValue(tmpUsr);
-
-                // Fire a signal, only for the main list!
-                if(i.key()==1)
-                    emit userChanged(tmpUsrOld, tmpUsr);
-            }
-        }
-        i.setValue(tmpList);
-    }
-}
 
 
 // Find a user by the user id and return the index.
@@ -688,30 +989,13 @@ void QwcSocket::leaveChat(int theChatID) {
 
 
 
-void QwcSocket::on_server_userinfo(QList<QByteArray> theParams) {
-    // Received user info from the server.
-    QwcUserInfo usr = QwcUserInfo::fromUserInfo(theParams);
-    emit onServerUserInfo(usr);
-}
-
 void QwcSocket::createChatWithClient(int theUserID) {
     // Initiate a new private chat with a specific user.
     pInvitedUserID = theUserID;
     sendWiredCommand("PRIVCHAT");
 }
 
-void QwcSocket::on_server_new_chat_created(QList<QByteArray> theParams) {
-    // Server opened a new private chat for us. We now invite the user we have stored in pInvitedUserID before.
-    int tmpChatID = theParams.value(0).toInt();
 
-    //QwcUserInfo tmpUsr = getUserByID();
-    //qDebug() << "Adding"<<tmpUsr.pNick<<"to Chat"<<tmpChatID;
-    QList<QwcUserInfo> &tmpList = pUsers[tmpChatID];
-    tmpList.append(sessionUser);
-    emit onServerPrivateChatCreated(tmpChatID);
-    inviteClientToChat(tmpChatID, pInvitedUserID);
-    pInvitedUserID = 0;
-}
 
 // Invite a user to a private chat.
 void QwcSocket::inviteClientToChat(int theChatID, int theUserID) {
@@ -721,15 +1005,6 @@ void QwcSocket::inviteClientToChat(int theChatID, int theUserID) {
     sendWiredCommand(buf);
 }
 
-
-
-void QwcSocket::on_server_broadcast(QList< QByteArray > theParams)
-{
-    // Handle Server Broadcast
-    QwcUserInfo usr = getUserByID( theParams.value(0).toInt() );
-    QString msg = QString::fromUtf8(theParams.value(1));
-    emit onServerBroadcast(usr, msg);
-}
 
 // Request to clear the news from the server's database
 void QwcSocket::clearNews() { sendWiredCommand("CLEARNEWS"); }
@@ -868,84 +1143,6 @@ void QwcSocket::getFile(const QString thePath, const QString theLocalPath, const
 }
 
 
-
-// File transfer is ready. The client should now connect and send or recieve the
-// requested file.
-void QwcSocket::on_server_transfer_ready(QList<QByteArray> theParams) {
-    QString tmpPath = QString::fromUtf8(theParams.value(0));
-    qlonglong tmpOffset = theParams.value(1).toLongLong();
-    QString tmpHash = QString::fromUtf8(theParams.value(2));
-
-    qDebug() << this << "Transfer ready:"<<theParams;
-
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while(i.hasNext()) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        QwcFiletransferInfo tmpTrans = tmpT->pTransfer;
-        qDebug() << "CHECKING FILE"<<tmpTrans.pRemotePath<<"with main status"<<tmpTrans.pStatus<<"file status"<<tmpTrans.pFileStatus;
-
-        if( tmpTrans.pRemotePath==tmpPath && (
-                (tmpTrans.pTransferType==WiredTransfer::TypeUpload && tmpTrans.pStatus==WiredTransfer::StatusWaitingForStat)
-                || (tmpTrans.pTransferType==WiredTransfer::TypeDownload && tmpTrans.pStatus==WiredTransfer::StatusQueued)
-                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued)
-                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued) )) {
-            qDebug() << this << "Transfer Phase 2/3: Transfer ready for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
-            tmpT->pTransfer.pOffset = tmpOffset;
-            tmpT->pTransfer.pHash = tmpHash;
-            tmpT->pTransfer.pQueuePosition = 0;
-            if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload || tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload)
-                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusActive;
-            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
-            tmpT->start();
-            return;
-        }
-
-    }
-
-    // Duh! Something went wrong.
-    qDebug() << "Transfer Phase 2/3: Transfer ready, but we didn't request it?";
-}
-
-
-// The transfer has been queued on the server. Update the transfers respectively.
-void QwcSocket::on_server_transfer_queued(QList< QByteArray > theParams) {
-    QString tmpPath = QString::fromUtf8(theParams.value(0));
-    int tmpPosition = theParams.value(1).toInt();
-    qDebug() << "Transfer Phase 2/3: File"<<tmpPath<<"queued at position"<<tmpPosition<<" . o ( Zz..zzzZ..zzZ )";
-
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while( i.hasNext() ) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        QwcFiletransferInfo &tmpTrans = tmpT->pTransfer;
-        if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==WiredTransfer::StatusQueued ) {
-            tmpT->pTransfer.pQueuePosition = tmpPosition;
-            emit fileTransferStatus(tmpTrans);
-            return;
-        }
-    }
-
-
-}
-
-void QwcSocket::on_server_search_listing(QList<QByteArray> theParams) {
-    QwcFileInfo tmpFile;
-    tmpFile.path = QString::fromUtf8(theParams.value(0));
-    tmpFile.type = (WiredTransfer::FileType)theParams.value(1).toInt();
-    tmpFile.size = theParams.value(2).toLongLong();
-    tmpFile.created = QDateTime::fromString( QString::fromUtf8(theParams.value(3)), Qt::ISODate );
-    tmpFile.modified = QDateTime::fromString( QString::fromUtf8(theParams.value(4)), Qt::ISODate );
-    if(pSearchResults.count()<1024)
-        pSearchResults.append(tmpFile);
-}
-
-void QwcSocket::on_server_search_done(QList<QByteArray> ) {
-    emit fileSearchDone(pSearchResults);
-    pSearchResults.clear();
-}
-
-
 void QwcSocket::on_server_groups_listing(QList< QByteArray > theParams) {
     pAdminGroups.append( QString::fromUtf8( theParams.value(0) ) );
 }
@@ -1002,83 +1199,6 @@ void QwcSocket::on_tracker_listing_done() {
     this->disconnectFromServer();
 }
 
-void QwcSocket::on_server_file_info(QList<QByteArray> theParams) {
-    // Received file information. This can be the response to a file in the
-    // transfer queue or a user request. Let's see...
-
-    QString tmpPath = QString::fromUtf8(theParams.value(0));
-    qlonglong tmpSize = theParams.value(2).toLongLong();
-    QDateTime tmpCreated = QDateTime::fromString( theParams.value(3), Qt::ISODate );
-    QDateTime tmpModified = QDateTime::fromString( theParams.value(4), Qt::ISODate );
-    QString tmpChecksum = QString::fromUtf8(theParams.value(5));
-    QString tmpComment = QString::fromUtf8(theParams.value(6));
-
-    // Check if we are waiting for a stat
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    int tmpIdx=0;
-    while( i.hasNext() ) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-
-
-        if( (tmpT->pTransfer.pTransferType==WiredTransfer::TypeDownload
-             && tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat
-             && tmpT->pTransfer.pRemotePath==tmpPath)
-            || (tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
-                && tmpT->pTransfer.pFileStatus==WiredTransfer::StatusWaitingForStat
-                && tmpT->pTransfer.pRemotePath==tmpPath) ) {
-
-            qDebug() << "Transfer Phase 1/3:"<<tmpPath<<": received stat, requesting transfer:"<<tmpPath<<tmpChecksum;
-
-            // Check if we need to resume
-            tmpT->pTransfer.pOffset = 0;
-            tmpT->pTransfer.pDoneSize = 0;
-
-            QString tmpFilePath = tmpT->pTransfer.pLocalPath+".WiredTransfer";
-            QFile tmpFile(tmpFilePath);
-            if(tmpFile.exists()) {
-                if(tmpFile.open(QIODevice::ReadOnly)) {
-                    QByteArray tmpDat = tmpFile.read(1024*1024);
-                    QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
-                    qDebug() << "QwcSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
-                    if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
-                        qDebug() << "QwcSocket: Checksums are identical. Offset is"<<tmpFile.size();
-                        tmpT->pTransfer.pOffset = tmpFile.size();
-                        tmpT->pTransfer.pDoneSize = tmpFile.size();
-                    } else {
-                        qDebug() << "QwcSocket: Checksums are NOT identical, deleting file.";
-                        tmpFile.close();
-                        tmpFile.remove();
-                    }
-                }
-            }
-
-            // Set some more info
-            tmpT->pTransfer.pChecksum = tmpChecksum;
-            tmpT->pTransfer.pTotalSize = tmpSize;
-
-            if(tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
-                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
-            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
-
-            // Request a file download from the server
-            QByteArray buf("GET ");
-            buf += tmpPath.toUtf8() + char(kFS);
-            buf += QByteArray::number(tmpT->pTransfer.pOffset);
-            sendWiredCommand(buf);
-            qDebug() << "QwcSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset<<"main status"<<tmpT->pTransfer.pStatus<<"file status"<<tmpT->pTransfer.pFileStatus;
-            return;
-        }
-    }
-    tmpIdx++;
-
-
-    // Not in the transfer queue, pass the event to the user code.
-    QwcFileInfo tmpFile;
-    tmpFile.setFromStat(theParams);
-    emit onServerFileInfo(tmpFile);
-
-}
 
 // Request uploading of a file to the server
 void QwcSocket::putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally) {
@@ -1539,68 +1659,8 @@ void QwcSocket::getFileListRecusive(const QString & path)
 }
 
 
-void QwcSocket::on_server_filelist_item(QList<QByteArray> params)
-{
-    QwcFileInfo file(params);
-    if(!pIndexingFiles) {
-        emit onFilesListItem(file);
-    } else {
-        file.isIndexed = false;
-        pRecursiveFileListing.append(file);
-    }
-}
 
 
-void QwcSocket::on_server_filelist_done(QList<QByteArray> params)
-{
-    if(!pIndexingFiles) {
-        emit onFilesListDone(QString::fromUtf8(params.value(0)), params.value(1).toLongLong() );
-    } else {
-        // Listing of directory complete. Continue the listing.
-        int maxIndexingDepth = 16;
-        QMutableListIterator<QwcFileInfo> i(pRecursiveFileListing);
-        while(i.hasNext()) {
-            QwcFileInfo &file = i.next();
-            if(file.type==WiredTransfer::Directory && !file.isIndexed && file.size && file.path.count("/")<=maxIndexingDepth ) {
-                // 				qDebug() << this << "Indexing next directory:" << file.path;
-                file.isIndexed = true;
-                getFileList(file.path);
-                return;
-            }
-        }
-
-        // Find a transfer socket
-        QListIterator<QPointer<QwcFiletransferSocket> > j(pTransferSockets);
-        while(j.hasNext()) {
-            QwcFiletransferSocket *tmpT = j.next();
-            if(!tmpT) continue;
-            QwcFiletransferInfo &transfer = tmpT->pTransfer;
-            if(transfer.pRemotePath==pRecursivePath
-               && transfer.pTransferType==WiredTransfer::TypeFolderDownload
-               && transfer.pStatus==WiredTransfer::StatusWaitingForStat) {
-                qDebug() << this << "Waiting folder transfer socket found.";
-                transfer.fileList = pRecursiveFileListing;
-                transfer.pFilesCount = pRecursiveFileListing.count();
-                transfer.pFilesDone = 0;
-                transfer.pFolderDone = 0;
-                transfer.pFolderSize = 0;
-                QListIterator<QwcFileInfo> k(pRecursiveFileListing);
-                while(k.hasNext()) { transfer.pFolderSize+=k.next().size; }
-
-                transfer.pRemoteFolder = pRecursivePath;
-                transfer.pStatus = WiredTransfer::StatusActive;
-                proceedFolderDownload(tmpT);
-                return;
-            }
-        }
-
-        // Finished, if we are here.
-        pIndexingFiles = false;
-        pRecursivePath.clear();
-        // 		emit onFilesListRecursiveDone(pRecursiveFileListing);
-
-    }
-}
 
 
 void QwcSocket::proceedFolderDownload(QwcFiletransferSocket *socket)

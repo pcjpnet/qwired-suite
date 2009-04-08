@@ -33,6 +33,37 @@ public:
         userType = Qws::UserTypeAccount;
     };
 
+
+    /*! Create a new user info object from objects as expected from the 308 Client Information message
+        and return it.
+    */
+    static QwcUserInfo fromMessage308(const QwMessage &message)
+    {
+        int n = 0;
+        QwcUserInfo user;
+        user.userType = Qws::UserTypeAccount;
+        user.pUserID = message.getStringArgument(n++).toInt();
+        user.pIdle = message.getStringArgument(n++).toInt();
+        user.pAdmin = message.getStringArgument(n++).toInt();
+        user.pIcon = message.getStringArgument(n++).toInt();
+        user.userNickname = message.getStringArgument(n++);
+        user.name = message.getStringArgument(n++);
+        user.userIpAddress = message.getStringArgument(n++);
+        user.userHostName = message.getStringArgument(n++);
+        user.pClientVersion =message.getStringArgument(n++);
+        user.pCipherName = message.getStringArgument(n++);
+        user.pCipherBits = message.getStringArgument(n++).toInt();
+        user.pLoginTime = QDateTime::fromString(message.getStringArgument(n++), Qt::ISODate);
+        user.pIdleTime = QDateTime::fromString(message.getStringArgument(n++), Qt::ISODate);
+        user.pDownloads = message.getStringArgument(n++).toUtf8();
+        user.pUploads = message.getStringArgument(n++).toUtf8();
+        user.userStatus = message.getStringArgument(n++);
+        user.setImageFromData(QByteArray::fromBase64(message.getStringArgument(10).toAscii()));
+        return user;
+    };
+
+
+
     /*! Create a new user info object from objects as expected from the 310 User List message
         and return it.
     */
@@ -50,6 +81,8 @@ public:
         user.userStatus = message.getStringArgument(9);
         user.setImageFromData(QByteArray::fromBase64(message.getStringArgument(10).toAscii()));
         return user;
+
+
     };
 
 
