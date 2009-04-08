@@ -10,7 +10,7 @@ class QwcEventFilter : public QObject
 
 public:
    QwcEventFilter(QObject *parent=0);
-   QwcSocket *pWiredSocket;
+   QwcSocket *socket;
    void setSocket(QwcSocket *s);
    bool disconnectionPrompt(QEvent *event=0);
 

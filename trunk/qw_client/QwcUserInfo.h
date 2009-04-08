@@ -175,6 +175,42 @@ public:
     };
 
 
+    /*! Append privileges flags to the end of \a message to be used in CREATExy-type messages.
+    */
+    void appendPrivilegesFlags(QwMessage &message)
+    {
+
+        // Don't set any flags if the user is part of a group.
+        if (userType == Qws::UserTypeAccount && !pGroupName.isEmpty()) {
+            for (int i=0; i<23; i++) { message.appendArg("0"); }
+        }
+
+        message.appendArg(QString::number(privGetUserInfo));
+        message.appendArg(QString::number(privBroadcast));
+        message.appendArg(QString::number(privPostNews));
+        message.appendArg(QString::number(privClearNews));
+        message.appendArg(QString::number(privDownload));
+        message.appendArg(QString::number(privUpload));
+        message.appendArg(QString::number(privUploadAnywhere));
+        message.appendArg(QString::number(privCreateFolders));;
+        message.appendArg(QString::number(privAlterFiles));
+        message.appendArg(QString::number(privDeleteFiles));
+        message.appendArg(QString::number(privViewDropboxes));
+        message.appendArg(QString::number(privCreateAccounts));
+        message.appendArg(QString::number(privEditAccounts));
+        message.appendArg(QString::number(privDeleteAccounts));
+        message.appendArg(QString::number(privElevatePrivileges));
+        message.appendArg(QString::number(privKickUsers));
+        message.appendArg(QString::number(privBanUsers));
+        message.appendArg(QString::number(privCannotBeKicked));
+        message.appendArg(QString::number(privDownloadSpeed));
+        message.appendArg(QString::number(privUploadSpeed));
+        message.appendArg(QString::number(privDownloadLimit));
+        message.appendArg(QString::number(privUploadLimit));
+        message.appendArg(QString::number(privChangeTopic));
+    }
+
+
     QByteArray privilegesFlags()
     {
         QByteArray tmpPrivs;

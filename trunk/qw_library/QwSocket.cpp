@@ -36,6 +36,14 @@ void QwSocket::sendMessage(const QwMessage &message)
 }
 
 
+/*! Return a const pointer to the underlying SSL-socket.
+*/
+const QSslSocket* QwSocket::sslSocket() const
+{
+    return socket;
+}
+
+
 /*! Attach the provided QSslSocket and connect required signals to make use of the socket. This
     object automatically becomes the parent for the socket object.
 */

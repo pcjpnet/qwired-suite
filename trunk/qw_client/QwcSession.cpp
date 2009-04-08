@@ -11,11 +11,8 @@
 #include "QwcConnectWidget.h"
 #include "QwcFiletransferModel.h"
 #include "QwcFileBrowserWidget.h"
-
 #include <QMessageBox>
-#include <QtGui>
-
-
+#include <QSound>
 
 QwcSession::QwcSession(QObject *parent) : QObject(parent)
 {
@@ -24,6 +21,81 @@ QwcSession::QwcSession(QObject *parent) : QObject(parent)
     setConnectionToolButtonsEnabled(false);
     reloadPreferences();
 }
+
+QwcSession::~QwcSession()
+{
+    pConnWindow->deleteLater();
+    pContainerWidget->deleteLater();
+    pMainChat->deleteLater();
+
+}
+
+
+/*! Handle a protocol-related error and display it to the user.
+*/
+void QwcSession::handleProtocolError(Qw::ProtocolError error)
+{
+    if (error == Qw::ErrorLoginFailed) {
+        pConnectWindow->resetForm();
+        pContainerLayout->setCurrentIndex(0);
+        setConnectionToolButtonsEnabled(false);
+    }
+
+    // Display an error message
+    QString errorText(tr("An unknown server error occoured. The error code is %1.").arg(error));
+    switch (error) {
+        case Qw::ErrorCommandFailed: errorText=tr("Command Failed. An undefined internal server error has occoured."); break;
+        case Qw::ErrorCommandNotRecognized: errorText=tr("Command Not Recognized. Qwired sent a command that is unknown by the server."); break;
+        case Qw::ErrorCommandNotImplemented: errorText=tr("Command Not Implemented. The last command is not implemented by the server."); break;
+        case Qw::ErrorSyntaxError: errorText=tr("Syntax Error. The last command was not formatted correctly."); break;
+        case Qw::ErrorLoginFailed: errorText=tr("Login Failed. Username and password were not accepted by the server."); break;
+        case Qw::ErrorBanned: errorText=tr("Banned. You have been banned from the server. Please try connecting later."); break;
+        case Qw::ErrorClientNotFound: errorText=tr("Client Not Found. The server could not find the client referred to."); break;
+        case Qw::ErrorAccountNotFound: errorText=tr("Account Not Found. The server could not find the account referred to."); break;
+        case Qw::ErrorAccountExists: errorText=tr("Account Exists. Could not create the account you specified."); break;
+        case Qw::ErrorCannotBeDisconnected: errorText=tr("User can not be disconnected. The specified user can not be disconnected."); break;
+        case Qw::ErrorPermissionDenied: errorText=tr("Permission Denied. You don't have sufficient privileges to execute the last command."); break;
+        case Qw::ErrorFileOrDirectoryNotFound: errorText=tr("File or Directory not found. The last command could not be completed because the file or directory could not be found."); break;
+        case Qw::ErrorFileOrDirectoryExists: errorText=tr("The last command could not be completed because the file or directory already exists."); break;
+        case Qw::ErrorChecksumMismatch: errorText=tr("Checksum Mismatch.");
+        case Qw::ErrorQueueLimitExceeded: errorText=tr("Queue Limit Exceeded. Could not complete the last command because the server queue is full."); break;
+    }
+
+    // Dispatch an event
+    triggerEvent("ServerError", QStringList(errorText));
+    QMessageBox::warning(pConnWindow, tr("Server Error"), errorText);
+}
+
+
+/*! Handle a low-level socket error.
+*/
+void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
+{
+    if(error == QAbstractSocket::ConnectionRefusedError) {
+        // Error occoured while connecting from the connecting window
+        pConnectWindow->resetForm();
+        QMessageBox::critical(pMainChat, tr("Connection Refused"),
+                              tr("The connection was refused by the remote host. "
+                                 "This normally means that there is no Wired server running on the remote machine."));
+    } else if(error == QAbstractSocket::HostNotFoundError) {
+        pConnectWindow->resetForm();
+        QMessageBox::critical(pMainChat, tr("Host not found"),
+                              tr("Could not connect to the remote server because the host name could not be resolved."));
+    } else {
+        // Disconnected suddenly
+        qDebug() << error;
+        pContainerLayout->setCurrentIndex(0);
+        pConnectWindow->resetForm();
+        pConnectWindow->startReconnecting();
+
+        //pConnWindow->setEnabled(false);
+        //pConnWindow->setWindowTitle( pConnWindow->windowTitle()+tr(" [Disconnected]") );
+
+        triggerEvent("ServerDisconnected",QStringList());
+    }
+    setConnectionToolButtonsEnabled(false);
+}
+
 
 void QwcSession::initMainWindow()
 {
@@ -75,7 +147,7 @@ void QwcSession::initMainWindow()
 
     // Connection window/Forum
     pUserListModel = new QwcUserlistModel(pMainChat);
-    pUserListModel->setWiredSocket(pWiredSocket);
+    pUserListModel->setWiredSocket(socket);
     pMainChat->setSession(this);
     pMainChat->setUserListModel(pUserListModel);
 
@@ -96,14 +168,14 @@ void QwcSession::initMainWindow()
     // Install the event filter in pConnWindow
     pEventFilter = new QwcEventFilter;
     pConnWindow->installEventFilter(pEventFilter);
-    pEventFilter->setSocket(pWiredSocket);
+    pEventFilter->setSocket(socket);
 }
 
 
 /// The user list was completely received after connecting.
 void QwcSession::onUserlistComplete(int chatId)
 {
-    if (chatId!=1 && pContainerLayout->currentIndex()!=0) return;
+    if (chatId != 1 && pContainerLayout->currentIndex() != 0) return;
     pContainerLayout->setCurrentIndex(1);
     setConnectionToolButtonsEnabled(true);
 }
@@ -140,13 +212,7 @@ void QwcSession::onTabBarCurrentChanged(int index)
 }
 
 
-QwcSession::~QwcSession()
-{
-    pConnWindow->deleteLater();
-    pContainerWidget->deleteLater();
-    pMainChat->deleteLater();
 
-}
 
 
 /// Called when the connection window is destroyed/closed. Allows the manager class to do
@@ -160,58 +226,60 @@ void QwcSession::connectionWindowDestroyed(QObject*)
 
 
 /// Set up connections between objects in this class.
-void QwcSession::setupConnections() {
+void QwcSession::setupConnections()
+{
     // Socket connections
     //
+    connect(socket, SIGNAL(protocolError(Qw::ProtocolError)),
+            this, SLOT(handleProtocolError(Qw::ProtocolError)));
+
 
     // Messager
     //
 
-    connect(pWiredSocket, SIGNAL(onPrivateMessage(QwcUserInfo,QString)),
+    connect(socket, SIGNAL(onPrivateMessage(QwcUserInfo,QString)),
             privateMessager, SLOT(handleNewMessage(QwcUserInfo, QString)) );
     connect(privateMessager, SIGNAL(enteredNewMessage(int,QString)),
-            pWiredSocket, SLOT(sendPrivateMessage(int,QString)));
+            socket, SLOT(sendPrivateMessage(int,QString)));
     connect(pMainChat, SIGNAL(userDoubleClicked(const QwcUserInfo)),
             this, SLOT(showMessagerForUser(const QwcUserInfo)));
-    connect(pWiredSocket, SIGNAL(userChanged(QwcUserInfo, QwcUserInfo)),
+    connect(socket, SIGNAL(userChanged(QwcUserInfo, QwcUserInfo)),
             privateMessager, SLOT(handleUserChanged(QwcUserInfo, QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(userLeftRoom(int, QwcUserInfo)),
+    connect(socket, SIGNAL(userLeftRoom(int, QwcUserInfo)),
             privateMessager, SLOT(handleUserLeft(int, QwcUserInfo)));
 
 
-    connect(pWiredSocket, SIGNAL(receivedChatMessage(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
-    connect(pWiredSocket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
+    connect(socket, SIGNAL(receivedChatMessage(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
+    connect(socket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
             this,   SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
 
-    connect(pWiredSocket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onLoginSuccessful()) );
+    connect(socket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onLoginSuccessful()) );
 
-    connect(pWiredSocket, SIGNAL(receivedUserlist(int)), this, SLOT(onUserlistComplete(int)) );
+    connect(socket, SIGNAL(receivedUserlist(int)), this, SLOT(onUserlistComplete(int)) );
 
-    connect(pWiredSocket, SIGNAL(userInformation(QwcUserInfo)), this, SLOT(doHandleUserInfo(QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(privateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(privateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
+    connect(socket, SIGNAL(userInformation(QwcUserInfo)), this, SLOT(doHandleUserInfo(QwcUserInfo)) );
+    connect(socket, SIGNAL(privateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
+    connect(socket, SIGNAL(privateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
 
-    connect(pWiredSocket, SIGNAL(onSocketError(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)) );
-    connect(pWiredSocket, SIGNAL(onServerInformation()), this, SLOT(onSocketServerInfo()) );
+    connect(socket, SIGNAL(onServerInformation()), this, SLOT(onSocketServerInfo()) );
 
 
-    connect(pWiredSocket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
-    connect(pWiredSocket, SIGNAL(errorOccoured(int)), this, SLOT(handleErrorOccoured(int)) );
-    connect(pWiredSocket, SIGNAL(errorLoginFailed()), this, SLOT(onSocketLoginFailed()) );
-    connect(pWiredSocket, SIGNAL(receivedUserPrivileges(QwcUserInfo)), this, SLOT(onSocketPrivileges(QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(fileInformation(QwcFileInfo)), this, SLOT(fileInformation(QwcFileInfo)) );
+    connect(socket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
 
-    connect(pWiredSocket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(userLeftRoom(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(userChanged(QwcUserInfo,QwcUserInfo)), this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
-    connect(pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), this, SLOT(newsPosted(QString,QString,QString)) );
+    connect(socket, SIGNAL(receivedUserPrivileges(QwcUserInfo)), this, SLOT(onSocketPrivileges(QwcUserInfo)) );
+    connect(socket, SIGNAL(fileInformation(QwcFileInfo)), this, SLOT(fileInformation(QwcFileInfo)) );
+
+    connect(socket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
+    connect(socket, SIGNAL(userLeftRoom(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
+    connect(socket, SIGNAL(userChanged(QwcUserInfo,QwcUserInfo)), this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
+    connect(socket, SIGNAL(onServerNewsPosted(QString, QString, QString)), this, SLOT(newsPosted(QString,QString,QString)) );
 
     // File transfer signals
-    connect(pWiredSocket, SIGNAL(fileTransferDone(const QwcFiletransferInfo)), this, SLOT(transferDone(QwcFiletransferInfo)) );
-    connect(pWiredSocket, SIGNAL(fileTransferStarted(const QwcFiletransferInfo)), this, SLOT(transferStarted(QwcFiletransferInfo)) );
-    connect(pWiredSocket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
-    connect(pWiredSocket, SIGNAL(fileTransferError(const QwcFiletransferInfo)), this, SLOT(transferError(QwcFiletransferInfo)) );
-    connect(pWiredSocket, SIGNAL(onFilesListRecursiveDone(const QList<QwcFileInfo>)), this, SLOT(fileListingRecursiveDone(const QList<QwcFileInfo>)));
+    connect(socket, SIGNAL(fileTransferDone(const QwcFiletransferInfo)), this, SLOT(transferDone(QwcFiletransferInfo)) );
+    connect(socket, SIGNAL(fileTransferStarted(const QwcFiletransferInfo)), this, SLOT(transferStarted(QwcFiletransferInfo)) );
+    connect(socket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(fileTransferError(const QwcFiletransferInfo)), this, SLOT(transferError(QwcFiletransferInfo)) );
+    connect(socket, SIGNAL(onFilesListRecursiveDone(const QList<QwcFileInfo>)), this, SLOT(fileListingRecursiveDone(const QList<QwcFileInfo>)));
 
     // Main Window actions
     //
@@ -258,8 +326,8 @@ void QwcSession::fileInformation(QwcFileInfo theFile)
 
     if(win) {
         win->loadFromFile(theFile);
-        win->fName->setReadOnly(!pWiredSocket->sessionUser.privAlterFiles);
-        win->fComments->setReadOnly(!pWiredSocket->sessionUser.privAlterFiles);
+        win->fName->setReadOnly(!socket->sessionUser.privAlterFiles);
+        win->fComments->setReadOnly(!socket->sessionUser.privAlterFiles);
         win->show();
         win->raise();
     }
@@ -276,7 +344,7 @@ void QwcSession::onSocketPrivileges(QwcUserInfo s)
 
 /// A chat message was received, handle it.
 void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction) {
-    QwcUserInfo tmpUsr = pWiredSocket->getUserByID(theUserID); // Find the user
+    QwcUserInfo tmpUsr = socket->getUserByID(theUserID); // Find the user
     if(theChat==1) {
         // Public chat
         pMainChat->writeToChat(tmpUsr.userNickname, theText, theIsAction);
@@ -323,52 +391,8 @@ void QwcSession::doHandleChatTopic(int theChatID, QString theNick, QString theLo
 // Handle user public chat input.
 void QwcSession::doHandlePublicChatInput(QString theText, bool theIsAction)
 {
-    pWiredSocket->sendChatToRoom(1, theText, theIsAction);
+    socket->sendChatToRoom(1, theText, theIsAction);
 }
-
-//
-///// A private message was received. Display it to the user.
-//void QwcSession::doHandlePrivMsg(QwcUserInfo theUser, QString theMessage)
-//{
-//    if (!privateMessager) { return; }
-//    privateMessager->handleNewMessage(theUser, theMessage);
-//
-//   /*
-//
-//
-//    SendPrivateMessageWidget *msg;
-//    if(!pMsgWindows.contains(theUser.pUserID)) {
-//        // Create a new message dialog
-//        msg = new SendPrivateMessageWidget(pConnWindow);
-//        msg->setParent(pMainChat, Qt::Window);
-//        msg->pTargetID = theUser.pUserID;
-//        msg->fMsg->setReadOnly(true);
-//        msg->setWindowTitle( theUser.pNick);
-//        msg->setWindowIcon( theUser.iconAsPixmap() );
-//        connect( msg, SIGNAL(newMessage(int,QString)), pWiredSocket, SLOT(sendPrivateMessage(int,QString)) );
-//    } else {
-//        // Recover the old window
-//        msg = pMsgWindows.value(theUser.pUserID);
-//        pMsgWindows[theUser.pUserID] = msg;
-//    }
-//
-//    // Write to the chat
-//    if(msg) {
-//        msg->addText(theMessage,1);
-//        if(!msg->isVisible()) {
-//            msg->show();
-//        }
-//    }
-//*/
-//    QStringList tmpParams;
-//    tmpParams << theUser.pNick;
-//    tmpParams << theMessage;
-//    triggerEvent("MessageReceived", tmpParams);
-//
-//
-//}
-
-
 
 // Display received user info in a new window.
 void QwcSession::doHandleUserInfo(QwcUserInfo theUser)
@@ -381,15 +405,6 @@ void QwcSession::doHandleUserInfo(QwcUserInfo theUser)
             info->setUser(theUser);
             return;
         } }
-
-    // Not found, create a new window
-//    QwcUserInfoWidget *info = new QwcUserInfoWidget(pConnWindow);
-//    info->setUser(theUser);
-//    QPixmap tmpIcnPx;
-//    tmpIcnPx.loadFromData(theUser.pImage);
-//    int tmpIdx = pMainTabWidget->addTab(info, QIcon(tmpIcnPx), tr("Info: %1").arg(theUser.pNick));
-
-    //pMainTabWidget->setCurrentIndex(tmpIdx);
 
 }
 
@@ -411,10 +426,10 @@ void QwcSession::doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUse
     if (messageBox.clickedButton() == joinButton) {
         // Create a new chat
         doCreateNewChat(theChatID);
-        pWiredSocket->joinChat(theChatID);
+        socket->joinChat(theChatID);
     } else if( messageBox.clickedButton() == rejectButton ) {
         // Reject the chat.
-        pWiredSocket->rejectChat(theChatID);
+        socket->rejectChat(theChatID);
     } else {
         // Ignore
     }
@@ -443,17 +458,9 @@ void QwcSession::onSocketServerInfo()
 {
     pConnectWindow->setStatus(tr("Connecting. Starting session..."));
     if(pConnectWindow>0) pConnectWindow->setProgressBar(1,3);
-    if(pTrayMenuItem) pTrayMenuItem->setTitle(pWiredSocket->serverInfo.name);
+    if(pTrayMenuItem) pTrayMenuItem->setTitle(socket->serverInfo.name);
 }
 
-
-/// Login attempt failed.
-void QwcSession::onSocketLoginFailed()
-{
-    pConnectWindow->resetForm();
-    pContainerLayout->setCurrentIndex(0);
-    setConnectionToolButtonsEnabled(false);
-}
 
 
 /// Connect to the remote server.
@@ -461,40 +468,15 @@ void QwcSession::onDoConnect(QString theHost, QString theLogin, QString thePassw
 {
     if (theLogin.isEmpty()) {
         // Log in as guest if no login/password defined.
-        pWiredSocket->setUserAccount("guest", "");
+        socket->setUserAccount("guest", "");
     } else {
-        pWiredSocket->setUserAccount(theLogin,thePassword);
+        socket->setUserAccount(theLogin,thePassword);
     }
-    pWiredSocket->connectToWiredServer(theHost);
+    socket->connectToWiredServer(theHost);
 }
 
 
-/// A connection error occoured.
-void QwcSession::onSocketError(QAbstractSocket::SocketError error)
-{
-    if(error == QAbstractSocket::ConnectionRefusedError) {
-        // Error occoured while connecting from the connecting window
-        pConnectWindow->resetForm();
-        QMessageBox::critical(pMainChat, tr("Connection Refused"), tr("The connection was refused by the remote host. "
-                                                                      "This normally means that there is no Wired server running on the remote machine."));
-    } else if(error == QAbstractSocket::HostNotFoundError) {
-        pConnectWindow->resetForm();
-        QMessageBox::critical(pMainChat, tr("Host not found"), tr("Could not connect to the remote server because the host name could not be resolved."));
-    } else {
-        // Disconnected suddenly
-        qDebug() << error;
-        pContainerLayout->setCurrentIndex(0);
-        pConnectWindow->resetForm();
-        pConnectWindow->startReconnecting();
 
-        //pConnWindow->setEnabled(false);
-        //pConnWindow->setWindowTitle( pConnWindow->windowTitle()+tr(" [Disconnected]") );
-
-        triggerEvent("ServerDisconnected",QStringList());
-    }
-    setConnectionToolButtonsEnabled(false);
-
-}
 
 
 /// Enable/Disable connection-related toolbar items (true if connected)
@@ -562,34 +544,6 @@ void QwcSession::search_reveal_file(QString thePath)
 }
 
 
-void QwcSession::handleErrorOccoured(int theError)
-{
-    QString tmpError(tr("An unknown server error occoured. The error code is %1.").arg(theError));
-    switch(theError) {
-        case 500: tmpError=tr("Command Failed. An undefined internal server error has occoured."); break;
-        case 501: tmpError=tr("Command Not Recognized. Qwired sent a command that is unknown by the server."); break;
-        case 502: tmpError=tr("Command Not Implemented. The last command is not implemented by the server."); break;
-        case 503: tmpError=tr("Syntax Error. The last command was not formatted correctly."); break;
-        case 510: tmpError=tr("Login Failed. Username and password were not accepted by the server."); break;
-        case 511: tmpError=tr("Banned. You have been banned from the server. Please try connecting later."); break;
-        case 512: tmpError=tr("Client Not Found. The server could not find the client referred to."); break;
-        case 513: tmpError=tr("Account Not Found. The server could not find the account referred to."); break;
-        case 514: tmpError=tr("Account Exists. Could not create the account you specified."); break;
-        case 515: tmpError=tr("User can not be disconnected. The specified user can not be disconnected."); break;
-        case 516: tmpError=tr("Permission Denied. You don't have sufficient privileges to execute the last command."); break;
-        case 520: tmpError=tr("File or Directory not found. The last command could not be completed because the file or directory could not be found."); break;
-        case 521: tmpError=tr("The last command could not be completed because the file or directory already exists."); break;
-        case 522: tmpError=tr("Checksum Mismatch.");
-        case 523: tmpError=tr("Queue Limit Exceeded. Could not complete the last command because the server queue is full."); break;
-    }
-
-    QStringList tmpParams;
-    tmpParams << tmpError;
-    triggerEvent("ServerError",tmpParams);
-
-    QMessageBox::critical(pConnWindow, tr("Server Error"), tmpError);
-}
-
 
 void QwcSession::setTrayMenuAction(QMenu *action)
 {
@@ -642,7 +596,7 @@ void QwcSession::triggerEvent(QString event, QStringList params)
     // Show a message in the system tray
     if(conf.value(QString("events/%1/traymsg").arg(event)).toBool()) {
         QwcSingleton *tmpS = &WSINGLETON::Instance();
-        tmpS->pTrayIcon->showMessage( pWiredSocket->serverInfo.name, tmpMsg );
+        tmpS->pTrayIcon->showMessage( socket->serverInfo.name, tmpMsg );
     }
 
     if(conf.contains(QString("events/%1/sound").arg(event)) ) {
@@ -704,7 +658,7 @@ void QwcSession::transferDone(QwcFiletransferInfo transfer)
     QSettings s;
     if(s.value("files/queue_local", false).toBool()) {
         qDebug() << this<< "Transfer completed. Unfreezing next.";
-        pWiredSocket->runTransferQueue(transfer.pTransferType);
+        socket->runTransferQueue(transfer.pTransferType);
     }
 
     triggerEvent("TransferFinished", QStringList(transfer.fileName()));
@@ -733,14 +687,17 @@ void QwcSession::onLoginSuccessful()
 /// Initialize the main socket and load settings
 void QwcSession::initWiredSocket()
 {
-    pWiredSocket = new QwcSocket(this);
+    socket = new QwcSocket(this);
 
     QSettings settings;
-    pWiredSocket->setUserStatus(settings.value("general/status","Qwired Newbie").toString());
-    pWiredSocket->setUserNick(settings.value("general/nickname", "Unnamed").toString());
+    socket->setUserStatus(settings.value("general/status","Qwired Newbie").toString());
+    socket->setUserNick(settings.value("general/nickname", "Unnamed").toString());
 
     QImage tmpIcon = settings.value("general/icon", QImage(":/icons/qwired_logo_32.png")).value<QImage>();
-    pWiredSocket->setUserIcon(tmpIcon);
+    socket->setUserIcon(tmpIcon);
+
+    connect(socket->sslSocket(), SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
 }
 
 
@@ -749,22 +706,22 @@ void QwcSession::reloadPreferences()
 {
     QSettings s;
 
-    if (pWiredSocket->sessionUser.userNickname != s.value("general/nickname", "Unnamed").toString()) {
-        pWiredSocket->setUserNick(s.value("general/nickname").toString());
+    if (socket->sessionUser.userNickname != s.value("general/nickname", "Unnamed").toString()) {
+        socket->setUserNick(s.value("general/nickname").toString());
     }
 
-    if (pWiredSocket->sessionUser.userStatus != s.value("general/status", "Qwired Newbie").toString()) {
-        pWiredSocket->setUserStatus(s.value("general/status").toString());
+    if (socket->sessionUser.userStatus != s.value("general/status", "Qwired Newbie").toString()) {
+        socket->setUserStatus(s.value("general/status").toString());
     }
 
     QImage tmpNew = s.value("general/icon", QImage()).value<QImage>();
-    pWiredSocket->setUserIcon(tmpNew);
+    socket->setUserIcon(tmpNew);
 }
 
 
 void QwcSession::onConnectAborted()
 {
-    pWiredSocket->disconnectFromServer();
+    socket->disconnectFromServer();
 }
 
 // Prompt user to confirm disconnection
@@ -791,9 +748,9 @@ void QwcSession::doActionDisconnect()
         setConnectionToolButtonsEnabled(false);
         pMainChat->resetForm();
         pConnectWindow->resetForm();
-        pWiredSocket->disconnectFromServer();
+        socket->disconnectFromServer();
         pContainerLayout->setCurrentIndex(0); // go to connect dialog
-        pWiredSocket->serverInfo = QwServerInfo();
+        socket->serverInfo = QwServerInfo();
     }
 }
 
@@ -805,21 +762,21 @@ void QwcSession::doActionAccounts()
         pWinAccounts = new QwcAccountsWidget(pConnWindow);
         int tmpIdx = pMainTabWidget->addTab(pWinAccounts, tr("Accounts"));
         pMainTabWidget->setCurrentIndex(tmpIdx);
-        connect( pWiredSocket, SIGNAL(usersListingDone(QStringList)), pWinAccounts, SLOT(appendUserNames(QStringList)) );
-        connect( pWiredSocket, SIGNAL(groupsListingDone(QStringList)), pWinAccounts, SLOT(appendGroupNames(QStringList)) );
-        connect( pWiredSocket, SIGNAL(userSpecReceived(QwcUserInfo)), pWinAccounts, SLOT(loadUserSpec(QwcUserInfo)) );
-        connect( pWiredSocket, SIGNAL(groupSpecReceived(QwcUserInfo)), pWinAccounts, SLOT(loadGroupSpec(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(userSpecRequested(QString)), pWiredSocket, SLOT(readUser(QString)) );
-        connect( pWinAccounts, SIGNAL(groupSpecRequested(QString)), pWiredSocket, SLOT(readGroup(QString)) );
-        connect( pWinAccounts, SIGNAL(userDeleted(QString)), pWiredSocket, SLOT(deleteUser(QString)) );
-        connect( pWinAccounts, SIGNAL(groupDeleted(QString)), pWiredSocket, SLOT(deleteGroup(QString)) );
+        connect( socket, SIGNAL(receivedAccountList(QStringList)), pWinAccounts, SLOT(appendUserNames(QStringList)) );
+        connect( socket, SIGNAL(receivedAccountGroupList(QStringList)), pWinAccounts, SLOT(appendGroupNames(QStringList)) );
+        connect( socket, SIGNAL(userSpecReceived(QwcUserInfo)), pWinAccounts, SLOT(loadUserSpec(QwcUserInfo)) );
+        connect( socket, SIGNAL(groupSpecReceived(QwcUserInfo)), pWinAccounts, SLOT(loadGroupSpec(QwcUserInfo)) );
+        connect( pWinAccounts, SIGNAL(userSpecRequested(QString)), socket, SLOT(readUser(QString)) );
+        connect( pWinAccounts, SIGNAL(groupSpecRequested(QString)), socket, SLOT(readGroup(QString)) );
+        connect( pWinAccounts, SIGNAL(userDeleted(QString)), socket, SLOT(deleteUser(QString)) );
+        connect( pWinAccounts, SIGNAL(groupDeleted(QString)), socket, SLOT(deleteGroup(QString)) );
 
-        connect( pWinAccounts, SIGNAL(createUser(QwcUserInfo)), pWiredSocket, SLOT(createUser(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(editUser(QwcUserInfo)), pWiredSocket, SLOT(editUser(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(createGroup(QwcUserInfo)), pWiredSocket, SLOT(createGroup(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(editGroup(QwcUserInfo)), pWiredSocket, SLOT(editGroup(QwcUserInfo)) );
-        pWiredSocket->getGroups();
-        pWiredSocket->getUsers();
+        connect( pWinAccounts, SIGNAL(createUser(QwcUserInfo)), socket, SLOT(createUser(QwcUserInfo)) );
+        connect( pWinAccounts, SIGNAL(editUser(QwcUserInfo)), socket, SLOT(editUser(QwcUserInfo)) );
+        connect( pWinAccounts, SIGNAL(createGroup(QwcUserInfo)), socket, SLOT(createGroup(QwcUserInfo)) );
+        connect( pWinAccounts, SIGNAL(editGroup(QwcUserInfo)), socket, SLOT(editGroup(QwcUserInfo)) );
+        socket->getGroups();
+        socket->getUsers();
     } else {
         int tmpIdx = pMainTabWidget->indexOf(pWinAccounts);
         pMainTabWidget->setCurrentIndex(tmpIdx);
@@ -832,25 +789,25 @@ void QwcSession::doActionNews()
 {
     if( !pWinNews ) {
         pWinNews = new QwcNewsWidget();
-        connect( pWiredSocket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
-        connect( pWiredSocket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
-        connect( pWiredSocket, SIGNAL(newsDone()), pWinNews, SLOT(newsDone()) );
-        connect( pWinNews, SIGNAL(doRefreshNews()), pWiredSocket, SLOT(getNews()) );
+        connect( socket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
+        connect( socket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
+        connect( socket, SIGNAL(newsDone()), pWinNews, SLOT(newsDone()) );
+        connect( pWinNews, SIGNAL(doRefreshNews()), socket, SLOT(getNews()) );
 
         // We check for the proper purrmissions
         // Also, we don't want the button to be active if there are no news to clear
 
         qDebug("News counter: %u",pWinNews->newsCount());
 
-        if(pWiredSocket->sessionUser.privClearNews && pWinNews->newsCount()) {
-            connect( pWinNews, SIGNAL(onDeleteNews()), pWiredSocket, SLOT(clearNews()) );
+        if(socket->sessionUser.privClearNews && pWinNews->newsCount()) {
+            connect( pWinNews, SIGNAL(onDeleteNews()), socket, SLOT(clearNews()) );
             connect( pWinNews, SIGNAL(onDeleteNews()), pWinNews, SLOT(clearTextArea()));
         } else {
             pWinNews->setDisabledClearButton(true);
         }
 
-        if(pWiredSocket->sessionUser.privPostNews) {
-            connect( pWinNews, SIGNAL(doPostNews(QString)), pWiredSocket, SLOT(postNews(QString)) );
+        if(socket->sessionUser.privPostNews) {
+            connect( pWinNews, SIGNAL(doPostNews(QString)), socket, SLOT(postNews(QString)) );
         } else {
             pWinNews->setDisabledPostButton(true);
         }
@@ -861,7 +818,7 @@ void QwcSession::doActionNews()
         int tmpIdx = pMainTabWidget->addTab(pWinNews, QIcon(), tr("News"));
         pMainTabWidget->setCurrentIndex(tmpIdx);
 
-        pWiredSocket->getNews();
+        socket->getNews();
     } else {
         int tmpIdx = pMainTabWidget->indexOf(pWinNews);
         pMainTabWidget->setCurrentIndex(tmpIdx);
@@ -875,7 +832,7 @@ void QwcSession::doActionServerInfo()
 {
     if( !pServerWindow ) {
         pServerWindow = new QwcServerInfoWidget();
-        pServerWindow->loadInfo(pWiredSocket);
+        pServerWindow->loadInfo(socket);
         pMainTabWidget->addTab(pServerWindow, tr("Server Info"));
     } else {
         pServerWindow->raise();
@@ -902,7 +859,7 @@ void QwcSession::doActionFiles(QString thePath)
         pWinFileBrowser->initWithConnection(this);
         pWinFileBrowser->setPath(thePath);
         pWinFileBrowser->pModel->pWaitingForList = true;
-        pWiredSocket->getFileList(thePath);
+        socket->getFileList(thePath);
 
         // Display the widget using a Tab
         pMainTabWidget->setCurrentIndex(pMainTabWidget->addTab(pWinFileBrowser, QIcon(), tr("Files")));
@@ -959,9 +916,9 @@ void QwcSession::doActionFileSearch()
         pFileSearch = new QwcFileSearchWidget(pConnWindow);
         int tmpIdx = pMainTabWidget->addTab(pFileSearch, tr("File Search"));
         pMainTabWidget->setCurrentIndex(tmpIdx);
-        connect( pWiredSocket, SIGNAL(fileSearchDone(QList<QwcFileInfo>)),
+        connect( socket, SIGNAL(fileSearchDone(QList<QwcFileInfo>)),
                  pFileSearch, SLOT(updateResults(QList<QwcFileInfo>)) );
-        connect( pFileSearch, SIGNAL(search(QString)), pWiredSocket, SLOT(searchFiles(QString)) );
+        connect( pFileSearch, SIGNAL(search(QString)), socket, SLOT(searchFiles(QString)) );
         connect( pFileSearch, SIGNAL(downloadFile(QString)), this, SLOT(search_download_file(QString)) );
         connect( pFileSearch, SIGNAL(revealFile(QString)), this, SLOT(search_reveal_file(QString)) );
     } else {
@@ -980,11 +937,11 @@ void QwcSession::doActionTransfers()
         pMainTabWidget->setCurrentIndex(tmpIdx);
         // Model
         QwcFiletransferModel *tmpModel = new QwcFiletransferModel(pTranfersWindow->fTransfers);
-        tmpModel->setSocket(pWiredSocket);
+        tmpModel->setSocket(socket);
         pTranfersWindow->fTransfers->setModel(tmpModel);
         pTranfersWindow->init();
         connect(pTranfersWindow, SIGNAL(transferCancelled(QwcFiletransferInfo)),
-                pWiredSocket, SLOT(cancelTransfer(QwcFiletransferInfo)) );
+                socket, SLOT(cancelTransfer(QwcFiletransferInfo)) );
 
     } else {
         int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
@@ -1005,44 +962,44 @@ void QwcSession::transferError(QwcFiletransferInfo transfer)
 void QwcSession::downloadFile(const QString &remotePath, const QString &localPath)
 {
     QSettings s;
-    pWiredSocket->getFile(remotePath, localPath, true);
-    bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeDownload);
+    socket->getFile(remotePath, localPath, true);
+    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeDownload);
     bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
     if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        pWiredSocket->runTransferQueue(WiredTransfer::TypeDownload);
+        socket->runTransferQueue(WiredTransfer::TypeDownload);
 }
 
 
 void QwcSession::downloadFolder(const QString &remotePath, const QString &localPath)
 {
     QSettings s;
-    pWiredSocket->getFolder(remotePath, localPath, true);
-    bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeFolderDownload);
+    socket->getFolder(remotePath, localPath, true);
+    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeFolderDownload);
     bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
     if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        pWiredSocket->runTransferQueue(WiredTransfer::TypeFolderDownload);
+        socket->runTransferQueue(WiredTransfer::TypeFolderDownload);
 }
 
 
 void QwcSession::uploadFile(const QString &localPath, const QString &remotePath)
 {
     QSettings s;
-    pWiredSocket->putFile(localPath, remotePath, true);
-    bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeUpload);
+    socket->putFile(localPath, remotePath, true);
+    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeUpload);
     bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
     if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        pWiredSocket->runTransferQueue(WiredTransfer::TypeUpload);
+        socket->runTransferQueue(WiredTransfer::TypeUpload);
 }
 
 
 void QwcSession::uploadFolder(const QString &localPath, const QString &remotePath)
 {
     QSettings s;
-    pWiredSocket->putFolder(localPath, remotePath, true);
-    bool isTransferring = pWiredSocket->isTransferringFileOfType(WiredTransfer::TypeFolderUpload);
+    socket->putFolder(localPath, remotePath, true);
+    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeFolderUpload);
     bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
     if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        pWiredSocket->runTransferQueue(WiredTransfer::TypeFolderUpload);
+        socket->runTransferQueue(WiredTransfer::TypeFolderUpload);
 }
 
 
