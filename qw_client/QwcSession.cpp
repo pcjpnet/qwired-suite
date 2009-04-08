@@ -343,8 +343,9 @@ void QwcSession::onSocketPrivileges(QwcUserInfo s)
 
 
 /// A chat message was received, handle it.
-void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction) {
-    QwcUserInfo tmpUsr = socket->getUserByID(theUserID); // Find the user
+void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction)
+{
+    QwcUserInfo tmpUsr = socket->users[theUserID]; //socket->getUserByID(theUserID); // Find the user
     if(theChat==1) {
         // Public chat
         pMainChat->writeToChat(tmpUsr.userNickname, theText, theIsAction);
@@ -691,10 +692,10 @@ void QwcSession::initWiredSocket()
 
     QSettings settings;
     socket->setUserStatus(settings.value("general/status","Qwired Newbie").toString());
-    socket->setUserNick(settings.value("general/nickname", "Unnamed").toString());
+    socket->setNickname(settings.value("general/nickname", "Unnamed").toString());
 
     QImage tmpIcon = settings.value("general/icon", QImage(":/icons/qwired_logo_32.png")).value<QImage>();
-    socket->setUserIcon(tmpIcon);
+    socket->setIconImage(tmpIcon);
 
     connect(socket->sslSocket(), SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
@@ -707,7 +708,7 @@ void QwcSession::reloadPreferences()
     QSettings s;
 
     if (socket->sessionUser.userNickname != s.value("general/nickname", "Unnamed").toString()) {
-        socket->setUserNick(s.value("general/nickname").toString());
+        socket->setNickname(s.value("general/nickname").toString());
     }
 
     if (socket->sessionUser.userStatus != s.value("general/status", "Qwired Newbie").toString()) {
@@ -715,7 +716,7 @@ void QwcSession::reloadPreferences()
     }
 
     QImage tmpNew = s.value("general/icon", QImage()).value<QImage>();
-    socket->setUserIcon(tmpNew);
+    socket->setIconImage(tmpNew);
 }
 
 
