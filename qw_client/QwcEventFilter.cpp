@@ -10,15 +10,15 @@ QwcEventFilter::QwcEventFilter(QObject *parent) : QObject(parent)
 
 void QwcEventFilter::setSocket(QwcSocket *s)
 {
-    pWiredSocket = s;
+    socket = s;
 }
 
 
 bool QwcEventFilter::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::Close
-       && pWiredSocket->pSocket->state() == QAbstractSocket::ConnectedState
-       && pWiredSocket->serverInfo.name != "") {
+       && socket->pSocket->state() == QAbstractSocket::ConnectedState
+       && socket->serverInfo.name != "") {
         if(QwcEventFilter::disconnectionPrompt(event)) {
             return true;
         }
@@ -32,7 +32,7 @@ bool QwcEventFilter::eventFilter(QObject *obj, QEvent *event)
 bool QwcEventFilter::disconnectionPrompt(QEvent *event)
 {
     if(QMessageBox::question(0, tr("Disconnect"), tr("Are you sure you want to continue? If you disconnect from \"%1\", any ongoing transfers will be cancelled.\n")
-        .arg(pWiredSocket->serverInfo.name),
+        .arg(socket->serverInfo.name),
         QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
         if(event) {
             event->ignore();

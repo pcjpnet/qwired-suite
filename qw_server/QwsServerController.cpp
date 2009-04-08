@@ -408,7 +408,7 @@ void QwsServerController::handleMessageINFO(const int userId)
 {
     QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!sockets.contains(userId)) {
-        user->sendError(Qws::ErrorClientNotFound);
+        user->sendError(Qw::ErrorClientNotFound);
         return;
     }
 
@@ -612,7 +612,7 @@ void QwsServerController::relayMessageToUser(const int userId, const QString tex
         reply.appendArg(text.toUtf8());
         targetUser->sendMessage(reply);
     } else {
-        user->sendError(Qws::ErrorClientNotFound);
+        user->sendError(Qw::ErrorClientNotFound);
     }
 }
 
@@ -658,12 +658,12 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
         return;
     }
     if (!rooms.contains(roomId)) {
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
     QwRoom *room = rooms[roomId];
     if (!room->pUsers.contains(user->user.pUserID)) {
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
     // Update the room
@@ -689,12 +689,12 @@ void QwsServerController::sendRoomTopic(const int roomId)
     QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
     QwRoom *room = rooms[roomId];
     if (!room->pUsers.contains(user->user.pUserID)) {
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
 
@@ -745,30 +745,30 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
 
     if (userId == user->user.pUserID) {
         qDebug() << this << "User tried to invite himself to room" << roomId;
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
 
     if (!rooms.contains(roomId)) {
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         qDebug() << this << "Room with id" << roomId << "does not exist!";
         return;
     }
     if (!sockets.contains(userId)) {
-        user->sendError(Qws::ErrorClientNotFound);
+        user->sendError(Qw::ErrorClientNotFound);
         qDebug() << this << "Client with id" << roomId << "does not exist!";
         return;
     }
     QwsClientSocket *targetUser = sockets[userId];
     QwRoom *room = rooms[roomId];
     if (!room->pUsers.contains(user->user.pUserID)) {
-        user->sendError(Qws::ErrorPermissionDenied);
+        user->sendError(Qw::ErrorPermissionDenied);
         qDebug() << this << "User with id"<< user->user.pUserID<<"was not in room"<<roomId;
         return;
     }
     if (room->pInvitedUsers.contains(userId)) {
         // Ignoring a double-invite here.
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         qDebug() << this << "User with id"<<userId<<"was already in list of invited of room" << roomId;
         return;
     }
@@ -798,14 +798,14 @@ void QwsServerController::handleMessageJOIN(const int roomId)
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
         qDebug() << this << "Unable to join channel"<<roomId<<" (does not exist)";
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
 
     QwRoom *room = rooms[roomId];
     if (!room->pInvitedUsers.contains(user->user.pUserID)) {
         qDebug() << this << "Unable to join channel"<<roomId<<" (user was not invited)";
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
     room->pInvitedUsers.removeAll(user->user.pUserID);
@@ -838,14 +838,14 @@ void QwsServerController::handleMessageDECLINE(const int roomId)
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
         qDebug() << this << "Unable to decline invitation"<<roomId<<" (does not exist)";
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
 
     QwRoom *room = rooms[roomId];
     if (!room->pInvitedUsers.contains(user->user.pUserID)) {
         qDebug() << this << "Unable to room invitation"<<roomId<<" (user was never invited)";
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
     room->pInvitedUsers.removeAll(user->user.pUserID);
@@ -866,13 +866,13 @@ void QwsServerController::handleMessageLEAVE(const int roomId)
     if (!user) { return; }
     if (!rooms.contains(roomId)) {
         qDebug() << this << "Unable to part user from room"<<roomId<<" (does not exist)";
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
     QwRoom *room = rooms[roomId];
     if (!room->pUsers.contains(user->user.pUserID)) {
         qDebug() << this << "Unable to part user from room"<<roomId<<" (user was not in room)";
-        user->sendError(Qws::ErrorComandFailed);
+        user->sendError(Qw::ErrorCommandFailed);
         return;
     }
     removeUserFromRoom(roomId, user->user.pUserID);
@@ -888,13 +888,13 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
     if (!user) { return; }
     if (!sockets.contains(userId)) {
         qDebug() << this << "Unable to kick/ban user"<<userId<<" (does not exist)";
-        user->sendError(Qws::ErrorClientNotFound);
+        user->sendError(Qw::ErrorClientNotFound);
         return;
     }
     QwsClientSocket *targetUser = sockets[userId];
     if (targetUser->user.privCannotBeKicked) {
         qDebug() << this << "Unable to kick user - protected!";
-        user->sendError(Qws::ErrorCannotBeDisconnected);
+        user->sendError(Qw::ErrorCannotBeDisconnected);
         return;
     }
 

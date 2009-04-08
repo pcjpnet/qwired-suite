@@ -16,6 +16,25 @@
 */
 
 
+namespace Qw {
+    enum ProtocolError { ErrorCommandFailed = 500,
+                         ErrorCommandNotRecognized,
+                         ErrorCommandNotImplemented,
+                         ErrorSyntaxError,
+                         ErrorLoginFailed = 510,
+                         ErrorBanned,
+                         ErrorClientNotFound,
+                         ErrorAccountNotFound,
+                         ErrorAccountExists,
+                         ErrorCannotBeDisconnected,
+                         ErrorPermissionDenied,
+                         ErrorFileOrDirectoryNotFound = 520,
+                         ErrorFileOrDirectoryExists,
+                         ErrorChecksumMismatch,
+                         ErrorQueueLimitExceeded
+                     };
+}
+
 class QwSocket : public QObject
 {
     Q_OBJECT
@@ -25,6 +44,7 @@ public:
     ~QwSocket();
     void setSslSocket(QSslSocket *socket);
     void sendMessage(const QwMessage &message);
+    const QSslSocket* sslSocket() const;
 
 protected:
     /*! This property holds a pointer to the responsible (SSL) socket over which all data is to be

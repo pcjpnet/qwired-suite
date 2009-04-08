@@ -11,9 +11,9 @@ QwcTrackerlistWidget::QwcTrackerlistWidget(QWidget *parent) : QWidget(parent)
 	
         connect( pSocket, SIGNAL(trackerServersReceived(QList<QwcTrackerServerInfo>)),
                          this, SLOT(trackerServersReceived(QList<QwcTrackerServerInfo>)) );
-
-	connect( pSocket, SIGNAL(onSocketError(QAbstractSocket::SocketError)),
-			 this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
+//
+//	connect( pSocket, SIGNAL(onSocketError(QAbstractSocket::SocketError)),
+//			 this, SLOT(handleSocketError(QAbstractSocket::SocketError)) );
 	
 	fProgress->setVisible(false);
 
@@ -58,15 +58,16 @@ void QwcTrackerlistWidget::updateTrackerList() {
 	s.endArray();
 }
 
+/*! \todo Port tracker browser to new tracker socket! */
 void QwcTrackerlistWidget::on_fBtnRefresh_clicked() {
-// 	fList->clear();
-	fProgress->setVisible(true);
-        fProgress->setText(tr("Refreshing list..."));
-	//fList->setEnabled(false);
-	fFilter->setEnabled(false);
-	fBtnRefresh->setEnabled(false);
-	QString address = fServers->itemData( fServers->currentIndex() ).toString();
-	pSocket->connectToTracker( address);
+//// 	fList->clear();
+//	fProgress->setVisible(true);
+//        fProgress->setText(tr("Refreshing list..."));
+//	//fList->setEnabled(false);
+//	fFilter->setEnabled(false);
+//	fBtnRefresh->setEnabled(false);
+//	QString address = fServers->itemData( fServers->currentIndex() ).toString();
+//	pSocket->connectToTracker( address);
 }
 
 void QwcTrackerlistWidget::trackerServersReceived(QList< QwcTrackerServerInfo > theList) {

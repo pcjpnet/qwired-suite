@@ -39,15 +39,17 @@ public:
     QwcSession(QObject *parent = 0);
     ~QwcSession();
 
-    QPointer<QwcPrivateMessager> privateMessager;
 
-    QwcSocket* wiredSocket() { return pWiredSocket; }
+
+    /*! Returns a pointer to the underlying protocol socket. */
+    QwcSocket* wiredSocket() { return socket; }
 
     // Main window widgets
     void initMainWindow();
     QPointer<QWidget> pContainerWidget;
     QPointer<QStackedLayout> pContainerLayout;
     QPointer<QTabWidget> pMainTabWidget;
+    QPointer<QwcPrivateMessager> privateMessager;
 
     // Wired Socket
     void initWiredSocket();
@@ -80,12 +82,16 @@ public:
     bool confirmDisconnection();
 
 private:
-    QPointer<QwcSocket> pWiredSocket;
+    QPointer<QwcSocket> socket;
     void setupConnections();
     void setConnectionToolButtonsEnabled(bool);
 
 
 private slots:
+    // Protocol + Socket
+    void handleProtocolError(Qw::ProtocolError error);
+    void handleSocketError(QAbstractSocket::SocketError error);
+
 
     // Main window widgets
     void onTabBarCloseButtonClicked();
@@ -118,6 +124,8 @@ private slots:
     void transferError(QwcFiletransferInfo);
 
     void fileListingRecursiveDone(const QList<QwcFileInfo>);
+
+
 
 public slots:
 
@@ -159,13 +167,10 @@ public slots:
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
     void doCreateNewChat(int theChatID);
 
-    void onSocketError(QAbstractSocket::SocketError);
     void onSocketServerInfo();
     void onLoginSuccessful();
-    void onSocketLoginFailed();
 
     void setBannerView(const QPixmap theBanner);
-    void handleErrorOccoured(int theError);
 
     void downloadFile(const QString &remotePath, const QString &localPath);
     void downloadFolder(const QString &remotePath, const QString &localPath);

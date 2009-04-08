@@ -1,24 +1,3 @@
-/***************************************************************************
- * QWired - a free Wired client.
- * Copyright (C) 2008 Bastian Bense
- ***************************************************************************
- * This program is free software; you can redistribute it and/or modify it *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2 of the License, or           *
- * (at your option) any later version.                                     *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
- * General Public License for more details.                                *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the                                 *
- * Free Software Foundation, Inc.,                                         *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA                   *
- ***************************************************************************/
-
- 
 #ifndef WIREDSOCKET_H
 #define WIREDSOCKET_H
 
@@ -30,36 +9,22 @@
 #include <QtCore>
 #include <QtNetwork>
 
-
 namespace Qws {
-    enum SessionState { StateInactive /*! TCP-unknown, no handshake, not logged in */,
-                        StateConnected /*! TCP connected, handshake OK, not logged in */,
-                        StateActive /*! TCP connected, handshake OK, logged in (ready) */
-                      };
-
-    enum ProtocolError { ErrorComandFailed = 500,
-                         ErrorCommandNotRecognized,
-                         ErrorCommandNotImplemented,
-                         ErrorSyntaxError,
-                         ErrorLoginFailed = 510,
-                         ErrorBanned,
-                         ErrorClientNotFound,
-                         ErrorAccountNotFound,
-                         ErrorAccountExists,
-                         ErrorCannotBeDisconnected,
-                         ErrorPermissionDenied,
-                         ErrorFileOrDirectoryNotFound = 520,
-                         ErrorFileOrDirectoryExists,
-                         ErrorChecksumMismatch,
-                         ErrorQueueLimitExceeded
-                        };
+    enum SessionState{ /*! TCP-unknown, no handshake, not logged in */
+                       StateInactive,
+                       /*! TCP connected, handshake OK, not logged in */
+                       StateConnected,
+                       /*! TCP connected, handshake OK, logged in (ready) */
+                       StateActive
+                     };
 }
 
 
 
 /*! \class QwsClientSocket
     \author Bastian Bense <bb@bense.de>
-
+    \brief This class allows direct communication to a Qwired client and implementes the
+           server-side part of the protocol.
 */
 
 Q_DECLARE_METATYPE(Qws::SessionState);
@@ -128,7 +93,7 @@ signals:
 		
 
 public slots:
-    void sendError(const Qws::ProtocolError error);
+    void sendError(const Qw::ProtocolError error);
     void sendServerInfo();
     void disconnectClient();
     void idleTimerTriggered();

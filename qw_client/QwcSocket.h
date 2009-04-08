@@ -14,14 +14,6 @@
 #include "QwcTrackerServerInfo.h"
 #include "QwcFiletransferSocket.h"
 
-
-namespace Wired {
-    enum SocketType { QwcSocket, TrackerSocket };
-}
-
-const int kEOF = 0x04;
-const int kFS = 0x1C;
-
 class QwcSocket : public QwSocket
 {
     Q_OBJECT
@@ -30,16 +22,16 @@ public:
     QwcSocket(QObject *parent = 0);
     ~QwcSocket();
 
+    /*! Information about the server, as provided during handshake. */
     QwServerInfo serverInfo;
 
+    /*! The banner of the server as transmitted during handshake. */
     QPixmap pServerBanner;
 
     /*! The name of the client (software name). */
     QString pClientName;
     /*! The version of the client software. */
     QString pClientVersion;
-
-    Wired::SocketType pSocketType;
 
     /// The class that contains most of the user-specific information for this
     /// session. We use this to keep the clutter of the class to a minimum.
@@ -69,10 +61,6 @@ public:
     QPointer<QSslSocket> pSocket;
     QList<QPointer<QwcFiletransferSocket> > pTransferSockets;
 
-    // Tracker subsystem
-    //
-    void connectToTracker(QString theHostName, int thePort=2002);
-
     // File Transfers
     bool pIndexingFiles; // true if the client is indexing server fails
     QList<QwcFileInfo> pRecursiveFileListing;
@@ -94,20 +82,20 @@ public slots:
 
     // Wired Subsystem (not for Trackers)
     //
-    void banClient(int theUserID, QString theReason);
+    void banClient(int userId, QString reason);
     void cancelTransfer(QwcFiletransferInfo);
     void clearNews();
-    void createChatWithClient(int theUserID);
+    void createChatWithClient(int firstInvitedUser = 0);
     void createFolder(const QString thePath);
 
-    void createUser(QwcUserInfo);
+    void createUser(QwcUserInfo user);
     void deleteFile(const QString thePath);
 
     void deleteUser(QString theLogin);
     void disconnectFromServer();
 
     void editUser(QwcUserInfo);
-    void getClientInfo(int theUserID);
+    void getClientInfo(int userId);
     void getFile(const QString thePath, const QString theLocalPath, const bool queueLocally);
     void getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally);
     void getFileList(QString thePath);
@@ -115,11 +103,11 @@ public slots:
     void getGroups();
     void getNews();
     void getUsers();
-    void inviteClientToChat(int theChatID, int theUserID);
+    void inviteClientToChat(int chatId, int userId);
     void joinChat(int theChatID);
-    void kickClient(int theUserID, QString theReason);
+    void kickClient(int userId, QString reason);
     void leaveChat(int theChatID);
-    void moveFile(const QString thePath, const QString theDestination);
+    void moveFile(const QString source, const QString destination);
     void postNews(QString thePost);
     void putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
     void putFolder(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
@@ -128,9 +116,9 @@ public slots:
     void rejectChat(int theChatID);
     void searchFiles(const QString theSearch);
     void sendChatToRoom(int theChatID, QString theText, bool theIsAction);
-    void sendPrivateMessage(int theUserID, QString theMessage);
+    void sendPrivateMessage(int userId, QString message);
     void setCaturday(bool);
-    void setChatTopic(int theChatID, QString theTopic);
+    void setChatTopic(int chatId, QString topic);
     void setUserIcon(QImage icon);
     void setUserStatus(QString theStatus);
     void statFile(const QString thePath);
@@ -145,19 +133,9 @@ private slots:
     void handleSocketConnected();
     void handleSocketConnectionLost();
 
+    void do_request_user_list(int roomId);
 
-    QList<QByteArray> GetFieldArray(QByteArray theData);
-    void do_handle_wiredmessage(QByteArray);
-    void do_request_user_list(int theChannel);
 
-    void on_socket_readyRead();
-
-    void on_server_groups_listing(QList<QByteArray> theParams);
-    void on_server_groups_done();
-    void on_server_users_listing(QList<QByteArray> theParams);
-    void on_server_users_done();
-    void on_server_user_spec(QList<QByteArray> theParams);
-    void on_server_group_spec(QList<QByteArray> theParams);
     void cleanTransfers();
 
     // Tracker
@@ -171,10 +149,15 @@ private slots:
 
 
 signals:
+    /*! A protocol error was received from the server. This signal is emitted for every 5xx-type
+        message, but some handling (such as login errors, etc.) is done inside the socket before
+        the signal is emitted. */
+    void protocolError(Qw::ProtocolError error);
+
+
     void receivedUserlist(int theChatID);
 
 
-    void onSocketError();
     void onServerInformation();
 
     void onServerLoginSuccessful();
@@ -214,29 +197,14 @@ signals:
     void fileTransferError(const QwcFiletransferInfo theTransfer);
     void fileTransferStatus(const QwcFiletransferInfo theTransfer);
 
-    void groupsListingDone(QStringList theGroups);
-    void usersListingDone(QStringList theAccounts);
+    void receivedAccountGroupList(QStringList theGroups);
+    void receivedAccountList(QStringList theAccounts);
 
     /// Received the details of a group.
     void userSpecReceived(QwcUserInfo);
 
     void groupSpecReceived(QwcUserInfo);
-    void errorBanned();
-    void errorLoginFailed();
-    void errorPermissionDenied();
-    void errorFileNotFound();
-    void errorClientNotFound();
-    void errorQueueLimitExceeded();
-    void errorCommandFailed();
-    void errorCommandNotRecognized();
-    void errorCommandNotImplemented();
-    void errorCommandSyntaxError();
-    void errorAccountNotFound();
-    void errorAccountExists();
-    void errorCanNotBeDisconnected();
-    void errorFileExists();
-    void errorChecksumMismatch();
-    void errorOccoured(int theError);
+
     void receivedUserPrivileges(const QwcUserInfo theSession);
     void fileTransferSocketError(QAbstractSocket::SocketError);
 
@@ -246,7 +214,7 @@ signals:
 
 
 private:
-    // Responses
+    // Message Handlers
     void handleMessage200(const QwMessage &message);
     void handleMessage201(const QwMessage &message);
     void handleMessage203(const QwMessage &message);
@@ -277,15 +245,16 @@ private:
     void handleMessage420(const QwMessage &message);
     void handleMessage421(const QwMessage &message);
     void handleMessage5xx(const int &errorId);
+    void handleMessage600(const QwMessage &message);
+    void handleMessage601(const QwMessage &message);
     void handleMessage602(const QwMessage &message);
+    void handleMessage610(const QwMessage &message);
+    void handleMessage611(const QwMessage &message);
+    void handleMessage620(const QwMessage &message);
+    void handleMessage621(const QwMessage &message);
 
-    // Comments
+    // Commands
     void sendMessageINFO();
-
-    // Tracker subsystem
-    //
-    void tracker_request_servers();
-
 
 
     // Buffers while receiving the list of groups and users (admin mode)
@@ -308,8 +277,6 @@ private:
     /// This is our TCP buffer. Could possibly be optimized, but works for now.
     QByteArray pBuffer;
 
-
-    
 };
 
 #endif

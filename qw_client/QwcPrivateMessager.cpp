@@ -252,6 +252,7 @@ void QwcPrivateMessager::on_btnSaveSession_clicked()
 */
 void QwcPrivateMessager::handleUserChanged(QwcUserInfo previous, QwcUserInfo current)
 {
+    Q_UNUSED(previous);
     for (int i=0; i<fMessageList->count(); i++) {
         QListWidgetItem *item = fMessageList->item(i);
         if (!item) { continue; }
@@ -272,6 +273,7 @@ void QwcPrivateMessager::handleUserChanged(QwcUserInfo previous, QwcUserInfo cur
 */
 void QwcPrivateMessager::handleUserLeft(int chatId, QwcUserInfo user)
 {
+    Q_UNUSED(chatId);
     for (int i=0; i<fMessageList->count(); i++) {
         QListWidgetItem *item = fMessageList->item(i);
         if (!item) { continue; }
