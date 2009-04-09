@@ -1,8 +1,6 @@
 #ifndef QWCTRACKERSERVERINFO_H
 #define QWCTRACKERSERVERINFO_H
 
-//#include <QtCore>
-
 class QwcTrackerServerInfo
 {
 

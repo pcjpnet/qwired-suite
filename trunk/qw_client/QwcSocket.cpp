@@ -28,8 +28,8 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
             this, SLOT(handleSocketConnectionLost()));
 
     // Set some basic information
-    pClientName = "Qwired SVN";
-    pClientVersion = QWIRED_VERSION;
+    clientName = "Qwired SVN";
+    clientSoftwareVersion = QWIRED_VERSION;
     pIzCaturday = false;
 
     pIndexingFiles = false;
@@ -127,8 +127,8 @@ void QwcSocket::handleMessage201(const QwMessage &message)
 */
 void QwcSocket::handleMessage203(const QwMessage &message)
 {
-    pServerBanner.loadFromData(QByteArray::fromBase64(message.getStringArgument(0).toAscii()));
-    emit onServerBanner(pServerBanner);
+    serverImage.loadFromData(QByteArray::fromBase64(message.getStringArgument(0).toAscii()));
+    emit onServerBanner(serverImage);
 }
 
 
@@ -560,8 +560,8 @@ void QwcSocket::handleMessage411(const QwMessage &message)
         QMutableListIterator<QwcFileInfo> i(pRecursiveFileListing);
         while(i.hasNext()) {
             QwcFileInfo &file = i.next();
-            if(file.type==WiredTransfer::Directory && !file.isIndexed && file.size && file.path.count("/")<=maxIndexingDepth ) {
-                // 				qDebug() << this << "Indexing next directory:" << file.path;
+            if(file.type == Qw::FileTypeFolder &&
+               !file.isIndexed && file.size && file.path.count("/") <= maxIndexingDepth ) {
                 file.isIndexed = true;
                 getFileList(file.path);
                 return;
@@ -608,7 +608,7 @@ void QwcSocket::handleMessage420(const QwMessage &message)
 {
     QwcFileInfo tmpFile;
     tmpFile.path = message.getStringArgument(0);
-    tmpFile.type = (WiredTransfer::FileType)message.getStringArgument(1).toInt();
+    tmpFile.type = (Qw::FileType)message.getStringArgument(1).toInt();
     tmpFile.size = message.getStringArgument(2).toLongLong();
     tmpFile.created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
     tmpFile.modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
@@ -1236,7 +1236,7 @@ void QwcSocket::createGroup(QwcUserInfo user)
 {
     QwMessage reply("CREATEGROUP");
     reply.appendArg(user.name);
-    reply.appendArg(user.privilegesFlags());
+    user.appendPrivilegesFlags(reply);
     sendMessage(reply);
 }
 
@@ -1248,7 +1248,7 @@ void QwcSocket::editGroup(QwcUserInfo user)
 {
     QwMessage reply("EDITGROUP");
     reply.appendArg(user.name);
-    reply.appendArg(user.privilegesFlags());
+    user.appendPrivilegesFlags(reply);
     sendMessage(reply);
 }
 
@@ -1257,9 +1257,7 @@ void QwcSocket::editGroup(QwcUserInfo user)
 */
 void QwcSocket::deleteGroup(QString theName)
 {
-    QwMessage reply("DELETEGROUP");
-    reply.appendArg(theName);
-    sendMessage(reply);
+    sendMessage(QwMessage("DELETEGROUP").appendArg(theName));
 }
 
 
@@ -1267,32 +1265,24 @@ void QwcSocket::deleteGroup(QString theName)
 */
 void QwcSocket::deleteUser(QString theName)
 {
-    QwMessage reply("DELETEUSER");
-    reply.appendArg(theName);
-    sendMessage(reply);
+    sendMessage(QwMessage("DELETEUSER").appendArg(theName));
 }
 
 
 void QwcSocket::readUser(QString theName)
 {
-    QwMessage reply("READUSER");
-    reply.appendArg(theName);
-    sendMessage(reply);
+    sendMessage(QwMessage("READUSER").appendArg(theName));
 }
 
 
 void QwcSocket::readGroup(QString theName)
 {
-    QwMessage reply("READGROUP");
-    reply.appendArg(theName);
-    sendMessage(reply);
+    sendMessage(QwMessage("READGROUP").appendArg(theName));
 }
 
 void QwcSocket::searchFiles(const QString theSearch)
 {
-    QwMessage reply("SEARCH");
-    reply.appendArg(theSearch);
-    sendMessage(reply);
+    sendMessage(QwMessage("SEARCH").appendArg(theSearch));
 }
 
 
@@ -1351,7 +1341,7 @@ void QwcSocket::sendMessageINFO()
 #endif
 
     sendMessage(QwMessage("CLIENT")
-                .appendArg(tmpV.arg(pClientName, pClientVersion, tmpOsName, tmpOsVersion, tmpOsArch)));
+                .appendArg(tmpV.arg(clientName, clientSoftwareVersion, tmpOsName, tmpOsVersion, tmpOsArch)));
 }
 
 
@@ -1506,12 +1496,12 @@ void QwcSocket::proceedFolderDownload(QwcFiletransferSocket *socket)
         QDir dir(socket->pTransfer.pLocalRoot);
         dir.mkpath(remoteRootName); // Ensure the local root folder exists
 
-        if(file.type == WiredTransfer::Directory || file.type == WiredTransfer::DropBox || file.type == WiredTransfer::Uploads ) { // create the directory
+        if (file.type > Qw::FileTypeRegular || file.type == Qw::FileTypeDropBox || file.type == Qw::FileTypeUploadsFolder ) { // create the directory
             dir.mkpath(relativeRemotePath);
             socket->pTransfer.pFilesDone++;
             qDebug() << "Creating directory:" << relativeRemotePath;
 
-        } else if(file.type == WiredTransfer::RegularFile) {
+        } else if (file.type == Qw::FileTypeRegular) {
             socket->pTransfer.pFileStatus = WiredTransfer::StatusWaitingForStat;
             socket->pTransfer.pQueuePosition = 0;
             socket->pTransfer.pRemotePath = file.path;

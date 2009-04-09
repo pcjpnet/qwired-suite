@@ -38,7 +38,10 @@ public:
 
 private slots:
     void fileTransferDone(QwcFiletransferInfo);
-    void downloadFile(QString);
+
+
+private:
+    void downloadFile(QString path);
 
 public slots:
     void doUpdateBrowserStats(QString thePath, qlonglong theFree);
@@ -51,9 +54,6 @@ public slots:
     void on_fBtnNewFolder_clicked(bool checked);
     void on_fBtnInfo_clicked(bool checked);
     void on_fFilter_textEdited(QString);
-
-    
-
 };
 
 #endif

@@ -7,7 +7,6 @@
 
 class QwcUserlistDelegate : public QItemDelegate
 {
-
     Q_OBJECT
 
 public:

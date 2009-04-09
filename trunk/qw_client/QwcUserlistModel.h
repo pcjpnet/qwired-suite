@@ -6,7 +6,6 @@
 
 class QwcUserlistModel : public QAbstractListModel
 {
-
     Q_OBJECT
 
 public:

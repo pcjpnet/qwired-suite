@@ -1,11 +1,11 @@
 #ifndef QWCFILETRANSFERWIDGET_H
 #define QWCFILETRANSFERWIDGET_H
 
-#include <QWidget>
+
 
 #include "ui_QwcFiletransferWidget.h"
-
 #include "QwcFiletransferInfo.h"
+#include <QWidget>
 
 
 class QwcFiletransferWidget : public QWidget, public Ui_QwcFiletransferWidget

@@ -1,30 +1,26 @@
 #ifndef QWCFILETRANSFERINFO_H
 #define QWCFILETRANSFERINFO_H
 
-//#include <QtCore>
-#include <QMetaType>
+#include "QwcFileInfo.h"
+#include "QwTransferInfo.h"
 
+#include <QCryptographicHash>
+#include <QMetaType>
 #include <QFile>
 
-#include "QwcFileInfo.h"
-#include <QCryptographicHash>
-
-namespace WiredTransfer {
+/*namespace WiredTransfer {
     enum TransferStatus { StatusWaitingForStat, StatusQueued, StatusActive, StatusDone, StatusQueuedLocal, StatusStopping };
     enum TransferType { TypeDownload, TypeUpload, TypeFolderDownload, TypeFolderUpload };
 }
+*/
 
-
-class QwcFiletransferInfo
+class QwcFiletransferInfo : public QwTransferInfo
 {
 
 public:
-    QwcFiletransferInfo()
+    QwcFiletransferInfo() : QwTransferInfo()
     {
-        pStatus = WiredTransfer::StatusWaitingForStat;
-        pTotalSize = 0;
-        pDoneSize = 0;
-        pOffset = 0;
+       /* pOffset = 0;
         pTransferType = WiredTransfer::TypeDownload;
         pQueuePosition = 0;
         pEncryptTransfer = true;
@@ -32,49 +28,9 @@ public:
         pFilesDone = 0;
         pFilesCount = 0;
         pFolderSize = 0;
-        pFolderDone = 0;
+        pFolderDone = 0; */
     };
 
-    ~QwcFiletransferInfo()
-    { };
-
-    QwcFiletransferInfo(const QwcFiletransferInfo &orig)
-    {
-        pStatus = orig.pStatus;
-        pLocalPath = orig.pLocalPath;
-        pRemotePath = orig.pRemotePath;
-        pHash = orig.pHash;
-        pChecksum = orig.pChecksum;
-        pTransferType = orig.pTransferType;
-        pOffset = orig.pOffset;
-        pTotalSize = orig.pTotalSize;
-        pDoneSize = orig.pDoneSize;
-        pQueuePosition = orig.pQueuePosition;
-
-        pRemoteFolder = orig.pRemoteFolder;
-        pLocalRoot = orig.pLocalRoot;
-        fileList = orig.fileList;
-        pFileStatus = orig.pFileStatus;
-        pFilesDone = orig.pFilesDone;
-        pFilesCount = orig.pFilesCount;
-        pFolderSize = orig.pFolderSize;
-        pFolderDone = orig.pFolderDone;
-        fileListLocal = orig.fileListLocal;
-
-        pEncryptTransfer = orig.pEncryptTransfer;
-        pCurrentSpeed = orig.pCurrentSpeed;
-    };
-
-
-    void calcLocalChecksum() {
-        QFile tmpFile(pLocalPath);
-        if(!tmpFile.open(QIODevice::ReadOnly) ) return;
-        // If file exists, calculate the hash.
-        QByteArray tmpData = tmpFile.read(1024*1024); // 1MB for the hash
-        QByteArray tmpHash = QCryptographicHash::hash(tmpData, QCryptographicHash::Sha1);
-        pChecksum = tmpHash.toHex();
-        tmpFile.close();
-    };
 
 
     QString fileName() const {

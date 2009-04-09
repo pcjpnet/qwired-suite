@@ -13,6 +13,8 @@
 #include "QwcFileBrowserWidget.h"
 #include <QMessageBox>
 #include <QSound>
+#include <QProcess>
+#include <QDir>
 
 QwcSession::QwcSession(QObject *parent) : QObject(parent)
 {
@@ -389,11 +391,6 @@ void QwcSession::doHandleChatTopic(int theChatID, QString theNick, QString theLo
 }
 
 
-// Handle user public chat input.
-void QwcSession::doHandlePublicChatInput(QString theText, bool theIsAction)
-{
-    socket->sendChatToRoom(1, theText, theIsAction);
-}
 
 // Display received user info in a new window.
 void QwcSession::doHandleUserInfo(QwcUserInfo theUser)
@@ -960,14 +957,17 @@ void QwcSession::transferError(QwcFiletransferInfo transfer)
 }
 
 
+/*! Begin the download of a file and queue it locally if needed.
+*/
 void QwcSession::downloadFile(const QString &remotePath, const QString &localPath)
 {
     QSettings s;
     socket->getFile(remotePath, localPath, true);
     bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeDownload);
-    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
-    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+    bool localQueueEnabled = s.value("files/queue_local", false).toBool();
+    if(!localQueueEnabled || (localQueueEnabled && !isTransferring)) {
         socket->runTransferQueue(WiredTransfer::TypeDownload);
+    }
 }
 
 
@@ -1013,9 +1013,9 @@ void QwcSession::fileListingRecursiveDone(const QList<QwcFileInfo> items)
     while(i.hasNext()) {
         QwcFileInfo file = i.next();
         totalSize += file.size;
-        totalFolders += file.type==WiredTransfer::Directory || file.type==WiredTransfer::Uploads
-                        || file.type==WiredTransfer::DropBox ? 1 : 0;
-        totalFiles += file.type==WiredTransfer::RegularFile ? 1 : 0;
+        totalFolders += file.type==Qw::FileTypeFolder || file.type==Qw::FileTypeUploadsFolder
+                        || Qw::FileTypeDropBox ? 1 : 0;
+        totalFiles += file.type == Qw::FileTypeRegular ? 1 : 0;
     }
 
     QMessageBox::StandardButton button = QMessageBox::question(0,

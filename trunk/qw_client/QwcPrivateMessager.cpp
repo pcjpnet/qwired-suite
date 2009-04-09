@@ -137,8 +137,8 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
 
     // If this is the current item, scroll down
     if (fMessageList->currentItem() == targetListItem) {
-         fMessageView->setTextCursor(fMessageView->document()->rootFrame()->lastCursorPosition());
-         fMessageView->ensureCursorVisible();
+        fMessageView->setTextCursor(fMessageView->document()->rootFrame()->lastCursorPosition());
+        fMessageView->ensureCursorVisible();
     }
 
 }
@@ -239,7 +239,7 @@ void QwcPrivateMessager::on_btnSaveSession_clicked()
     QFile outputFile(targetFile);
     if (!outputFile.open(QIODevice::WriteOnly)) {
         QMessageBox::warning(this, tr("Unable to save message log"), tr("An error occourred while "
-                    "attempting to write the message log file (%1)").arg(outputFile.errorString()));
+                                                                        "attempting to write the message log file (%1)").arg(outputFile.errorString()));
         return;
     }
 

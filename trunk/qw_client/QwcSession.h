@@ -24,8 +24,19 @@
 
 
 namespace Qwired {
-    enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick, UserChangedStatus,
-                 UserLeft, ChatReceived, MessageReceived, NewsPosted, BroadcastReceived, TransferStarted, TransferFinished };
+    enum Event { ServerConnected,
+                 ServerDisconnected,
+                 ServerError,
+                 UserJoined,
+                 UserChangedNick,
+                 UserChangedStatus,
+                 UserLeft,
+                 ChatReceived,
+                 MessageReceived,
+                 NewsPosted,
+                 BroadcastReceived,
+                 TransferStarted,
+                 TransferFinished };
 };
 
 
@@ -146,7 +157,6 @@ public slots:
     void doActionFiles(QString thePath="/");
 
     // Toolbar handlers
-
     void doActionPreferences();
     void doActionTransfers();
     void doActionFileSearch();
@@ -155,8 +165,7 @@ public slots:
     void search_download_file(QString);
     void search_reveal_file(QString);
 
-    // Forum handlers
-    void doHandlePublicChatInput(QString theText, bool theIsAction);
+
 
     // Connect window
     void onDoConnect(QString theHost, QString theLogin, QString thePassword);
