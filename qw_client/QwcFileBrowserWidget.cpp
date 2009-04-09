@@ -48,7 +48,7 @@ void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
     if(pModel!=0 and pSession!=0) {
         QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
 
-        if( tmpFile.type == WiredTransfer::RegularFile ) {
+        if (tmpFile.type == Qw::FileTypeRegular) {
             if(!pSession->wiredSocket()->sessionUser.privDownload) return;
             downloadFile(tmpFile.path);
             pSession->doActionTransfers();
@@ -122,19 +122,15 @@ void QwcFileBrowserWidget::doUpdateBrowserStats(QString thePath, qlonglong theFr
 }
 
 
-void QwcFileBrowserWidget::downloadFile(QString theRemotePath)
+/*! The user clicked on a file and the download of the said file should be started
+*/
+void QwcFileBrowserWidget::downloadFile(QString path)
 {
     QSettings settings;
-    QString tmpName = theRemotePath.section("/",-1,-1);
-    QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
-    QFile tmpDir( tmpDownloadFolder.absoluteFilePath(tmpName) );
-    if(tmpDir.exists()) {
-        QMessageBox::StandardButton button = QMessageBox::question(this, tr("File Exists"),
-                                                                   tr("The file '%1' already exists in your download directory. Overwrite it?").arg(tmpName),
-                                                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-        if (button==QMessageBox::No) return;
-    }
-    pSession->downloadFile(theRemotePath, tmpDir.fileName());
+    QString fileName = theRemotePath.section("/", -1, -1);
+    QDir localTargetFolder(settings.value("files/download_dir", QDir::homePath()).toString());
+    QFile localTargetFile(tmpDownloadFolder.absoluteFilePath(fileName));
+    pSession->downloadFile(path, localTargetFolder.absoluteFilePath());
 }
 
 
@@ -147,7 +143,7 @@ void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
         QModelIndex index = i.next();
         if(!index.isValid()) continue;
         QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
-        if(tmpFile.type==WiredTransfer::Directory || tmpFile.type==WiredTransfer::DropBox || tmpFile.type==WiredTransfer::Uploads) {
+        if (tmpFile.type == Qw::FileTypeFolder|| tmpFile.type == Qw::FileTypeDropBox|| tmpFile.type == Qw::FileTypeUploadsFolder) {
             // Folder download
             QSettings settings;
             QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );

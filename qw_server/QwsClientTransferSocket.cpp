@@ -227,22 +227,12 @@ void QwsClientTransferSocket::handleSocketError(QAbstractSocket::SocketError soc
 {
     // We need error handling when not throttling the speed during an upload.
     qDebug() << this << "Socket error:" << socketError << "Read=" << transferInfo.bytesTransferred;
-    if (this->info().type == Qw::TransferTypeUpload && this->info().transferSpeedLimit == 0) {
-        // Read the last bit of data from the socket (the actual error is handled in transmitFileChunk();
-        //socket->close();
-        //transmitFileChunk();
-    }
+    //if (this->info().type == Qw::TransferTypeUpload && this->info().transferSpeedLimit == 0) {
+
+    //}
 
     return;
-    //qDebug() << "One last time.";
-    //transmitFileChunk();
 
-
-//    if (transferInfo.bytesTransferred == transferInfo.file.size) {
-//        qDebug() << "Transfer COMPLETE" << transferInfo.bytesTransferred;
-//        return;
-//    }
-//    emit transferError(Qws::TransferSocketErrorNetwork, transferInfo);
 }
 
 

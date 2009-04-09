@@ -2,6 +2,8 @@
 #define QWCFILETRANSFERDELEGATE_H
 
 #include <QAbstractItemDelegate>
+#include <QPainter>
+#include <QApplication>
 
 class QwcFiletransferDelegate : public QAbstractItemDelegate
 {

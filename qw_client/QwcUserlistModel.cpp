@@ -2,8 +2,7 @@
 #include "QwcGlobals.h"
 #include "QwcUserlistModel.h"
 #include "QwcUserInfo.h"
-//#include <QtGui>
-//#include <QtCore>
+
 #include <QMimeData>
 
 QwcUserlistModel::QwcUserlistModel(QObject *parent) : QAbstractListModel(parent)

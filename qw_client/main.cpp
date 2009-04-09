@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QTranslator>
 
 #include "QwcSession.h"
 #include "QwcGlobals.h"

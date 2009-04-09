@@ -1,7 +1,9 @@
-#include <QInputDialog>
+
 #include "QwcSession.h"
 #include "QwcChatWidget.h"
 #include "QwcGlobals.h"
+#include <QInputDialog>
+#include <QProcess>
 
 QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 {

@@ -8,7 +8,10 @@
 namespace Qw {
     /*! The type of the transfer, from the perspective of the client. */
     enum TransferType { TransferTypeDownload,
-                        TransferTypeUpload };
+                        TransferTypeUpload,
+                        TransferTypeFolderDownload,
+                        TransferTypeFolderUpload
+                    };
 
     enum TransferInfoState {
         /*! The transfer has no status. */
@@ -26,8 +29,8 @@ class QwTransferInfo
 {
 
 public:
-    QwTransferInfo() {
-//        offset = 0;
+    QwTransferInfo()
+    {
         bytesTransferred = 0;
         transferSpeedLimit = 0;
         currentTransferSpeed = 0;
@@ -38,8 +41,6 @@ public:
     Qw::TransferInfoState state;
     /*! The unique hash used to identify the transfer. */
     QString hash;
-//    /*! The offset within the file. */
-//    qint64 offset;
     /*! The number of bytes (from the total length of the file) that have been transferred already. */
     qint64 bytesTransferred;
     /*! The maximum number of bytes that are allowed to be transmitted within a second. */
@@ -52,8 +53,6 @@ public:
     Qw::TransferType type;
     /*! A file information object for keeping information about the file locally or remotely. */
     QwFile file;
-
-
 };
 
 Q_DECLARE_METATYPE(QwTransferInfo);

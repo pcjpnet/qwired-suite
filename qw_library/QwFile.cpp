@@ -37,3 +37,30 @@ void QwFile::updateLocalChecksum()
     qDebug() << this << "Calculated hash for file" << this->localAbsolutePath << "Bytes =" << hashData.size() << "=" << this->checksum;
 }
 
+
+/*! Returns the file sizes (data amouont) as a human readable string in bytes, kilobytes, megabytes
+    and so on.
+*/
+QString QwFile::humanReadableSize(qint64 size)
+{
+    qint64 a=1024;
+    float b=1024;
+
+    if (size<0) {
+        return QString("-");
+    } else if (size < a) {
+        return QString("%1").arg(size);
+    } else if (size < a*a) {
+        return QString("%1 KB").arg(float(size/b), 0, 'f', 2);
+    } else if (size < a*a*a) {
+        return QString("%1 MB").arg(float(size/b/b), 0, 'f', 2);
+    } else if (size < a*a*a*a) {
+        return QString("%1 GB").arg(float(size/b/b/b), 0, 'f', 2);
+    } else if (size < a*a*a*a*a) {
+        return QString("%1 TB").arg(float(size/b/b/b/b), 0, 'f', 2);
+    } else if (size < a*a*a*a*a*a) {
+        return QString("%1 PB").arg(float(size/b/b/b/b/b), 0, 'f', 2);
+    }
+    return "?";
+}
+

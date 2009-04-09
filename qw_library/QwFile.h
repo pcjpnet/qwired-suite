@@ -40,7 +40,7 @@ public:
         or when reading and writing to the file. */
     QString localAbsolutePath;
 
-    //static QString humanReadableSize(qint64 theBytes);
+    static QString humanReadableSize(qint64 size);
 
 };
 

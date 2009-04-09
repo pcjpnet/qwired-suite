@@ -4,10 +4,6 @@
 #include "QwSocket.h"
 #include "QwServerInfo.h"
 
-//#include <QtGui>
-//#include <QtCore>
-//#include <QSslSocket>
-
 #include "QwRoom.h"
 #include "QwcUserInfo.h"
 #include "QwcFiletransferInfo.h"
@@ -29,11 +25,11 @@ public:
     /*! Information about the server, as provided during handshake. */
     QwServerInfo serverInfo;
     /*! The banner of the server as transmitted during handshake. */
-    QImage pServerBanner;
+    QImage serverImage;
     /*! The name of the client (software name). */
-    QString pClientName;
+    QString clientName;
     /*! The version of the client software. */
-    QString pClientVersion;
+    QString clientSoftwareVersion;
     /*! The client user object which keeps track of available information of the current session. */
     QwcUserInfo sessionUser;
     /*! This contains all users registered for the public user list (1). */
@@ -46,9 +42,7 @@ public:
     void setNickname(QString);
     void setUserAccount(QString, QString);
 
-    // No further comment on those, and, no, you can not has cheezeburger.
-    bool pIzCaturday;
-    QString tranzlate(QString);
+
 
     QList<QPointer<QwcFiletransferSocket> > pTransferSockets;
 
@@ -242,6 +236,9 @@ private:
     // Commands
     void sendMessageINFO();
 
+    // No further comment on those, and, no, you can not has cheezeburger.
+    bool pIzCaturday;
+    QString tranzlate(QString);
 
     // Buffers while receiving the list of groups and users (admin mode)
     QStringList pAdminGroups;

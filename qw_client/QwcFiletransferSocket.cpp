@@ -1,6 +1,6 @@
 #include "QwcFiletransferSocket.h"
 
-QwcFiletransferSocket::QwcFiletransferSocket(QObject *parent) : QThread(parent)
+QwcFiletransferSocket::QwcFiletransferSocket(QObject *parent) : QObject(parent)
 {
 }
 

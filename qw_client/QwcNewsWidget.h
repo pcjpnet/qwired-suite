@@ -1,10 +1,10 @@
 #ifndef QWCNEWSWIDGET_H
 #define QWCNEWSWIDGET_H
 
-#include <QWidget>
-#include <QPointer>
 #include "ui_QwcNewsWidget.h"
 #include "QwcNewsPostWidget.h"
+#include <QWidget>
+#include <QPointer>
 
 class QwcNewsWidget : public QWidget, private Ui_QwcNewsWidget
 {
