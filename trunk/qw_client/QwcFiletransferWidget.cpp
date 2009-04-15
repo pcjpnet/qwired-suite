@@ -14,15 +14,16 @@ QwcFiletransferWidget::QwcFiletransferWidget(QWidget *parent) : QWidget(parent)
 
 
 QwcFiletransferWidget::~QwcFiletransferWidget()
-{ }
+{
+}
 
 
 void QwcFiletransferWidget::on_fBtnCancel_clicked(bool )
 {
     QModelIndex idx = fTransfers->currentIndex();
     if(!idx.isValid()) return;
-    QwcFiletransferInfo tmpT = idx.data(Qt::UserRole).value<QwcFiletransferInfo>();
-    qDebug() << "Cancelling transfer"<<tmpT.pHash<<tmpT.pRemotePath;
+    QwcTransferInfo tmpT = idx.data(Qt::UserRole).value<QwcTransferInfo>();
+    qDebug() << "Cancelling transfer"<<tmpT.hash<<tmpT.file.path;
     emit transferCancelled(tmpT);
     fTransfers->reset();
     fBtnCancel->setEnabled(false);
@@ -31,12 +32,12 @@ void QwcFiletransferWidget::on_fBtnCancel_clicked(bool )
 
 void QwcFiletransferWidget::on_fBtnReveal_clicked(bool )
 {
-    if(fTransfers->selectionModel()->hasSelection()) {
-        QModelIndex item = fTransfers->currentIndex();
-        QwcFiletransferInfo tmpT = item.data(Qt::UserRole).value<QwcFiletransferInfo>();
-        QDesktopServices::openUrl(QUrl(tr("file://%1").arg(tmpT.pLocalPath.left(tmpT.pLocalPath.lastIndexOf("/")),"")));
-        qDebug() << "Revealing '" << tr("file://%1").arg(tmpT.pLocalPath) << "'...";
-    }
+//    if(fTransfers->selectionModel()->hasSelection()) {
+//        QModelIndex item = fTransfers->currentIndex();
+//        QwcTransferInfo tmpT = item.data(Qt::UserRole).value<QwcTransferInfo>();
+//        QDesktopServices::openUrl(QUrl(tr("file://%1").arg(tmpT.file.localAbsolutePath.left(tmpT.pLocalPath.lastIndexOf("/")),"")));
+//        qDebug() << "Revealing '" << tr("file://%1").arg(tmpT.pLocalPath) << "'...";
+//    }
 }
 
 

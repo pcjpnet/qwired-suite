@@ -2,7 +2,7 @@
 #define QWCFILETRANSFERSOCKET_H
 
 
-#include "QwcFiletransferInfo.h"
+#include "QwcTransferInfo.h"
 
 #include <QThread>
 #include <QTime>
@@ -10,18 +10,19 @@
 #include <QString>
 #include <QList>
 #include <QSslSocket>
+#include <QFile>
 
-class QwcFiletransferSocket : public QThread
+class QwcTransferSocket : public QObject
 {
 
     Q_OBJECT
 
 public:
     void run();
-    QwcFiletransferSocket(QObject *parent=0);
-    ~QwcFiletransferSocket();
+    QwcTransferSocket(QObject *parent=0);
+    ~QwcTransferSocket();
 
-    QwcFiletransferInfo pTransfer;
+    QwcTransferInfo pTransfer;
 
     QString pServerHost;
     int pServerPort;
@@ -48,11 +49,11 @@ private:
     QList<int> pSpeedList;
 
 signals:
-    void fileTransferStarted(const QwcFiletransferInfo);
-    void fileTransferDone(const QwcFiletransferInfo);
-    void fileTransferFileDone(const QwcFiletransferInfo);
-    void fileTransferError(const QwcFiletransferInfo);
-    void fileTransferStatus(const QwcFiletransferInfo);
+    void fileTransferStarted(const QwcTransferInfo);
+    void fileTransferDone(const QwcTransferInfo);
+    void fileTransferFileDone(const QwcTransferInfo);
+    void fileTransferError(const QwcTransferInfo);
+    void fileTransferStatus(const QwcTransferInfo);
     void fileTransferSocketError(QAbstractSocket::SocketError);
 
 public slots:

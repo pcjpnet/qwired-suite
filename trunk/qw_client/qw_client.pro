@@ -43,6 +43,7 @@ TRANSLATIONS += lang/lang_de.ts \
 SOURCES += main.cpp \
     QwcSocket.cpp \
     QwcSession.cpp \
+    QwcTransferPool.cpp \
     QwcChatWidget.cpp \
     QwcNewsWidget.cpp \
     QwcUserlistModel.cpp \
@@ -53,7 +54,7 @@ SOURCES += main.cpp \
     QwcFilelistModel.cpp \
     QwcFileInfo.cpp \
     QwcPreferencesWidget.cpp \
-    QwcFiletransferSocket.cpp \
+    QwcTransferSocket.cpp \
     QwcFiletransferWidget.cpp \
     QwcFiletransferModel.cpp \
     QwcFiletransferDelegate.cpp \
@@ -68,6 +69,7 @@ SOURCES += main.cpp \
     QwcConnectWidget.cpp \
     QwcConnectionMainWindow.cpp \
     QwcPrivateMessager.cpp
+
 
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
@@ -89,6 +91,7 @@ HEADERS += QwcSession.h \
     QwcUserInfo.h \
     QwcConnectionMainWindow.h \
     QwcChatWidget.h \
+    QwcTransferPool.h \
     QwcSocket.h \
     QwcNewsWidget.h \
     QwcUserlistModel.h \
@@ -101,8 +104,8 @@ HEADERS += QwcSession.h \
     QwcFileInfo.h \
     QwcPreferencesWidget.h \
     QwcConnectWidget.h \
-    QwcFiletransferInfo.h \
-    QwcFiletransferSocket.h \
+    QwcTransferInfo.h \
+    QwcTransferSocket.h \
     QwcFiletransferWidget.h \
     QwcFiletransferModel.h \
     QwcGlobals.h \
@@ -119,3 +122,4 @@ HEADERS += QwcSession.h \
     QwcNewsPostWidget.h \
     QwcEventFilter.h \
     QwcPrivateMessager.h
+

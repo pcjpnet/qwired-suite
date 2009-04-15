@@ -391,39 +391,40 @@ void QwcSocket::handleMessage341(const QwMessage &message)
 */
 void QwcSocket::handleMessage400(const QwMessage &message)
 {
-    QString tmpPath = message.getStringArgument(0);
-    qlonglong tmpOffset = message.getStringArgument(1).toLongLong();
-    QString tmpHash = message.getStringArgument(2);
-
-    qDebug() << this << "Transfer ready:" << tmpPath;
-
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while(i.hasNext()) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        QwcFiletransferInfo tmpTrans = tmpT->pTransfer;
-        qDebug() << "CHECKING FILE"<<tmpTrans.pRemotePath<<"with main status"<<tmpTrans.pStatus<<"file status"<<tmpTrans.pFileStatus;
-
-        if( tmpTrans.pRemotePath==tmpPath && (
-                (tmpTrans.pTransferType==WiredTransfer::TypeUpload && tmpTrans.pStatus==WiredTransfer::StatusWaitingForStat)
-                || (tmpTrans.pTransferType==WiredTransfer::TypeDownload && tmpTrans.pStatus==WiredTransfer::StatusQueued)
-                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued)
-                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued) )) {
-            qDebug() << this << "Transfer Phase 2/3: Transfer ready for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
-            tmpT->pTransfer.pOffset = tmpOffset;
-            tmpT->pTransfer.pHash = tmpHash;
-            tmpT->pTransfer.pQueuePosition = 0;
-            if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload || tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload)
-                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusActive;
-            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
-            tmpT->start();
-            return;
-        }
-
-    }
-
-    // Duh! Something went wrong.
-    qDebug() << "Transfer Phase 2/3: Transfer ready, but we didn't request it?";
+//
+//    QString tmpPath = message.getStringArgument(0);
+//    qlonglong tmpOffset = message.getStringArgument(1).toLongLong();
+//    QString tmpHash = message.getStringArgument(2);
+//
+//    qDebug() << this << "Transfer ready:" << tmpPath;
+//
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while(i.hasNext()) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(!tmpT) continue;
+//        QwcTransferInfo tmpTrans = tmpT->pTransfer;
+//        qDebug() << "CHECKING FILE"<<tmpTrans.pRemotePath<<"with main status"<<tmpTrans.pStatus<<"file status"<<tmpTrans.pFileStatus;
+//
+//        if( tmpTrans.pRemotePath==tmpPath && (
+//                (tmpTrans.pTransferType==WiredTransfer::TypeUpload && tmpTrans.pStatus==WiredTransfer::StatusWaitingForStat)
+//                || (tmpTrans.pTransferType==WiredTransfer::TypeDownload && tmpTrans.pStatus==WiredTransfer::StatusQueued)
+//                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued)
+//                || (tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload && tmpTrans.pFileStatus==WiredTransfer::StatusQueued) )) {
+//            qDebug() << this << "Transfer Phase 2/3: Transfer ready for"<<tmpPath<<"with hash"<<tmpHash<<"offset"<<tmpOffset;
+//            tmpT->pTransfer.pOffset = tmpOffset;
+//            tmpT->pTransfer.pHash = tmpHash;
+//            tmpT->pTransfer.pQueuePosition = 0;
+//            if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload || tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload)
+//                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusActive;
+//            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
+//            tmpT->start();
+//            return;
+//        }
+//
+//    }
+//
+//    // Duh! Something went wrong.
+//    qDebug() << "Transfer Phase 2/3: Transfer ready, but we didn't request it?";
 }
 
 
@@ -432,21 +433,22 @@ void QwcSocket::handleMessage400(const QwMessage &message)
 */
 void QwcSocket::handleMessage401(const QwMessage &message)
 {
-    QString tmpPath = message.getStringArgument(0);
-    int tmpPosition = message.getStringArgument(1).toInt();
-    qDebug() << "Transfer Phase 2/3: File"<<tmpPath<<"queued at position"<<tmpPosition<<" . o ( Zz..zzzZ..zzZ )";
-
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while( i.hasNext() ) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        QwcFiletransferInfo &tmpTrans = tmpT->pTransfer;
-        if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==WiredTransfer::StatusQueued ) {
-            tmpT->pTransfer.pQueuePosition = tmpPosition;
-            emit fileTransferStatus(tmpTrans);
-            return;
-        }
-    }
+//
+//    QString tmpPath = message.getStringArgument(0);
+//    int tmpPosition = message.getStringArgument(1).toInt();
+//    qDebug() << "Transfer Phase 2/3: File"<<tmpPath<<"queued at position"<<tmpPosition<<" . o ( Zz..zzzZ..zzZ )";
+//
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while( i.hasNext() ) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(!tmpT) continue;
+//        QwcTransferInfo &tmpTrans = tmpT->pTransfer;
+//        if( tmpTrans.pRemotePath==tmpPath && tmpTrans.pStatus==WiredTransfer::StatusQueued ) {
+//            tmpT->pTransfer.pQueuePosition = tmpPosition;
+//            emit fileTransferStatus(tmpTrans);
+//            return;
+//        }
+//    }
 
 }
 
@@ -456,76 +458,76 @@ void QwcSocket::handleMessage401(const QwMessage &message)
 */
 void QwcSocket::handleMessage402(const QwMessage &message)
 {
-    QString tmpPath = message.getStringArgument(0);
-    qlonglong tmpSize = message.getStringArgument(2).toLongLong();
-    QDateTime tmpCreated = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
-    QDateTime tmpModified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
-    QString tmpChecksum = message.getStringArgument(5);
-    QString tmpComment = message.getStringArgument(6);
-
-    // Check if we are waiting for a stat
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    int tmpIdx=0;
-    while( i.hasNext() ) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-
-
-        if( (tmpT->pTransfer.pTransferType==WiredTransfer::TypeDownload
-             && tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat
-             && tmpT->pTransfer.pRemotePath==tmpPath)
-            || (tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
-                && tmpT->pTransfer.pFileStatus==WiredTransfer::StatusWaitingForStat
-                && tmpT->pTransfer.pRemotePath==tmpPath) ) {
-
-            qDebug() << "Transfer Phase 1/3:"<<tmpPath<<": received stat, requesting transfer:"<<tmpPath<<tmpChecksum;
-
-            // Check if we need to resume
-            tmpT->pTransfer.pOffset = 0;
-            tmpT->pTransfer.pDoneSize = 0;
-
-            QString tmpFilePath = tmpT->pTransfer.pLocalPath+".WiredTransfer";
-            QFile tmpFile(tmpFilePath);
-            if(tmpFile.exists()) {
-                if(tmpFile.open(QIODevice::ReadOnly)) {
-                    QByteArray tmpDat = tmpFile.read(1024*1024);
-                    QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
-                    qDebug() << "QwcSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
-                    if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
-                        qDebug() << "QwcSocket: Checksums are identical. Offset is"<<tmpFile.size();
-                        tmpT->pTransfer.pOffset = tmpFile.size();
-                        tmpT->pTransfer.pDoneSize = tmpFile.size();
-                    } else {
-                        qDebug() << "QwcSocket: Checksums are NOT identical, deleting file.";
-                        tmpFile.close();
-                        tmpFile.remove();
-                    }
-                }
-            }
-
-            // Set some more info
-            tmpT->pTransfer.pChecksum = tmpChecksum;
-            tmpT->pTransfer.pTotalSize = tmpSize;
-
-            if(tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
-                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
-            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
-
-            // Request a file download from the server
-            sendMessage(QwMessage("GET").appendArg(tmpPath)
-                        .appendArg(QByteArray::number(tmpT->pTransfer.pOffset)));
-
-            qDebug() << "QwcSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset<<"main status"<<tmpT->pTransfer.pStatus<<"file status"<<tmpT->pTransfer.pFileStatus;
-            return;
-        }
-    }
-    tmpIdx++;
-
-
-    // Not in the transfer queue, pass the event to the user code.
-    QwcFileInfo tmpFile;
-    tmpFile.setFromMessage402(message);
-    emit fileInformation(tmpFile);
+//    QString tmpPath = message.getStringArgument(0);
+//    qlonglong tmpSize = message.getStringArgument(2).toLongLong();
+//    QDateTime tmpCreated = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
+//    QDateTime tmpModified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
+//    QString tmpChecksum = message.getStringArgument(5);
+//    QString tmpComment = message.getStringArgument(6);
+//
+//    // Check if we are waiting for a stat
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    int tmpIdx=0;
+//    while( i.hasNext() ) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(!tmpT) continue;
+//
+//
+//        if( (tmpT->pTransfer.pTransferType==WiredTransfer::TypeDownload
+//             && tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat
+//             && tmpT->pTransfer.pRemotePath==tmpPath)
+//            || (tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
+//                && tmpT->pTransfer.pFileStatus==WiredTransfer::StatusWaitingForStat
+//                && tmpT->pTransfer.pRemotePath==tmpPath) ) {
+//
+//            qDebug() << "Transfer Phase 1/3:"<<tmpPath<<": received stat, requesting transfer:"<<tmpPath<<tmpChecksum;
+//
+//            // Check if we need to resume
+//            tmpT->pTransfer.pOffset = 0;
+//            tmpT->pTransfer.pDoneSize = 0;
+//
+//            QString tmpFilePath = tmpT->pTransfer.pLocalPath+".WiredTransfer";
+//            QFile tmpFile(tmpFilePath);
+//            if(tmpFile.exists()) {
+//                if(tmpFile.open(QIODevice::ReadOnly)) {
+//                    QByteArray tmpDat = tmpFile.read(1024*1024);
+//                    QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
+//                    qDebug() << "QwcSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
+//                    if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
+//                        qDebug() << "QwcSocket: Checksums are identical. Offset is"<<tmpFile.size();
+//                        tmpT->pTransfer.pOffset = tmpFile.size();
+//                        tmpT->pTransfer.pDoneSize = tmpFile.size();
+//                    } else {
+//                        qDebug() << "QwcSocket: Checksums are NOT identical, deleting file.";
+//                        tmpFile.close();
+//                        tmpFile.remove();
+//                    }
+//                }
+//            }
+//
+//            // Set some more info
+//            tmpT->pTransfer.pChecksum = tmpChecksum;
+//            tmpT->pTransfer.pTotalSize = tmpSize;
+//
+//            if(tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
+//                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
+//            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
+//
+//            // Request a file download from the server
+//            sendMessage(QwMessage("GET").appendArg(tmpPath)
+//                        .appendArg(QByteArray::number(tmpT->pTransfer.pOffset)));
+//
+//            qDebug() << "QwcSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset<<"main status"<<tmpT->pTransfer.pStatus<<"file status"<<tmpT->pTransfer.pFileStatus;
+//            return;
+//        }
+//    }
+//    tmpIdx++;
+//
+//
+//    // Not in the transfer queue, pass the event to the user code.
+//    QwcFileInfo tmpFile;
+//    tmpFile.setFromMessage402(message);
+//    emit fileInformation(tmpFile);
 
 }
 
@@ -551,53 +553,53 @@ void QwcSocket::handleMessage410(const QwMessage &message)
 */
 void QwcSocket::handleMessage411(const QwMessage &message)
 {
-    if(!pIndexingFiles) {
-        emit onFilesListDone(message.getStringArgument(0),
-                             message.getStringArgument(1).toLongLong() );
-    } else {
-        // Listing of directory complete. Continue the listing.
-        int maxIndexingDepth = 16;
-        QMutableListIterator<QwcFileInfo> i(pRecursiveFileListing);
-        while(i.hasNext()) {
-            QwcFileInfo &file = i.next();
-            if(file.type == Qw::FileTypeFolder &&
-               !file.isIndexed && file.size && file.path.count("/") <= maxIndexingDepth ) {
-                file.isIndexed = true;
-                getFileList(file.path);
-                return;
-            }
-        }
-
-        // Find a transfer socket
-        QListIterator<QPointer<QwcFiletransferSocket> > j(pTransferSockets);
-        while(j.hasNext()) {
-            QwcFiletransferSocket *tmpT = j.next();
-            if(!tmpT) continue;
-            QwcFiletransferInfo &transfer = tmpT->pTransfer;
-            if(transfer.pRemotePath==pRecursivePath
-               && transfer.pTransferType==WiredTransfer::TypeFolderDownload
-               && transfer.pStatus==WiredTransfer::StatusWaitingForStat) {
-                qDebug() << this << "Waiting folder transfer socket found.";
-                transfer.fileList = pRecursiveFileListing;
-                transfer.pFilesCount = pRecursiveFileListing.count();
-                transfer.pFilesDone = 0;
-                transfer.pFolderDone = 0;
-                transfer.pFolderSize = 0;
-                QListIterator<QwcFileInfo> k(pRecursiveFileListing);
-                while(k.hasNext()) { transfer.pFolderSize+=k.next().size; }
-
-                transfer.pRemoteFolder = pRecursivePath;
-                transfer.pStatus = WiredTransfer::StatusActive;
-                proceedFolderDownload(tmpT);
-                return;
-            }
-        }
-
-        // Finished, if we are here.
-        pIndexingFiles = false;
-        pRecursivePath.clear();
-
-    }
+//    if(!pIndexingFiles) {
+//        emit onFilesListDone(message.getStringArgument(0),
+//                             message.getStringArgument(1).toLongLong() );
+//    } else {
+//        // Listing of directory complete. Continue the listing.
+//        int maxIndexingDepth = 16;
+//        QMutableListIterator<QwcFileInfo> i(pRecursiveFileListing);
+//        while(i.hasNext()) {
+//            QwcFileInfo &file = i.next();
+//            if(file.type == Qw::FileTypeFolder &&
+//               !file.isIndexed && file.size && file.path.count("/") <= maxIndexingDepth ) {
+//                file.isIndexed = true;
+//                getFileList(file.path);
+//                return;
+//            }
+//        }
+//
+//        // Find a transfer socket
+//        QListIterator<QPointer<QwcTransferSocket> > j(pTransferSockets);
+//        while(j.hasNext()) {
+//            QwcTransferSocket *tmpT = j.next();
+//            if(!tmpT) continue;
+//            QwcTransferInfo &transfer = tmpT->pTransfer;
+//            if(transfer.pRemotePath==pRecursivePath
+//               && transfer.pTransferType==WiredTransfer::TypeFolderDownload
+//               && transfer.pStatus==WiredTransfer::StatusWaitingForStat) {
+//                qDebug() << this << "Waiting folder transfer socket found.";
+//                transfer.fileList = pRecursiveFileListing;
+//                transfer.pFilesCount = pRecursiveFileListing.count();
+//                transfer.pFilesDone = 0;
+//                transfer.pFolderDone = 0;
+//                transfer.pFolderSize = 0;
+//                QListIterator<QwcFileInfo> k(pRecursiveFileListing);
+//                while(k.hasNext()) { transfer.pFolderSize+=k.next().size; }
+//
+//                transfer.pRemoteFolder = pRecursivePath;
+//                transfer.pStatus = WiredTransfer::StatusActive;
+//                proceedFolderDownload(tmpT);
+//                return;
+//            }
+//        }
+//
+//        // Finished, if we are here.
+//        pIndexingFiles = false;
+//        pRecursivePath.clear();
+//
+//    }
 }
 
 
@@ -739,9 +741,9 @@ void QwcSocket::disconnectFromServer()
     users.clear();
     rooms.clear();
 
-    QMutableListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
+    QMutableListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
     while(i.hasNext()) {
-        QPointer<QwcFiletransferSocket> p = i.next();
+        QPointer<QwcTransferSocket> p = i.next();
         p->deleteLater();
         i.remove();
     }
@@ -914,137 +916,137 @@ void QwcSocket::setIconImage(QImage icon)
 
 void QwcSocket::getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally)
 {
-    Q_UNUSED(queueLocally);
-    // Check for duplicate downloads
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while(i.hasNext()) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        if(tmpT->pTransfer.pRemotePath==remotePath) return;
-    }
-
-    QwcFiletransferSocket *tmpSock = new QwcFiletransferSocket;
-    pTransferSockets.append(tmpSock);
-
-    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeFolderDownload;
-    tmpSock->pTransfer.pRemotePath = remotePath;
-    // 	tmpSock->pTransfer.pLocalPath = localPath;
-    tmpSock->pTransfer.pLocalRoot = localPath;
-
-    connect(tmpSock, SIGNAL(fileTransferDone(QwcFiletransferInfo)), this, SIGNAL(fileTransferDone(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferError(QwcFiletransferInfo)), this, SIGNAL(fileTransferError(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferStatus(QwcFiletransferInfo)), this, SIGNAL(fileTransferStatus(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcFiletransferInfo)), this, SLOT(fileTransferFileDone(const QwcFiletransferInfo))); // for folder transfers
-    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-
-    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
-    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
-    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<remotePath<<"to"<<localPath;
-    emit fileTransferStarted(tmpSock->pTransfer);
+//    Q_UNUSED(queueLocally);
+//    // Check for duplicate downloads
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while(i.hasNext()) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(!tmpT) continue;
+//        if(tmpT->pTransfer.pRemotePath==remotePath) return;
+//    }
+//
+//    QwcTransferSocket *tmpSock = new QwcTransferSocket;
+//    pTransferSockets.append(tmpSock);
+//
+//    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeFolderDownload;
+//    tmpSock->pTransfer.pRemotePath = remotePath;
+//    // 	tmpSock->pTransfer.pLocalPath = localPath;
+//    tmpSock->pTransfer.pLocalRoot = localPath;
+//
+//    connect(tmpSock, SIGNAL(fileTransferDone(QwcTransferInfo)), this, SIGNAL(fileTransferDone(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferError(QwcTransferInfo)), this, SIGNAL(fileTransferError(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferStatus(QwcTransferInfo)), this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcTransferInfo)), this, SLOT(fileTransferFileDone(const QwcTransferInfo))); // for folder transfers
+//    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
+//
+//    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
+//    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
+//    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<remotePath<<"to"<<localPath;
+//    emit fileTransferStarted(tmpSock->pTransfer);
 }
 
 
 void QwcSocket::putFolder(const QString localPath, const QString remotePath, const bool queueLocally)
 {
-    Q_UNUSED(queueLocally);
-    // Check for duplicate downloads
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while(i.hasNext()) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        if(tmpT->pTransfer.pRemotePath==remotePath) return;
-    }
-
-    QwcFiletransferSocket *tmpSock = new QwcFiletransferSocket;
-    pTransferSockets.append(tmpSock);
-
-    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeFolderUpload;
-    tmpSock->pTransfer.pRemotePath = remotePath;
-    tmpSock->pTransfer.pRemoteFolder = remotePath;
-    tmpSock->pTransfer.pLocalRoot = localPath;
-
-    QDirIterator dir(localPath, QDirIterator::Subdirectories);
-    while(dir.hasNext()) {
-        QString path = dir.next();
-        QFileInfo fileInfo(path);
-        tmpSock->pTransfer.fileListLocal.append(fileInfo.absoluteFilePath());
-        tmpSock->pTransfer.pFolderSize += fileInfo.size();
-        tmpSock->pTransfer.pFilesCount += 1;
-    }
-
-    // 	qDebug() << "Files:" << tmpSock->pTransfer.fileListLocal;
-
-    connect(tmpSock, SIGNAL(fileTransferDone(QwcFiletransferInfo)), this, SIGNAL(fileTransferDone(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferError(QwcFiletransferInfo)), this, SIGNAL(fileTransferError(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferStatus(QwcFiletransferInfo)), this, SIGNAL(fileTransferStatus(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcFiletransferInfo)), this, SLOT(fileTransferFileDone(const QwcFiletransferInfo))); // for folder transfers
-    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-
-    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
-    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
-    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<localPath<<"to"<<remotePath;
-    emit fileTransferStarted(tmpSock->pTransfer);
+//    Q_UNUSED(queueLocally);
+//    // Check for duplicate downloads
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while(i.hasNext()) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(!tmpT) continue;
+//        if(tmpT->pTransfer.pRemotePath==remotePath) return;
+//    }
+//
+//    QwcTransferSocket *tmpSock = new QwcTransferSocket;
+//    pTransferSockets.append(tmpSock);
+//
+//    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeFolderUpload;
+//    tmpSock->pTransfer.pRemotePath = remotePath;
+//    tmpSock->pTransfer.pRemoteFolder = remotePath;
+//    tmpSock->pTransfer.pLocalRoot = localPath;
+//
+//    QDirIterator dir(localPath, QDirIterator::Subdirectories);
+//    while(dir.hasNext()) {
+//        QString path = dir.next();
+//        QFileInfo fileInfo(path);
+//        tmpSock->pTransfer.fileListLocal.append(fileInfo.absoluteFilePath());
+//        tmpSock->pTransfer.pFolderSize += fileInfo.size();
+//        tmpSock->pTransfer.pFilesCount += 1;
+//    }
+//
+//    // 	qDebug() << "Files:" << tmpSock->pTransfer.fileListLocal;
+//
+//    connect(tmpSock, SIGNAL(fileTransferDone(QwcTransferInfo)), this, SIGNAL(fileTransferDone(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferError(QwcTransferInfo)), this, SIGNAL(fileTransferError(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferStatus(QwcTransferInfo)), this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcTransferInfo)), this, SLOT(fileTransferFileDone(const QwcTransferInfo))); // for folder transfers
+//    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
+//
+//    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
+//    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
+//    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<localPath<<"to"<<remotePath;
+//    emit fileTransferStarted(tmpSock->pTransfer);
 }
 
 
 void QwcSocket::getFile(const QString thePath, const QString theLocalPath, const bool queueLocally)
 {
-    Q_UNUSED(queueLocally);
-    // Check for duplicate downloads
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while( i.hasNext() ) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(tmpT) {
-            QwcFiletransferInfo tmpTrans = tmpT->pTransfer;
-            if( tmpTrans.pRemotePath==thePath ) {
-                qDebug() << "Transfer Phase 1:"<<thePath<<": already transferring, abort!";
-                return;
-            }
-        }
-    }
-
-    QwcFiletransferSocket *tmpSock = new QwcFiletransferSocket;
-    pTransferSockets.append(tmpSock);
-
-    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeDownload;
-    tmpSock->pTransfer.pRemotePath = thePath;
-    tmpSock->pTransfer.pLocalPath = theLocalPath;
-
-    qDebug() << "Current creator thread:"<<QThread::currentThread();
-    connect(tmpSock, SIGNAL(fileTransferDone(QwcFiletransferInfo)), this, SIGNAL(fileTransferDone(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferError(QwcFiletransferInfo)), this, SIGNAL(fileTransferError(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(fileTransferStatus(QwcFiletransferInfo)), this, SIGNAL(fileTransferStatus(QwcFiletransferInfo)));
-    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-
-    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
-    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
-    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<thePath<<"to"<<theLocalPath;
-    emit fileTransferStarted(tmpSock->pTransfer);
+//    Q_UNUSED(queueLocally);
+//    // Check for duplicate downloads
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while( i.hasNext() ) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(tmpT) {
+//            QwcTransferInfo tmpTrans = tmpT->pTransfer;
+//            if( tmpTrans.pRemotePath==thePath ) {
+//                qDebug() << "Transfer Phase 1:"<<thePath<<": already transferring, abort!";
+//                return;
+//            }
+//        }
+//    }
+//
+//    QwcTransferSocket *tmpSock = new QwcTransferSocket;
+//    pTransferSockets.append(tmpSock);
+//
+//    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeDownload;
+//    tmpSock->pTransfer.pRemotePath = thePath;
+//    tmpSock->pTransfer.pLocalPath = theLocalPath;
+//
+//    qDebug() << "Current creator thread:"<<QThread::currentThread();
+//    connect(tmpSock, SIGNAL(fileTransferDone(QwcTransferInfo)), this, SIGNAL(fileTransferDone(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferError(QwcTransferInfo)), this, SIGNAL(fileTransferError(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(fileTransferStatus(QwcTransferInfo)), this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
+//    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
+//
+//    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
+//    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
+//    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<thePath<<"to"<<theLocalPath;
+//    emit fileTransferStarted(tmpSock->pTransfer);
 }
 
 
 
 // Request uploading of a file to the server
 void QwcSocket::putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally) {
-    QFile tmpFile(theLocalPath);
+ /*   QFile tmpFile(theLocalPath);
     QString remotePath = theRemotePath;
     if(remotePath.left(2)=="//") remotePath.remove(0,1);
     if(tmpFile.exists() && !remotePath.isEmpty()) {
 
         // Check for duplicate uploads
-        QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
+        QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
         while( i.hasNext() ) {
-            QwcFiletransferSocket *tmpT = i.next();
+            QwcTransferSocket *tmpT = i.next();
             if(!tmpT) continue;
             if(tmpT->pTransfer.pRemotePath==remotePath) return;
         }
 
-        QwcFiletransferSocket *tmpSock = new QwcFiletransferSocket;
+        QwcTransferSocket *tmpSock = new QwcTransferSocket;
         pTransferSockets.append(tmpSock);
-        connect(tmpSock, SIGNAL(fileTransferDone(QwcFiletransferInfo)), this, SIGNAL(fileTransferDone(QwcFiletransferInfo)));
-        connect(tmpSock, SIGNAL(fileTransferError(QwcFiletransferInfo)), this, SIGNAL(fileTransferError(QwcFiletransferInfo)));
-        connect(tmpSock, SIGNAL(fileTransferStatus(QwcFiletransferInfo)), this, SIGNAL(fileTransferStatus(QwcFiletransferInfo)));
-        connect(tmpSock, SIGNAL(fileTransferStarted(QwcFiletransferInfo)), this, SIGNAL(fileTransferStarted(QwcFiletransferInfo)));
+        connect(tmpSock, SIGNAL(fileTransferDone(QwcTransferInfo)), this, SIGNAL(fileTransferDone(QwcTransferInfo)));
+        connect(tmpSock, SIGNAL(fileTransferError(QwcTransferInfo)), this, SIGNAL(fileTransferError(QwcTransferInfo)));
+        connect(tmpSock, SIGNAL(fileTransferStatus(QwcTransferInfo)), this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
+        connect(tmpSock, SIGNAL(fileTransferStarted(QwcTransferInfo)), this, SIGNAL(fileTransferStarted(QwcTransferInfo)));
         connect(tmpSock, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)));
         connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
         tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
@@ -1061,6 +1063,7 @@ void QwcSocket::putFile(const QString theLocalPath, const QString theRemotePath,
         }
         emit fileTransferStarted(tmpSock->pTransfer);
     }
+    */
 }
 
 
@@ -1348,9 +1351,9 @@ void QwcSocket::sendMessageINFO()
 void QwcSocket::cleanTransfers()
 {
     qDebug() << this << "Cleaning transfers";
-    QMutableListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
+    QMutableListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
     while(i.hasNext()) {
-        QPointer<QwcFiletransferSocket> tmpP = i.next();
+        QPointer<QwcTransferSocket> tmpP = i.next();
         if(tmpP.isNull()) i.remove();
     }
 }
@@ -1359,20 +1362,21 @@ void QwcSocket::cleanTransfers()
  * Cancel a running transfer.
  * @param  The transfer to cancel.
  */
-void QwcSocket::cancelTransfer(QwcFiletransferInfo theTransfer)
+void QwcSocket::cancelTransfer(QwcTransferInfo theTransfer)
 {
-    QMutableListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while(i.hasNext()) {
-        QPointer<QwcFiletransferSocket> tmpTS = i.next();
-        if(tmpTS) {
-            if(tmpTS->pTransfer.pChecksum==theTransfer.pChecksum && tmpTS->pTransfer.pRemotePath==theTransfer.pRemotePath) {
-                tmpTS->cancelTransfer();
-                i.remove();
-                qDebug() << "Deleted transfer socket"<<tmpTS->pTransfer.pHash;
-                return;
-            }
-        }
-    }
+//
+//    QMutableListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while(i.hasNext()) {
+//        QPointer<QwcTransferSocket> tmpTS = i.next();
+//        if(tmpTS) {
+//            if(tmpTS->pTransfer.pChecksum==theTransfer.pChecksum && tmpTS->pTransfer.pRemotePath==theTransfer.pRemotePath) {
+//                tmpTS->cancelTransfer();
+//                i.remove();
+//                qDebug() << "Deleted transfer socket"<<tmpTS->pTransfer.pHash;
+//                return;
+//            }
+//        }
+//    }
 }
 
 QString QwcSocket::tranzlate(QString theText)
@@ -1409,53 +1413,53 @@ void QwcSocket::disconnectSocketFromServer()
 /// Activate/start the next locally queued transfer of type
 /// type. If a transfer is already running, this will start
 /// the next.
-void QwcSocket::runTransferQueue(WiredTransfer::TransferType type)
+void QwcSocket::runTransferQueue(Qw::TransferType type)
 {
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while(i.hasNext()) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        QwcFiletransferInfo tmpTrans = tmpT->pTransfer;
-        if( tmpTrans.pTransferType==type && tmpTrans.pStatus==WiredTransfer::StatusQueuedLocal ) {
-            qDebug() << this << "Unfreezing transfer"<<tmpTrans.pRemotePath;
-            tmpT->pTransfer.pStatus = WiredTransfer::StatusWaitingForStat;
-
-            if(tmpTrans.pTransferType==WiredTransfer::TypeDownload) {
-                statFile(tmpT->pTransfer.pRemotePath);
-
-            } else if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload) {
-                getFileListRecusive(tmpTrans.pRemotePath);
-
-            } else if(tmpTrans.pTransferType==WiredTransfer::TypeUpload) {
-
-                sendMessage(QwMessage("PUT").appendArg(tmpTrans.pRemotePath)
-                            .appendArg(QString::number(tmpTrans.pTotalSize))
-                            .appendArg(tmpTrans.pChecksum));
-
-            } else if(tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload) {
-                tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
-                proceedFolderUpload(tmpT);
-
-            }
-
-            emit fileTransferStarted(tmpT->pTransfer);
-            return;
-        }
-
-    }
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while(i.hasNext()) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(!tmpT) continue;
+//        QwcTransferInfo tmpTrans = tmpT->pTransfer;
+//        if( tmpTrans.pTransferType==type && tmpTrans.pStatus==WiredTransfer::StatusQueuedLocal ) {
+//            qDebug() << this << "Unfreezing transfer"<<tmpTrans.pRemotePath;
+//            tmpT->pTransfer.pStatus = WiredTransfer::StatusWaitingForStat;
+//
+//            if(tmpTrans.pTransferType==WiredTransfer::TypeDownload) {
+//                statFile(tmpT->pTransfer.pRemotePath);
+//
+//            } else if(tmpTrans.pTransferType==WiredTransfer::TypeFolderDownload) {
+//                getFileListRecusive(tmpTrans.pRemotePath);
+//
+//            } else if(tmpTrans.pTransferType==WiredTransfer::TypeUpload) {
+//
+//                sendMessage(QwMessage("PUT").appendArg(tmpTrans.pRemotePath)
+//                            .appendArg(QString::number(tmpTrans.pTotalSize))
+//                            .appendArg(tmpTrans.pChecksum));
+//
+//            } else if(tmpTrans.pTransferType==WiredTransfer::TypeFolderUpload) {
+//                tmpT->pTransfer.pStatus = WiredTransfer::StatusActive;
+//                proceedFolderUpload(tmpT);
+//
+//            }
+//
+//            emit fileTransferStarted(tmpT->pTransfer);
+//            return;
+//        }
+//
+//    }
 }
 
-bool QwcSocket::isTransferringFileOfType(WiredTransfer::TransferType type)
+bool QwcSocket::isTransferringFileOfType(Qw::TransferType type)
 {
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    while(i.hasNext()) {
-        QwcFiletransferSocket *tmpT = i.next();
-        if(!tmpT) continue;
-        if(tmpT->pTransfer.pTransferType==type
-           && (tmpT->pTransfer.pStatus==WiredTransfer::StatusActive || tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat))
-            return true;
-    }
-    return false;
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    while(i.hasNext()) {
+//        QwcTransferSocket *tmpT = i.next();
+//        if(!tmpT) continue;
+//        if(tmpT->pTransfer.pTransferType==type
+//           && (tmpT->pTransfer.pStatus==WiredTransfer::StatusActive || tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat))
+//            return true;
+//    }
+//    return false;
 }
 
 
@@ -1473,121 +1477,123 @@ void QwcSocket::getFileListRecusive(const QString & path)
 
 
 
-void QwcSocket::proceedFolderDownload(QwcFiletransferSocket *socket)
+void QwcSocket::proceedFolderDownload(QwcTransferSocket *socket)
 {
     // Take the next item in the folder download and handle it
-    if(!socket) return;
-    while(1) {
-        if(socket->pTransfer.fileList.count()==0) {
-            qDebug() << this << "Folder download done.";
-            socket->pTransfer.pStatus = WiredTransfer::StatusDone;
-            emit fileTransferDone(socket->pTransfer);
-            return;
-        };
-        QwcFileInfo file = socket->pTransfer.fileList.takeFirst();
-        qDebug() << this << "Proceeding download:"<<file.path;
-
-        QString remoteRootName = socket->pTransfer.pRemoteFolder.section("/",-1,-1); // the name only of the remote root
-
-        QString relativeRemotePath(file.path); // complete path on server (/Server/Files/file.a)
-        relativeRemotePath.remove(socket->pTransfer.pRemoteFolder); // path from remote root to contained file (/Files/file.a)
-        relativeRemotePath.prepend(remoteRootName); // prepend local root
-
-        QDir dir(socket->pTransfer.pLocalRoot);
-        dir.mkpath(remoteRootName); // Ensure the local root folder exists
-
-        if (file.type > Qw::FileTypeRegular || file.type == Qw::FileTypeDropBox || file.type == Qw::FileTypeUploadsFolder ) { // create the directory
-            dir.mkpath(relativeRemotePath);
-            socket->pTransfer.pFilesDone++;
-            qDebug() << "Creating directory:" << relativeRemotePath;
-
-        } else if (file.type == Qw::FileTypeRegular) {
-            socket->pTransfer.pFileStatus = WiredTransfer::StatusWaitingForStat;
-            socket->pTransfer.pQueuePosition = 0;
-            socket->pTransfer.pRemotePath = file.path;
-            socket->pTransfer.pLocalPath = dir.absoluteFilePath(relativeRemotePath);
-            socket->pTransfer.pFilesDone++;
-            if(!QFile(socket->pTransfer.pLocalPath).exists()) {
-                statFile(file.path);
-                qDebug() << "STATing:"<<file.path;
-                return;
-            }
-        }
-    }
+//
+//    if(!socket) return;
+//    while(1) {
+//        if(socket->pTransfer.fileList.count()==0) {
+//            qDebug() << this << "Folder download done.";
+//            socket->pTransfer.pStatus = WiredTransfer::StatusDone;
+//            emit fileTransferDone(socket->pTransfer);
+//            return;
+//        };
+//        QwcFileInfo file = socket->pTransfer.fileList.takeFirst();
+//        qDebug() << this << "Proceeding download:"<<file.path;
+//
+//        QString remoteRootName = socket->pTransfer.pRemoteFolder.section("/",-1,-1); // the name only of the remote root
+//
+//        QString relativeRemotePath(file.path); // complete path on server (/Server/Files/file.a)
+//        relativeRemotePath.remove(socket->pTransfer.pRemoteFolder); // path from remote root to contained file (/Files/file.a)
+//        relativeRemotePath.prepend(remoteRootName); // prepend local root
+//
+//        QDir dir(socket->pTransfer.pLocalRoot);
+//        dir.mkpath(remoteRootName); // Ensure the local root folder exists
+//
+//        if (file.type > Qw::FileTypeRegular || file.type == Qw::FileTypeDropBox || file.type == Qw::FileTypeUploadsFolder ) { // create the directory
+//            dir.mkpath(relativeRemotePath);
+//            socket->pTransfer.pFilesDone++;
+//            qDebug() << "Creating directory:" << relativeRemotePath;
+//
+//        } else if (file.type == Qw::FileTypeRegular) {
+//            socket->pTransfer.pFileStatus = WiredTransfer::StatusWaitingForStat;
+//            socket->pTransfer.pQueuePosition = 0;
+//            socket->pTransfer.pRemotePath = file.path;
+//            socket->pTransfer.pLocalPath = dir.absoluteFilePath(relativeRemotePath);
+//            socket->pTransfer.pFilesDone++;
+//            if(!QFile(socket->pTransfer.pLocalPath).exists()) {
+//                statFile(file.path);
+//                qDebug() << "STATing:"<<file.path;
+//                return;
+//            }
+//        }
+//    }
+//
 }
 
 
-void QwcSocket::proceedFolderUpload(QwcFiletransferSocket *socket)
+void QwcSocket::proceedFolderUpload(QwcTransferSocket *socket)
 {
-    // Take the next item in the folder upload and handle it
-    if(!socket) return;
-    while(1) {
-        if(socket->pTransfer.fileListLocal.count()==0) {
-            qDebug() << this << "Folder upload done.";
-            socket->pTransfer.pStatus = WiredTransfer::StatusDone;
-            emit fileTransferDone(socket->pTransfer);
-            return;
-        };
-
-        QString localPath = socket->pTransfer.fileListLocal.takeFirst();
-        QFileInfo localInfo(localPath);
-        qDebug() << this << "Proceeding upload:"<<localPath;
-
-        // Construct the paths
-        qDebug() << this << "Upload: Local root:"<<socket->pTransfer.pLocalRoot;
-
-        QString relativePath = QString(localPath).remove(socket->pTransfer.pLocalRoot);
-        QString relativePathRemote = socket->pTransfer.pRemoteFolder;
-        relativePathRemote.append(relativePath);
-        qDebug() << "RelativePath:"<<relativePathRemote;
-
-        if(!localInfo.isHidden() && localInfo.isReadable()) {
-            if(localInfo.isDir()) {
-                qDebug() << this<<"Upload: Directory:"<<relativePathRemote;
-                createFolder(relativePathRemote);
-
-            } else if(localInfo.isFile()) {
-                qDebug() << this<<"Upload: File:"<<relativePathRemote;
-                socket->pTransfer.pLocalPath = localPath;
-                socket->pTransfer.pRemotePath = relativePathRemote;
-                socket->pTransfer.calcLocalChecksum();
-                socket->pTransfer.pTotalSize = localInfo.size();
-                socket->pTransfer.pOffset = 0;
-                socket->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
-
-                // Request upload slot. Server will respond with offset if the file
-                // was partially uploaded.
-                sendMessage(QwMessage("PUT").appendArg(relativePathRemote)
-                            .appendArg(QString::number(localInfo.size()))
-                            .appendArg(socket->pTransfer.pChecksum));
-                return;
-            }
-        }
-
-    }
+//    // Take the next item in the folder upload and handle it
+//    if(!socket) return;
+//    while(1) {
+//        if(socket->pTransfer.fileListLocal.count()==0) {
+//            qDebug() << this << "Folder upload done.";
+//            socket->pTransfer.pStatus = WiredTransfer::StatusDone;
+//            emit fileTransferDone(socket->pTransfer);
+//            return;
+//        };
+//
+//        QString localPath = socket->pTransfer.fileListLocal.takeFirst();
+//        QFileInfo localInfo(localPath);
+//        qDebug() << this << "Proceeding upload:"<<localPath;
+//
+//        // Construct the paths
+//        qDebug() << this << "Upload: Local root:"<<socket->pTransfer.pLocalRoot;
+//
+//        QString relativePath = QString(localPath).remove(socket->pTransfer.pLocalRoot);
+//        QString relativePathRemote = socket->pTransfer.pRemoteFolder;
+//        relativePathRemote.append(relativePath);
+//        qDebug() << "RelativePath:"<<relativePathRemote;
+//
+//        if(!localInfo.isHidden() && localInfo.isReadable()) {
+//            if(localInfo.isDir()) {
+//                qDebug() << this<<"Upload: Directory:"<<relativePathRemote;
+//                createFolder(relativePathRemote);
+//
+//            } else if(localInfo.isFile()) {
+//                qDebug() << this<<"Upload: File:"<<relativePathRemote;
+//                socket->pTransfer.pLocalPath = localPath;
+//                socket->pTransfer.pRemotePath = relativePathRemote;
+//                socket->pTransfer.calcLocalChecksum();
+//                socket->pTransfer.pTotalSize = localInfo.size();
+//                socket->pTransfer.pOffset = 0;
+//                socket->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
+//
+//                // Request upload slot. Server will respond with offset if the file
+//                // was partially uploaded.
+//                sendMessage(QwMessage("PUT").appendArg(relativePathRemote)
+//                            .appendArg(QString::number(localInfo.size()))
+//                            .appendArg(socket->pTransfer.pChecksum));
+//                return;
+//            }
+//        }
+//
+//    }
 }
 
 
-void QwcSocket::fileTransferFileDone(const QwcFiletransferInfo transfer)
+void QwcSocket::fileTransferFileDone(const QwcTransferInfo transfer)
 {
-    QListIterator<QPointer<QwcFiletransferSocket> > i(pTransferSockets);
-    qDebug() << "Proceed upload 1.";
-    while(i.hasNext()) {
-        QwcFiletransferSocket *socket = i.next();
-        if(!socket) continue;
-        if(socket->pTransfer.pStatus!=WiredTransfer::StatusActive) continue;
-        qDebug() << "Proceed upload x.";
-        if(socket->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload) {
-            socket->pTransfer.pFolderDone += transfer.pTotalSize;
-            proceedFolderDownload(socket);
-            return;
-        } else if(socket->pTransfer.pTransferType==WiredTransfer::TypeFolderUpload) {
-            socket->pTransfer.pFolderDone += transfer.pTotalSize;
-            qDebug() << "Proceed upload 2.";
-            proceedFolderUpload(socket);
-            return;
-        }
-    }
+//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
+//    qDebug() << "Proceed upload 1.";
+//    while(i.hasNext()) {
+//        QwcTransferSocket *socket = i.next();
+//        if(!socket) continue;
+//        if(socket->pTransfer.pStatus!=WiredTransfer::StatusActive) continue;
+//        qDebug() << "Proceed upload x.";
+//        if(socket->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload) {
+//            socket->pTransfer.pFolderDone += transfer.pTotalSize;
+//            proceedFolderDownload(socket);
+//            return;
+//        } else if(socket->pTransfer.pTransferType==WiredTransfer::TypeFolderUpload) {
+//            socket->pTransfer.pFolderDone += transfer.pTotalSize;
+//            qDebug() << "Proceed upload 2.";
+//            proceedFolderUpload(socket);
+//            return;
+//        }
+//    }
 
 }
 
