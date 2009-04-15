@@ -6,10 +6,10 @@
 
 #include "QwRoom.h"
 #include "QwcUserInfo.h"
-#include "QwcFiletransferInfo.h"
+#include "QwcTransferInfo.h"
 #include "QwcFileInfo.h"
 #include "QwcTrackerServerInfo.h"
-#include "QwcFiletransferSocket.h"
+#include "QwcTransferSocket.h"
 
 class QwcSocket : public QwSocket
 {
@@ -44,17 +44,17 @@ public:
 
 
 
-    QList<QPointer<QwcFiletransferSocket> > pTransferSockets;
+    QList<QPointer<QwcTransferSocket> > pTransferSockets;
 
     // File Transfers
     bool pIndexingFiles; // true if the client is indexing server fails
     QList<QwcFileInfo> pRecursiveFileListing;
     QString pRecursivePath;
 
-    bool isTransferringFileOfType(WiredTransfer::TransferType type);
+    bool isTransferringFileOfType(Qw::TransferType type);
 
-    void proceedFolderDownload(QwcFiletransferSocket *);
-    void proceedFolderUpload(QwcFiletransferSocket *);
+    void proceedFolderDownload(QwcTransferSocket *);
+    void proceedFolderUpload(QwcTransferSocket *);
 
 
 public slots:
@@ -68,7 +68,7 @@ public slots:
     // Wired Subsystem (not for Trackers)
     //
     void banClient(int userId, QString reason);
-    void cancelTransfer(QwcFiletransferInfo);
+    void cancelTransfer(QwcTransferInfo);
     void clearNews();
     void createChatWithClient(int firstInvitedUser = 0);
     void createFolder(const QString thePath);
@@ -108,7 +108,7 @@ public slots:
     void setUserStatus(QString theStatus);
     void statFile(const QString thePath);
 
-    void runTransferQueue(WiredTransfer::TransferType type);
+    void runTransferQueue(Qw::TransferType type);
 
 
 private slots:
@@ -125,7 +125,7 @@ private slots:
 
     // Transfers
     //
-    void fileTransferFileDone(const QwcFiletransferInfo);
+    void fileTransferFileDone(const QwcTransferInfo);
 
 
 signals:
@@ -168,14 +168,14 @@ signals:
     void onFilesListItem(QwcFileInfo file);
     void onFilesListDone(QString thePath, qlonglong theFreeSpace);
     void onFilesListRecursiveDone(const QList<QwcFileInfo>);
-    void onServerFileTransferReady(QwcFiletransferInfo theTransfer);
-    void onServerFileTransferQueued(QwcFiletransferInfo theTransfer);
+    void onServerFileTransferReady(QwcTransferInfo theTransfer);
+    void onServerFileTransferQueued(QwcTransferInfo theTransfer);
     void fileInformation(QwcFileInfo theFile);
 
-    void fileTransferDone(const QwcFiletransferInfo theTransfer);
-    void fileTransferStarted(const QwcFiletransferInfo theTransfer);
-    void fileTransferError(const QwcFiletransferInfo theTransfer);
-    void fileTransferStatus(const QwcFiletransferInfo theTransfer);
+    void fileTransferDone(const QwcTransferInfo theTransfer);
+    void fileTransferStarted(const QwcTransferInfo theTransfer);
+    void fileTransferError(const QwcTransferInfo theTransfer);
+    void fileTransferStatus(const QwcTransferInfo theTransfer);
 
     void receivedAccountGroupList(QStringList theGroups);
     void receivedAccountList(QStringList theAccounts);

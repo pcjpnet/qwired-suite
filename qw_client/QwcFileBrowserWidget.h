@@ -4,7 +4,7 @@
 #include "ui_QwcFileBrowserWidget.h"
 
 #include "QwcFilelistModel.h"
-#include "QwcFiletransferInfo.h"
+#include "QwcTransferInfo.h"
 
 #include <QPointer>
 #include <QSortFilterProxyModel>
@@ -37,7 +37,7 @@ public:
     void dropEvent(QDropEvent *event);
 
 private slots:
-    void fileTransferDone(QwcFiletransferInfo);
+    void fileTransferDone(QwcTransferInfo);
 
 
 private:

@@ -11,13 +11,13 @@ int main (int argc, char *argv[])
 
     // Set the plugins directory correctly.
     // This has to be done for bundles in OS X if they are packed using the deployqt tool.
-#ifdef Q_WS_MAC
-    qDebug() << "Running in mac mode.";
-    QDir dir(QApplication::applicationDirPath());
-    dir.cdUp();
-    dir.cd("Plugins");
-    QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
-#endif
+//#ifdef Q_WS_MAC
+//    qDebug() << "Running in mac mode.";
+//    QDir dir(QApplication::applicationDirPath());
+//    dir.cdUp();
+//    dir.cd("Plugins");
+//    QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
+//#endif
 
     QCoreApplication::setOrganizationName("NeoSoftware");
     QCoreApplication::setOrganizationDomain("neo.de");

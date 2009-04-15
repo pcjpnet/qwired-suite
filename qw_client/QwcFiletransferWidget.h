@@ -4,7 +4,7 @@
 
 
 #include "ui_QwcFiletransferWidget.h"
-#include "QwcFiletransferInfo.h"
+#include "QwcTransferInfo.h"
 #include <QWidget>
 
 
@@ -19,7 +19,7 @@ public:
 	void init();
 
 signals:
-    void transferCancelled(QwcFiletransferInfo);
+    void transferCancelled(QwcTransferInfo);
 	
 private slots:
 	void on_fBtnCancel_clicked(bool);

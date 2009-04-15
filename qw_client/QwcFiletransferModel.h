@@ -4,12 +4,11 @@
 #include <QAbstractListModel>
 
 #include "QwcSocket.h"
-#include "QwcFiletransferSocket.h"
+#include "QwcTransferSocket.h"
 
 class QwcFiletransferModel : public QAbstractListModel
 {
-	
-Q_OBJECT
+	Q_OBJECT
 		
 public:
     QwcFiletransferModel(QObject *parent = 0);
@@ -22,11 +21,11 @@ public:
 	
     QPointer<QwcSocket> pSocket;
 
-protected:
+//protected:
 // 	void timerEvent(QTimerEvent *event);
 	
 private slots:
-    void updateTransfers(const QwcFiletransferInfo theTransfer);
+    void updateTransfers(const QwcTransferInfo theTransfer);
 	void reloadTransfers();
 };
 

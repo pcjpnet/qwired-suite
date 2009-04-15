@@ -21,6 +21,7 @@
 #include "QwcFileInfoWidget.h"
 #include "QwcServerInfoWidget.h"
 #include "QwcPrivateMessager.h"
+#include "QwcTransferPool.h"
 
 
 namespace Qwired {
@@ -93,6 +94,7 @@ public:
     bool confirmDisconnection();
 
 private:
+    QwcTransferPool transferPool;
     QPointer<QwcSocket> socket;
     void setupConnections();
     void setConnectionToolButtonsEnabled(bool);
@@ -129,10 +131,10 @@ private slots:
     void newsPosted(QString theNick, QString theTime, QString thePost);
 
 
-    void transferStarted(QwcFiletransferInfo);
-    void transferDone(QwcFiletransferInfo);
+    void transferStarted(QwcTransferInfo);
+    void transferDone(QwcTransferInfo);
     void transferSocketError(QAbstractSocket::SocketError);
-    void transferError(QwcFiletransferInfo);
+    void transferError(QwcTransferInfo);
 
     void fileListingRecursiveDone(const QList<QwcFileInfo>);
 
@@ -185,6 +187,7 @@ public slots:
     void downloadFolder(const QString &remotePath, const QString &localPath);
     void uploadFile(const QString &localPath, const QString &remotePath);
     void uploadFolder(const QString &localPath, const QString &remotePath);
+    void checkTransferQueue();
 
 
 };

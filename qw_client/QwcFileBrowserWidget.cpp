@@ -27,7 +27,7 @@ void QwcFileBrowserWidget::initWithConnection(QwcSession *theSession)
     connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(QwcFileInfo)), pModel, SLOT(onServerFileListItem(QwcFileInfo)) );
     connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
     connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
-    connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(QwcFiletransferInfo)), this, SLOT(fileTransferDone(QwcFiletransferInfo)) );
+    connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(QwcTransferInfo)), this, SLOT(fileTransferDone(QwcTransferInfo)) );
 
     fList->setModel(pFilterProxy);
     fList->setAlternatingRowColors(true);
@@ -127,10 +127,10 @@ void QwcFileBrowserWidget::doUpdateBrowserStats(QString thePath, qlonglong theFr
 void QwcFileBrowserWidget::downloadFile(QString path)
 {
     QSettings settings;
-    QString fileName = theRemotePath.section("/", -1, -1);
+    QString fileName = path.section("/", -1, -1);
     QDir localTargetFolder(settings.value("files/download_dir", QDir::homePath()).toString());
-    QFile localTargetFile(tmpDownloadFolder.absoluteFilePath(fileName));
-    pSession->downloadFile(path, localTargetFolder.absoluteFilePath());
+    QFile localTargetFile(localTargetFolder.absoluteFilePath(fileName));
+    pSession->downloadFile(path, localTargetFile.fileName());
 }
 
 
@@ -268,9 +268,9 @@ void QwcFileBrowserWidget::dropEvent(QDropEvent *event)
 
 
 /// File transfer completed. Refresh the view.
-void QwcFileBrowserWidget::fileTransferDone(QwcFiletransferInfo transfer)
+void QwcFileBrowserWidget::fileTransferDone(QwcTransferInfo transfer)
 {
-    if(transfer.pTransferType!=WiredTransfer::TypeUpload) return;
+    if(transfer.type != Qw::TransferTypeUpload) return;
     pModel->clearList();
     pModel->pWaitingForList = true;
     pSession->wiredSocket()->getFileList( pModel->pCurrentPath );

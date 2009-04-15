@@ -277,10 +277,10 @@ void QwcSession::setupConnections()
     connect(socket, SIGNAL(onServerNewsPosted(QString, QString, QString)), this, SLOT(newsPosted(QString,QString,QString)) );
 
     // File transfer signals
-    connect(socket, SIGNAL(fileTransferDone(const QwcFiletransferInfo)), this, SLOT(transferDone(QwcFiletransferInfo)) );
-    connect(socket, SIGNAL(fileTransferStarted(const QwcFiletransferInfo)), this, SLOT(transferStarted(QwcFiletransferInfo)) );
+    connect(socket, SIGNAL(fileTransferDone(const QwcTransferInfo)), this, SLOT(transferDone(QwcTransferInfo)) );
+    connect(socket, SIGNAL(fileTransferStarted(const QwcTransferInfo)), this, SLOT(transferStarted(QwcTransferInfo)) );
     connect(socket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
-    connect(socket, SIGNAL(fileTransferError(const QwcFiletransferInfo)), this, SLOT(transferError(QwcFiletransferInfo)) );
+    connect(socket, SIGNAL(fileTransferError(const QwcTransferInfo)), this, SLOT(transferError(QwcTransferInfo)) );
     connect(socket, SIGNAL(onFilesListRecursiveDone(const QList<QwcFileInfo>)), this, SLOT(fileListingRecursiveDone(const QList<QwcFileInfo>)));
 
     // Main Window actions
@@ -645,21 +645,21 @@ void QwcSession::newsPosted(QString theNick, QString, QString thePost)
 }
 
 
-void QwcSession::transferStarted(QwcFiletransferInfo transfer)
+void QwcSession::transferStarted(QwcTransferInfo transfer)
 {
-    triggerEvent("TransferStarted", QStringList(transfer.fileName()));
+    //triggerEvent("TransferStarted", QStringList(transfer.fileName()));
 }
 
 
-void QwcSession::transferDone(QwcFiletransferInfo transfer)
+void QwcSession::transferDone(QwcTransferInfo transfer)
 {
-    QSettings s;
-    if(s.value("files/queue_local", false).toBool()) {
-        qDebug() << this<< "Transfer completed. Unfreezing next.";
-        socket->runTransferQueue(transfer.pTransferType);
-    }
-
-    triggerEvent("TransferFinished", QStringList(transfer.fileName()));
+//    QSettings s;
+//    if(s.value("files/queue_local", false).toBool()) {
+//        qDebug() << this<< "Transfer completed. Unfreezing next.";
+//        socket->runTransferQueue(transfer.type);
+//    }
+//
+//    triggerEvent("TransferFinished", QStringList(transfer.fileName()));
 }
 
 
@@ -938,8 +938,8 @@ void QwcSession::doActionTransfers()
         tmpModel->setSocket(socket);
         pTranfersWindow->fTransfers->setModel(tmpModel);
         pTranfersWindow->init();
-        connect(pTranfersWindow, SIGNAL(transferCancelled(QwcFiletransferInfo)),
-                socket, SLOT(cancelTransfer(QwcFiletransferInfo)) );
+        connect(pTranfersWindow, SIGNAL(transferCancelled(QwcTransferInfo)),
+                socket, SLOT(cancelTransfer(QwcTransferInfo)) );
 
     } else {
         int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
@@ -948,12 +948,12 @@ void QwcSession::doActionTransfers()
 }
 
 
-void QwcSession::transferError(QwcFiletransferInfo transfer)
+void QwcSession::transferError(QwcTransferInfo transfer)
 {
-    QMessageBox::critical(pConnWindow, tr("File Transfer Error"),
-                          tr("The transfer of file '%1' could not be completed because of an error.\n"
-                             "Possibly the file transfer TCP port is blocked by a firewall or the server "
-                             "is configured incorrectly.").arg(transfer.fileName()));
+//    QMessageBox::critical(pConnWindow, tr("File Transfer Error"),
+//                          tr("The transfer of file '%1' could not be completed because of an error.\n"
+//                             "Possibly the file transfer TCP port is blocked by a firewall or the server "
+//                             "is configured incorrectly.").arg(transfer.fileName()));
 }
 
 
@@ -961,6 +961,16 @@ void QwcSession::transferError(QwcFiletransferInfo transfer)
 */
 void QwcSession::downloadFile(const QString &remotePath, const QString &localPath)
 {
+    qDebug() << this << "Creating queue entry for:" << remotePath;
+    QwcTransferInfo transfer;
+    transfer.type = Qw::TransferTypeDownload;
+    transfer.file.path = remotePath;
+    transfer.file.localAbsolutePath = localPath;
+    transferPool.appendTransferToQueue(transfer);
+
+    checkTransferQueue();
+
+    /*
     QSettings s;
     socket->getFile(remotePath, localPath, true);
     bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeDownload);
@@ -968,6 +978,7 @@ void QwcSession::downloadFile(const QString &remotePath, const QString &localPat
     if(!localQueueEnabled || (localQueueEnabled && !isTransferring)) {
         socket->runTransferQueue(WiredTransfer::TypeDownload);
     }
+    */
 }
 
 
@@ -975,10 +986,10 @@ void QwcSession::downloadFolder(const QString &remotePath, const QString &localP
 {
     QSettings s;
     socket->getFolder(remotePath, localPath, true);
-    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeFolderDownload);
+    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderDownload);
     bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
     if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        socket->runTransferQueue(WiredTransfer::TypeFolderDownload);
+        socket->runTransferQueue(Qw::TransferTypeFolderDownload);
 }
 
 
@@ -986,10 +997,10 @@ void QwcSession::uploadFile(const QString &localPath, const QString &remotePath)
 {
     QSettings s;
     socket->putFile(localPath, remotePath, true);
-    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeUpload);
+    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeUpload);
     bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
     if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        socket->runTransferQueue(WiredTransfer::TypeUpload);
+        socket->runTransferQueue(Qw::TransferTypeUpload);
 }
 
 
@@ -997,10 +1008,19 @@ void QwcSession::uploadFolder(const QString &localPath, const QString &remotePat
 {
     QSettings s;
     socket->putFolder(localPath, remotePath, true);
-    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeFolderUpload);
+    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderUpload);
     bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
     if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        socket->runTransferQueue(WiredTransfer::TypeFolderUpload);
+        socket->runTransferQueue(Qw::TransferTypeFolderUpload);
+}
+
+
+/*! Check the local transfer queue and initiate new transfers if there are free slots or local
+    queueing is disabled.
+*/
+void QwcSession::checkTransferQueue()
+{
+    QwcTransferInfo transfer = transferPool.takeFirstFromQueue();
 }
 
 
