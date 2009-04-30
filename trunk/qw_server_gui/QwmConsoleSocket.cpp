@@ -74,7 +74,7 @@ void QwmConsoleSocket::handleSocketReadyRead()
                 while (i.hasNext()) {
                     QStringList itemParams = i.next().split(";");
                     QwTransferInfo item;
-                    item.state = itemParams.value(0) == "R" ? Qw::TransferInfoStateRunning : Qw::TransferInfoStateQueued;
+                    item.state = itemParams.value(0) == "R" ? Qw::TransferInfoStateActive : Qw::TransferInfoStateQueued;
                     item.hash = itemParams.value(1);
                     item.type = itemParams.value(2) == "D" ? Qw::TransferTypeDownload : Qw::TransferTypeUpload;
                     item.targetUserId = itemParams.value(3).toInt();

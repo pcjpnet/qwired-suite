@@ -532,7 +532,7 @@ void QwcSession::search_download_file(QString thePath)
     doActionTransfers();
     QString tmpName = thePath.section("/",-1,-1);
     QDir tmpDownloadFolder(settings.value("files/download_dir", QDir::homePath()).toString());
-    downloadFile(thePath, tmpDownloadFolder.absoluteFilePath(tmpName));
+    //downloadFile(thePath, tmpDownloadFolder.absoluteFilePath(tmpName));
 }
 
 
@@ -934,12 +934,13 @@ void QwcSession::doActionTransfers()
         int tmpIdx = pMainTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
         pMainTabWidget->setCurrentIndex(tmpIdx);
         // Model
-        QwcFiletransferModel *tmpModel = new QwcFiletransferModel(pTranfersWindow->fTransfers);
+        QwcFiletransferModel *tmpModel = new QwcFiletransferModel(pTranfersWindow->transferList);
         tmpModel->setSocket(socket);
-        pTranfersWindow->fTransfers->setModel(tmpModel);
+        pTranfersWindow->transferList->setModel(tmpModel);
         pTranfersWindow->init();
-        connect(pTranfersWindow, SIGNAL(transferCancelled(QwcTransferInfo)),
-                socket, SLOT(cancelTransfer(QwcTransferInfo)) );
+
+        connect(pTranfersWindow, SIGNAL(transferStopped(QwcTransferInfo)),
+                socket, SLOT(pauseTransfer(QwcTransferInfo)) );
 
     } else {
         int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
@@ -957,95 +958,95 @@ void QwcSession::transferError(QwcTransferInfo transfer)
 }
 
 
-/*! Begin the download of a file and queue it locally if needed.
-*/
-void QwcSession::downloadFile(const QString &remotePath, const QString &localPath)
-{
-    qDebug() << this << "Creating queue entry for:" << remotePath;
-    QwcTransferInfo transfer;
-    transfer.type = Qw::TransferTypeDownload;
-    transfer.file.path = remotePath;
-    transfer.file.localAbsolutePath = localPath;
-    transferPool.appendTransferToQueue(transfer);
-
-    checkTransferQueue();
-
-    /*
-    QSettings s;
-    socket->getFile(remotePath, localPath, true);
-    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeDownload);
-    bool localQueueEnabled = s.value("files/queue_local", false).toBool();
-    if(!localQueueEnabled || (localQueueEnabled && !isTransferring)) {
-        socket->runTransferQueue(WiredTransfer::TypeDownload);
-    }
-    */
-}
+///*! Begin the download of a file and queue it locally if needed.
+//*/
+//void QwcSession::downloadFile(const QString &remotePath, const QString &localPath)
+//{
+//    qDebug() << this << "Creating queue entry for:" << remotePath;
+//    QwcTransferInfo transfer;
+//    transfer.type = Qw::TransferTypeDownload;
+//    transfer.file.path = remotePath;
+//    transfer.file.localAbsolutePath = localPath;
+//    transferPool.appendTransferToQueue(transfer);
+//
+//    checkTransferQueue();
+//
+//    /*
+//    QSettings s;
+//    socket->getFile(remotePath, localPath, true);
+//    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeDownload);
+//    bool localQueueEnabled = s.value("files/queue_local", false).toBool();
+//    if(!localQueueEnabled || (localQueueEnabled && !isTransferring)) {
+//        socket->runTransferQueue(WiredTransfer::TypeDownload);
+//    }
+//    */
+//}
 
 
 void QwcSession::downloadFolder(const QString &remotePath, const QString &localPath)
 {
-    QSettings s;
-    socket->getFolder(remotePath, localPath, true);
-    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderDownload);
-    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
-    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        socket->runTransferQueue(Qw::TransferTypeFolderDownload);
+//    QSettings s;
+//    socket->getFolder(remotePath, localPath, true);
+//    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderDownload);
+//    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
+//    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+//        socket->runTransferQueue(Qw::TransferTypeFolderDownload);
 }
 
 
 void QwcSession::uploadFile(const QString &localPath, const QString &remotePath)
 {
-    QSettings s;
-    socket->putFile(localPath, remotePath, true);
-    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeUpload);
-    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
-    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        socket->runTransferQueue(Qw::TransferTypeUpload);
+//    QSettings s;
+//    socket->putFile(localPath, remotePath, true);
+//    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeUpload);
+//    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
+//    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+//        socket->runTransferQueue(Qw::TransferTypeUpload);
 }
 
 
 void QwcSession::uploadFolder(const QString &localPath, const QString &remotePath)
 {
-    QSettings s;
-    socket->putFolder(localPath, remotePath, true);
-    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderUpload);
-    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
-    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-        socket->runTransferQueue(Qw::TransferTypeFolderUpload);
+//    QSettings s;
+//    socket->putFolder(localPath, remotePath, true);
+//    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderUpload);
+//    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
+//    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
+//        socket->runTransferQueue(Qw::TransferTypeFolderUpload);
 }
 
 
-/*! Check the local transfer queue and initiate new transfers if there are free slots or local
-    queueing is disabled.
-*/
-void QwcSession::checkTransferQueue()
-{
-    QwcTransferInfo transfer = transferPool.takeFirstFromQueue();
-}
+///*! Check the local transfer queue and initiate new transfers if there are free slots or local
+//    queueing is disabled.
+//*/
+//void QwcSession::checkTransferQueue()
+//{
+//    QwcTransferInfo transfer = transferPool.takeFirstFromQueue();
+//}
 
 
-void QwcSession::fileListingRecursiveDone(const QList<QwcFileInfo> items)
-{
-    qlonglong totalSize = 0;
-    int totalFolders = 0;
-    int totalFiles = 0;
-    QListIterator<QwcFileInfo> i(items);
-    while(i.hasNext()) {
-        QwcFileInfo file = i.next();
-        totalSize += file.size;
-        totalFolders += file.type==Qw::FileTypeFolder || file.type==Qw::FileTypeUploadsFolder
-                        || Qw::FileTypeDropBox ? 1 : 0;
-        totalFiles += file.type == Qw::FileTypeRegular ? 1 : 0;
-    }
-
-    QMessageBox::StandardButton button = QMessageBox::question(0,
-        tr("Folder Download"),
-        tr("You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.\nDo you want to begin the transfer?")
-            .arg(totalFiles).arg(totalFolders).arg(QwcFileInfo::humanReadableSize(totalSize)),
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-
-    if(button == QMessageBox::No) { return; }
-}
+//void QwcSession::fileListingRecursiveDone(const QList<QwcFileInfo> items)
+//{
+//    qlonglong totalSize = 0;
+//    int totalFolders = 0;
+//    int totalFiles = 0;
+//    QListIterator<QwcFileInfo> i(items);
+//    while(i.hasNext()) {
+//        QwcFileInfo file = i.next();
+//        totalSize += file.size;
+//        totalFolders += file.type==Qw::FileTypeFolder || file.type==Qw::FileTypeUploadsFolder
+//                        || Qw::FileTypeDropBox ? 1 : 0;
+//        totalFiles += file.type == Qw::FileTypeRegular ? 1 : 0;
+//    }
+//
+//    QMessageBox::StandardButton button = QMessageBox::question(0,
+//        tr("Folder Download"),
+//        tr("You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.\nDo you want to begin the transfer?")
+//            .arg(totalFiles).arg(totalFolders).arg(QwcFileInfo::humanReadableSize(totalSize)),
+//        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+//
+//    if(button == QMessageBox::No) { return; }
+//}
 
 
 /*! Show the private messenger and select the provided user, so that a message can be sent to the

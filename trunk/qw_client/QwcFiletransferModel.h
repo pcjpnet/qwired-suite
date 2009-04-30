@@ -6,27 +6,29 @@
 #include "QwcSocket.h"
 #include "QwcTransferSocket.h"
 
+#include <QPointer>
+
 class QwcFiletransferModel : public QAbstractListModel
 {
-	Q_OBJECT
+    Q_OBJECT
 		
 public:
     QwcFiletransferModel(QObject *parent = 0);
-    ~QwcFiletransferModel();
-	
-	QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const;
-	int rowCount(const QModelIndex &parent=QModelIndex()) const;
 
-    void setSocket(QwcSocket *theSocket);
-	
-    QPointer<QwcSocket> pSocket;
+    QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent=QModelIndex()) const;
 
-//protected:
-// 	void timerEvent(QTimerEvent *event);
-	
+    void setSocket(QwcSocket *socket);
+
+
+private:
+    /*! The connection socket context for this model. */
+    QPointer<QwcSocket> socket;
+
+
 private slots:
-    void updateTransfers(const QwcTransferInfo theTransfer);
-	void reloadTransfers();
+    void updateTransfers(const QwcTransferInfo &transfer);
+    void reloadTransfers();
 };
 
 #endif

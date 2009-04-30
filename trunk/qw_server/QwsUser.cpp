@@ -46,8 +46,10 @@ void QwsUser::privilegesFlags(QwMessage &message) const
 
 
 /*! Complete a message specially formatted for the user listing responses (310)
+    If \a emptyUserImage is true, the user image will not be transmitted, allowing a faster login
+    on busy servers.
 */
-void QwsUser::userListEntry(QwMessage &message) const
+void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
 {
     message.appendArg(QString::number(pUserID));
     message.appendArg(QString::number(pIdle));
@@ -58,7 +60,7 @@ void QwsUser::userListEntry(QwMessage &message) const
     message.appendArg(userIpAddress);
     message.appendArg(userHostName);
     message.appendArg(userStatus);
-    message.appendArg(pImage);
+    message.appendArg(emptyUserImage ? QByteArray() : pImage);
 }
 
 

@@ -12,34 +12,34 @@ class QwcSession;
 
 class QwcSingleton : public QObject
 {
-	
-Q_OBJECT
+
+    Q_OBJECT
 
 public:
     QwcSingleton();
     ~QwcSingleton();
     void addSession(QwcSession *session);
-	void createTrayIcon();
+    void createTrayIcon();
     QList<QwcSession*> pSessions;
-	QPointer<QMenu> pTrayMenu;
-	QPointer<QSystemTrayIcon> pTrayIcon;
+    QPointer<QMenu> pTrayMenu;
+    QPointer<QSystemTrayIcon> pTrayIcon;
 
-	// Global functions
-	static QString systemMonospaceFont();
-	static QColor colorFromPrefs(QString theKey, QColor theDefault);
+    // Global functions
+    static QString systemMonospaceFont();
+    static QColor colorFromPrefs(QString theKey, QColor theDefault);
 
 private slots:
-	void sessionDestroyed(QObject *obj);
-	void showTrayMenu(QSystemTrayIcon::ActivationReason);
-	
+    void sessionDestroyed(QObject *obj);
+    void showTrayMenu(QSystemTrayIcon::ActivationReason);
+
 signals:
-        void prefsChanged();
+    void prefsChanged();
 
 public slots:
-	void notifyPrefsChanged();
-	void cleanUp();
+    void notifyPrefsChanged();
+    void cleanUp();
     void makeNewConnection(QString address);
-	
+
 };
 
 #endif

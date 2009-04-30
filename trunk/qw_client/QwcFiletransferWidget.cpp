@@ -9,7 +9,9 @@ QwcFiletransferWidget::QwcFiletransferWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
-    fTransfers->setItemDelegate(new QwcFiletransferDelegate(this));
+    transferList->setItemDelegate(new QwcFiletransferDelegate(this));
+
+
 }
 
 
@@ -18,38 +20,52 @@ QwcFiletransferWidget::~QwcFiletransferWidget()
 }
 
 
-void QwcFiletransferWidget::on_fBtnCancel_clicked(bool )
+void QwcFiletransferWidget::on_btnResume_clicked()
 {
-    QModelIndex idx = fTransfers->currentIndex();
-    if(!idx.isValid()) return;
-    QwcTransferInfo tmpT = idx.data(Qt::UserRole).value<QwcTransferInfo>();
-    qDebug() << "Cancelling transfer"<<tmpT.hash<<tmpT.file.path;
-    emit transferCancelled(tmpT);
-    fTransfers->reset();
-    fBtnCancel->setEnabled(false);
-    fBtnReveal->setEnabled(false);
-}
+    QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
+    QListIterator<QModelIndex> i(selectedIndexes);
+    while (i.hasNext()) {
+        QModelIndex item = i.next();
+        if (!item.isValid()) { continue; }
+        if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
+        QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
+        emit transferResumed(transfer);
+    }
 
-void QwcFiletransferWidget::on_fBtnReveal_clicked(bool )
-{
-//    if(fTransfers->selectionModel()->hasSelection()) {
-//        QModelIndex item = fTransfers->currentIndex();
-//        QwcTransferInfo tmpT = item.data(Qt::UserRole).value<QwcTransferInfo>();
-//        QDesktopServices::openUrl(QUrl(tr("file://%1").arg(tmpT.file.localAbsolutePath.left(tmpT.pLocalPath.lastIndexOf("/")),"")));
-//        qDebug() << "Revealing '" << tr("file://%1").arg(tmpT.pLocalPath) << "'...";
-//    }
 }
 
 
-void QwcFiletransferWidget::transferListSelectionChanged(const QItemSelection &, const QItemSelection &)
+/*! Pause/Stop a transfer. */
+void QwcFiletransferWidget::on_btnStop_clicked()
 {
-    fBtnCancel->setEnabled(fTransfers->selectionModel()->hasSelection());
-    fBtnReveal->setEnabled(fTransfers->selectionModel()->hasSelection());
+    QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
+    QListIterator<QModelIndex> i(selectedIndexes);
+    while (i.hasNext()) {
+        QModelIndex item = i.next();
+        if (!item.isValid()) { continue; }
+        if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
+        QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
+        emit transferStopped(transfer);
+    }
+}
+
+
+void QwcFiletransferWidget::on_btnReveal_clicked()
+{
+
+}
+
+
+void QwcFiletransferWidget::handleTransferListSelectionChanged(const QItemSelection &previous, const QItemSelection &current)
+{
+    btnResume->setEnabled(transferList->selectionModel()->hasSelection());
+    btnStop->setEnabled(transferList->selectionModel()->hasSelection());
+    btnReveal->setEnabled(transferList->selectionModel()->hasSelection());
 }
 
 
 void QwcFiletransferWidget::init()
 {
-    connect(fTransfers->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-            this, SLOT(transferListSelectionChanged(const QItemSelection &, const QItemSelection &)) );
+    connect(transferList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(handleTransferListSelectionChanged(QItemSelection,QItemSelection)) );
 }

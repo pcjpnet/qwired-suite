@@ -91,7 +91,7 @@ void QwcFileBrowserWidget::on_fBtnBack_clicked(bool)
 void QwcFileBrowserWidget::on_fBtnInfo_clicked(bool)
 {
     QModelIndex tmpIdx = fList->currentIndex();
-    if(tmpIdx.isValid()) {
+    if (tmpIdx.isValid()) {
         QwcFileInfo tmpFile = tmpIdx.data(Qt::UserRole+1).value<QwcFileInfo>();
         pSession->wiredSocket()->statFile(tmpFile.path);
         fBtnInfo->setEnabled(false);
@@ -122,15 +122,16 @@ void QwcFileBrowserWidget::doUpdateBrowserStats(QString thePath, qlonglong theFr
 }
 
 
-/*! The user clicked on a file and the download of the said file should be started
+/*! The user clicked on a file and the download of the said file should be started.
 */
 void QwcFileBrowserWidget::downloadFile(QString path)
 {
     QSettings settings;
     QString fileName = path.section("/", -1, -1);
     QDir localTargetFolder(settings.value("files/download_dir", QDir::homePath()).toString());
-    QFile localTargetFile(localTargetFolder.absoluteFilePath(fileName));
-    pSession->downloadFile(path, localTargetFile.fileName());
+    //QFile localTargetFile(localTargetFolder.absoluteFilePath(fileName));
+    //pSession->downloadFile(path, localTargetFile.fileName());
+    pSession->wiredSocket()->getFile(path, localTargetFolder.absoluteFilePath(fileName));
 }
 
 

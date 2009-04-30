@@ -38,26 +38,36 @@ public:
         their user ID. */
     QHash<int, QwRoom> rooms;
 
+    /*! The user entered host name of the server. */
+    QString serverAddress;
+    /*! The user entered server port. */
+    int serverPort;
+
     // User Information
     void setNickname(QString);
     void setUserAccount(QString, QString);
 
+    /*! Returns a const list of pointers to all active transfer sockets. */
+    const QList<QwcTransferSocket*> allTransferSockets() const { return transferSockets; }
+    /*! Returns a const reference to a list of all queued transfers. */
+    const QList<QwcTransferInfo>& allQueuedTransfers() const { return transferPool; }
 
 
-    QList<QPointer<QwcTransferSocket> > pTransferSockets;
+
+
 
     // File Transfers
     bool pIndexingFiles; // true if the client is indexing server fails
     QList<QwcFileInfo> pRecursiveFileListing;
     QString pRecursivePath;
 
-    bool isTransferringFileOfType(Qw::TransferType type);
 
     void proceedFolderDownload(QwcTransferSocket *);
     void proceedFolderUpload(QwcTransferSocket *);
 
 
 public slots:
+    void pauseTransfer(const QwcTransferInfo &transfer);
     void disconnectSocketFromServer();
 
 
@@ -68,7 +78,6 @@ public slots:
     // Wired Subsystem (not for Trackers)
     //
     void banClient(int userId, QString reason);
-    void cancelTransfer(QwcTransferInfo);
     void clearNews();
     void createChatWithClient(int firstInvitedUser = 0);
     void createFolder(const QString thePath);
@@ -81,7 +90,7 @@ public slots:
 
     void editUser(QwcUserInfo);
     void getClientInfo(int userId);
-    void getFile(const QString thePath, const QString theLocalPath, const bool queueLocally);
+    void getFile(QString remotePath, QString localPath);
     void getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally);
     void getFileList(QString thePath);
     void getFileListRecusive(const QString &path);
@@ -108,10 +117,10 @@ public slots:
     void setUserStatus(QString theStatus);
     void statFile(const QString thePath);
 
-    void runTransferQueue(Qw::TransferType type);
-
-
 private slots:
+    void handleTransferDone(const QwcTransferInfo &transfer);
+    void handleTransferError(const QwcTransferInfo &transfer);
+
     void handleMessageReceived(const QwMessage &message);
 
     // Connection
@@ -123,9 +132,6 @@ private slots:
 
     void cleanTransfers();
 
-    // Transfers
-    //
-    void fileTransferFileDone(const QwcTransferInfo);
 
 
 signals:
@@ -133,6 +139,18 @@ signals:
         message, but some handling (such as login errors, etc.) is done inside the socket before
         the signal is emitted. */
     void protocolError(Qw::ProtocolError error);
+
+
+    /*! Relay signal which origns from the transfer socket of any active transfer. */
+    void fileTransferDone(const QwcTransferInfo &transfer);
+    /*! Relay signal which origns from the transfer socket of any active transfer. */
+    void fileTransferError(const QwcTransferInfo &transfer);
+    /*! Relay signal which origns from the transfer socket of any active transfer. */
+    void fileTransferStarted(const QwcTransferInfo &transfer);
+    /*! Relay signal which origns from the transfer socket of any active transfer. */
+    void fileTransferStatus(const QwcTransferInfo &transfer);
+    /*! Signal which is emitted after a file has been queued in the pool. */
+    void fileTransferQueued(const QwcTransferInfo &transfer);
 
 
     void receivedUserlist(int theChatID);
@@ -172,10 +190,7 @@ signals:
     void onServerFileTransferQueued(QwcTransferInfo theTransfer);
     void fileInformation(QwcFileInfo theFile);
 
-    void fileTransferDone(const QwcTransferInfo theTransfer);
-    void fileTransferStarted(const QwcTransferInfo theTransfer);
-    void fileTransferError(const QwcTransferInfo theTransfer);
-    void fileTransferStatus(const QwcTransferInfo theTransfer);
+
 
     void receivedAccountGroupList(QStringList theGroups);
     void receivedAccountList(QStringList theAccounts);
@@ -236,6 +251,11 @@ private:
     // Commands
     void sendMessageINFO();
 
+    // Transfers
+    void checkTransferQueue();
+    QList<QwcTransferInfo> transferPool;
+    QList<QwcTransferSocket*> transferSockets;
+
     // No further comment on those, and, no, you can not has cheezeburger.
     bool pIzCaturday;
     QString tranzlate(QString);
@@ -252,6 +272,8 @@ private:
     /// The temporary list of items for the search results.
     QList<QwcFileInfo> pSearchResults;
     QList<QwcTrackerServerInfo> pTrackerServers;
+
+
 
     /// This is our TCP buffer. Could possibly be optimized, but works for now.
     QByteArray pBuffer;

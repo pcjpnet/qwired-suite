@@ -14,7 +14,7 @@ public:
 
     void privilegesFlags(QwMessage &message) const;
 
-    void userListEntry(QwMessage &message) const;
+    void userListEntry(QwMessage &message, bool emptyUserImage=false) const;
     void userStatusEntry(QwMessage &message) const;
     void userInfoEntry(QwMessage &message) const;
 

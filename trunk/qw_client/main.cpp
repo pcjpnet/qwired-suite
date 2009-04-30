@@ -3,6 +3,7 @@
 
 #include "QwcSession.h"
 #include "QwcGlobals.h"
+#include <QNetworkProxy>
 
 int main (int argc, char *argv[])
 {
@@ -46,6 +47,18 @@ int main (int argc, char *argv[])
         } else {
             qDebug() << "Trying to load locale:"<<tmpName<<": Failed (trying next)";
         }
+    }
+
+
+    // Configure the proxying, if needed
+    if (tmpPrefs.value("proxy/type").toInt() != 0) {
+        QNetworkProxy proxy((QNetworkProxy::ProxyType)tmpPrefs.value("proxy/type").toInt());
+        proxy.setHostName(tmpPrefs.value("proxy/host").toString());
+        proxy.setPort(tmpPrefs.value("proxy/port").toInt());
+        proxy.setUser(tmpPrefs.value("proxy/username").toString());
+        proxy.setPassword(tmpPrefs.value("proxy/password").toString());
+        QNetworkProxy::setApplicationProxy(proxy);
+        qDebug() << "Configured network proxy.";
     }
 
     // Create the inital connection
