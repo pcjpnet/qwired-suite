@@ -176,6 +176,13 @@ void QwcPreferencesWidget::initPrefs() {
     fChatTimestampLine->setChecked(conf.value("interface/chat/show_time", false).toBool());
     fChatTimeColor->setColor( QwcSingleton::colorFromPrefs("interface/chat/time/color", Qt::darkGray) );
 
+    // Proxy
+    proxyType->setCurrentIndex(conf.value("proxy/type").toInt());
+    proxyHost->setText(conf.value("proxy/host").toString());
+    proxyPort->setText(QString::number(conf.value("proxy/port").toInt()));
+    proxyLogin->setText(conf.value("proxy/username").toString());
+    proxyPassword->setText(conf.value("proxy/password").toString());
+
 }
 
 
@@ -252,6 +259,13 @@ void QwcPreferencesWidget::savePrefs()
     }
     conf.setValue("interface/chat/show_time", fChatTimestampLine->isChecked());
     conf.setValue("interface/chat/time/color", fChatTimeColor->selectedColor() );
+
+    // Proxy
+    conf.setValue("proxy/type", proxyType->currentIndex());
+    conf.setValue("proxy/host", proxyHost->text());
+    conf.setValue("proxy/port", proxyPort->text().toInt());
+    conf.setValue("proxy/username", proxyLogin->text());
+    conf.setValue("proxy/password", proxyPassword->text());
 
     // Notify everyone
     QwcSingleton *tmpS = &WSINGLETON::Instance();

@@ -24,6 +24,7 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
     maxTransfersPerClient = 2;
 
     logToStdout = true;
+    delayedUserImagesEnabled = true;
 }
 
 
@@ -539,7 +540,7 @@ void QwsServerController::handleUserlistRequest(const int roomId)
                 // Send a user list item
                 QwMessage reply("310");
                 reply.appendArg(QByteArray::number(roomId));
-                itemSocket->user.userListEntry(reply);
+                itemSocket->user.userListEntry(reply, delayedUserImagesEnabled);
                 user->sendMessage(reply);
             }
         }
@@ -549,6 +550,25 @@ void QwsServerController::handleUserlistRequest(const int roomId)
     QwMessage reply("311");
     reply.appendArg(QByteArray::number(roomId));
     user->sendMessage(reply);
+
+    // Send delayed user images
+    if (delayedUserImagesEnabled) {
+        QListIterator<int> i(room->pUsers);
+        while (i.hasNext()) {
+            int itemId = i.next();
+            if (sockets.contains(itemId)) {
+                QwsClientSocket *itemSocket = sockets[itemId];
+                if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
+                    // Send the delayed image data
+                    QwMessage reply("340");
+                    reply.appendArg(QByteArray::number(itemId));
+                    reply.appendArg(itemSocket->user.pImage);
+                    user->sendMessage(reply);
+                }
+            }
+        }
+    }
+
 
 }
 

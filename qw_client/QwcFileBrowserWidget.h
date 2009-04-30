@@ -21,7 +21,6 @@ class QwcSession;
 
 class QwcFileBrowserWidget : public QWidget, private Ui_QwcFileBrowserWidget
 {
-
     Q_OBJECT
 
 public:
@@ -44,11 +43,13 @@ private:
     void downloadFile(QString path);
 
 public slots:
+    void on_fBtnDownload_clicked(bool checked);
+
     void doUpdateBrowserStats(QString thePath, qlonglong theFree);
     void on_fList_doubleClicked(const QModelIndex &index);
     void on_fList_clicked(const QModelIndex &index);
     void on_fBtnBack_clicked(bool checked);
-    void on_fBtnDownload_clicked(bool checked);
+
     void on_fBtnUpload_clicked(bool checked);
     void on_fBtnDelete_clicked(bool checked);
     void on_fBtnNewFolder_clicked(bool checked);

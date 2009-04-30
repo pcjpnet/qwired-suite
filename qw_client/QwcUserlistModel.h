@@ -4,6 +4,8 @@
 #include <QAbstractListModel>
 #include "QwcSocket.h"
 
+#include <QPointer>
+
 class QwcUserlistModel : public QAbstractListModel
 {
     Q_OBJECT

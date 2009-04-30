@@ -32,8 +32,6 @@ public:
     QwsServerController(QObject *parent = 0);
     ~QwsServerController();
 
-
-
     static bool generateNewCertificate(QString path);
 
     // Database access/configuration
@@ -46,6 +44,9 @@ public:
     qint64 statsTotalReceived;
     /*! If true, log messages will be sent to stdout. */
     bool logToStdout;
+    /*! If true, the user images will be sent after the login is complete to speed up the login
+        sequence on slower machines. */
+    bool delayedUserImagesEnabled;
 
 private:
     int sessionIdCounter;

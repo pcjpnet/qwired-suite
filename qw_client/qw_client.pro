@@ -1,34 +1,29 @@
 TEMPLATE = app
-CONFIG += warn_on thread qt
+CONFIG += warn_on \
+    thread \
+    qt
 
-#!debug_and_release:release:macx {
-#  CONFIG += x86 ppc
-#  message("Compiling Universal binary.")
-#}
-
-macx {
+# !debug_and_release:release:macx {
+# CONFIG += x86 ppc
+# message("Compiling Universal binary.")
+# }
+macx { 
     TARGET = "Qwired Client"
-    #QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
-    #QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
+    
+    # QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
+    # QMAKE_CXXFLAGS_DEBUG += -fvisibility=hidden
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
     QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.4u.sdk
 }
-
-!macx {
-    TARGET = qwired
-}
-
-
+!macx:TARGET = qwired
 RESOURCES = application.qrc
-QT += gui network
+QT += gui \
+    network
 DESTDIR = ../bin/
 ICON = qwired.icns
 RC_FILE = qwired.rc
-
 LIBS += ../bin/libqwlibrary.a
 INCLUDEPATH += ../qw_library
-
-
 
 # release:CONFIG += x86 \
 # ppc
@@ -39,11 +34,9 @@ TRANSLATIONS += lang/lang_de.ts \
     lang/lang_es.ts \
     lang/lang_jp.ts \
     lang/lang_nl.ts
-
 SOURCES += main.cpp \
     QwcSocket.cpp \
     QwcSession.cpp \
-    QwcTransferPool.cpp \
     QwcChatWidget.cpp \
     QwcNewsWidget.cpp \
     QwcUserlistModel.cpp \
@@ -69,8 +62,6 @@ SOURCES += main.cpp \
     QwcConnectWidget.cpp \
     QwcConnectionMainWindow.cpp \
     QwcPrivateMessager.cpp
-
-
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
@@ -91,7 +82,6 @@ HEADERS += QwcSession.h \
     QwcUserInfo.h \
     QwcConnectionMainWindow.h \
     QwcChatWidget.h \
-    QwcTransferPool.h \
     QwcSocket.h \
     QwcNewsWidget.h \
     QwcUserlistModel.h \
@@ -122,4 +112,3 @@ HEADERS += QwcSession.h \
     QwcNewsPostWidget.h \
     QwcEventFilter.h \
     QwcPrivateMessager.h
-

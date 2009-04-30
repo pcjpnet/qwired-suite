@@ -4,12 +4,9 @@
     \author Bastian Bense <bastibense@gmail.com>
     \date 2009-02-23
     \brief This class implements the simple TRANSFER-protocol for file transfers to clients.
-
-    \todo (A/B) Try to get that Qt-SSL bug fixed!
 */
 
 const int transferTimerInterval = 250; // transfer chunk interval
-
 
 void QwsClientTransferSocket::transmitFileChunk()
 {
@@ -23,7 +20,6 @@ void QwsClientTransferSocket::transmitFileChunk()
 
         if (transferInfo.transferSpeedLimit > 0) {
             chunkSize = transferInfo.transferSpeedLimit * (float(transferTimerInterval)/1000);
-            //qDebug() << "Transfer chunk size:" << chunkSize;
         }
 
         if (socket->encryptedBytesToWrite() > 0) {
@@ -46,17 +42,12 @@ void QwsClientTransferSocket::transmitFileChunk()
         socket->write(dataBuffer);
 
         transferInfo.currentTransferSpeed = float(1000/qMax(1,transferSpeedTimer.restart())) * chunkSize;
-
-        //transferInfo.currentTransferSpeed = dataBuffer.size() / (transferSpeedTimer.restart()/transferTimerInterval);
-        //qDebug() << "Current speed:" << transferInfo.currentTransferSpeed;
         transferInfo.bytesTransferred += dataBuffer.size();
-
 
     } else if (transferInfo.type == Qw::TransferTypeUpload) {
         // The upload is throttled. The buffer size was limited before and the timer is fired
         // every second. All we have to do is to read as much data as possible from the socket's
         // buffer and hand it off.
-
         handleSocketReadyRead();
     }
 
@@ -68,9 +59,11 @@ void QwsClientTransferSocket::transmitFileChunk()
 void QwsClientTransferSocket::beginDataTransmission()
 {
 
+    // Restart the timer in order to measure the handshake time
+    transferSpeedTimer.restart();
+
     if (transferInfo.type == Qw::TransferTypeDownload) {
         // Download (to the client)
-
         if (!fileReader.isOpen()) {
             qDebug() << "Warning: Unable to read from file:" << fileReader.fileName() << "-" << fileReader.errorString();
             emit transferError(Qws::TransferSocketErrorFileOpen, transferInfo);
@@ -83,11 +76,7 @@ void QwsClientTransferSocket::beginDataTransmission()
                     this, SLOT(transmitFileChunk()));
             transferTimer.stop();
             transmitFileChunk();
-        } /* else {
-            // Throttled speed transfer
-            connect(&transferTimer, SIGNAL(timeout()), this, SLOT(transmitFileChunk()));
-            transferTimer.start(transferTimerInterval);
-        }*/
+        }
 
     } else if (transferInfo.type == Qw::TransferTypeUpload) {
         // Set the read buffer size according to the speed limit.
@@ -98,14 +87,6 @@ void QwsClientTransferSocket::beginDataTransmission()
         }
 
         qDebug() << this << "Preparing data transmission";
-        //if (transferInfo.transferSpeedLimit > 0) {
-            // Throttled speed transfer
-            // First disconnect the readyRead() signal, since we'll be using the time to read the
-            // data from the socket every second.
-            //disconnect(socket, SIGNAL(readyRead()), this, SLOT(handleSocketReadyRead()));
-
-            qDebug() << "Starting timer";
-//        }
     }
 }
 
@@ -147,12 +128,8 @@ void QwsClientTransferSocket::handleSocketReadyRead()
             QByteArray providedHash = peekBuffer.mid(positionSpace+1, positionEot-positionSpace-1);
             qDebug() << this << "Received transfer hash:" << providedHash;
 
-            // Now jump over the message in the socket buffer, so that we have the raw data at hand.
-//            socket->seek(positionEot+1);
-            //socket->seek(0);
             qDebug() << "Removing first" << positionEot+1 << "bytes.";
             QByteArray waste = socket->read(positionEot+1);
-            //socket->flush();
 
             if (transferPool->hasTransferWithHash(providedHash)) {
                 this->transferInfo = transferPool->takeTransferFromQueueWithHash(providedHash);
@@ -164,7 +141,6 @@ void QwsClientTransferSocket::handleSocketReadyRead()
                     emit transferError(Qws::TransferSocketErrorFileOpen, transferInfo);
                     return;
                 }
-
                 beginDataTransmission();
 
             } else {
@@ -176,10 +152,14 @@ void QwsClientTransferSocket::handleSocketReadyRead()
 
         } else {
             // At this point we are supposed to have a complete message, but it's too short to
-            // even fit useful information in there.
-            qDebug() << this << "Expected TRANSFER, but message was too short.";
-            emit transferError(Qws::TransferSocketErrorHash, transferInfo);
-            return;
+            // even fit useful information in there. We wait 15 seconds for a complete handshake
+            // on slow connections like Tor.
+            const int transferHandshakeTimeout = 15000;
+            if (transferHandshakeTimeout >= transferSpeedTimer.elapsed()) {
+                qDebug() << this << "Expected TRANSFER, but message was too short (timeout).";
+                emit transferError(Qws::TransferSocketErrorHash, transferInfo);
+                return;
+            }
         }
 
     } else if (transferState == Qws::TransferSocketStatusTransferring) {
@@ -227,12 +207,7 @@ void QwsClientTransferSocket::handleSocketError(QAbstractSocket::SocketError soc
 {
     // We need error handling when not throttling the speed during an upload.
     qDebug() << this << "Socket error:" << socketError << "Read=" << transferInfo.bytesTransferred;
-    //if (this->info().type == Qw::TransferTypeUpload && this->info().transferSpeedLimit == 0) {
-
-    //}
-
     return;
-
 }
 
 
@@ -305,11 +280,8 @@ void QwsClientTransferSocket::setSocket(QSslSocket *socket)
     if (!socket) { return; }
     this->socket = socket;
     this->socket->setParent(this);
-    //connect(socket, SIGNAL(readyRead()),
-    //        this, SLOT(handleSocketReadyRead()));
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
-
     connect(&transferTimer, SIGNAL(timeout()),
             this, SLOT(transmitFileChunk()));
     transferTimer.start(transferTimerInterval);

@@ -15,9 +15,12 @@
   </property>
   <layout class="QVBoxLayout">
    <item>
-    <widget class="QListView" name="fTransfers">
+    <widget class="QListView" name="transferList">
      <property name="alternatingRowColors">
       <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
     </widget>
    </item>
@@ -37,7 +40,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="fBtnReveal">
+      <widget class="QToolButton" name="btnReveal">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -45,8 +48,14 @@
         <string>Reveal</string>
        </property>
        <property name="icon">
-        <iconset resource="../application.qrc">
+        <iconset resource="application.qrc">
          <normaloff>:/icons/16x16/system-search.png</normaloff>:/icons/16x16/system-search.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -54,16 +63,45 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="fBtnCancel">
+      <widget class="QToolButton" name="btnStop">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Cancel Transfer</string>
+        <string>Stop</string>
        </property>
        <property name="icon">
-        <iconset resource="../application.qrc">
-         <normaloff>:/icons/16x16/process-stop.png</normaloff>:/icons/16x16/process-stop.png</iconset>
+        <iconset resource="application.qrc">
+         <normaloff>:/icons/16x16/media-playback-stop.png</normaloff>:/icons/16x16/media-playback-stop.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="btnResume">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Resume</string>
+       </property>
+       <property name="icon">
+        <iconset resource="application.qrc">
+         <normaloff>:/icons/16x16/media-playback-start.png</normaloff>:/icons/16x16/media-playback-start.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -75,7 +113,8 @@
   </layout>
  </widget>
  <resources>
-  <include location="../application.qrc"/>
+  <include location="application.qrc"/>
+  <include location="application.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -34,7 +34,6 @@ namespace Qws {
 
 class QwsClientTransferSocket : public QObject
 {
-
     Q_OBJECT
 
 public:
@@ -59,8 +58,6 @@ public:
     /*! This is a pointer to the relevant server controller. */
     QwsTransferPool *transferPool;
     QFile fileReader;
-
-
 
 
 private slots:

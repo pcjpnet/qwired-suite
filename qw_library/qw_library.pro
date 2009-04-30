@@ -5,14 +5,15 @@ QT -= gui
 QT += network
 TARGET = qw_library
 TEMPLATE = lib
-CONFIG += staticlib debug
+CONFIG += staticlib \
+    debug
 SOURCES += QwMessage.cpp \
     QwSocket.cpp \
     QwRoom.cpp \
     QwUser.cpp \
     QwTrackerClientSocket.cpp \
-    QwFile.cpp
-
+    QwFile.cpp \
+    QwSocksSocket.cpp
 HEADERS += QwMessage.h \
     QwSocket.h \
     QwRoom.h \
@@ -20,7 +21,7 @@ HEADERS += QwMessage.h \
     QwTrackerClientSocket.h \
     QwServerInfo.h \
     QwTransferInfo.h \
-    QwFile.h
-
+    QwFile.h \
+    QwSocksSocket.h
 TARGET = qwlibrary
 DESTDIR = ../bin/

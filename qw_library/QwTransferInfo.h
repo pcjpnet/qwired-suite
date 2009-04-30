@@ -14,15 +14,20 @@ namespace Qw {
                     };
 
     enum TransferInfoState {
-        /*! The transfer has no status. */
+        /*! The transfer has no status or is in a local queue. */
         TransferInfoStateNone,
-        /*! The transfer info is queued and listed on the client. */
+        /*! The transfer info is queued and listed on the client.
+            On the client this indicates that the transfer is server-queued. */
         TransferInfoStateQueued,
-        /*! The transfer info is waiting to be accepted by the client (waiting for transfer connection. */
+        /*! The transfer info is waiting to be accepted by the client (waiting for transfer connection).
+            On the client this indicates that the transfer has been requested, but is not active yet. */
         TransferInfoStateWaiting,
         /*! The transfer is active and running. (not used in the server!)
             \todo Use this state in server mode, too - currently we are using a separate socket state there. */
-        TransferInfoStateRunning };
+        TransferInfoStateActive,
+        /*! The transfer is paused. (used only in client) */
+        TransferInfoStatePaused
+    };
 }
 
 class QwTransferInfo

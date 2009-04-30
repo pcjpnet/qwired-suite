@@ -2,145 +2,115 @@
 #include "QwcTransferInfo.h"
 #include "QwcFileInfo.h"
 
+#include <QFont>
+#include <QPainter>
+#include <QDebug>
+#include <QApplication>
+
 QwcFiletransferDelegate::QwcFiletransferDelegate(QObject *parent) : QAbstractItemDelegate(parent)
 {
 }
 
-
-QwcFiletransferDelegate::~QwcFiletransferDelegate()
+QSize QwcFiletransferDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    Q_UNUSED(index);
+    return QSize(option.rect.width(), 50);
 }
 
-
-QSize QwcFiletransferDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const
+void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    return QSize( 400, 50 );
-}
+    if (!index.isValid()) { return; }
+    if (option.state & QStyle::State_Selected) {
+        painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
+    }
+
+    if (!index.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
+    QwcTransferInfo transfer = index.data(Qt::UserRole).value<QwcTransferInfo>();
+
+    painter->save();
+    painter->translate(option.rect.topLeft());
+
+    // Status Text
+    QString statusText;
+    QPixmap icon;
+
+    if (transfer.state == Qw::TransferInfoStateNone) {
+        statusText = tr("Waiting");
+        icon = QPixmap(":/icons/32x32/start-here.png");
+
+    } else if (transfer.state == Qw::TransferInfoStateWaiting) {
+        statusText = tr("Preparing");
+        icon = QPixmap(":/icons/32x32/network-server.png");
+
+    } else if (transfer.state == Qw::TransferInfoStatePaused) {
+        statusText = tr("Stopped");
+        icon = QPixmap(":/icons/32x32/media-playback-pause.png");
+
+    } else if (transfer.state == Qw::TransferInfoStateQueued) {
+        statusText = tr("Queued (position %1)").arg(transfer.queuePosition);
+        icon = QPixmap(":icons/32x32/start-here.png");
+
+    } else if (transfer.state == Qw::TransferInfoStateActive) {
+        statusText = tr("Running - %1 of %2 (%3%) - %4/s")
+                     .arg(QwFile::humanReadableSize(transfer.bytesTransferred))
+                     .arg(QwFile::humanReadableSize(transfer.file.size))
+                     .arg(double(double(transfer.bytesTransferred)/double(transfer.file.size)*100), 0, 'f', 2)
+                     .arg(QwFile::humanReadableSize(transfer.currentTransferSpeed));
+
+        // Icon
+        if (transfer.type == Qw::TransferTypeDownload) {
+            icon = QPixmap(":icons/32x32/go-down.png");
+        } else if (transfer.type == Qw::TransferTypeDownload) {
+            icon = QPixmap(":icons/32x32/go-up.png");
+        }
+    }
+
+    painter->drawPixmap(9, 9, icon);
+
+    QFont currentFont(painter->font());
+
+    painter->translate(50, 0);
+
+    // File Name
+    currentFont.setPixelSize(12);
+    currentFont.setBold(true);
+    painter->setFont(currentFont);
+    painter->drawText(0, painter->fontMetrics().ascent()+1, transfer.file.fileName());
+
+    // Status Bar
+    currentFont.setPixelSize(9);
+    currentFont.setBold(false);
+    painter->setFont(currentFont);
+    painter->translate(0, 18);
+    painter->drawText(0, painter->fontMetrics().ascent()-1, statusText);
 
 
-void QwcFiletransferDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
-{
-//    if(!index.isValid()) return;
-//    if (option.state & QStyle::State_Selected)
-//        painter->fillRect(option.rect, Qt::gray);
-//
-//    painter->save();
-//    painter->translate(0, option.rect.y());
-//    painter->setRenderHint(QPainter::Antialiasing, true);
-//
-//    QwcTransferInfo tmpT = index.data(Qt::UserRole).value<QwcTransferInfo>();
-//
-//    // Progressbar
-//    QStyleOptionProgressBar progressBarOption;
-//    progressBarOption.state = QStyle::State_Enabled;
-//    progressBarOption.direction = QApplication::layoutDirection();
-//    QRect tmp;
-//    int tmpX = option.rect.width()-10-int(option.rect.width()*0.4);
-//    tmp.setRight(option.rect.width()-10);
-//    tmp.setBottom(26);
-//    tmp.setLeft(tmpX);
-//    tmp.setTop(8);
-//    progressBarOption.rect = tmp;
-//    progressBarOption.fontMetrics = QApplication::fontMetrics();
-//    progressBarOption.minimum = 0;
-//    progressBarOption.maximum = 100;
-//    progressBarOption.textAlignment = Qt::AlignCenter;
-//    progressBarOption.textVisible = true;
-//
-//
-//    // File Name
-//    QFont font;
-//    font.setBold(true);
-//    font.setPixelSize(11);
-//    QFontMetrics fontmetrics(font);
-//    painter->setFont(font);
-//    if(tmpT.type == Qw::TransferTypeFolderDownload)
-//        painter->drawText( 10+32+8, 10+fontmetrics.ascent(), tmpT.file.fileName());
-//    else	painter->drawText( 10+32+8, 10+fontmetrics.ascent(), tmpT.file.fileName());
-//
-//    // Set up the progressbar
-//    int progress=0;
-//    if(tmpT.type == Qw::TransferTypeFolderDownload) {
-//        progress = int((float(tmpT.pFolderDone+tmpT.pDoneSize)/float(tmpT.pFolderSize))*100);
-//    } else {
-//        progress = int((float(tmpT.pDoneSize)/float(tmpT.pTotalSize))*100);
-//    }
-//
-//    progressBarOption.progress = progress<0 ? 0 : progress;
-//
-//    if(tmpT.pStatus == WiredTransfer::StatusActive) {
-//        QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
-//        painter->drawText(tmpX, 40, tr("%1/sec").arg(QwcFileInfo::humanReadableSize(tmpT.pCurrentSpeed)));
-//
-//    } else if(tmpT.pStatus==WiredTransfer::StatusQueuedLocal) {
-//        painter->drawText(tmpX, 40, tr("Queued locally"));
-//
-//    } else if(tmpT.pStatus==WiredTransfer::StatusDone) {
-//        if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
-//            painter->drawText(tmpX, 40, tr("Completed - %1 items - %2").arg(tmpT.pFilesCount).arg(QwcFileInfo::humanReadableSize(tmpT.pFolderSize)));
-//        else	painter->drawText(tmpX, 40, tr("Completed - %1").arg(QwcFileInfo::humanReadableSize(tmpT.pTotalSize)));
-//
-//    } else if(tmpT.pStatus==WiredTransfer::StatusWaitingForStat) {
-//        if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload)
-//            painter->drawText(tmpX, 40, tr("Indexing files and directories..."));
-//        else	painter->drawText(tmpX, 40, tr("Requesting transfer slot..."));
-//
-//    } else if(tmpT.pStatus==WiredTransfer::StatusQueued) {
-//        painter->drawText(tmpX, 40, tr("Queued (at position %1)").arg(tmpT.pQueuePosition));
-//    }
-//
-//    // Icon
-//    painter->save();
-//    painter->translate(10, 9);
-//    if(tmpT.pStatus == WiredTransfer::StatusWaitingForStat) {
-//        painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/network-server.png"));
-//    } else if(tmpT.pStatus == WiredTransfer::StatusDone) {
-//        painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/face-smile.png"));
-//    } else if(tmpT.pStatus == WiredTransfer::StatusQueued) {
-//        painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/start-here.png"));
-//    } else if(tmpT.pStatus == WiredTransfer::StatusQueuedLocal) {
-//        painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/start-here.png"));
-//    } else if(tmpT.pStatus == WiredTransfer::StatusActive) {
-//        if(tmpT.pTransferType == WiredTransfer::TypeDownload) {
-//            painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/go-down.png"));
-//        } else if(tmpT.pTransferType == WiredTransfer::TypeFolderDownload) {
-//            painter->drawPixmap(-3, -3, QPixmap(":/icons/32x32/go-down.png"));
-//            painter->drawPixmap(3, 3, QPixmap(":/icons/32x32/go-down.png"));
-//        } else if(tmpT.pTransferType == WiredTransfer::TypeUpload) {
-//            painter->drawPixmap(0, 0, QPixmap(":/icons/32x32/go-up.png"));
-//        }
-//    }
-//    painter->restore();
-//
-//    // Remaining
-//    font.setBold(false);
-//    painter->setFont(font);
-//
-//    if(tmpT.pStatus==WiredTransfer::StatusActive) {
-//        if(tmpT.pTransferType==WiredTransfer::TypeFolderDownload) {
-//            painter->drawText( 10+32+8, 10+fontmetrics.height()+fontmetrics.ascent(),
-//                               tr("%1 (%2 items) of %3 (%4 items) completed")
-//                               .arg(QwcFileInfo::humanReadableSize(tmpT.bytesTransferred))
-//                               .arg(tmpT.pFilesDone)
-//                               .arg(QwcFileInfo::humanReadableSize(tmpT.file.size))
-//                               .arg(tmpT.pFilesCount));
-//        } else {
-//            painter->drawText( 10+32+8, 10+fontmetrics.height()+fontmetrics.ascent(),
-//                               tr("%1 of %2 completed (%3%) %4")
-//                               .arg(QwcFileInfo::humanReadableSize(tmpT.bytesTransferred))
-//                               .arg(QwcFileInfo::humanReadableSize(tmpT.file.size))
-//                               .arg(progress) );
-//        }
-//        // 			moreInfo += tr(" [%2 files remaining]").arg(tmpT.pFilesCount-tmpT.pFilesDone);
+    // Progress Bar
+    if (transfer.state == Qw::TransferInfoStateActive) {
+        QStyleOptionProgressBarV2 barOption;
+        barOption.state = QStyle::State_Enabled;
+        barOption.direction = QApplication::layoutDirection();
+        barOption.minimum = 0;
+        barOption.maximum = 100;
+        barOption.progress = int(double(transfer.bytesTransferred)/double(transfer.file.size)*100);
+        barOption.rect.setLeft(0);
+        barOption.rect.setTop(0);
+        barOption.rect.setHeight(16);
+        barOption.rect.setWidth(option.rect.width()-painter->matrix().dx()-9);
+        painter->translate(0, 12);
+        QApplication::style()->drawControl(QStyle::CE_ProgressBar, &barOption, painter);
 
-//
-//    }
-//
-//    // Bottom Line
-//    painter->setPen(QColor(190,190,190));
-//    painter->drawLine(0, option.rect.height()-1, option.rect.width(), option.rect.height()-1);
-//    //painter->fillRect( QRect(0,0,50,50), Qt::cyan );
-//
-//    painter->restore();
+    }
+    painter->restore();
+
+    // Draw bottom line
+    painter->save();
+    QPen pen(painter->pen());
+    pen.setColor(Qt::gray);
+    pen.setWidth(1);
+    painter->setPen(pen);
+    painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+    painter->restore();
+
 }
 

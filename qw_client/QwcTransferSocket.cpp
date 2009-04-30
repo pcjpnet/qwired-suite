@@ -1,252 +1,125 @@
 #include "QwcTransferSocket.h"
+#include <QSettings>
 
 QwcTransferSocket::QwcTransferSocket(QObject *parent) : QObject(parent)
 {
+    sslSocket = new QSslSocket(this);
+    sslSocket->setProtocol(QSsl::TlsV1);
+    sslSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
+    connect(sslSocket, SIGNAL(encrypted()),
+            this, SLOT(handleSocketEncrypted()));
+
+    connect(&transferTimer, SIGNAL(timeout()),
+            this, SLOT(transmitFileChunk()));
+
 }
 
-void QwcTransferSocket::run()
-{
-    pSocket = new QSslSocket;
-    pSocket->setProtocol(QSsl::TlsV1);
-    pSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
-    startTransfer();
-}
-
-/// Begin to download the data
-void QwcTransferSocket::downloadData()
-{
-//    int timerInterval = 500;
-//    pTimer.start();
-//
-//    qDebug() << this << "Starting download of data.";
-//
-//    if(pTransfer.pTransferType == WiredTransfer::TypeFolderDownload) {
-//        pTransfer.pFileStatus = WiredTransfer::StatusActive;
-//    } else {
-//        pTransfer.pStatus = WiredTransfer::StatusActive;
-//    }
-//
-//    while(1) {
-//        pSocket->waitForReadyRead();
-//        QByteArray data = pSocket->readAll();
-//
-//        if(!data.isEmpty()) {
-//            pFile->write(data);
-//            pTransfer.pDoneSize += data.size();
-//        }
-//
-//        if(pTransfer.pDoneSize==pTransfer.pTotalSize) {
-//            qDebug() << this << "Transfer completed.";
-//            pSocket->disconnectFromHost();
-//            pSocket->waitForDisconnected();
-//            pSocket->close();
-//
-//            if(pTransfer.pTransferType==WiredTransfer::TypeDownload
-//               || pTransfer.pTransferType==WiredTransfer::TypeFolderDownload) {
-//                QFile tmpFile(pTransfer.pLocalPath+QString(".WiredTransfer"));
-//                if(tmpFile.exists()) tmpFile.rename(pTransfer.pLocalPath);
-//            }
-//
-//            if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
-//                pTransfer.pFileStatus = WiredTransfer::StatusDone;
-//            else	pTransfer.pStatus = WiredTransfer::StatusDone;
-//
-//            break;
-//        }
-//
-//        if(pTimer.elapsed()>=timerInterval) calculateSpeed();
-//
-//        if(!pSocket->isValid()) {
-//            if(pTransfer.pStatus==WiredTransfer::StatusStopping) {
-//                return;
-//            } else if(pTransfer.pDoneSize!=pTransfer.pTotalSize) {
-//                qDebug() << this << "ERROR:"<<pSocket->error();
-//                emit fileTransferError(pTransfer);
-//                return;
-//            }
-//        }
-//
-//    }
-//
-//
-//    qDebug() << this << "End of loop. Closing file.";
-//
-//    // Close file
-//    pFile->flush();
-//    pFile->close();
-//    killTransfer();
-}
-
-
-void QwcTransferSocket::killTransfer()
-{
-    if(pSocket && pSocket->state()==QAbstractSocket::ConnectedState ) {
-        qDebug() << this << "Disconnecting thread";
-        pSocket->close();
-    }
-    qDebug() << this << "Thread finished.";
-}
-
-
-/// Begin to upload the data
-void QwcTransferSocket::uploadData()
-{
-//    int timerInterval = 500;
-//    pTimer.start();
-//
-//    if(pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
-//        pTransfer.pFileStatus = WiredTransfer::StatusActive;
-//    else	pTransfer.pStatus = WiredTransfer::StatusActive;
-//
-//    while(1) {
-//        if(pFile->atEnd()) {
-//            pSocket->disconnectFromHost();
-//            pSocket->waitForDisconnected();
-//            pSocket->close();
-//            break;
-//        }
-//        QByteArray data = pFile->read(1024*100);
-//        if(!data.isEmpty()) {
-//            pSocket->write(data);
-//            pTransfer.pDoneSize += data.size();
-//        }
-//
-//        if(pTimer.elapsed()>=timerInterval)
-//            calculateSpeed();
-//
-//        if(!pSocket->isValid() && pTransfer.pDoneSize!=pTransfer.pTotalSize) {
-//            emit fileTransferError(pTransfer);
-//            return;
-//        }
-//
-//        pSocket->waitForBytesWritten();
-//    }
-//
-//    if(pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
-//        pTransfer.pFileStatus = WiredTransfer::StatusActive;
-//    else	pTransfer.pStatus = WiredTransfer::StatusActive;
-//
-//    pFile->close();
-}
 
 QwcTransferSocket::~QwcTransferSocket()
 {
-    qDebug() << this << "TransferSocket: Destroyed thread";
-    if(!pFile.isNull()) pFile->deleteLater();
-    if(!pSocket.isNull()) pSocket->deleteLater();
+    qDebug() << this << "TransferSocket: Destroyed transfer socket";
 }
 
 
-/// Connect and do some magic stuff.
-void QwcTransferSocket::startTransfer()
+/*! Begin the transfer by connecting to the remote server and sending the provided hash.
+*/
+void QwcTransferSocket::beginTransfer()
 {
-//    emit fileTransferStarted(pTransfer);
-//
-//    if (pTransfer.pTransferType == WiredTransfer::TypeDownload || pTransfer.pTransferType == WiredTransfer::TypeFolderDownload) {
-//        QString tmpPath = pTransfer.pLocalPath+QString(".WiredTransfer");
-//        pFile = new QFile(tmpPath);
-//        if (!pFile->open(QIODevice::Append)) {
-//            qDebug() << this << "Unable to open the file:"<<tmpPath<<":"<<pFile->errorString();
-//            return;
-//        }
-//
-//    } else if (pTransfer.pTransferType == WiredTransfer::TypeUpload || pTransfer.pTransferType == WiredTransfer::TypeFolderUpload) {
-//        pFile = new QFile(pTransfer.pLocalPath);
-//        if(!pFile->open(QIODevice::ReadOnly) ) {
-//            qDebug() << this << "Unable to open the file:"<<pTransfer.pLocalPath<<":"<<pFile->errorString();
-//            return;
-//        }
-//        pFile->seek(pTransfer.pOffset);
-//    }
-//
-//    if (!pTransfer.pEncryptTransfer)
-//        pSocket->setCiphers("NULL"); // <-- if we want no encryption ;) I guess morris' mac is just too slow
-//
-//    // Connect for a start
-//    qDebug() << this << "TransferSocket: Connecting to"<<pServerHost<<":"<<pServerPort<<"hash"<<pTransfer.pHash<<"offset"<<pTransfer.pOffset;
-//    pSocket->connectToHostEncrypted(pServerHost, pServerPort);
-//
-//    if(!pSocket->waitForConnected()) {
-//        qDebug() << this << "Could not connect:"<<pSocket->error();
-//        emit fileTransferError(pTransfer);
-//        return;
-//    }
-//
-//    qDebug() << "Connected to remote host.";
-//
-//    if(!pSocket->waitForEncrypted()) {
-//        qDebug() << this << "Could not establish an encrypted connection.";
-//        emit fileTransferError(pTransfer);
-//        return;
-//    }
-//
-//    qDebug() << "Encrypted.";
-//
-//    qDebug() << this << "Connected to remote host encrypted. Handshake follows.";
-//    sendHandshake();
+    emit fileTransferStarted(transferInfo);
+
+    qDebug() << this << "Connecting to remote host at" << serverHost << "port" << serverPort;
+    sslSocket->connectToHostEncrypted(serverHost, serverPort);
+
+    // Set the read buffer size to limit download speed
+    if (transferInfo.type == Qw::TransferTypeDownload && transferInfo.transferSpeedLimit > 0) {
+        sslSocket->setReadBufferSize(transferInfo.transferSpeedLimit * (float(transferTimerInterval)/1000));
+    }
 
 }
 
 
-/// Send the TRANSFER handshake.
-void QwcTransferSocket::sendHandshake()
+/*! Called by the SSL socket when the connection has been established.
+*/
+void QwcTransferSocket::handleSocketEncrypted()
 {
-//    qDebug() << this << "Sending handshake for TRANSFER"<<pTransfer.pHash;;
-//    QByteArray tmpCmd("TRANSFER ");
-//    tmpCmd += pTransfer.pHash + char(0x04);
-//    pSocket->write(tmpCmd);
-//    pSocket->waitForBytesWritten();
-//
-//    if(pTransfer.pTransferType==WiredTransfer::TypeUpload || pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
-//        uploadData();
-//    else	downloadData();
-//
-//    if(pTransfer.pTransferType==WiredTransfer::TypeFolderDownload || pTransfer.pTransferType==WiredTransfer::TypeFolderUpload)
-//        emit fileTransferFileDone(pTransfer);
-//    else	emit fileTransferDone(pTransfer);
-//
-//    killTransfer();
+    qDebug() << this << "Transfer socket connected, sending handshake with hash" << transferInfo.hash;
+    sslSocket->write(QString("TRANSFER %1\x04").arg(transferInfo.hash).toUtf8());
+
+    if (transferInfo.type == Qw::TransferTypeDownload) {
+        transferTimer.start(transferTimerInterval);
+    }
+
+    transferInfo.state = Qw::TransferInfoStateActive;
+
+    emit fileTransferStatus(transferInfo);
 }
 
 
-/// Set the server address and port.
-void QwcTransferSocket::setServer(QString theServer, int thePort)
+/*! Transfer a single chunk of data to the server or back.
+    \todo Fix current speed calculation.
+*/
+void QwcTransferSocket::transmitFileChunk()
 {
-    pServerHost = theServer;
-    pServerPort = thePort+1; // n+1 for file transfers
+    if (transferInfo.type == Qw::TransferTypeDownload) {
+        quint64 chunkSize = 0;
+
+        QByteArray dataBuffer;
+        dataBuffer.resize(sslSocket->bytesAvailable());
+        int readBytes = sslSocket->read(dataBuffer.data(), sslSocket->bytesAvailable());
+        transferInfo.bytesTransferred += readBytes;
+
+        // Emit a update signal if we received data, or if 4 seconds have passed
+        if (readBytes > 0 || currentSpeedTimer.elapsed() > 4000) {
+            transferInfo.currentTransferSpeed = 1000.0/float(currentSpeedTimer.restart()) * readBytes;
+            emit fileTransferStatus(transferInfo);
+            qDebug() << "Downloaded" << readBytes << "bytes." << transferInfo.bytesTransferred
+                    << "of" << transferInfo.file.size << "at" << transferInfo.currentTransferSpeed;
+        }
+
+        if (sslSocket->state() == QAbstractSocket::UnconnectedState) {
+            qDebug() << this << "Lost transfer socket connection.";
+            if (transferInfo.bytesTransferred == transferInfo.file.size) {
+                qDebug() << this << "Completed download.";
+                finishTransfer();
+                emit fileTransferDone(transferInfo);
+                return;
+            }
+
+            qDebug() << this << "Transfer incomplete.";
+            abortTransfer();
+        }
+
+
+    }
 }
 
 
-/// Stop the file transfer.
-void QwcTransferSocket::cancelTransfer()
+void QwcTransferSocket::abortTransfer()
 {
-//    qDebug() << this << "Stopping transfer"<<pTransfer.pHash;
-//    if(pSocket) pSocket->close();
-//    pTransfer.pStatus = WiredTransfer::StatusStopping;
-//    killTransfer();
+    qDebug() << this << "Aborting transfer.";
+    transferTimer.stop();
+    sslSocket->close();
+    emit fileTransferError(transferInfo);
 }
 
 
-/// Update current speed
-void QwcTransferSocket::calculateSpeed()
+void QwcTransferSocket::finishTransfer()
 {
-//    qlonglong tmpDiff = pTransfer.pDoneSize-pLastDone; // difference between past and now
-//    int tmpTime = pTimer.restart(); // time difference
-//
-//    // Calc the average speed
-//    int tmpCurrentSpeed = (tmpDiff/tmpTime)*1000;
-//    if (pSpeedList.count() >= 5) {
-//        pSpeedList.removeFirst();
-//    }
-//    pSpeedList.append(tmpCurrentSpeed);
-//    QListIterator<int> i(pSpeedList);
-//    while(i.hasNext()) { pTransfer.pCurrentSpeed += i.next(); }
-//    pTransfer.pCurrentSpeed = pTransfer.pCurrentSpeed/pSpeedList.count();
-//
-//    pLastDone = pTransfer.pDoneSize;
-//    emit fileTransferStatus(pTransfer);
+    qDebug() << this << "Finishing transfer.";
+    sslSocket->disconnectFromHost();
+    transferTimer.stop();
+    emit fileTransferDone(transferInfo);
 }
 
 
+
+/*! Set the host and port of the remote transfer socket. The port is automatically incremented by
+    one.
+*/
+void QwcTransferSocket::setServer(QString host, int port)
+{
+    serverHost = host;
+    serverPort = port+1; // n+1 for file transfers
+}
 
 
