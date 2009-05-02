@@ -102,6 +102,10 @@ void QwcNewsWidget::doSendNews()
     // Send the news text from the post window to the user.
     if( pWinPost!=0 ) {
         emit doPostNews(pWinPost->getPostText());
+        fNews->clear();
+        fProc->setVisible(true);
+        newsCounter = 0;
+        emit doRefreshNews();
         pWinPost->close();
         pWinPost->deleteLater();
     }

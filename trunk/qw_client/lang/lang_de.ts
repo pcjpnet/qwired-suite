@@ -1,342 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="de">
-<context>
-    <name>ClassWiredSession</name>
-    <message>
-        <source>Topic: %1
-Set By: %2 --- %3</source>
-        <translation type="obsolete">Thema: %1
-Gesetzt von: %2 --- %3</translation>
-    </message>
-    <message>
-        <source>Broadcast Message</source>
-        <translation type="obsolete">Rundsendung</translation>
-    </message>
-    <message>
-        <source>Private Chat Invitation</source>
-        <translation type="obsolete">Private Chateinladung</translation>
-    </message>
-    <message>
-        <source>%1 has invited you to a private chat.
-Join to open a separate private chat with %1.</source>
-        <translation type="obsolete">%1 hat Sie zu einem privaten Chat eingeladen.
-Klicken Sie &lt;Beitreten&gt; um diesem Chat mit %1 beizutreten.</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation type="obsolete">Ignorieren</translation>
-    </message>
-    <message>
-        <source>Reject</source>
-        <translation type="obsolete">Ablehnen</translation>
-    </message>
-    <message>
-        <source>Join</source>
-        <translation type="obsolete">Beitreten</translation>
-    </message>
-    <message>
-        <source>News</source>
-        <translation type="obsolete">Neuigkeiten</translation>
-    </message>
-    <message>
-        <source>Info: %1</source>
-        <translation type="obsolete">Informationen: %1</translation>
-    </message>
-    <message>
-        <source>Private Chat</source>
-        <translation type="obsolete">Privatchat</translation>
-    </message>
-    <message>
-        <source>Server Info</source>
-        <translation type="obsolete">Serverinformationen</translation>
-    </message>
-    <message>
-        <source>Transfers</source>
-        <translation type="obsolete">Übertragungen</translation>
-    </message>
-    <message>
-        <source>File Search</source>
-        <translation type="obsolete">Suche</translation>
-    </message>
-    <message>
-        <source>Accounts</source>
-        <translation type="obsolete">Benutzerkonten</translation>
-    </message>
-    <message>
-        <source>Command Failed. An undefined internal server error has occoured.</source>
-        <translation type="obsolete">Befehl fehlgeschlagen. Ein undefinierter Fehler ist auf dem Server aufgetreten.</translation>
-    </message>
-    <message>
-        <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
-        <translation type="obsolete">Befehl nicht erkannt. Qwired hat einen Befehl geschickt, welcher vom Server nicht verstanden wurde.</translation>
-    </message>
-    <message>
-        <source>Command Not Implemented. The last command is not implemented by the server.</source>
-        <translation type="obsolete">Befehl nicht implementiert. Der letzte gesendete Befehl ist nicht vom Server implementiert.</translation>
-    </message>
-    <message>
-        <source>Syntax Error. The last command was not formatted correctly.</source>
-        <translation type="obsolete">Syntaxfehler. Der letzte Befehl wurde nicht korrekt formatiert.</translation>
-    </message>
-    <message>
-        <source>Login Failed. Username and password were not accepted by the server.</source>
-        <translation type="obsolete">Anmeldung fehlgeschlagen. Der Benutzername oder das Passwort wurde vom Server abgelehnt.</translation>
-    </message>
-    <message>
-        <source>Banned. You have been banned from the server. Please try connecting later.</source>
-        <translation type="obsolete">Verbannt. Die Verbindung wurde vom Server abgelehnt, da Sie von einem Administrator des Servers verbannt wurden.</translation>
-    </message>
-    <message>
-        <source>Client Not Found. The server could not find the client referred to.</source>
-        <translation type="obsolete">Client nicht gefunden. Der Server konnte den Zielclient nicht finden.</translation>
-    </message>
-    <message>
-        <source>Account Not Found. The server could not find the account referred to.</source>
-        <translation type="obsolete">Konto nicht gefunden. Der Server konnte das gewünschte Konto nicht finden.</translation>
-    </message>
-    <message>
-        <source>Account Exists. Could not create the account you specified.</source>
-        <translation type="obsolete">Konto existiert bereits. Das Konto konnte nicht erstellt werden, da ein anderes Konto mit dem selben Namen bereits existiert.</translation>
-    </message>
-    <message>
-        <source>User can not be disconnected. The specified user can not be disconnected.</source>
-        <translation type="obsolete">Benutzer kann nicht getrennt werden.</translation>
-    </message>
-    <message>
-        <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
-        <translation type="obsolete">Zugang verweigert. Sie haben nicht genügend Zugriffsrechte um den letzten Befehl auszuführen.</translation>
-    </message>
-    <message>
-        <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
-        <translation type="obsolete">Datei oder Verzeichnis nicht gefunden. Der letzte Befehl ist fehlgeschlagen, da die gewünschte Datei oder Verzeichnis nicht gefunden werden konnte.</translation>
-    </message>
-    <message>
-        <source>The last command could not be completed because the file or directory already exists.</source>
-        <translation type="obsolete">Der letzte Befehl ist fehlgeschlagen, da die Datei oder das Verzeichnis bereits existiert.</translation>
-    </message>
-    <message>
-        <source>Checksum Mismatch.</source>
-        <translation type="obsolete">Checksummen stimmen nicht überein.</translation>
-    </message>
-    <message>
-        <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
-        <translation type="obsolete">Warteschlagenlimit überschritten. Der letzte Befehl konnte nicht ausgeführt werden, da die Warteschlange auf dem Server voll ist.</translation>
-    </message>
-    <message>
-        <source>Server Error</source>
-        <translation type="obsolete">Serverfehler</translation>
-    </message>
-    <message>
-        <source>An unknown server error occoured. The error code is %1.</source>
-        <translation type="obsolete">Ein unbekannter Fehler ist aufgetreten. Der Fehlercode lautet %1.</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation type="obsolete">Zeigen/Verstecken</translation>
-    </message>
-    <message>
-        <source>Connected</source>
-        <translation type="obsolete">Verbunden</translation>
-    </message>
-    <message>
-        <source>Disconnected</source>
-        <translation type="obsolete">Getrennt</translation>
-    </message>
-    <message>
-        <source>Server Error: %1</source>
-        <translation type="obsolete">Serverfehler: %1</translation>
-    </message>
-    <message>
-        <source>%1 joined</source>
-        <translation type="obsolete">%1 ist angemeldet</translation>
-    </message>
-    <message>
-        <source>%1 is now known as %2</source>
-        <translation type="obsolete">%1 ist jetzt bekannt als %2</translation>
-    </message>
-    <message>
-        <source>%1 changed status to &apos;%2&apos;</source>
-        <translation type="obsolete">%1 ändert Status zu &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>%1 left</source>
-        <translation type="obsolete">%1 hat sich abgemeldet</translation>
-    </message>
-    <message>
-        <source>Chat from %1:
-%2</source>
-        <translation type="obsolete">Chat von %1:
-%2</translation>
-    </message>
-    <message>
-        <source>Message from %1:
-%2</source>
-        <translation type="obsolete">Private Nachricht von %1:
-%2</translation>
-    </message>
-    <message>
-        <source>News Posted from %1:
-%2</source>
-        <translation type="obsolete">Neuigkeiten von %1:
-%2</translation>
-    </message>
-    <message>
-        <source>Broadcast from %1:
-%2</source>
-        <translation type="obsolete">Rundsendung von %1:
-%2</translation>
-    </message>
-    <message>
-        <source>Transfer Started: %1</source>
-        <translation type="obsolete">Transfer gestartet: %1</translation>
-    </message>
-    <message>
-        <source>Transfer Finished: %1</source>
-        <translation type="obsolete">Transfer abgeschlossen: %1</translation>
-    </message>
-    <message>
-        <source>The file transfer failed due to a connection error. Error ID is: %1</source>
-        <translation type="obsolete">Der Dateitransfer ist aufgrund eines Fehlers unterbrochen worden. Fehlerkennung: %1</translation>
-    </message>
-    <message>
-        <source>Connecting. Starting session...</source>
-        <translation type="obsolete">Verbunden. Sitzung starten...</translation>
-    </message>
-    <message>
-        <source>Connection Refused</source>
-        <translation type="obsolete">Verbindung abgelehnt</translation>
-    </message>
-    <message>
-        <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
-        <translation type="obsolete">Die Verbindung wurde von der Gegenstelle abgelehnt. Normalerweise bedeutet dies, dass auf der Gegenseite kein Wired-Dienst läuft.</translation>
-    </message>
-    <message>
-        <source>Host not found</source>
-        <translation type="obsolete">Host nicht gefunden</translation>
-    </message>
-    <message>
-        <source>Could not connect to the remote server because the host name could not be resolved.</source>
-        <translation type="obsolete">Konnte nicht zur Gegenstelle verbinden weil die Name nicht aufgelöst werden konnte.</translation>
-    </message>
-    <message>
-        <source>Receiving user list...</source>
-        <translation type="obsolete">Benutzerliste empfangen...</translation>
-    </message>
-    <message>
-        <source>Files</source>
-        <translation type="obsolete">Dateien</translation>
-    </message>
-    <message>
-        <source>File Transfer Error</source>
-        <translation type="obsolete">Dateiübertragungsfehler</translation>
-    </message>
-</context>
-<context>
-    <name>DelegateFileTransfers</name>
-    <message>
-        <source>%1/sec</source>
-        <translation type="obsolete">%1/Sek</translation>
-    </message>
-    <message>
-        <source>Requesting transfer slot...</source>
-        <translation type="obsolete">Transfer anfragen...</translation>
-    </message>
-    <message>
-        <source>Queued (at position %1)</source>
-        <translation type="obsolete">Wartet (an Position %1)</translation>
-    </message>
-</context>
-<context>
-    <name>MainWindow</name>
-    <message>
-        <source>New Connection...</source>
-        <translation type="obsolete">Neue Verbindung...</translation>
-    </message>
-    <message>
-        <source>Disconnect...</source>
-        <translation type="obsolete">Trennen...</translation>
-    </message>
-    <message>
-        <source>Reconnect</source>
-        <translation type="obsolete">Wiederverbinden</translation>
-    </message>
-    <message>
-        <source>Server Information</source>
-        <translation type="obsolete">Serverinformationen</translation>
-    </message>
-    <message>
-        <source>News</source>
-        <translation type="obsolete">Neuigkeiten</translation>
-    </message>
-    <message>
-        <source>Files</source>
-        <translation type="obsolete">Dateien</translation>
-    </message>
-    <message>
-        <source>Get Information</source>
-        <translation type="obsolete">Informationen</translation>
-    </message>
-    <message>
-        <source>Set Topic...</source>
-        <translation type="obsolete">Thema setzen...</translation>
-    </message>
-    <message>
-        <source>Post News...</source>
-        <translation type="obsolete">Neuigkeiten veröffentlichen...</translation>
-    </message>
-    <message>
-        <source>Broadcast Message...</source>
-        <translation type="obsolete">Rundsendung verfassen...</translation>
-    </message>
-    <message>
-        <source>Transfers</source>
-        <translation type="obsolete">Übertragungen</translation>
-    </message>
-    <message>
-        <source>Accounts</source>
-        <translation type="obsolete">Benutzerkonten</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="obsolete">Dateisuche</translation>
-    </message>
-    <message>
-        <source>Preferences...</source>
-        <translation type="obsolete">Voreinstellungen...</translation>
-    </message>
-    <message>
-        <source>Toolbar</source>
-        <translation type="obsolete">Werkzeugleiste</translation>
-    </message>
-    <message>
-        <source>About QWired...</source>
-        <translation type="obsolete">Über Qwired...</translation>
-    </message>
-    <message>
-        <source>Trackers</source>
-        <translation type="obsolete">Tracker</translation>
-    </message>
-    <message>
-        <source>Show a list of configured trackers and servers registered with them.</source>
-        <translation type="obsolete">Zeigt eine Liste von konfigurierten Trackern und eine Liste der registrierten Server.</translation>
-    </message>
-</context>
-<context>
-    <name>ModelFileList</name>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Name</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="obsolete">Größe</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation type="obsolete">Geändert</translation>
-    </message>
-</context>
+<!DOCTYPE TS><TS version="1.1" language="de">
 <context>
     <name>QwcAboutWidget</name>
     <message>
@@ -363,40 +26,37 @@ Klicken Sie &lt;Beitreten&gt; um diesem Chat mit %1 beizutreten.</translation>
 <context>
     <name>QwcAccountsWidget</name>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="40"/>
+        <location filename="../QwcAccountsWidget.cpp" line="43"/>
         <source>No Group</source>
         <translation type="unfinished">Keine Gruppe</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="166"/>
+        <location filename="../QwcAccountsWidget.cpp" line="169"/>
         <source>Create</source>
         <translation type="unfinished">Erstellen</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="176"/>
+        <location filename="../QwcAccountsWidget.cpp" line="179"/>
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="190"/>
         <location filename="../QwcAccountsWidget.ui" line="730"/>
         <source>Apply Changes</source>
         <translation type="unfinished">Anwenden</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="191"/>
-        <location filename="../QwcAccountsWidget.ui" line="383"/>
         <location filename="../QwcAccountsWidget.ui" line="723"/>
         <source>Delete</source>
         <translation type="unfinished">Löschen</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="208"/>
+        <location filename="../QwcAccountsWidget.cpp" line="211"/>
         <source>Delete Account or Group</source>
         <translation type="unfinished">Benutzerkonto oder Gruppe löschen</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="209"/>
+        <location filename="../QwcAccountsWidget.cpp" line="212"/>
         <source>Are you sure you want to delete the current account or group? This can not be undone.</source>
         <translation type="unfinished">Sind Sie sicher, dass Sie das gewählte Konto oder die Gruppe löschen wollen? Dies kann nicht rückgänig gemacht werden.</translation>
     </message>
@@ -556,7 +216,6 @@ Klicken Sie &lt;Beitreten&gt; um diesem Chat mit %1 beizutreten.</translation>
         <translation type="unfinished">Download:</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="626"/>
         <location filename="../QwcAccountsWidget.ui" line="683"/>
         <source>KB/s</source>
         <translation type="unfinished">KB/s</translation>
@@ -570,20 +229,19 @@ Klicken Sie &lt;Beitreten&gt; um diesem Chat mit %1 beizutreten.</translation>
 <context>
     <name>QwcChatWidget</name>
     <message>
-        <location filename="../QwcChatWidget.cpp" line="326"/>
-        <location filename="../QwcChatWidget.cpp" line="341"/>
+        <location filename="../QwcChatWidget.cpp" line="343"/>
         <source>Kick</source>
         <translation>Trennen</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.cpp" line="327"/>
+        <location filename="../QwcChatWidget.cpp" line="329"/>
         <source>You are about to disconnect &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation>Sie sind im Begriff %1 vom Server zu trennen.
 Geben Sie den Grund ein und klicken Sie OK.</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.cpp" line="342"/>
+        <location filename="../QwcChatWidget.cpp" line="344"/>
         <source>You are about to ban &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation>Sie sind im Begriff %1 vom Server zu verbannen.
@@ -646,10 +304,6 @@ Geben Sie den Grund ein und klicken Sie OK.</translation>
         <location filename="../QwcConnectWidget.ui" line="14"/>
         <source>Connect...</source>
         <translation>Verbinden...</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Welcome to Qwired!&lt;/b&gt;&lt;br&gt;&lt;br&gt;Please enter a server address, and your login credentials, then press Connect. Alternatively you can select one of your bookmarks from the Bookmarks-Menu below.</source>
-        <translation type="obsolete">&lt;b&gt;Willkommen bei Qwired!&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bitte gebe eine Serveradresse und deine Logindaten ein, dann klicke auf &quot;Verbinden&quot;. Alternativ kannst Du auch einen Favouriten aus dem Favouriten-Menu wählen.</translation>
     </message>
     <message>
         <location filename="../QwcConnectWidget.ui" line="119"/>
@@ -775,7 +429,6 @@ Geben Sie den Grund ein und klicken Sie OK.</translation>
         <translation type="unfinished">Dateien</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="163"/>
         <location filename="../QwcConnectionMainWindow.ui" line="243"/>
         <source>Ctrl+F</source>
         <translation type="unfinished"></translation>
@@ -864,12 +517,12 @@ Geben Sie den Grund ein und klicken Sie OK.</translation>
 <context>
     <name>QwcEventFilter</name>
     <message>
-        <location filename="../QwcEventFilter.cpp" line="32"/>
+        <location filename="../QwcEventFilter.cpp" line="34"/>
         <source>Disconnect</source>
         <translation>Abmelden</translation>
     </message>
     <message>
-        <location filename="../QwcEventFilter.cpp" line="32"/>
+        <location filename="../QwcEventFilter.cpp" line="35"/>
         <source>Are you sure you want to continue? If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
 </source>
         <translation>Bist Du sicher, dass die Verbindung mit %1 geschlossen werden soll? Wenn die Verbindung zum Server getrennt wird, werden alle aktiven Dateitransfers abgebrochen.</translation>
@@ -878,38 +531,27 @@ Geben Sie den Grund ein und klicken Sie OK.</translation>
 <context>
     <name>QwcFileBrowserWidget</name>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="105"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="109"/>
         <source>%1 items, %2 total, %3 available</source>
         <translation type="unfinished">%1 Objekte, %2 gesamt, %3 verfügbar</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="111"/>
-        <location filename="../QwcFileBrowserWidget.cpp" line="112"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="115"/>
         <source>Files - %1</source>
         <translation type="unfinished">Dateien - %1</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="129"/>
-        <source>File Exists</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="130"/>
-        <source>The file &apos;%1&apos; already exists in your download directory. Overwrite it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="184"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="183"/>
         <source>Upload File</source>
         <translation type="unfinished">Datei Hochladen</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="203"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="202"/>
         <source>Delete File</source>
         <translation type="unfinished">Datei Löschen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../QwcFileBrowserWidget.cpp" line="203"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="202"/>
         <source>Are you sure you want to delete the selected %n item(s)?
 This can not be undone!</source>
         <translation type="unfinished">
@@ -920,12 +562,12 @@ Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="225"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="224"/>
         <source>Create Folder</source>
         <translation type="unfinished">Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="225"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="224"/>
         <source>Enter a name for the new folder:</source>
         <translation type="unfinished">Geben Sie einen Namen für den meuen Ordner ein:</translation>
     </message>
@@ -935,7 +577,6 @@ Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
         <translation type="unfinished">Dateien</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="38"/>
         <location filename="../QwcFileBrowserWidget.ui" line="41"/>
         <source>Back</source>
         <translation type="unfinished">Zurück</translation>
@@ -1000,11 +641,6 @@ Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
         <translation type="unfinished">Dateityp:</translation>
     </message>
     <message>
-        <location filename="../QwcFileInfoWidget.ui" line="80"/>
-        <location filename="../QwcFileInfoWidget.ui" line="112"/>
-        <location filename="../QwcFileInfoWidget.ui" line="144"/>
-        <location filename="../QwcFileInfoWidget.ui" line="176"/>
-        <location filename="../QwcFileInfoWidget.ui" line="208"/>
         <location filename="../QwcFileInfoWidget.ui" line="240"/>
         <source>file</source>
         <translation type="unfinished">Datei</translation>
@@ -1043,22 +679,22 @@ Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
 <context>
     <name>QwcFileSearchWidget</name>
     <message>
-        <location filename="../QwcFileSearchWidget.cpp" line="76"/>
+        <location filename="../QwcFileSearchWidget.cpp" line="57"/>
         <source>File Exists</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileSearchWidget.cpp" line="78"/>
+        <location filename="../QwcFileSearchWidget.cpp" line="59"/>
         <source>The file you are trying to download already exists in your download directory. Overwrite it?</source>
         <translation type="unfinished">Die Datei existiert bereits in Ihrem Download-Verzeichnis. Soll sie überschrieben werden?</translation>
     </message>
     <message>
-        <location filename="../QwcFileSearchWidget.cpp" line="79"/>
+        <location filename="../QwcFileSearchWidget.cpp" line="60"/>
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
     <message>
-        <location filename="../QwcFileSearchWidget.cpp" line="81"/>
+        <location filename="../QwcFileSearchWidget.cpp" line="62"/>
         <source>Overwrite</source>
         <translation type="unfinished">Überschreiben</translation>
     </message>
@@ -1102,61 +738,7 @@ Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
     </message>
 </context>
 <context>
-    <name>QwcFiletransferDelegate</name>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="93"/>
-        <source>%1/sec</source>
-        <translation type="unfinished">%1/Sek</translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="96"/>
-        <source>Queued locally</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="100"/>
-        <source>Completed - %1 items - %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="101"/>
-        <source>Completed - %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="105"/>
-        <source>Indexing files and directories...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="106"/>
-        <source>Requesting transfer slot...</source>
-        <translation type="unfinished">Transfer anfragen...</translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="109"/>
-        <source>Queued (at position %1)</source>
-        <translation type="unfinished">Wartet (an Position %1)</translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="142"/>
-        <source>%1 (%2 items) of %3 (%4 items) completed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcFiletransferDelegate.cpp" line="149"/>
-        <source>%1 of %2 completed (%3%) %4</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QwcFiletransferWidget</name>
-    <message>
-        <location filename="../QwcFiletransferWidget.cpp" line="37"/>
-        <location filename="../QwcFiletransferWidget.cpp" line="38"/>
-        <source>file://%1</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../QwcFiletransferWidget.ui" line="14"/>
         <source>Transfers</source>
@@ -1199,13 +781,11 @@ Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
 <context>
     <name>QwcNewsWidget</name>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="64"/>
         <location filename="../QwcNewsWidget.cpp" line="83"/>
         <source>%1/%2/%3 at %4 GTM %5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="69"/>
         <location filename="../QwcNewsWidget.cpp" line="92"/>
         <source>From %1 (%2):
 </source>
@@ -1213,7 +793,6 @@ Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
 </translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="72"/>
         <location filename="../QwcNewsWidget.cpp" line="95"/>
         <source>%1
 
@@ -1377,7 +956,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Neues Lesezeichen</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="502"/>
         <location filename="../QwcPreferencesWidget.cpp" line="550"/>
         <source>(none)</source>
         <translation type="unfinished">(kein)</translation>
@@ -1425,12 +1003,6 @@ max Größe 32x32 Pixel</translation>
         <translation type="unfinished">Standard</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="184"/>
-        <location filename="../QwcPreferencesWidget.ui" line="480"/>
-        <location filename="../QwcPreferencesWidget.ui" line="487"/>
-        <location filename="../QwcPreferencesWidget.ui" line="629"/>
-        <location filename="../QwcPreferencesWidget.ui" line="695"/>
-        <location filename="../QwcPreferencesWidget.ui" line="803"/>
         <location filename="../QwcPreferencesWidget.ui" line="1484"/>
         <source>Set...</source>
         <translation type="unfinished">Auswählen...</translation>
@@ -1448,14 +1020,11 @@ max Größe 32x32 Pixel</translation>
         <translation type="unfinished">Erscheinungsbild</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="246"/>
         <location filename="../QwcPreferencesWidget.ui" line="1042"/>
         <source>Chat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="267"/>
-        <location filename="../QwcPreferencesWidget.ui" line="531"/>
         <location filename="../QwcPreferencesWidget.ui" line="739"/>
         <source>Text:</source>
         <translation type="unfinished">Text:</translation>
@@ -1481,8 +1050,6 @@ max Größe 32x32 Pixel</translation>
         <translation type="unfinished">Icon Größe:</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="328"/>
-        <location filename="../QwcPreferencesWidget.ui" line="570"/>
         <location filename="../QwcPreferencesWidget.ui" line="768"/>
         <source>Background:</source>
         <translation type="unfinished">Hintergrund:</translation>
@@ -1533,7 +1100,6 @@ max Größe 32x32 Pixel</translation>
         <translation type="unfinished">Nachrichten</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="657"/>
         <location filename="../QwcPreferencesWidget.ui" line="1453"/>
         <source>Files</source>
         <translation type="unfinished">Dateien</translation>
@@ -1544,7 +1110,6 @@ max Größe 32x32 Pixel</translation>
         <translation type="unfinished">Dateien:</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="685"/>
         <location filename="../QwcPreferencesWidget.ui" line="845"/>
         <source>Use Alternating Row Background</source>
         <translation type="unfinished">Abwelchselnde Hintergrundfarbe verwenden</translation>
@@ -1560,7 +1125,6 @@ max Größe 32x32 Pixel</translation>
         <translation type="unfinished">Vorschauschrift:</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="826"/>
         <location filename="../QwcPreferencesWidget.ui" line="1536"/>
         <source>Trackers</source>
         <translation type="unfinished">Tracker</translation>
@@ -1579,7 +1143,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="901"/>
         <location filename="../QwcPreferencesWidget.ui" line="1556"/>
         <source>New</source>
         <translation type="unfinished">Neu</translation>
@@ -1593,7 +1156,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="919"/>
         <location filename="../QwcPreferencesWidget.ui" line="1566"/>
         <source>Delete</source>
         <translation type="unfinished">Löschen</translation>
@@ -1742,27 +1304,27 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QwcPrivateMessager</name>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="232"/>
+        <location filename="../QwcPrivateMessager.cpp" line="236"/>
         <source>Save message log as HTML file</source>
         <translation>Nachrichtenprotokoll als HTML-Datei speichern</translation>
     </message>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="232"/>
+        <location filename="../QwcPrivateMessager.cpp" line="236"/>
         <source>HTML file (*.html)</source>
         <translation>HTML-Datei (*.html)</translation>
     </message>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="237"/>
+        <location filename="../QwcPrivateMessager.cpp" line="241"/>
         <source>Unable to save message log</source>
         <translation>Nachrichtenprotokoll konnte nicht gespeichert werden</translation>
     </message>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="237"/>
+        <location filename="../QwcPrivateMessager.cpp" line="242"/>
         <source>An error occourred while attempting to write the message log file (%1)</source>
         <translation>Ein Fehler ist aufgetreten während das Nachrichtenprotokoll gespeichert werden sollte (%1)</translation>
     </message>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="278"/>
+        <location filename="../QwcPrivateMessager.cpp" line="284"/>
         <source>%1 [user left]</source>
         <translation>$1 [abgemeldet]</translation>
     </message>
@@ -1810,12 +1372,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Beschreibung:</translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="119"/>
-        <location filename="../QwcServerInfoWidget.ui" line="157"/>
-        <location filename="../QwcServerInfoWidget.ui" line="195"/>
-        <location filename="../QwcServerInfoWidget.ui" line="233"/>
-        <location filename="../QwcServerInfoWidget.ui" line="271"/>
-        <location filename="../QwcServerInfoWidget.ui" line="347"/>
         <location filename="../QwcServerInfoWidget.ui" line="385"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
@@ -1864,297 +1420,285 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QwcSession</name>
     <message>
-        <location filename="../QwcSession.cpp" line="315"/>
-        <location filename="../QwcSession.cpp" line="319"/>
+        <location filename="../QwcSession.cpp" line="389"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation type="unfinished">Thema: %1
 Gesetzt von: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="426"/>
+        <location filename="../QwcSession.cpp" line="414"/>
         <source>Private Chat Invitation</source>
         <translation type="unfinished">Private Chateinladung</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="427"/>
+        <location filename="../QwcSession.cpp" line="415"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation type="unfinished">%1 hat Sie zu einem privaten Chat eingeladen.
 Klicken Sie &lt;Beitreten&gt; um diesem Chat mit %1 beizutreten.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="429"/>
+        <location filename="../QwcSession.cpp" line="417"/>
         <source>Ignore</source>
         <translation type="unfinished">Ignorieren</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="430"/>
+        <location filename="../QwcSession.cpp" line="418"/>
         <source>Reject</source>
         <translation type="unfinished">Ablehnen</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="431"/>
+        <location filename="../QwcSession.cpp" line="419"/>
         <source>Join</source>
         <translation type="unfinished">Beitreten</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="460"/>
+        <location filename="../QwcSession.cpp" line="448"/>
         <source>Private Chat</source>
         <translation type="unfinished">Privatchat</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="469"/>
+        <location filename="../QwcSession.cpp" line="457"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished">Verbunden. Sitzung starten...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="500"/>
+        <location filename="../QwcSession.cpp" line="79"/>
         <source>Connection Refused</source>
         <translation type="unfinished">Verbindung abgelehnt</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="500"/>
+        <location filename="../QwcSession.cpp" line="81"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished">Die Verbindung wurde von der Gegenstelle abgelehnt. Normalerweise bedeutet dies, dass auf der Gegenseite kein Wired-Dienst läuft.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="504"/>
+        <location filename="../QwcSession.cpp" line="84"/>
         <source>Host not found</source>
         <translation>Host nicht gefunden</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="504"/>
+        <location filename="../QwcSession.cpp" line="85"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation>Konnte nicht zur Gegenstelle verbinden weil die Name nicht aufgelöst werden konnte.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="589"/>
+        <location filename="../QwcSession.cpp" line="47"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation type="unfinished">Ein unbekannter Fehler ist aufgetreten. Der Fehlercode lautet %1.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="591"/>
+        <location filename="../QwcSession.cpp" line="49"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation type="unfinished">Befehl fehlgeschlagen. Ein undefinierter Fehler ist auf dem Server aufgetreten.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="592"/>
+        <location filename="../QwcSession.cpp" line="50"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation type="unfinished">Befehl nicht erkannt. Qwired hat einen Befehl geschickt, welcher vom Server nicht verstanden wurde.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="593"/>
+        <location filename="../QwcSession.cpp" line="51"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation type="unfinished">Befehl nicht implementiert. Der letzte gesendete Befehl ist nicht vom Server implementiert.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="594"/>
+        <location filename="../QwcSession.cpp" line="52"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation type="unfinished">Syntaxfehler. Der letzte Befehl wurde nicht korrekt formatiert.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="595"/>
+        <location filename="../QwcSession.cpp" line="53"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation type="unfinished">Anmeldung fehlgeschlagen. Der Benutzername oder das Passwort wurde vom Server abgelehnt.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="596"/>
+        <location filename="../QwcSession.cpp" line="54"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation type="unfinished">Verbannt. Die Verbindung wurde vom Server abgelehnt, da Sie von einem Administrator des Servers verbannt wurden.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="597"/>
+        <location filename="../QwcSession.cpp" line="55"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation type="unfinished">Client nicht gefunden. Der Server konnte den Zielclient nicht finden.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="598"/>
+        <location filename="../QwcSession.cpp" line="56"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation type="unfinished">Konto nicht gefunden. Der Server konnte das gewünschte Konto nicht finden.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="599"/>
+        <location filename="../QwcSession.cpp" line="57"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation type="unfinished">Konto existiert bereits. Das Konto konnte nicht erstellt werden, da ein anderes Konto mit dem selben Namen bereits existiert.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="600"/>
+        <location filename="../QwcSession.cpp" line="58"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation type="unfinished">Benutzer kann nicht getrennt werden.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="601"/>
+        <location filename="../QwcSession.cpp" line="59"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation type="unfinished">Zugang verweigert. Sie haben nicht genügend Zugriffsrechte um den letzten Befehl auszuführen.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="602"/>
+        <location filename="../QwcSession.cpp" line="60"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation type="unfinished">Datei oder Verzeichnis nicht gefunden. Der letzte Befehl ist fehlgeschlagen, da die gewünschte Datei oder Verzeichnis nicht gefunden werden konnte.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="603"/>
+        <location filename="../QwcSession.cpp" line="61"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation type="unfinished">Der letzte Befehl ist fehlgeschlagen, da die Datei oder das Verzeichnis bereits existiert.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="604"/>
+        <location filename="../QwcSession.cpp" line="62"/>
         <source>Checksum Mismatch.</source>
         <translation type="unfinished">Checksummen stimmen nicht überein.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="605"/>
+        <location filename="../QwcSession.cpp" line="63"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation type="unfinished">Warteschlagenlimit überschritten. Der letzte Befehl konnte nicht ausgeführt werden, da die Warteschlange auf dem Server voll ist.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="612"/>
+        <location filename="../QwcSession.cpp" line="68"/>
         <source>Server Error</source>
         <translation type="unfinished">Serverfehler</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="621"/>
+        <location filename="../QwcSession.cpp" line="551"/>
         <source>Show/Hide</source>
         <translation type="unfinished">Zeigen/Verstecken</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="645"/>
+        <location filename="../QwcSession.cpp" line="575"/>
         <source>Connected</source>
         <translation type="unfinished">Verbunden</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="646"/>
+        <location filename="../QwcSession.cpp" line="576"/>
         <source>Disconnected</source>
         <translation type="unfinished">Getrennt</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="647"/>
+        <location filename="../QwcSession.cpp" line="577"/>
         <source>Server Error: %1</source>
         <translation type="unfinished">Serverfehler: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="648"/>
+        <location filename="../QwcSession.cpp" line="578"/>
         <source>%1 joined</source>
         <translation type="unfinished">%1 ist angemeldet</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="649"/>
+        <location filename="../QwcSession.cpp" line="579"/>
         <source>%1 is now known as %2</source>
         <translation type="unfinished">%1 ist jetzt bekannt als %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="650"/>
+        <location filename="../QwcSession.cpp" line="580"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation type="unfinished">%1 ändert Status zu &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="651"/>
+        <location filename="../QwcSession.cpp" line="581"/>
         <source>%1 left</source>
         <translation type="unfinished">%1 hat sich abgemeldet</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="652"/>
+        <location filename="../QwcSession.cpp" line="582"/>
         <source>Chat from %1:
 %2</source>
         <translation type="unfinished">Chat von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="653"/>
+        <location filename="../QwcSession.cpp" line="583"/>
         <source>Message from %1:
 %2</source>
         <translation type="unfinished">Private Nachricht von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="654"/>
+        <location filename="../QwcSession.cpp" line="584"/>
         <source>News Posted from %1:
 %2</source>
         <translation type="unfinished">Neuigkeiten von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="655"/>
+        <location filename="../QwcSession.cpp" line="585"/>
         <source>Broadcast from %1:
 %2</source>
         <translation type="unfinished">Rundsendung von %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="656"/>
+        <location filename="../QwcSession.cpp" line="586"/>
         <source>Transfer Started: %1</source>
         <translation type="unfinished">Transfer gestartet: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="657"/>
+        <location filename="../QwcSession.cpp" line="587"/>
         <source>Transfer Finished: %1</source>
         <translation type="unfinished">Transfer abgeschlossen: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="739"/>
+        <location filename="../QwcSession.cpp" line="669"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation type="unfinished">Der Dateitransfer ist aufgrund eines Fehlers unterbrochen worden. Fehlerkennung: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="749"/>
+        <location filename="../QwcSession.cpp" line="679"/>
         <source>Receiving user list...</source>
         <translation type="unfinished">Benutzerliste empfangen...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="825"/>
+        <location filename="../QwcSession.cpp" line="761"/>
         <source>Accounts</source>
         <translation type="unfinished">Benutzerkonten</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="880"/>
+        <location filename="../QwcSession.cpp" line="816"/>
         <source>News</source>
         <translation type="unfinished">Neuigkeiten</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="898"/>
+        <location filename="../QwcSession.cpp" line="834"/>
         <source>Server Info</source>
         <translation type="unfinished">Serverinformationen</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="927"/>
+        <location filename="../QwcSession.cpp" line="863"/>
         <source>Files</source>
         <translation type="unfinished">Dateien</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="979"/>
+        <location filename="../QwcSession.cpp" line="915"/>
         <source>File Search</source>
         <translation type="unfinished">Suche</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="998"/>
+        <location filename="../QwcSession.cpp" line="934"/>
         <source>Transfers</source>
         <translation type="unfinished">Übertragungen</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1017"/>
-        <source>File Transfer Error</source>
-        <translation type="unfinished">Dateiübertragungsfehler</translation>
-    </message>
-    <message>
-        <location filename="../QwcSession.cpp" line="1018"/>
-        <source>The transfer of file &apos;%1&apos; could not be completed because of an error.
-Possibly the file transfer TCP port is blocked by a firewall or the server is configured incorrectly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcSession.cpp" line="1083"/>
+        <location filename="../QwcSession.cpp" line="1042"/>
         <source>Folder Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1084"/>
+        <location filename="../QwcSession.cpp" line="1044"/>
         <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
 Do you want to begin the transfer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1099"/>
+        <location filename="../QwcSession.cpp" line="1058"/>
         <source>Private Messages</source>
         <translation type="unfinished">Nachrichten</translation>
     </message>
@@ -2170,12 +1714,7 @@ Do you want to begin the transfer?</source>
 <context>
     <name>QwcSocket</name>
     <message>
-        <location filename="../QwcSocket.cpp" line="206"/>
-        <source>(invalid user)</source>
-        <translation>(ungültiger Benutzer)</translation>
-    </message>
-    <message>
-        <location filename="../QwcSocket.cpp" line="235"/>
+        <location filename="../QwcSocket.cpp" line="768"/>
         <source>kittehday nait fevrar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2183,87 +1722,77 @@ Do you want to begin the transfer?</source>
 <context>
     <name>QwcTrackerlistWidget</name>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="28"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="30"/>
         <source>Name</source>
         <translation type="unfinished">Name</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="28"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="30"/>
         <source>Users</source>
         <translation type="unfinished">Benutzer</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="28"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="30"/>
         <source>Bandwidth</source>
         <translation type="unfinished">Bandbreite</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="28"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="30"/>
         <source>Guest</source>
         <translation type="unfinished">Gast</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="29"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="31"/>
         <source>Download</source>
         <translation type="unfinished">Download</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="29"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="31"/>
         <source>Files</source>
         <translation type="unfinished">Dateien</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="29"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="31"/>
         <source>Size</source>
         <translation type="unfinished">Größe</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="29"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="31"/>
         <source>Description</source>
         <translation type="unfinished">Beschreibung</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="29"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="31"/>
         <source>Address</source>
         <translation type="unfinished">Adresse</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="62"/>
-        <source>Refreshing list...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="77"/>
         <location filename="../QwcTrackerlistWidget.ui" line="118"/>
         <source>%1 servers registered with tracker</source>
         <translation type="unfinished">%1 Server mit Tracker registriert</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="90"/>
-        <location filename="../QwcTrackerlistWidget.cpp" line="102"/>
-        <location filename="../QwcTrackerlistWidget.cpp" line="106"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="109"/>
         <source>n/a</source>
         <translation type="unfinished">n/v</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="94"/>
-        <location filename="../QwcTrackerlistWidget.cpp" line="98"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="101"/>
         <source>Yes</source>
         <translation type="unfinished">Ja</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="94"/>
-        <location filename="../QwcTrackerlistWidget.cpp" line="98"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="101"/>
         <source>No</source>
         <translation type="unfinished">Nein</translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="133"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="136"/>
         <source>Connection Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcTrackerlistWidget.cpp" line="133"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="136"/>
         <source>A connection error occured while trying to connect to the tracker.
 Reason: %1</source>
         <translation type="unfinished"></translation>
@@ -2287,12 +1816,12 @@ Reason: %1</source>
 <context>
     <name>QwcUserInfoWidget</name>
     <message>
-        <location filename="../QwcUserInfoWidget.cpp" line="57"/>
+        <location filename="../QwcUserInfoWidget.cpp" line="37"/>
         <source>User Information: %1</source>
         <translation type="unfinished">Benutzerinformation: %1</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.cpp" line="111"/>
+        <location filename="../QwcUserInfoWidget.cpp" line="92"/>
         <source>%1 MB of %2 MB at %3 KiB/sec</source>
         <translation type="unfinished">%1 MB von %2 MB bei %3 KiB/Sek</translation>
     </message>
@@ -2372,8 +1901,6 @@ Reason: %1</source>
         <translation type="unfinished">Cipher:</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="235"/>
-        <location filename="../QwcUserInfoWidget.ui" line="258"/>
         <location filename="../QwcUserInfoWidget.ui" line="281"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
@@ -2389,7 +1916,6 @@ Reason: %1</source>
         <translation type="unfinished">Letzte Aktivität:</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="299"/>
         <location filename="../QwcUserInfoWidget.ui" line="317"/>
         <source>Downloads</source>
         <translation type="unfinished">Downloads</translation>
@@ -2398,1036 +1924,6 @@ Reason: %1</source>
         <location filename="../QwcUserInfoWidget.ui" line="331"/>
         <source>Uploads</source>
         <translation type="unfinished">Uploads</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetAbout</name>
-    <message>
-        <source>About Qwired</source>
-        <translation type="obsolete">Über Qwired</translation>
-    </message>
-    <message>
-        <source>&lt;h2&gt;Qwired&lt;/h2&gt;&lt;p&gt;A free Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.&lt;/p&gt;&lt;p&gt;Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.&lt;/p&gt;&lt;p&gt;Copyright (c) Bastian Bense, Neo Software.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;h2&gt;Qwired&lt;/h2&gt;&lt;p&gt;Ein freier Wired-Client für Linux, Windows und Mac OS X geschrieben in C++ mit dem Qt4-Framework.&lt;/p&gt;&lt;p&gt;Qwired ist verfügbar unter den Bedingungen der GPL (General Public License) Version 2 oder später. Siehe Quellcode für mehr Informationen.&lt;/p&gt;&lt;p&gt;Copyright (c) Bastian Bense, Neo Software.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Donate...</source>
-        <translation type="obsolete">Unterstützen...</translation>
-    </message>
-    <message>
-        <source>Go to Website...</source>
-        <translation type="obsolete">Zur Website...</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetAboutQwired</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetAccounts</name>
-    <message>
-        <source>Accounts</source>
-        <translation type="obsolete">Benutzerkonten</translation>
-    </message>
-    <message>
-        <source>New...</source>
-        <translation type="obsolete">Neu...</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation type="obsolete">Typ:</translation>
-    </message>
-    <message>
-        <source>Account</source>
-        <translation type="obsolete">Konto</translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="obsolete">Gruppe</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Name:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Passwort:</translation>
-    </message>
-    <message>
-        <source>Group:</source>
-        <translation type="obsolete">Gruppe:</translation>
-    </message>
-    <message>
-        <source>Basic</source>
-        <translation type="obsolete">Generell</translation>
-    </message>
-    <message>
-        <source>Get User Info</source>
-        <translation type="obsolete">Benutzerinfo abrufen</translation>
-    </message>
-    <message>
-        <source>Post News</source>
-        <translation type="obsolete">Neuigkeiten Veröffentlichen</translation>
-    </message>
-    <message>
-        <source>Broadcast</source>
-        <translation type="obsolete">Broadcast-Nachricht senden</translation>
-    </message>
-    <message>
-        <source>Clear News</source>
-        <translation type="obsolete">Neuigkeiten löschen</translation>
-    </message>
-    <message>
-        <source>Set Topic</source>
-        <translation type="obsolete">Chat-Thema setzen</translation>
-    </message>
-    <message>
-        <source>Files &amp;&amp; Folders</source>
-        <translation type="obsolete">Dateien &amp;&amp; Ordner</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation type="obsolete">Download</translation>
-    </message>
-    <message>
-        <source>Create Folders</source>
-        <translation type="obsolete">Ordner erstellen</translation>
-    </message>
-    <message>
-        <source>Move &amp;&amp; Change</source>
-        <translation type="obsolete">Bewegen &amp;&amp; Verändern</translation>
-    </message>
-    <message>
-        <source>Upload</source>
-        <translation type="obsolete">Hochladen</translation>
-    </message>
-    <message>
-        <source>Upload Anywhere</source>
-        <translation type="obsolete">Überall hochladen</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Löschen</translation>
-    </message>
-    <message>
-        <source>View Drop Boxes</source>
-        <translation type="obsolete">Drop Boxes sehen</translation>
-    </message>
-    <message>
-        <source>Users &amp;&amp; Groups</source>
-        <translation type="obsolete">Benutzer &amp;&amp; Gruppen</translation>
-    </message>
-    <message>
-        <source>Create Accounts</source>
-        <translation type="obsolete">Benutzerkonten erstellen</translation>
-    </message>
-    <message>
-        <source>Kick Users</source>
-        <translation type="obsolete">Benutzer trennen</translation>
-    </message>
-    <message>
-        <source>Edit Accounts</source>
-        <translation type="obsolete">Benutzerkonten ändern</translation>
-    </message>
-    <message>
-        <source>Ban Users</source>
-        <translation type="obsolete">Benutzer verbannen</translation>
-    </message>
-    <message>
-        <source>Delete Accounts</source>
-        <translation type="obsolete">Benutzerkonten löschen</translation>
-    </message>
-    <message>
-        <source>Cannot Be Kicked</source>
-        <translation type="obsolete">Nicht trennbar</translation>
-    </message>
-    <message>
-        <source>Elevate Privileges</source>
-        <translation type="obsolete">Rechte anheben</translation>
-    </message>
-    <message>
-        <source>Limits</source>
-        <translation type="obsolete">Limitationen</translation>
-    </message>
-    <message>
-        <source>Download:</source>
-        <translation type="obsolete">Download:</translation>
-    </message>
-    <message>
-        <source>KB/s</source>
-        <translation type="obsolete">KB/s</translation>
-    </message>
-    <message>
-        <source>Upoad:</source>
-        <translation type="obsolete">Upload:</translation>
-    </message>
-    <message>
-        <source>Apply Changes</source>
-        <translation type="obsolete">Anwenden</translation>
-    </message>
-    <message>
-        <source>No Group</source>
-        <translation type="obsolete">Keine Gruppe</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="obsolete">Erstellen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Abbrechen</translation>
-    </message>
-    <message>
-        <source>Delete Account or Group</source>
-        <translation type="obsolete">Benutzerkonto oder Gruppe löschen</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the current account or group? This can not be undone.</source>
-        <translation type="obsolete">Sind Sie sicher, dass Sie das gewählte Konto oder die Gruppe löschen wollen? Dies kann nicht rückgänig gemacht werden.</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetConnect</name>
-    <message>
-        <source>Connect...</source>
-        <translation type="obsolete">Verbinden...</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresse:</translation>
-    </message>
-    <message>
-        <source>Login:</source>
-        <translation type="obsolete">Login:</translation>
-    </message>
-    <message>
-        <source>Pasword:</source>
-        <translation type="obsolete">Passwort:</translation>
-    </message>
-    <message>
-        <source>Connect</source>
-        <translation type="obsolete">Verbinden</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation type="obsolete">Favouriten</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Abbrechen</translation>
-    </message>
-    <message>
-        <source>Ready.</source>
-        <translation type="obsolete">Bereit.</translation>
-    </message>
-    <message>
-        <source>Connecting...</source>
-        <translation type="obsolete">Verbinden...</translation>
-    </message>
-    <message>
-        <source>Waiting for reconnect...</source>
-        <translation type="obsolete">Warten auf wiederverbinden...</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetFileBrowser</name>
-    <message>
-        <source>Files</source>
-        <translation type="obsolete">Dateien</translation>
-    </message>
-    <message>
-        <source>0 items, 0 bytes total, 0 GB available</source>
-        <translation type="obsolete">0 Objekte, 0 Bytes gesamt, 0 GB verfügbar</translation>
-    </message>
-    <message>
-        <source>Files - %1</source>
-        <translation type="obsolete">Dateien - %1</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation type="obsolete">Zurück</translation>
-    </message>
-    <message>
-        <source>Get Info</source>
-        <translation type="obsolete">Informationen</translation>
-    </message>
-    <message>
-        <source>New Folder...</source>
-        <translation type="obsolete">Neuer Ordner...</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Aktualisieren</translation>
-    </message>
-    <message>
-        <source>Delete...</source>
-        <translation type="obsolete">Löschen...</translation>
-    </message>
-    <message>
-        <source>Upload File</source>
-        <translation type="obsolete">Datei Hochladen</translation>
-    </message>
-    <message>
-        <source>Delete File</source>
-        <translation type="obsolete">Datei Löschen</translation>
-    </message>
-    <message>
-        <source>Create Folder</source>
-        <translation type="obsolete">Neuer Ordner</translation>
-    </message>
-    <message>
-        <source>Enter a name for the new folder:</source>
-        <translation type="obsolete">Geben Sie einen Namen für den meuen Ordner ein:</translation>
-    </message>
-    <message>
-        <source>File Exists</source>
-        <translation type="obsolete">Datei existiert</translation>
-    </message>
-    <message>
-        <source>%1 items, %2 total, %3 available</source>
-        <translation type="obsolete">%1 Objekte, %2 gesamt, %3 verfügbar</translation>
-    </message>
-    <message numerus="yes">
-        <source>Are you sure you want to delete the selected %n item(s)?
-This can not be undone!</source>
-        <translation type="obsolete">
-            <numerusform>Soll das ausgewählte Element wirklich gelöscht werden?
-Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
-            <numerusform>Sollen die ausgewählten %n Elemente wirklich gelöscht werden?
-Dieser Vorgang kann nicht rückgängig gemacht werden!</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation type="obsolete">Download</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetFileInfo</name>
-    <message>
-        <source>File Information</source>
-        <translation type="obsolete">Dateiinformationen</translation>
-    </message>
-    <message>
-        <source>Kind:</source>
-        <translation type="obsolete">Dateityp:</translation>
-    </message>
-    <message>
-        <source>file</source>
-        <translation type="obsolete">Datei</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="obsolete">Größe:</translation>
-    </message>
-    <message>
-        <source>Where:</source>
-        <translation type="obsolete">Ort:</translation>
-    </message>
-    <message>
-        <source>Created:</source>
-        <translation type="obsolete">Erstellt:</translation>
-    </message>
-    <message>
-        <source>Modified:</source>
-        <translation type="obsolete">Geändert:</translation>
-    </message>
-    <message>
-        <source>Checksum:</source>
-        <translation type="obsolete">Checksumme:</translation>
-    </message>
-    <message>
-        <source>Comments:</source>
-        <translation type="obsolete">Kommentar:</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetFileSearch</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Form</translation>
-    </message>
-    <message>
-        <source>Search:</source>
-        <translation type="obsolete">Suche:</translation>
-    </message>
-    <message>
-        <source>Reveal</source>
-        <translation type="obsolete">Zeigen</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation type="obsolete">Download</translation>
-    </message>
-    <message>
-        <source>File Exists</source>
-        <translation type="obsolete">Datei Existiert</translation>
-    </message>
-    <message>
-        <source>The file you are trying to download already exists in your download directory. Overwrite it?</source>
-        <translation type="obsolete">Die Datei existiert bereits in Ihrem Download-Verzeichnis. Soll sie überschrieben werden?</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Abbrechen</translation>
-    </message>
-    <message>
-        <source>Overwrite</source>
-        <translation type="obsolete">Überschreiben</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetForum</name>
-    <message>
-        <source>Topic: (none)</source>
-        <translation type="obsolete">Thema: (keins)</translation>
-    </message>
-    <message>
-        <source>Kick</source>
-        <translation type="obsolete">Trennen</translation>
-    </message>
-    <message>
-        <source>You are about to disconnect &apos;%1&apos;.
-Please enter a reason and press OK.</source>
-        <translation type="obsolete">Sie sind im Begriff %1 vom Server zu trennen.
-Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
-    </message>
-    <message>
-        <source>You are about to ban &apos;%1&apos;.
-Please enter a reason and press OK.</source>
-        <translation type="obsolete">Sie sind im Begriff %1 vom Server zu verbannen.
-Geben Sie den Grund ein und klicken Sie &lt;OK&gt;.</translation>
-    </message>
-    <message>
-        <source>Send a private message</source>
-        <translation type="obsolete">Private Nachricht senden</translation>
-    </message>
-    <message>
-        <source>Start a private chat</source>
-        <translation type="obsolete">Privaten Chat starten</translation>
-    </message>
-    <message>
-        <source>Show information about user</source>
-        <translation type="obsolete">Informationen über Benutzer anzeigen</translation>
-    </message>
-    <message>
-        <source>Ban from server</source>
-        <translation type="obsolete">Vom Server verbannen</translation>
-    </message>
-    <message>
-        <source>Kick from server</source>
-        <translation type="obsolete">Vom Server trennen</translation>
-    </message>
-    <message>
-        <source>Invite to chat...</source>
-        <translation type="obsolete">Zum Chat einladen...</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetNews</name>
-    <message>
-        <source>News</source>
-        <translation type="obsolete">Neuigkeiten</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Aktualisieren</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Löschen</translation>
-    </message>
-    <message>
-        <source>Post...</source>
-        <translation type="obsolete">Veröffentlichen...</translation>
-    </message>
-    <message>
-        <source>From %1 (%2):
-</source>
-        <translation type="obsolete">Von %1 (%2):
-</translation>
-    </message>
-    <message>
-        <source>%1
-
-</source>
-        <translation type="obsolete">%1
-
-</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetNewsPost</name>
-    <message>
-        <source>Post News</source>
-        <translation type="obsolete">Neuigkeiten Veröffentlichen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Abbrechen</translation>
-    </message>
-    <message>
-        <source>Post</source>
-        <translation type="obsolete">Veröffentlichen</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetPrefs</name>
-    <message>
-        <source>Preferences</source>
-        <translation type="obsolete">Voreinstellungen</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">Generell</translation>
-    </message>
-    <message>
-        <source>Nickname:</source>
-        <translation type="obsolete">Spitzname:</translation>
-    </message>
-    <message>
-        <source>Status:</source>
-        <translation type="obsolete">Status:</translation>
-    </message>
-    <message>
-        <source>Icon:</source>
-        <translation type="obsolete">Icon:</translation>
-    </message>
-    <message>
-        <source>Drag&amp;Drop any Image
-max size 32x32 pixels</source>
-        <translation type="obsolete">Drag&amp;Drop beliebiges Bild
-max Größe 32x32 Pixel</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="obsolete">Standard</translation>
-    </message>
-    <message>
-        <source>Set...</source>
-        <translation type="obsolete">Auswählen...</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation type="obsolete">Erscheinungsbild</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation type="obsolete">Favouriten</translation>
-    </message>
-    <message>
-        <source>Files</source>
-        <translation type="obsolete">Dateien</translation>
-    </message>
-    <message>
-        <source>Download Folder:</source>
-        <translation type="obsolete">Downloadverzeichnis:</translation>
-    </message>
-    <message>
-        <source>Transfers:</source>
-        <translation type="obsolete">Übertragungen:</translation>
-    </message>
-    <message>
-        <source>Queue Transfers</source>
-        <translation type="obsolete">Übertragungen in lokale Warteschlange stellen</translation>
-    </message>
-    <message>
-        <source>Trackers</source>
-        <translation type="obsolete">Tracker</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Neu</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Löschen</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Name:</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresse:</translation>
-    </message>
-    <message>
-        <source>Login:</source>
-        <translation type="obsolete">Login:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Passwort:</translation>
-    </message>
-    <message>
-        <source>Auto-Connect at Startup</source>
-        <translation type="obsolete">Automatisch Verbinden beim Start</translation>
-    </message>
-    <message>
-        <source>Select Icon</source>
-        <translation type="obsolete">Icon auswählen</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.jpg)</source>
-        <translation type="obsolete">Bilder (*.png *.xpm *.jpg)</translation>
-    </message>
-    <message>
-        <source>Select Download Directory</source>
-        <translation type="obsolete">Download-Verzeichnis auswählen</translation>
-    </message>
-    <message>
-        <source>Text:</source>
-        <translation type="obsolete">Text:</translation>
-    </message>
-    <message>
-        <source>URLs:</source>
-        <translation type="obsolete">URLs:</translation>
-    </message>
-    <message>
-        <source>Chat Font:</source>
-        <translation type="obsolete">Chat:</translation>
-    </message>
-    <message>
-        <source>User List Font:</source>
-        <translation type="obsolete">Benutzerliste:</translation>
-    </message>
-    <message>
-        <source>Icon Size:</source>
-        <translation type="obsolete">Icon Größe:</translation>
-    </message>
-    <message>
-        <source>Background:</source>
-        <translation type="obsolete">Hintergrund:</translation>
-    </message>
-    <message>
-        <source>Events:</source>
-        <translation type="obsolete">Ereignisse:</translation>
-    </message>
-    <message>
-        <source>Large</source>
-        <translation type="obsolete">Groß</translation>
-    </message>
-    <message>
-        <source>Alternating Row Background</source>
-        <translation type="obsolete">Abwechselnde Hintergrundfarbe</translation>
-    </message>
-    <message>
-        <source>Messages</source>
-        <translation type="obsolete">Nachrichten</translation>
-    </message>
-    <message>
-        <source>News</source>
-        <translation type="obsolete">Neuigkeiten</translation>
-    </message>
-    <message>
-        <source>Titles:</source>
-        <translation type="obsolete">Titel:</translation>
-    </message>
-    <message>
-        <source>News Font:</source>
-        <translation type="obsolete">News:</translation>
-    </message>
-    <message>
-        <source>Files Font:</source>
-        <translation type="obsolete">Dateien:</translation>
-    </message>
-    <message>
-        <source>Use Alternating Row Background</source>
-        <translation type="obsolete">Abwelchselnde Hintergrundfarbe verwenden</translation>
-    </message>
-    <message>
-        <source>Preview</source>
-        <translation type="obsolete">Vorschau</translation>
-    </message>
-    <message>
-        <source>Preview Font:</source>
-        <translation type="obsolete">Vorschauschrift:</translation>
-    </message>
-    <message>
-        <source>Encrypt Transfers (slower on local networks)</source>
-        <translation type="obsolete">Dateitransfers Verschlüsseln (langsamer im lokalen Netzwerk)</translation>
-    </message>
-    <message>
-        <source>Always Open Folders In New Windows</source>
-        <translation type="obsolete">Ordner immer in neuem Fenster öffnen</translation>
-    </message>
-    <message>
-        <source>Invalid File</source>
-        <translation type="obsolete">Ungültige Datei</translation>
-    </message>
-    <message>
-        <source>Could not open the selected image.</source>
-        <translation type="obsolete">Konnte ausgewähltes Bild nicht öffnen.</translation>
-    </message>
-    <message>
-        <source>Small</source>
-        <translation type="obsolete">Klein</translation>
-    </message>
-    <message>
-        <source>Tracker Settings</source>
-        <translation type="obsolete">Tracker Einstellungen</translation>
-    </message>
-    <message>
-        <source>Tracker Name:</source>
-        <translation type="obsolete">Tracker-Name:</translation>
-    </message>
-    <message>
-        <source>Tracker Address:</source>
-        <translation type="obsolete">Tracker-Adresse:</translation>
-    </message>
-    <message>
-        <source>New Tracker</source>
-        <translation type="obsolete">Neuer Tracker</translation>
-    </message>
-    <message>
-        <source>my.tracker.com</source>
-        <translation type="obsolete">mein.tracker.de</translation>
-    </message>
-    <message>
-        <source>Application Language:
-(requires restart)</source>
-        <translation type="obsolete">Programmsprache:
-(benötigt Neustart)</translation>
-    </message>
-    <message>
-        <source>Automatic (default)</source>
-        <translation type="obsolete">Automatisch (Standard)</translation>
-    </message>
-    <message>
-        <source>Style:</source>
-        <translation type="obsolete">Stil:</translation>
-    </message>
-    <message>
-        <source>Qwired</source>
-        <translation type="obsolete">Qwired</translation>
-    </message>
-    <message>
-        <source>IRC</source>
-        <translation type="obsolete">IRC-Stil</translation>
-    </message>
-    <message>
-        <source>Settings:</source>
-        <translation type="obsolete">Einstellungen:</translation>
-    </message>
-    <message>
-        <source>Timestamp Every Line</source>
-        <translation type="obsolete">Zeitstempel für jede Chat-Zeile</translation>
-    </message>
-    <message>
-        <source>Color:</source>
-        <translation type="obsolete">Farbe:</translation>
-    </message>
-    <message>
-        <source>Show Emoticons</source>
-        <translation type="obsolete">Emoticons zeigen</translation>
-    </message>
-    <message>
-        <source>Events</source>
-        <translation type="obsolete">Ereignisse</translation>
-    </message>
-    <message>
-        <source>Play Sound:</source>
-        <translation type="obsolete">Sound abspielen:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Display System Tray Message (requires Growl on Mac OS X)</source>
-        <translation type="obsolete">Nachricht in der Task-Leiste zeigen (benötigt Growl auf Mac OS X)</translation>
-    </message>
-    <message>
-        <source>Post Event in Chat</source>
-        <translation type="obsolete">Ereignis im Chat erwähnen</translation>
-    </message>
-    <message>
-        <source>Execute System Command:</source>
-        <translation type="obsolete">Systembefehl/Skript ausführen:</translation>
-    </message>
-    <message>
-        <source>Apply Changes</source>
-        <translation type="obsolete">Anwenden</translation>
-    </message>
-    <message>
-        <source>Server Connected</source>
-        <translation type="obsolete">Server Verbunden</translation>
-    </message>
-    <message>
-        <source>Server Disconnected</source>
-        <translation type="obsolete">Server Getrennt</translation>
-    </message>
-    <message>
-        <source>Server Error</source>
-        <translation type="obsolete">Serverfehler</translation>
-    </message>
-    <message>
-        <source>User Joined</source>
-        <translation type="obsolete">Benutzer Angemeldet</translation>
-    </message>
-    <message>
-        <source>User Changed Nick</source>
-        <translation type="obsolete">Benutzer ändert Nickname</translation>
-    </message>
-    <message>
-        <source>User Changed Status</source>
-        <translation type="obsolete">Benutzer ändert Status</translation>
-    </message>
-    <message>
-        <source>User Left</source>
-        <translation type="obsolete">Benutzer abgemeldet</translation>
-    </message>
-    <message>
-        <source>Chat Received</source>
-        <translation type="obsolete">Chat empfangen</translation>
-    </message>
-    <message>
-        <source>Message Received</source>
-        <translation type="obsolete">Nachricht empfangen</translation>
-    </message>
-    <message>
-        <source>News Posted</source>
-        <translation type="obsolete">Neugikeiten veröffentlicht</translation>
-    </message>
-    <message>
-        <source>Broadcast Received</source>
-        <translation type="obsolete">Rundsendung empfangen</translation>
-    </message>
-    <message>
-        <source>Transfer Started</source>
-        <translation type="obsolete">Transfer gestartet</translation>
-    </message>
-    <message>
-        <source>Transfer Finished</source>
-        <translation type="obsolete">Transfer abgeschlossen</translation>
-    </message>
-    <message>
-        <source>New Bookmark</source>
-        <translation type="obsolete">Neues Lesezeichen</translation>
-    </message>
-    <message>
-        <source>(none)</source>
-        <translation type="obsolete">(kein)</translation>
-    </message>
-    <message>
-        <source>Select WAV Sound File</source>
-        <translation type="obsolete">WAV-Sound auswählen</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetSendPrivMsg</name>
-    <message>
-        <source>Private Message</source>
-        <translation type="obsolete">Private Nachricht</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetServerInfo</name>
-    <message>
-        <source>Server Information</source>
-        <translation type="obsolete">Serverinformationen</translation>
-    </message>
-    <message>
-        <source>Server Name</source>
-        <translation type="obsolete">Servername</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation type="obsolete">Beschreibung:</translation>
-    </message>
-    <message>
-        <source>Uptime:</source>
-        <translation type="obsolete">Gestartet:</translation>
-    </message>
-    <message>
-        <source>URL:</source>
-        <translation type="obsolete">URL:</translation>
-    </message>
-    <message>
-        <source>Files:</source>
-        <translation type="obsolete">Dateien:</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="obsolete">Dateivolumen:</translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation type="obsolete">Version:</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation type="obsolete">Version</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="obsolete">Protokoll:</translation>
-    </message>
-    <message>
-        <source>SSL Protocol:</source>
-        <translation type="obsolete">SSL-Protokoll:</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetTracker</name>
-    <message>
-        <source>Trackers</source>
-        <translation type="obsolete">Tracker</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Aktualisieren</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation type="obsolete">Filter:</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Name</translation>
-    </message>
-    <message>
-        <source>Users</source>
-        <translation type="obsolete">Benutzer</translation>
-    </message>
-    <message>
-        <source>Guest</source>
-        <translation type="obsolete">Gast</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation type="obsolete">Download</translation>
-    </message>
-    <message>
-        <source>Files</source>
-        <translation type="obsolete">Dateien</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="obsolete">Größe</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation type="obsolete">Beschreibung</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation type="obsolete">Ja</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation type="obsolete">Nein</translation>
-    </message>
-    <message>
-        <source>Bandwidth</source>
-        <translation type="obsolete">Bandbreite</translation>
-    </message>
-    <message>
-        <source>n/a</source>
-        <translation type="obsolete">n/v</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">Adresse</translation>
-    </message>
-    <message>
-        <source>%1 servers registered with tracker</source>
-        <translation type="obsolete">%1 Server mit Tracker registriert</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetTransfers</name>
-    <message>
-        <source>Transfers</source>
-        <translation type="obsolete">Übertragungen</translation>
-    </message>
-    <message>
-        <source>Reveal</source>
-        <translation type="obsolete">Zeigen</translation>
-    </message>
-    <message>
-        <source>Cancel Transfer</source>
-        <translation type="obsolete">Transfer Abbrechen</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetUserInfo</name>
-    <message>
-        <source>User Information</source>
-        <translation type="obsolete">Benutzerinformationen</translation>
-    </message>
-    <message>
-        <source>user name</source>
-        <translation type="obsolete">Benutzername</translation>
-    </message>
-    <message>
-        <source>Status:</source>
-        <translation type="obsolete">Status:</translation>
-    </message>
-    <message>
-        <source>Login:</source>
-        <translation type="obsolete">Login:</translation>
-    </message>
-    <message>
-        <source>ID:</source>
-        <translation type="obsolete">ID:</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresse:</translation>
-    </message>
-    <message>
-        <source>Host:</source>
-        <translation type="obsolete">Host:</translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation type="obsolete">Version:</translation>
-    </message>
-    <message>
-        <source>Cipher:</source>
-        <translation type="obsolete">Cipher:</translation>
-    </message>
-    <message>
-        <source>Login Time:</source>
-        <translation type="obsolete">Anmeldezeit:</translation>
-    </message>
-    <message>
-        <source>Idle Time:</source>
-        <translation type="obsolete">Letzte Aktivität:</translation>
-    </message>
-    <message>
-        <source>Downloads</source>
-        <translation type="obsolete">Downloads</translation>
-    </message>
-    <message>
-        <source>Uploads</source>
-        <translation type="obsolete">Uploads</translation>
-    </message>
-    <message>
-        <source>%1 MB of %2 MB at %3 KiB/sec</source>
-        <translation type="obsolete">%1 MB von %2 MB bei %3 KiB/Sek</translation>
-    </message>
-    <message>
-        <source>User Information: %1</source>
-        <translation type="obsolete">Benutzerinformation: %1</translation>
-    </message>
-</context>
-<context>
-    <name>WiredSingleton</name>
-    <message>
-        <source>Connecting...</source>
-        <translation type="obsolete">Verbinden...</translation>
-    </message>
-</context>
-<context>
-    <name>WiredSocket</name>
-    <message>
-        <source>(invalid user)</source>
-        <translation type="obsolete">(ungültiger Benutzer)</translation>
     </message>
 </context>
 </TS>
