@@ -487,6 +487,7 @@ void QwcSocket::handleMessage401(const QwMessage &message)
     int queuePosition = message.getStringArgument(1).toInt();
     qDebug() << this << "Got transfer queued update for" << filePath << "position" << queuePosition;
 
+    // Find the transfer in the pool and remove it.
     QMutableListIterator<QwcTransferInfo> i(transferPool);
     while (i.hasNext()) {
         QwcTransferInfo &item = i.next();

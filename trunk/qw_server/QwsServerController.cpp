@@ -160,31 +160,40 @@ QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int use
 bool QwsServerController::startServer()
 {
 
+    QString certificateData;
     int tmpPort = getConfigurationParam("server/port", 2000).toInt();
     QString tmpAddress = getConfigurationParam("server/address", "0.0.0.0").toString();
-    QString certificateFile = getConfigurationParam("server/certificate", "qwired_server.pem").toString();
-    qwLog(tr("Loading certificate file (%1)...").arg(certificateFile));
+//    QString certificateFile = getConfigurationParam("server/certificate", "qwired_server.pem").toString();
+//    qwLog(tr("Loading certificate file (%1)...").arg(certificateFile));
 
-    QFileInfo certificateFileInfo(certificateFile);
-    if (!certificateFileInfo.exists()) {
-        qwLog(tr("Certificate file does not exist. Attempting to create one..."));
-        if (!generateNewCertificate(certificateFile)) {
-            qwLog(tr("Unable to create new certificate file. Please see the documentation on more information about how to create a certificate."));
+    certificateData = getConfigurationParam("server/certificate_data", "").toString();
+    if (certificateData.isEmpty()) {
+        // No data available, try to generate a new certificate
+        if (!generateNewCertificate(&certificateData)) {
+            qwLog(tr("Fatal: Unable to generate new certificate."));
             return false;
         } else {
-            qwLog(tr("Successfully created new certificate file."));
+            setConfigurationParam("server/certificate_data", certificateData);
+            qwLog(tr("Created new certificate."));
         }
     }
+    //QFileInfo certificateFileInfo(certificateFile);
+    //if (!certificateFileInfo.exists()) {
+//        qwLog(tr("Certificate file does not exist. Attempting to create one..."));
+//        if (!generateNewCertificate(certificateFile)) {
+//            qwLog(tr("Unable to create new certificate file. Please see the documentation on more information about how to create a certificate."));
+//            return false;
+//        } else {
+//            qwLog(tr("Successfully created new certificate file."));
+//        }
+//    }
 
     sessionTcpServer = new QwSslTcpServer(this);
     connect(sessionTcpServer, SIGNAL(newSslConnection()),
             this, SLOT(acceptSessionSslConnection()));
 
-    if (!sessionTcpServer->setCertificateFromFile(certificateFile)) {
-        qwLog(tr("Warning: Unable to load certificate from file."));
-        return false;
-    }
-    if(!sessionTcpServer->listen(QHostAddress(tmpAddress), tmpPort)) {
+    sessionTcpServer->setCertificateFromData(certificateData);
+    if (!sessionTcpServer->listen(QHostAddress(tmpAddress), tmpPort)) {
         qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(sessionTcpServer->errorString()));
         return false;
     } else {
@@ -197,9 +206,10 @@ bool QwsServerController::startServer()
     //this->transferTcpServer->initReadBufferSize = 1024;
     connect(transferTcpServer, SIGNAL(newSslConnection()),
             this, SLOT(acceptTransferSslConnection()));
-    if (!transferTcpServer->setCertificateFromFile(certificateFile)) {
-        qwLog(tr("Warning: Unable to set certificate file on file transfer listener - file transfers won't work."));
-    }
+//    if (!transferTcpServer->setCertificateFromFile(certificateFile)) {
+//        qwLog(tr("Warning: Unable to set certificate file on file transfer listener - file transfers won't work."));
+//    }
+    transferTcpServer->setCertificateFromData(certificateData);
     if (!transferTcpServer->listen(QHostAddress(tmpAddress), tmpPort+1)) {
         qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. File transfers won't work.").arg(tmpPort+1).arg(sessionTcpServer->errorString()));
     } else {
@@ -242,26 +252,47 @@ void QwsServerController::qwLog(QString message)
 
 /*! Generate a new certificate file (using command-like OpenSSL).
 */
-bool QwsServerController::generateNewCertificate(QString path)
+bool QwsServerController::generateNewCertificate(QString *data)
 {
-    QProcess createCommand;
+    if (!data) { return false; }
+    QString tempFilePath = QDir::temp().absoluteFilePath("qw_temp_cert_data");
+    QFile tempFile;
+    tempFile.setFileName(tempFilePath);
 
+    if (!tempFile.open(QIODevice::WriteOnly)) {
+        qCritical("Unable to create temporary file for SSL certificate generation.");
+        return false;
+    }
+    tempFile.close();
+
+    QProcess createCommand;
     QStringList commandArguments;
     commandArguments << "req" << "-x509"
               << "-newkey" << "rsa:1024" << "-subj"
               << QString("/CN=%1").arg(QHostInfo::localHostName())
               << "-days" << "365" << "-nodes"
-              << "-keyout" << path << "-out" << path;
+              << "-keyout" << tempFile.fileName() << "-out" << tempFile.fileName();
 
     qDebug() << commandArguments;
     createCommand.start("openssl", commandArguments);
     createCommand.waitForFinished();
+    qDebug() << "Creating new SSL certificate at" << tempFile.fileName() << "|" << commandArguments;
 
     if (createCommand.exitCode() != 0 ) {
         qDebug() << "OpenSSL failed:" << createCommand.errorString() << createCommand.readAllStandardError();
         return false;
     }
-    return true;
+
+    // Read the generated data
+    if (tempFile.open(QIODevice::ReadOnly)) {
+        QByteArray certificateData = tempFile.readAll();
+        data->clear();
+        data->append(QString::fromUtf8(certificateData));
+        tempFile.remove();
+        return true;
+    }
+    qCritical("Unable to open temporary file for reading certificate data.");
+    return false;
 }
 
 

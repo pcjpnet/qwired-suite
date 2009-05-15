@@ -1,9 +1,8 @@
 #include "QwcFilelistModel.h"
-
-#include <QVariant>
-
-#include <math.h>
 #include "QwcGlobals.h"
+#include <QVariant>
+#include <math.h>
+
 
 QwcFilelistModel::QwcFilelistModel(QObject *parent) : QStandardItemModel(parent)
 {
@@ -13,27 +12,26 @@ QwcFilelistModel::QwcFilelistModel(QObject *parent) : QStandardItemModel(parent)
     QStringList tmpHeaders;
     tmpHeaders << tr("Name") << tr("Size") << tr("Modified");
     this->setHorizontalHeaderLabels(tmpHeaders);
-
 }
 
-QwcFilelistModel::~QwcFilelistModel()
-{ }
 
-//
-// External signals
-//
-
-// The listing is comlete, udpate the view.
-void QwcFilelistModel::onServerFileListDone(QString thePath, qlonglong theFreeSpace) {
-    if( thePath==pCurrentPath && pWaitingForList ) {
+/*! Called when the file list is complete.
+*/
+void QwcFilelistModel::onServerFileListDone(QString thePath, qlonglong theFreeSpace)
+{
+    if (thePath == pCurrentPath && pWaitingForList ) {
         pWaitingForList = false;
         pFreeSize = theFreeSpace;
     }
 }
 
-// Add a new file list item as soon it is returned from the server.
-void QwcFilelistModel::onServerFileListItem(QwcFileInfo file) {
-    if( file.path.startsWith(pCurrentPath) && pWaitingForList ) {
+
+
+/*! A new file list item is available. Add it to the list.
+*/
+void QwcFilelistModel::onServerFileListItem(QwcFileInfo file)
+{
+    if (file.path.startsWith(pCurrentPath) && pWaitingForList) {
         // Add an item
         QList<QStandardItem*> tmpList;
         QStandardItem *item;
@@ -66,19 +64,28 @@ void QwcFilelistModel::onServerFileListItem(QwcFileInfo file) {
     }
 }
 
-// Removes all items from the file list
-void QwcFilelistModel::clearList() {
+
+/*! Remove all file items from the model and clear it.
+*/
+void QwcFilelistModel::clearList()
+{
     this->setRowCount(0);
     pTotalSize = 0;
 }
 
-// Returns true if stuff can be dropped onto the list/view.
-bool QwcFilelistModel::dropMimeData(const QMimeData *, Qt::DropAction, int, int, const QModelIndex &) {
+
+/*! (reimplementation) Returns true if files can be dropped onto the browser.
+*/
+bool QwcFilelistModel::dropMimeData(const QMimeData *, Qt::DropAction, int, int, const QModelIndex &)
+{
     return true;
 }
 
-// Returns which drop/drag actions are supported.
-Qt::DropActions QwcFilelistModel::supportedDropActions() const {
+
+/*! (reimplemented) Returns the supported drop actions.
+*/
+Qt::DropActions QwcFilelistModel::supportedDropActions() const
+{
     return Qt::CopyAction;
 }
 
