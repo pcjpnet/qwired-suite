@@ -32,7 +32,7 @@ public:
     QwsServerController(QObject *parent = 0);
     ~QwsServerController();
 
-    static bool generateNewCertificate(QString path);
+    static bool generateNewCertificate(QString *data=0);
 
     // Database access/configuration
     QVariant getConfigurationParam(const QString key, const QVariant defaultValue=QVariant());

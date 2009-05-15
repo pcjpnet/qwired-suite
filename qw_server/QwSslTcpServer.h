@@ -14,6 +14,7 @@ public:
 
     bool hasPendingSslSocket();
     bool setCertificateFromFile(QString file);
+    bool setCertificateFromData(const QString data);
     QSslSocket* nextPendingSslSocket();
     QSslKey pPrivateKey;
     QSslCertificate pLocalCert;

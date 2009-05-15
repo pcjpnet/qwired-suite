@@ -103,7 +103,7 @@ public slots:
     void leaveChat(int theChatID);
     void moveFile(const QString source, const QString destination);
     void postNews(QString thePost);
-    void putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
+    void putFile(const QString localPath, const QString remotePath);
     void putFolder(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
     void readGroup(QString theName);
     void readUser(QString theName);
@@ -149,8 +149,8 @@ signals:
     void fileTransferStarted(const QwcTransferInfo &transfer);
     /*! Relay signal which origns from the transfer socket of any active transfer. */
     void fileTransferStatus(const QwcTransferInfo &transfer);
-    /*! Signal which is emitted after a file has been queued in the pool. */
-    void fileTransferQueued(const QwcTransferInfo &transfer);
+    /*! Signal which is emitted after the transfer queue has changed (added or removed a transfer). */
+    void fileTransferQueueChanged(const QwcTransferInfo &transfer);
 
 
     void receivedUserlist(int theChatID);
@@ -177,9 +177,7 @@ signals:
     void privateChatCreated(int theChatID);
     void privateChatInvitation(int theChatID, QwcUserInfo theUser);
 
-    void onServerNews(QString theNick, QString theTime, QString thePost);
-    void onServerNewsPosted(QString theNick, QString theTime, QString thePost);
-    void newsDone();
+
 
 
     void fileSearchDone(QList<QwcFileInfo> theResults);

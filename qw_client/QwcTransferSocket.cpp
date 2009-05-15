@@ -45,8 +45,27 @@ void QwcTransferSocket::handleSocketEncrypted()
     qDebug() << this << "Transfer socket connected, sending handshake with hash" << transferInfo.hash;
     sslSocket->write(QString("TRANSFER %1\x04").arg(transferInfo.hash).toUtf8());
 
+    // Start the transfer timer which is responsible for sending chunks of data
     if (transferInfo.type == Qw::TransferTypeDownload) {
+        fileReader.setFileName(transferInfo.file.localAbsolutePath);
+        if (!fileReader.open(QIODevice::WriteOnly)) {
+            qDebug() << this << "Unable to open file for writing.";
+            abortTransfer();
+            return;
+        }
         transferTimer.start(transferTimerInterval);
+
+    } else if (transferInfo.type == Qw::TransferTypeUpload) {
+        fileReader.setFileName(transferInfo.file.localAbsolutePath);
+        if (!fileReader.open(QIODevice::ReadOnly)) {
+            qDebug() << this << "Unable to open file for reading.";
+            abortTransfer();
+            return;
+        }
+        fileReader.seek(transferInfo.bytesTransferred);
+        connect(sslSocket, SIGNAL(encryptedBytesWritten(qint64)),
+                this, SLOT(transmitFileChunk()));
+        transmitFileChunk();
     }
 
     transferInfo.state = Qw::TransferInfoStateActive;
@@ -60,13 +79,17 @@ void QwcTransferSocket::handleSocketEncrypted()
 */
 void QwcTransferSocket::transmitFileChunk()
 {
+    quint64 chunkSize = 32*1024;
+
     if (transferInfo.type == Qw::TransferTypeDownload) {
-        quint64 chunkSize = 0;
+
 
         QByteArray dataBuffer;
         dataBuffer.resize(sslSocket->bytesAvailable());
         int readBytes = sslSocket->read(dataBuffer.data(), sslSocket->bytesAvailable());
         transferInfo.bytesTransferred += readBytes;
+
+        fileReader.write(dataBuffer);
 
         // Emit a update signal if we received data, or if 4 seconds have passed
         if (readBytes > 0 || currentSpeedTimer.elapsed() > 4000) {
@@ -81,7 +104,6 @@ void QwcTransferSocket::transmitFileChunk()
             if (transferInfo.bytesTransferred == transferInfo.file.size) {
                 qDebug() << this << "Completed download.";
                 finishTransfer();
-                emit fileTransferDone(transferInfo);
                 return;
             }
 
@@ -89,6 +111,32 @@ void QwcTransferSocket::transmitFileChunk()
             abortTransfer();
         }
 
+
+    } else if (transferInfo.type == Qw::TransferTypeUpload) {
+        if (sslSocket->encryptedBytesToWrite() > 0) {
+            qDebug() << this << "Returning because encryptedBytesToWrite() > 0";
+            return;
+        }
+
+        if (fileReader.atEnd()) {
+            finishTransfer();
+            return;
+        }
+
+        if (sslSocket->state() == QAbstractSocket::UnconnectedState) {
+            qDebug() << this << "Transfer socket lost connection";
+            abortTransfer();
+            return;
+        }
+
+        QByteArray dataBuffer;
+        dataBuffer = fileReader.read(chunkSize);
+        sslSocket->write(dataBuffer);
+
+        transferInfo.currentTransferSpeed = float(1000/qMax(1,currentSpeedTimer.restart())) * chunkSize;
+        transferInfo.bytesTransferred += dataBuffer.size();
+
+        emit fileTransferStatus(transferInfo);
 
     }
 }
@@ -106,6 +154,8 @@ void QwcTransferSocket::abortTransfer()
 void QwcTransferSocket::finishTransfer()
 {
     qDebug() << this << "Finishing transfer.";
+    fileReader.close();
+
     sslSocket->disconnectFromHost();
     transferTimer.stop();
     emit fileTransferDone(transferInfo);

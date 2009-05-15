@@ -6,21 +6,18 @@
 
 class QwcFilelistModel : public QStandardItemModel
 {
-
     Q_OBJECT
 
 public:
     QwcFilelistModel(QObject *parent = 0);
-    ~QwcFilelistModel();
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
-    Qt::DropActions supportedDropActions() const;
-
-    qulonglong pTotalSize;
-    qulonglong pFreeSize;
+    qint64 pTotalSize;
+    qint64 pFreeSize;
     QString pCurrentPath;
     bool pWaitingForList;
     
+    Qt::DropActions supportedDropActions() const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
     
 public slots:
     void onServerFileListItem(QwcFileInfo file);

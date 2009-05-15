@@ -44,6 +44,21 @@ bool QwSslTcpServer::setCertificateFromFile(QString file)
 }
 
 
+/*! Set the certificate from the data provided. This has to be a PEM-formatted string.
+    \return Returns true on success.
+*/
+bool QwSslTcpServer::setCertificateFromData(const QString data)
+{
+    pPrivateKey = QSslKey(data.toUtf8(), QSsl::Rsa);
+    pLocalCert = QSslCertificate(data.toUtf8());
+    if (pPrivateKey.isNull() || pLocalCert.isNull()) {
+        qCritical("Unable to read certificate file data from string!");
+        return false;
+    }
+    return true;
+}
+
+
 void QwSslTcpServer::incomingConnection(int socketDescriptor)
 {
     qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor << "withBufferSize:" << initReadBufferSize;

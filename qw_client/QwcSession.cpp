@@ -958,30 +958,6 @@ void QwcSession::transferError(QwcTransferInfo transfer)
 }
 
 
-///*! Begin the download of a file and queue it locally if needed.
-//*/
-//void QwcSession::downloadFile(const QString &remotePath, const QString &localPath)
-//{
-//    qDebug() << this << "Creating queue entry for:" << remotePath;
-//    QwcTransferInfo transfer;
-//    transfer.type = Qw::TransferTypeDownload;
-//    transfer.file.path = remotePath;
-//    transfer.file.localAbsolutePath = localPath;
-//    transferPool.appendTransferToQueue(transfer);
-//
-//    checkTransferQueue();
-//
-//    /*
-//    QSettings s;
-//    socket->getFile(remotePath, localPath, true);
-//    bool isTransferring = socket->isTransferringFileOfType(WiredTransfer::TypeDownload);
-//    bool localQueueEnabled = s.value("files/queue_local", false).toBool();
-//    if(!localQueueEnabled || (localQueueEnabled && !isTransferring)) {
-//        socket->runTransferQueue(WiredTransfer::TypeDownload);
-//    }
-//    */
-//}
-
 
 void QwcSession::downloadFolder(const QString &remotePath, const QString &localPath)
 {

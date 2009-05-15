@@ -45,6 +45,8 @@ private:
     QTime currentSpeedTimer;
     /*! The low-level socket for data transmission. */
     QSslSocket *sslSocket;
+    /*! The file writer/reader. */
+    QFile fileReader;
 
 signals:
     /*! The connection was established and the data transfer begins. */

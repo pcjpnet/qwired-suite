@@ -183,14 +183,15 @@ void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
 {
     QStringList files = QFileDialog::getOpenFileNames(this, tr("Upload File"), QDir::homePath());
     QStringListIterator i(files);
-    while(i.hasNext()) {
-        QString file = i.next();
-        if(file.isEmpty()) continue;
-        QString tmpFileName = file.section("/",-1,-1);
-        QString tmpRemote = pModel->pCurrentPath+"/"+tmpFileName;
-        pSession->uploadFile(file, tmpRemote);
-
+    while (i.hasNext()) {
+        QString item = i.next();
+        QFileInfo itemInfo(item);
+        if (!itemInfo.exists() || !itemInfo.isReadable()) { continue; }
+        QString remotePath = pModel->pCurrentPath + "/" + itemInfo.fileName();
+        pSession->wiredSocket()->putFile(itemInfo.absoluteFilePath(), remotePath);
+        //pSession->uploadFile(itemInfo.absoluteFilePath(), remotePath);
     }
+    // Display the transfer pane
     pSession->doActionTransfers();
 }
 
@@ -257,9 +258,11 @@ void QwcFileBrowserWidget::dropEvent(QDropEvent *event)
         if(fileInfo.exists()) {
             QString tmpRemote = pModel->pCurrentPath+"/"+fileInfo.fileName();
             qDebug() <<this<< "Got a drop event:"<<tmpFile.fileName()<<"folder:"<<fileInfo.isDir()<<"file:"<<fileInfo.isFile();
-            if(fileInfo.isDir())
+            if(fileInfo.isDir()) {
                 pSession->uploadFolder(fileInfo.filePath(), tmpRemote);
-            else	pSession->uploadFile(tmpFile.fileName(), tmpRemote);
+            } else {
+                pSession->wiredSocket()->putFile(tmpFile.fileName(), tmpRemote);
+            }
 
         }
     }
