@@ -859,11 +859,16 @@ void QwcSession::doActionNews()
 //    }
 //
 //    if (socket->sessionUser.privPostNews) {
-//        connect( pWinNews, SIGNAL(doPostNews(QString)), socket, SLOT(postNews(QString)) );
+//
 //    } else {
 //        pWinNews->setDisabledPostButton(true);
 //    }
 
+
+    connect(pWinNews, SIGNAL(userPurgedNews()),
+            socket, SLOT(clearNews()));
+    connect(pWinNews, SIGNAL(doPostNews(QString)),
+            socket, SLOT(postNews(QString)));
 
 
     // Display the widget using a Tab

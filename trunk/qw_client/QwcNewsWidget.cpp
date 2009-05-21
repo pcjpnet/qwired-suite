@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QTextCursor>
+#include <QTextBlock>
 
 /*! \class QwcNewsWidget
     \author Bastian Bense <bastibense@gmail.com>
@@ -74,20 +75,49 @@ void QwcNewsWidget::initPrefs()
 */
 void QwcNewsWidget::updateNewsStats()
 {
-    fNewsStatus->setText(tr("%1 news article(s), %2 total")
-                         .arg(newsCounter).arg(QwFile::humanReadableSize(fNews->toPlainText().size())));
+    fNewsStatus->setText(tr("%1 news article(s)")
+                         .arg(newsCounter));
     fBtnDelete->setEnabled(newsCounter > 0);
 }
 
 
-void QwcNewsWidget::addNewsItem(QString theNick, QDateTime &time, QString thePost)
+void QwcNewsWidget::addNewsItem(QString theNick, QDateTime &time, QString thePost, bool insertAtTop)
 {
+    QListWidgetItem *itemHeader = new QListWidgetItem;
+    QFont headerFont(newsFont);
+    headerFont.setBold(true);
+    itemHeader->setFont(headerFont);
+    itemHeader->setBackground(Qt::lightGray);
+    itemHeader->setTextColor(pColorTitle);
+    itemHeader->setText(tr("From %1 (%2)").arg(theNick).arg(time.toString()));
 
-    QTextCursor cursor = fNews->textCursor();
+    QListWidgetItem *item = new QListWidgetItem;
+    item->setFont(newsFont);
+    item->setText(thePost);
+    item->setTextColor(pColorText);
+
+    if (insertAtTop) {
+        fNews->insertItem(0, itemHeader);
+        fNews->insertItem(1, item);
+    } else {
+        fNews->addItem(itemHeader);
+        fNews->addItem(item);
+    }
+
+    newsCounter++;
+    updateNewsStats();
+
+
+    /*
+
+    QTextBlock firstBlock = fNews->document()->firstBlock();
+    QTextCursor cursor(firstBlock);
 //    cursor.movePosition(QTextCursor::Start);
 //    cursor.movePosition(QTextCursor::PreviousBlock);
-    cursor.setPosition(-1);
+    //cursor.setPosition(-1);
     cursor.insertBlock();
+cursor.insertText(thePost);
+return;
 
 
     QTextCharFormat charFormat;
@@ -114,8 +144,8 @@ void QwcNewsWidget::addNewsItem(QString theNick, QDateTime &time, QString thePos
     fNews->setTextColor(pColorText);
     fNews->insertPlainText(tr("%1\n\n").arg(thePost));
 
-    newsCounter++;
-    updateNewsStats();
+    */
+
 }
 
 
@@ -124,7 +154,7 @@ void QwcNewsWidget::addNewsItem(QString theNick, QDateTime &time, QString thePos
 void QwcNewsWidget::on_fBtnRefresh_clicked(bool checked)
 {
     Q_UNUSED(checked);
-    fNews->setPlainText("");
+    fNews->clear();
     newsCounter = 0;
     emit requestedRefresh();
     pageWidget->setCurrentIndex(1);
@@ -173,7 +203,7 @@ void QwcNewsWidget::on_btnComposePost_clicked()
     if (!composeMessage->toPlainText().isEmpty()) {
         emit doPostNews(composeMessage->toPlainText());
         QDateTime currentDate = QDateTime::currentDateTime();
-        addNewsItem(tr("[sent to server]"), currentDate, composeMessage->toPlainText());
+        addNewsItem(tr("[sent to server]"), currentDate, composeMessage->toPlainText(), true);
     }
     pageWidget->setCurrentIndex(0);
     composeMessage->setPlainText("");
