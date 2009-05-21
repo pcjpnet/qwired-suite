@@ -58,6 +58,8 @@ void QwcFiletransferWidget::on_btnReveal_clicked()
 
 void QwcFiletransferWidget::handleTransferListSelectionChanged(const QItemSelection &previous, const QItemSelection &current)
 {
+    Q_UNUSED(current);
+    Q_UNUSED(previous);
     btnResume->setEnabled(transferList->selectionModel()->hasSelection());
     btnStop->setEnabled(transferList->selectionModel()->hasSelection());
     btnReveal->setEnabled(transferList->selectionModel()->hasSelection());

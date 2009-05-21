@@ -10,16 +10,6 @@ int main (int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    // Set the plugins directory correctly.
-    // This has to be done for bundles in OS X if they are packed using the deployqt tool.
-//#ifdef Q_WS_MAC
-//    qDebug() << "Running in mac mode.";
-//    QDir dir(QApplication::applicationDirPath());
-//    dir.cdUp();
-//    dir.cd("Plugins");
-//    QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
-//#endif
-
     QCoreApplication::setOrganizationName("NeoSoftware");
     QCoreApplication::setOrganizationDomain("neo.de");
     QCoreApplication::setApplicationName("Qwired");
@@ -62,11 +52,11 @@ int main (int argc, char *argv[])
     }
 
     // Create the inital connection
-    QwcSession *tmpConn = new QwcSession();
+    QwcSession *firstSession = new QwcSession();
 
     // Singleton
     QObject::connect(&app, SIGNAL(aboutToQuit()), &WSINGLETON::Instance(), SLOT(cleanUp()));
-    WSINGLETON::Instance().addSession(tmpConn);
+    WSINGLETON::Instance().addSession(firstSession);
     WSINGLETON::Instance().createTrayIcon();
 
     return app.exec();

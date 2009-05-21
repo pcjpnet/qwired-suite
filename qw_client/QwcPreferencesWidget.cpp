@@ -373,16 +373,24 @@ void QwcPreferencesWidget::on_fBtnIfUserlistAlternateRow_stateChanged(int state)
 }
 
 
-void QwcPreferencesWidget::on_fBtnIfNewsFont_clicked() {
-    QSettings s;
-    bool ok;
-    QFont f;
-    f.fromString( s.value("interface/news/font", QwcSingleton::systemMonospaceFont().append(",11") ).toString() );
-    f = QFontDialog::getFont(&ok, f, this);
-    if(ok) {
-        s.setValue("interface/news/font", f.toString());
-        fIfNewsFont->setText( QString("%1, %2pt").arg(f.family()).arg(f.pointSize()) );
-    }
+void QwcPreferencesWidget::on_fBtnIfNewsFont_clicked()
+{
+    bool result;
+    QSettings settings;
+    QFont selectedFont;
+//    if (!settings.contains("interface/news/font")) {
+//        selectedFont.setFamily(QwcSingleton::systemMonospaceFont());
+//        selectedFont.setPointSize(11);
+//    } else {
+        selectedFont.fromString(settings.value("interface/news/font",
+                                               QwcSingleton::systemMonospaceFont()+",11").toString());
+//    }
+    selectedFont = QFontDialog::getFont(&result, selectedFont, this, QString(), QFontDialog::DontUseNativeDialog);
+    if (!result) { return; }
+    qDebug() << "FONT:" << settings.value("interface/news/font") << "sel:" << selectedFont;
+
+    settings.setValue("interface/news/font", selectedFont.toString());
+    fIfNewsFont->setText(QString("%1, %2 pt").arg(selectedFont.family()).arg(selectedFont.pointSize()));
 }
 
 

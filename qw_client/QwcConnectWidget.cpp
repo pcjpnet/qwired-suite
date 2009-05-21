@@ -4,10 +4,9 @@
 /*! \class QwcConnectWidget
     \author Bastian Bense <bastibense@gmail.com>
     \date 2009-03-06
-
-    This widget provides the login prompt when connecting manually to a server. It asks the user for
-    a server name, login name and password; and provides a connect button to establish the connection
-    to the server.
+    \brief This widget provides the login prompt when connecting manually to a server.
+    It asks the user for a server name, login name and password; and provides a connect button to
+    establish the connection to the server.
 */
 
 QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
@@ -17,6 +16,13 @@ QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
     fContainer->setCurrentIndex(0);
     loadBookmarks();
     pReconnectTimerId = -1;
+
+    connect(fAddress, SIGNAL(returnPressed()),
+            this, SLOT(on_btnConnect_clicked()));
+    connect(fLogin, SIGNAL(returnPressed()),
+            this, SLOT(on_btnConnect_clicked()));
+    connect(fPassword, SIGNAL(returnPressed()),
+            this, SLOT(on_btnConnect_clicked()));
 
     // Notification manager
     QwcSingleton *tmpS = &WSINGLETON::Instance();

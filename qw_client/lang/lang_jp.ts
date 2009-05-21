@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="ja">
+<!DOCTYPE TS>
+<TS version="2.0" language="ja">
 <context>
     <name>QwcAboutWidget</name>
     <message>
@@ -41,11 +42,14 @@
         <translation type="unfinished">キャンセル</translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.cpp" line="193"/>
         <location filename="../QwcAccountsWidget.ui" line="730"/>
         <source>Apply Changes</source>
         <translation type="unfinished">変更を適用</translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.cpp" line="194"/>
+        <location filename="../QwcAccountsWidget.ui" line="383"/>
         <location filename="../QwcAccountsWidget.ui" line="723"/>
         <source>Delete</source>
         <translation type="unfinished">削除</translation>
@@ -216,6 +220,7 @@
         <translation type="unfinished">ダウンロード :</translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.ui" line="626"/>
         <location filename="../QwcAccountsWidget.ui" line="683"/>
         <source>KB/s</source>
         <translation type="unfinished">KB / 秒</translation>
@@ -229,6 +234,7 @@
 <context>
     <name>QwcChatWidget</name>
     <message>
+        <location filename="../QwcChatWidget.cpp" line="328"/>
         <location filename="../QwcChatWidget.cpp" line="343"/>
         <source>Kick</source>
         <translation type="unfinished">キック</translation>
@@ -291,12 +297,12 @@ Please enter a reason and press OK.</source>
 <context>
     <name>QwcConnectWidget</name>
     <message>
-        <location filename="../QwcConnectWidget.cpp" line="30"/>
+        <location filename="../QwcConnectWidget.cpp" line="36"/>
         <source>Connecting...</source>
         <translation type="unfinished">接続しています...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectWidget.cpp" line="97"/>
+        <location filename="../QwcConnectWidget.cpp" line="103"/>
         <source>Waiting for reconnect...</source>
         <translation type="unfinished">接続を待っています...</translation>
     </message>
@@ -429,6 +435,7 @@ Please enter a reason and press OK.</source>
         <translation type="unfinished">ファイル</translation>
     </message>
     <message>
+        <location filename="../QwcConnectionMainWindow.ui" line="163"/>
         <location filename="../QwcConnectionMainWindow.ui" line="243"/>
         <source>Ctrl+F</source>
         <translation type="unfinished">Ctrl+F</translation>
@@ -489,27 +496,31 @@ Please enter a reason and press OK.</source>
         <translation type="unfinished">環境設定...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="253"/>
-        <source>About QWired...</source>
-        <translation type="unfinished">Qwired について</translation>
+        <location filename="../QwcConnectionMainWindow.ui" line="256"/>
+        <source>About Qwired...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="258"/>
+        <source>About QWired...</source>
+        <translation type="obsolete">Qwired について</translation>
+    </message>
+    <message>
+        <location filename="../QwcConnectionMainWindow.ui" line="264"/>
         <source>Trackers</source>
         <translation type="unfinished">トラッカー</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="261"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="267"/>
         <source>Show a list of configured trackers and servers registered with them.</source>
         <translation type="unfinished">設定して登録されたトラッカーのリストを表示します。</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="264"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="270"/>
         <source>Ctrl+R</source>
         <translation type="unfinished">Ctrl+R</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="276"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="282"/>
         <source>Messages</source>
         <translation type="unfinished">メッセージ</translation>
     </message>
@@ -522,7 +533,7 @@ Please enter a reason and press OK.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcEventFilter.cpp" line="35"/>
+        <location filename="../QwcEventFilter.cpp" line="34"/>
         <source>Are you sure you want to continue? If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
 </source>
         <translation type="unfinished"></translation>
@@ -531,27 +542,28 @@ Please enter a reason and press OK.</source>
 <context>
     <name>QwcFileBrowserWidget</name>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="109"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="108"/>
         <source>%1 items, %2 total, %3 available</source>
         <translation type="unfinished">アイテム数 %1、合計  %2、%3 の空き</translation>
     </message>
     <message>
+        <location filename="../QwcFileBrowserWidget.cpp" line="114"/>
         <location filename="../QwcFileBrowserWidget.cpp" line="115"/>
         <source>Files - %1</source>
         <translation type="unfinished">ファイル - %1</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="183"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="184"/>
         <source>Upload File</source>
         <translation type="unfinished">ファイルをアップロード</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="202"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="204"/>
         <source>Delete File</source>
         <translation type="unfinished">ファイルを削除</translation>
     </message>
     <message numerus="yes">
-        <location filename="../QwcFileBrowserWidget.cpp" line="202"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="204"/>
         <source>Are you sure you want to delete the selected %n item(s)?
 This can not be undone!</source>
         <translation type="unfinished">
@@ -560,12 +572,12 @@ This can not be undone!</source>
         </translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="224"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="226"/>
         <source>Create Folder</source>
         <translation type="unfinished">フォルダを作成</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="224"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="226"/>
         <source>Enter a name for the new folder:</source>
         <translation type="unfinished">新しいフォルダの名前を入力してください :</translation>
     </message>
@@ -575,6 +587,7 @@ This can not be undone!</source>
         <translation type="unfinished">ファイル</translation>
     </message>
     <message>
+        <location filename="../QwcFileBrowserWidget.ui" line="38"/>
         <location filename="../QwcFileBrowserWidget.ui" line="41"/>
         <source>Back</source>
         <translation type="unfinished">戻る</translation>
@@ -639,6 +652,11 @@ This can not be undone!</source>
         <translation type="unfinished">種類 :</translation>
     </message>
     <message>
+        <location filename="../QwcFileInfoWidget.ui" line="80"/>
+        <location filename="../QwcFileInfoWidget.ui" line="112"/>
+        <location filename="../QwcFileInfoWidget.ui" line="144"/>
+        <location filename="../QwcFileInfoWidget.ui" line="176"/>
+        <location filename="../QwcFileInfoWidget.ui" line="208"/>
         <location filename="../QwcFileInfoWidget.ui" line="240"/>
         <source>file</source>
         <translation type="unfinished">ファイル</translation>
@@ -720,19 +738,47 @@ This can not be undone!</source>
 <context>
     <name>QwcFilelistModel</name>
     <message>
-        <location filename="../QwcFilelistModel.cpp" line="14"/>
+        <location filename="../QwcFilelistModel.cpp" line="13"/>
         <source>Name</source>
         <translation type="unfinished">名前</translation>
     </message>
     <message>
-        <location filename="../QwcFilelistModel.cpp" line="14"/>
+        <location filename="../QwcFilelistModel.cpp" line="13"/>
         <source>Size</source>
         <translation type="unfinished">サイズ</translation>
     </message>
     <message>
-        <location filename="../QwcFilelistModel.cpp" line="14"/>
+        <location filename="../QwcFilelistModel.cpp" line="13"/>
         <source>Modified</source>
         <translation type="unfinished">変更された</translation>
+    </message>
+</context>
+<context>
+    <name>QwcFiletransferDelegate</name>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="38"/>
+        <source>Waiting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="42"/>
+        <source>Preparing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="46"/>
+        <source>Stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="50"/>
+        <source>Queued (position %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="54"/>
+        <source>Running - %1 of %2 (%3%) - %4/s</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -743,14 +789,23 @@ This can not be undone!</source>
         <translation type="unfinished">転送</translation>
     </message>
     <message>
-        <location filename="../QwcFiletransferWidget.ui" line="45"/>
+        <location filename="../QwcFiletransferWidget.ui" line="48"/>
         <source>Reveal</source>
         <translation type="unfinished">表示</translation>
     </message>
     <message>
-        <location filename="../QwcFiletransferWidget.ui" line="62"/>
+        <location filename="../QwcFiletransferWidget.ui" line="71"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferWidget.ui" line="94"/>
+        <source>Resume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cancel Transfer</source>
-        <translation type="unfinished">転送をキャンセル</translation>
+        <translation type="obsolete">転送をキャンセル</translation>
     </message>
 </context>
 <context>
@@ -779,19 +834,19 @@ This can not be undone!</source>
 <context>
     <name>QwcNewsWidget</name>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="83"/>
-        <source>%1/%2/%3 at %4 GTM %5</source>
+        <location filename="../QwcNewsWidget.cpp" line="72"/>
+        <source>%1 news article(s), %2 total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="92"/>
+        <location filename="../QwcNewsWidget.cpp" line="81"/>
         <source>From %1 (%2):
 </source>
         <translation type="unfinished">%1 (%2) から:
 </translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="95"/>
+        <location filename="../QwcNewsWidget.cpp" line="84"/>
         <source>%1
 
 </source>
@@ -800,12 +855,12 @@ This can not be undone!</source>
 </translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="142"/>
+        <location filename="../QwcNewsWidget.cpp" line="138"/>
         <source>Clear news</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="142"/>
+        <location filename="../QwcNewsWidget.cpp" line="139"/>
         <source>Are you sure you want to clear all news items?
 
 This cannot be undone.</source>
@@ -817,7 +872,7 @@ This cannot be undone.</source>
         <translation type="unfinished">ニュース</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="77"/>
+        <location filename="../QwcNewsWidget.ui" line="33"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -826,17 +881,36 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="28"/>
+        <location filename="../QwcNewsWidget.ui" line="52"/>
         <source>Refresh</source>
         <translation type="unfinished">更新</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="58"/>
-        <source>Delete</source>
-        <translation type="unfinished">削除</translation>
+        <location filename="../QwcNewsWidget.ui" line="107"/>
+        <source>Delete all news articles.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="65"/>
+        <location filename="../QwcNewsWidget.ui" line="110"/>
+        <source>Purge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="124"/>
+        <source>Post a new article.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="173"/>
+        <source>Loading news...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">削除</translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="127"/>
         <source>Post...</source>
         <translation type="unfinished">投稿...</translation>
     </message>
@@ -914,52 +988,53 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">転送の終了</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="266"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="280"/>
         <source>Select Icon</source>
         <translation type="unfinished">アイコンを選択</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="266"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="280"/>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation type="unfinished">画像（*.png、*.xpm、*.jpg）</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="275"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="289"/>
         <source>Invalid File</source>
         <translation type="unfinished">無効なファイル</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="275"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="289"/>
         <source>Could not open the selected image.</source>
         <translation type="unfinished">選択された画像を開けませんでした。</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="295"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="309"/>
         <source>Select Download Directory</source>
         <translation type="unfinished">ダウンロードフォルダを選択</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="393"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="415"/>
         <source>New Tracker</source>
         <translation type="unfinished">新規トラッカー</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="395"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="417"/>
         <source>my.tracker.com</source>
         <translation type="unfinished">KeinAlcohol.istauch.keineLoesung</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="427"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="449"/>
         <source>New Bookmark</source>
         <translation type="unfinished">新規ブックマーク</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="550"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="524"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="572"/>
         <source>(none)</source>
         <translation type="unfinished">（なし）</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="545"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="567"/>
         <source>Select WAV Sound File</source>
         <translation type="unfinished">WAVサウンドファイルを選択</translation>
     </message>
@@ -1001,6 +1076,12 @@ max size 32x32 pixels</source>
         <translation type="unfinished">デフォルト</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="184"/>
+        <location filename="../QwcPreferencesWidget.ui" line="480"/>
+        <location filename="../QwcPreferencesWidget.ui" line="487"/>
+        <location filename="../QwcPreferencesWidget.ui" line="629"/>
+        <location filename="../QwcPreferencesWidget.ui" line="695"/>
+        <location filename="../QwcPreferencesWidget.ui" line="803"/>
         <location filename="../QwcPreferencesWidget.ui" line="1484"/>
         <source>Set...</source>
         <translation type="unfinished">セット...</translation>
@@ -1018,11 +1099,14 @@ max size 32x32 pixels</source>
         <translation type="unfinished">インターフェイス</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="246"/>
         <location filename="../QwcPreferencesWidget.ui" line="1042"/>
         <source>Chat</source>
         <translation type="unfinished">チャット</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="267"/>
+        <location filename="../QwcPreferencesWidget.ui" line="531"/>
         <location filename="../QwcPreferencesWidget.ui" line="739"/>
         <source>Text:</source>
         <translation type="unfinished">テキスト :</translation>
@@ -1048,6 +1132,8 @@ max size 32x32 pixels</source>
         <translation type="unfinished">アイコンサイズ :</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="328"/>
+        <location filename="../QwcPreferencesWidget.ui" line="570"/>
         <location filename="../QwcPreferencesWidget.ui" line="768"/>
         <source>Background:</source>
         <translation type="unfinished">背景 :</translation>
@@ -1098,6 +1184,7 @@ max size 32x32 pixels</source>
         <translation type="unfinished">メッセージ</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="657"/>
         <location filename="../QwcPreferencesWidget.ui" line="1453"/>
         <source>Files</source>
         <translation type="unfinished">ファイル</translation>
@@ -1108,6 +1195,7 @@ max size 32x32 pixels</source>
         <translation type="unfinished">ファイルのフォント :</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="685"/>
         <location filename="../QwcPreferencesWidget.ui" line="845"/>
         <source>Use Alternating Row Background</source>
         <translation type="unfinished">背景色を交互に塗り分ける</translation>
@@ -1123,6 +1211,7 @@ max size 32x32 pixels</source>
         <translation type="unfinished">プレビューのフォント :</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="826"/>
         <location filename="../QwcPreferencesWidget.ui" line="1536"/>
         <source>Trackers</source>
         <translation type="unfinished">トラッカー</translation>
@@ -1141,6 +1230,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="901"/>
         <location filename="../QwcPreferencesWidget.ui" line="1556"/>
         <source>New</source>
         <translation type="unfinished">新規</translation>
@@ -1154,6 +1244,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="919"/>
         <location filename="../QwcPreferencesWidget.ui" line="1566"/>
         <source>Delete</source>
         <translation type="unfinished">削除</translation>
@@ -1294,7 +1385,52 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">アドレス :</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1642"/>
+        <source>Proxies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1654"/>
+        <source>Proxy Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../QwcPreferencesWidget.ui" line="1660"/>
+        <source>Proxy Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1667"/>
+        <source>Proxy Host:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1677"/>
+        <source>Proxy Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1687"/>
+        <source>User Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1697"/>
+        <source>User Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1708"/>
+        <source>No Proxy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1726"/>
+        <source>Proxies might be required to connect to a Qwired server from inside a protected network. Also it can be used with Tor to give you more privacy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1817"/>
         <source>Apply Changes</source>
         <translation type="unfinished">変更を適用</translation>
     </message>
@@ -1317,7 +1453,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="242"/>
+        <location filename="../QwcPrivateMessager.cpp" line="241"/>
         <source>An error occourred while attempting to write the message log file (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1370,6 +1506,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">説明 :</translation>
     </message>
     <message>
+        <location filename="../QwcServerInfoWidget.ui" line="119"/>
+        <location filename="../QwcServerInfoWidget.ui" line="157"/>
+        <location filename="../QwcServerInfoWidget.ui" line="195"/>
+        <location filename="../QwcServerInfoWidget.ui" line="233"/>
+        <location filename="../QwcServerInfoWidget.ui" line="271"/>
+        <location filename="../QwcServerInfoWidget.ui" line="347"/>
         <location filename="../QwcServerInfoWidget.ui" line="385"/>
         <source>TextLabel</source>
         <translation type="unfinished">テキストラベル</translation>
@@ -1418,46 +1560,47 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QwcSession</name>
     <message>
-        <location filename="../QwcSession.cpp" line="389"/>
+        <location filename="../QwcSession.cpp" line="421"/>
+        <location filename="../QwcSession.cpp" line="425"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation type="unfinished">話題 : %1
 提案者 : %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="414"/>
+        <location filename="../QwcSession.cpp" line="450"/>
         <source>Private Chat Invitation</source>
         <translation type="unfinished">プライベートチャットに招待</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="415"/>
+        <location filename="../QwcSession.cpp" line="451"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation type="unfinished">%1 があなたをプライベートチャットに招待しました。
 「参加」ボタンで %1 とのチャットを開始します。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="417"/>
+        <location filename="../QwcSession.cpp" line="453"/>
         <source>Ignore</source>
         <translation type="unfinished">無視</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="418"/>
+        <location filename="../QwcSession.cpp" line="454"/>
         <source>Reject</source>
         <translation type="unfinished">辞退</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="419"/>
+        <location filename="../QwcSession.cpp" line="455"/>
         <source>Join</source>
         <translation type="unfinished">参加</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="448"/>
+        <location filename="../QwcSession.cpp" line="484"/>
         <source>Private Chat</source>
         <translation type="unfinished">プライベートチャット</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="457"/>
+        <location filename="../QwcSession.cpp" line="493"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished">接続しています。セッションを開始しています...</translation>
     </message>
@@ -1467,7 +1610,7 @@ Join to open a separate private chat with %1.</source>
         <translation type="unfinished">コネクションが拒絶されました。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="81"/>
+        <location filename="../QwcSession.cpp" line="80"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished">コネクションはリモートホストに拒絶されました。サーバが起動していないようです。</translation>
     </message>
@@ -1567,136 +1710,131 @@ Join to open a separate private chat with %1.</source>
         <translation type="unfinished">サーバエラー</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="551"/>
+        <location filename="../QwcSession.cpp" line="142"/>
+        <source>Chat</source>
+        <extracomment>Text of the main connection tab in the connection window.</extracomment>
+        <translation type="unfinished">チャット</translation>
+    </message>
+    <message>
+        <location filename="../QwcSession.cpp" line="587"/>
         <source>Show/Hide</source>
         <translation type="unfinished">表示 / 隠す</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="575"/>
+        <location filename="../QwcSession.cpp" line="611"/>
         <source>Connected</source>
         <translation type="unfinished">接続しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="576"/>
+        <location filename="../QwcSession.cpp" line="612"/>
         <source>Disconnected</source>
         <translation type="unfinished">切断しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="577"/>
+        <location filename="../QwcSession.cpp" line="613"/>
         <source>Server Error: %1</source>
         <translation type="unfinished">サーバエラー : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="578"/>
+        <location filename="../QwcSession.cpp" line="614"/>
         <source>%1 joined</source>
         <translation type="unfinished">%1 が参加しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="579"/>
+        <location filename="../QwcSession.cpp" line="615"/>
         <source>%1 is now known as %2</source>
         <translation type="unfinished">%1 が %2 に改名しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="580"/>
+        <location filename="../QwcSession.cpp" line="616"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation type="unfinished">%1 の状況が &apos;%2&apos; になりました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="581"/>
+        <location filename="../QwcSession.cpp" line="617"/>
         <source>%1 left</source>
         <translation type="unfinished">%1 が退室しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="582"/>
+        <location filename="../QwcSession.cpp" line="618"/>
         <source>Chat from %1:
 %2</source>
         <translation type="unfinished">%1: からのチャット
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="583"/>
+        <location filename="../QwcSession.cpp" line="619"/>
         <source>Message from %1:
 %2</source>
         <translation type="unfinished">%1: からのプライベートメッセージ
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="584"/>
+        <location filename="../QwcSession.cpp" line="620"/>
         <source>News Posted from %1:
 %2</source>
         <translation type="unfinished">%1 が投稿したニュース :
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="585"/>
+        <location filename="../QwcSession.cpp" line="621"/>
         <source>Broadcast from %1:
 %2</source>
         <translation type="unfinished">%1 からの一斉通知 :
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="586"/>
+        <location filename="../QwcSession.cpp" line="622"/>
         <source>Transfer Started: %1</source>
         <translation type="unfinished">転送が始まりました : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="587"/>
+        <location filename="../QwcSession.cpp" line="623"/>
         <source>Transfer Finished: %1</source>
         <translation type="unfinished">転送が終了しました : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="669"/>
+        <location filename="../QwcSession.cpp" line="705"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation type="unfinished">転送はコネクションエラーで失敗しました。エラーID : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="679"/>
+        <location filename="../QwcSession.cpp" line="715"/>
         <source>Receiving user list...</source>
         <translation type="unfinished">ユーザリストを受信しています...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="761"/>
+        <location filename="../QwcSession.cpp" line="797"/>
         <source>Accounts</source>
         <translation type="unfinished">アカウント</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="816"/>
+        <location filename="../QwcSession.cpp" line="859"/>
         <source>News</source>
         <translation type="unfinished">ニュース</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="834"/>
+        <location filename="../QwcSession.cpp" line="877"/>
         <source>Server Info</source>
         <translation type="unfinished">サーバの情報</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="863"/>
+        <location filename="../QwcSession.cpp" line="906"/>
         <source>Files</source>
         <translation type="unfinished">ファイル</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="915"/>
+        <location filename="../QwcSession.cpp" line="958"/>
         <source>File Search</source>
         <translation type="unfinished">検索</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="934"/>
+        <location filename="../QwcSession.cpp" line="977"/>
         <source>Transfers</source>
         <translation type="unfinished">転送</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1042"/>
-        <source>Folder Download</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcSession.cpp" line="1044"/>
-        <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
-Do you want to begin the transfer?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcSession.cpp" line="1058"/>
+        <location filename="../QwcSession.cpp" line="1067"/>
         <source>Private Messages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1704,15 +1842,14 @@ Do you want to begin the transfer?</source>
 <context>
     <name>QwcSingleton</name>
     <message>
-        <location filename="../QwcSingleton.cpp" line="124"/>
         <source>Connecting...</source>
-        <translation type="unfinished">接続しています...</translation>
+        <translation type="obsolete">接続しています...</translation>
     </message>
 </context>
 <context>
     <name>QwcSocket</name>
     <message>
-        <location filename="../QwcSocket.cpp" line="768"/>
+        <location filename="../QwcSocket.cpp" line="827"/>
         <source>kittehday nait fevrar</source>
         <translation type="unfinished">kittehday nait fevrar</translation>
     </message>
@@ -1765,21 +1902,26 @@ Do you want to begin the transfer?</source>
         <translation type="unfinished">アドレス</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="80"/>
         <location filename="../QwcTrackerlistWidget.ui" line="118"/>
         <source>%1 servers registered with tracker</source>
         <translation type="unfinished">%1 のサーバがトラッカーに登録済み</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="93"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="105"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="109"/>
         <source>n/a</source>
         <translation type="unfinished">n/a</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="97"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="101"/>
         <source>Yes</source>
         <translation type="unfinished">はい</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="97"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="101"/>
         <source>No</source>
         <translation type="unfinished">いいえ</translation>
@@ -1819,7 +1961,7 @@ Reason: %1</source>
         <translation type="unfinished">ユーザ情報 : %1</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.cpp" line="92"/>
+        <location filename="../QwcUserInfoWidget.cpp" line="91"/>
         <source>%1 MB of %2 MB at %3 KiB/sec</source>
         <translation type="unfinished">%2 MB のうち %1 MB、%3 KiB/秒</translation>
     </message>
@@ -1899,6 +2041,8 @@ Reason: %1</source>
         <translation type="unfinished">暗号 :</translation>
     </message>
     <message>
+        <location filename="../QwcUserInfoWidget.ui" line="235"/>
+        <location filename="../QwcUserInfoWidget.ui" line="258"/>
         <location filename="../QwcUserInfoWidget.ui" line="281"/>
         <source>TextLabel</source>
         <translation type="unfinished">テキストラベル</translation>
@@ -1914,6 +2058,7 @@ Reason: %1</source>
         <translation type="unfinished">待機時間 :</translation>
     </message>
     <message>
+        <location filename="../QwcUserInfoWidget.ui" line="299"/>
         <location filename="../QwcUserInfoWidget.ui" line="317"/>
         <source>Downloads</source>
         <translation type="unfinished">ダウンロード</translation>

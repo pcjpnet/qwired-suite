@@ -26,11 +26,11 @@ QwcSession::QwcSession(QObject *parent) : QObject(parent)
 
 QwcSession::~QwcSession()
 {
-    pConnWindow->deleteLater();
-    pContainerWidget->deleteLater();
-    pMainChat->deleteLater();
+    connectionWindow->deleteLater();
+    mainChatWidget->deleteLater();
 
 }
+
 
 
 /*! Handle a protocol-related error and display it to the user.
@@ -38,8 +38,8 @@ QwcSession::~QwcSession()
 void QwcSession::handleProtocolError(Qw::ProtocolError error)
 {
     if (error == Qw::ErrorLoginFailed) {
-        pConnectWindow->resetForm();
-        pContainerLayout->setCurrentIndex(0);
+        connectWidget->resetForm();
+        connectionStackedWidget->setCurrentIndex(0);
         setConnectionToolButtonsEnabled(false);
     }
 
@@ -65,7 +65,7 @@ void QwcSession::handleProtocolError(Qw::ProtocolError error)
 
     // Dispatch an event
     triggerEvent("ServerError", QStringList(errorText));
-    QMessageBox::warning(pConnWindow, tr("Server Error"), errorText);
+    QMessageBox::warning(connectionWindow, tr("Server Error"), errorText);
 }
 
 
@@ -75,23 +75,23 @@ void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
 {
     if(error == QAbstractSocket::ConnectionRefusedError) {
         // Error occoured while connecting from the connecting window
-        pConnectWindow->resetForm();
-        QMessageBox::critical(pMainChat, tr("Connection Refused"),
+        connectWidget->resetForm();
+        QMessageBox::critical(mainChatWidget, tr("Connection Refused"),
                               tr("The connection was refused by the remote host. "
                                  "This normally means that there is no Wired server running on the remote machine."));
     } else if(error == QAbstractSocket::HostNotFoundError) {
-        pConnectWindow->resetForm();
-        QMessageBox::critical(pMainChat, tr("Host not found"),
+        connectWidget->resetForm();
+        QMessageBox::critical(mainChatWidget, tr("Host not found"),
                               tr("Could not connect to the remote server because the host name could not be resolved."));
     } else {
         // Disconnected suddenly
         qDebug() << error;
-        pContainerLayout->setCurrentIndex(0);
-        pConnectWindow->resetForm();
-        pConnectWindow->startReconnecting();
+        connectionStackedWidget->setCurrentIndex(0);
+        connectWidget->resetForm();
+        connectWidget->startReconnecting();
 
-        //pConnWindow->setEnabled(false);
-        //pConnWindow->setWindowTitle( pConnWindow->windowTitle()+tr(" [Disconnected]") );
+        //connectionWindow->setEnabled(false);
+        //connectionWindow->setWindowTitle( connectionWindow->windowTitle()+tr(" [Disconnected]") );
 
         triggerEvent("ServerDisconnected",QStringList());
     }
@@ -101,75 +101,109 @@ void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
 
 void QwcSession::initMainWindow()
 {
-    bannerSpace = 0;
-    bannerView = 0;
-    bannerSpace2 = 0;
 
-    // Init the main window (which contains the toolbar and other things)
-    pConnWindow = new QwcConnectionMainWindow;
-    connect(pConnWindow, SIGNAL(destroyed(QObject*)), this, SLOT(connectionWindowDestroyed(QObject*)) );
-    pConnWindow->show();
+    connectionWindow = new QwcConnectionMainWindow();
+    connect(connectionWindow, SIGNAL(destroyed(QObject*)),
+            this, SLOT(connectionWindowDestroyed(QObject*)) );
 
-    // Init the main chat window (chat 0)
-    pMainChat = new QwcChatWidget;
-    pMainChat->setContentsMargins(0, 0, 0, 0);
+    // Use a stacked widget for the GUI switching
+    connectionStackedWidget = new QStackedWidget(connectionWindow);
+    connectionWindow->setCentralWidget(connectionStackedWidget);
 
-    // Init the Connect window (where the user enters host name, login, password)
-    pConnectWindow = new QwcConnectWidget;
-    connect(pConnectWindow, SIGNAL(userFinished(QString,QString,QString)),
+    // Create the login dialog
+    connectWidget = new QwcConnectWidget(connectionStackedWidget);
+    connectionStackedWidget->addWidget(connectWidget);
+    connectionStackedWidget->setCurrentIndex(0);
+
+    connect(connectWidget, SIGNAL(userFinished(QString,QString,QString)),
             this, SLOT(onDoConnect(QString,QString,QString)) );
-    connect(pConnectWindow, SIGNAL(onConnectAborted()),
+    connect(connectWidget, SIGNAL(onConnectAborted()),
             this, SLOT(onConnectAborted()));
 
-    // Set up the container widget
-    pContainerWidget = new QWidget();
-    pContainerLayout = new QStackedLayout(pContainerWidget);
-//#ifndef Q_WS_MAC
-    pContainerWidget->setContentsMargins(6, 6, 6, 6);
-//#endif
-    pContainerWidget->setLayout(pContainerLayout);
+    // Create the tab bar for the normal program use
+    connectionTabWidget = new QTabWidget(connectionStackedWidget);
+    connectionStackedWidget->addWidget(connectionTabWidget);
+    connectionTabWidget->setDocumentMode(true);
+    connectionTabWidget->setTabsClosable(true);
 
-    // Create the tab bar
-    pMainTabWidget = new QTabWidget(pContainerWidget);
-    pMainTabWidget->clear();
-    pMainTabWidget->setVisible(false);
-//#ifdef Q_WS_MAC
-//    pMainTabWidget->setDocumentMode(true);
-//#endif
-    connect(pMainTabWidget, SIGNAL(currentChanged(int)),
+    connect(connectionTabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(onTabBarCurrentChanged(int)) );
 
-    // The tab bar's close button, too
-    QToolButton *tmpTabCloseButton = new QToolButton(pMainTabWidget);
-    tmpTabCloseButton->setIcon(QIcon(":/icons/icn_close.png"));
-    tmpTabCloseButton->setShortcut(QKeySequence("ctrl+w"));
-    tmpTabCloseButton->setEnabled(false);
-    connect( tmpTabCloseButton, SIGNAL(clicked()), this, SLOT(onTabBarCloseButtonClicked()) );
-    pMainTabWidget->setCornerWidget(tmpTabCloseButton);
+//    QToolButton *tabCloseButton = new QToolButton(stackedWidget);
+//    tabCloseButton->setIcon(QIcon(":/icons/icn_close.png"));
+//    tabCloseButton->setShortcut(QKeySequence("ctrl+w"));
+//    tabCloseButton->setEnabled(false);
+//    connect(tabCloseButton, SIGNAL(clicked()),
+//            this, SLOT(onTabBarCloseButtonClicked()));
+//    connectionTabWidget->setCornerWidget(tabCloseButton);
 
-    // Connection window/Forum
-    pUserListModel = new QwcUserlistModel(pMainChat);
+    // Create the initial tab for the main chat
+    mainChatWidget = new QwcChatWidget(connectionWindow);
+    /*: Text of the main connection tab in the connection window. */
+    connectionTabWidget->addTab(mainChatWidget, tr("Chat"));
+        // Connection window/Forum
+    pUserListModel = new QwcUserlistModel(mainChatWidget);
     pUserListModel->setWiredSocket(socket);
-    pMainChat->setSession(this);
-    pMainChat->setUserListModel(pUserListModel);
+    mainChatWidget->setSession(this);
+    mainChatWidget->setUserListModel(pUserListModel);
 
     // Private messenger
-    privateMessager = new QwcPrivateMessager;
-    privateMessager->setParent(pMainChat, Qt::Window);
-
-    // Add the widgets to the stacked layout
-    pContainerWidget->layout()->addWidget(pConnectWindow);
-    pContainerWidget->layout()->addWidget(pMainTabWidget);
-
-    // Set the virtual widget
-    pConnWindow->setCentralWidget(pContainerWidget);
-    pConnWindow->show();
+//    privateMessager = new QwcPrivateMessager;
+//    privateMessager->setParent(mainChatWidget, Qt::Window);
 
     setupConnections();
+    connectionWindow->show();
 
-    // Install the event filter in pConnWindow
+//    return;
+
+
+//    bannerSpace = 0;
+//    bannerView = 0;
+//    bannerSpace2 = 0;
+
+    // Init the main window (which contains the toolbar and other things)
+
+
+    // Init the main chat window (chat 0)
+//    mainChatWidget = new QwcChatWidget;
+//    mainChatWidget->setContentsMargins(0, 0, 0, 0);
+
+    // Set up the container widget, which makes sure there is some spacing
+//    pContainerWidget = new QWidget(connectionWindow);
+//    pContainerLayout = new QStackedLayout(connectionWindow); //(pContainerWidget);
+//#ifndef Q_WS_MAC
+//    pContainerWidget->setContentsMargins(6, 6, 6, 6);
+//#endif
+//    pContainerWidget->setLayout(pContainerLayout);
+
+    // Create the tab bar
+//    connectionTabWidget = new QTabWidget(connectionWindow);
+//    connectionTabWidget->clear();
+//    connectionTabWidget->setVisible(false);
+//#ifdef Q_WS_MAC
+//    connectionTabWidget->setDocumentMode(true);
+//#endif
+//    connect(connectionTabWidget, SIGNAL(currentChanged(int)),
+//            this, SLOT(onTabBarCurrentChanged(int)) );
+
+    // The tab bar's close button, too
+
+
+
+
+    // Add the widgets to the stacked layout
+//    pContainerWidget->layout()->addWidget(connectWidget);
+//    pContainerWidget->layout()->addWidget(connectionTabWidget);
+
+    // Set the virtual widget
+//    connectionWindow->setCentralWidget(connectionTabWidget);
+//    connectionWindow->show();
+
+
+
+    // Install the event filter in connectionWindow
     pEventFilter = new QwcEventFilter;
-    pConnWindow->installEventFilter(pEventFilter);
+    connectionWindow->installEventFilter(pEventFilter);
     pEventFilter->setSocket(socket);
 }
 
@@ -177,8 +211,8 @@ void QwcSession::initMainWindow()
 /// The user list was completely received after connecting.
 void QwcSession::onUserlistComplete(int chatId)
 {
-    if (chatId != 1 && pContainerLayout->currentIndex() != 0) return;
-    pContainerLayout->setCurrentIndex(1);
+    if (chatId != 1 && connectionStackedWidget->currentIndex() != 0) return;
+    connectionStackedWidget->setCurrentIndex(1);
     setConnectionToolButtonsEnabled(true);
 }
 
@@ -186,30 +220,32 @@ void QwcSession::onUserlistComplete(int chatId)
 /// Tab bar close button clicked. Close the current widget.
 void QwcSession::onTabBarCloseButtonClicked()
 {
-    int tmpIdx = pMainTabWidget->currentIndex();
+    int tmpIdx = connectionTabWidget->currentIndex();
     // We check if the chat tab is the current one so that not to close it
-    if(pMainTabWidget->currentWidget() == pMainChat) return;
-    pMainTabWidget->currentWidget()->close();
-    pMainTabWidget->removeTab(tmpIdx);
+    if(connectionTabWidget->currentWidget() == mainChatWidget) return;
+    connectionTabWidget->currentWidget()->close();
+    connectionTabWidget->removeTab(tmpIdx);
 }
 
 
 void QwcSession::onTabBarCurrentChanged(int index)
 {
-    QWidget *tmpBtn = pMainTabWidget->cornerWidget();
+//    return;
+
+//    QWidget *tmpBtn = connectionTabWidget->cornerWidget();
 
     // We check if the chat tab is the current one so that not to close it
-    if(pMainTabWidget->currentWidget() != pMainChat) {
-        tmpBtn->setEnabled(true);
-    } else {
-        tmpBtn->setEnabled(false);
-    }
+//    if(connectionTabWidget->currentWidget() != mainChatWidget) {
+//        tmpBtn->setEnabled(true);
+//    } else {
+//        tmpBtn->setEnabled(false);
+//    }
 
     // Icon removal for private chats
-    QWidget *tmpWid = pMainTabWidget->widget(index);
+    QWidget *tmpWid = connectionTabWidget->widget(index);
     QwcChatWidget *tmpChat = qobject_cast<QwcChatWidget*>(tmpWid);
-    if(tmpChat && tmpChat->pChatID!=1) {
-        pMainTabWidget->setTabIcon(index, QIcon(":/icons/tab-idle.png"));
+    if(tmpChat && tmpChat->pChatID != 1) {
+        connectionTabWidget->setTabIcon(index, QIcon(":/icons/tab-idle.png"));
     }
 }
 
@@ -243,7 +279,7 @@ void QwcSession::setupConnections()
             privateMessager, SLOT(handleNewMessage(QwcUserInfo, QString)) );
     connect(privateMessager, SIGNAL(enteredNewMessage(int,QString)),
             socket, SLOT(sendPrivateMessage(int,QString)));
-    connect(pMainChat, SIGNAL(userDoubleClicked(const QwcUserInfo)),
+    connect(mainChatWidget, SIGNAL(userDoubleClicked(const QwcUserInfo)),
             this, SLOT(showMessagerForUser(const QwcUserInfo)));
     connect(socket, SIGNAL(userChanged(QwcUserInfo, QwcUserInfo)),
             privateMessager, SLOT(handleUserChanged(QwcUserInfo, QwcUserInfo)) );
@@ -274,7 +310,10 @@ void QwcSession::setupConnections()
     connect(socket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
     connect(socket, SIGNAL(userLeftRoom(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
     connect(socket, SIGNAL(userChanged(QwcUserInfo,QwcUserInfo)), this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
-    connect(socket, SIGNAL(onServerNewsPosted(QString, QString, QString)), this, SLOT(newsPosted(QString,QString,QString)) );
+
+    // News
+    connect(socket, SIGNAL(newsPosted(QString,QDateTime,QString)),
+            this, SLOT(newsPosted(QString,QDateTime,QString)) );
 
     // File transfer signals
     connect(socket, SIGNAL(fileTransferDone(const QwcTransferInfo)), this, SLOT(transferDone(QwcTransferInfo)) );
@@ -285,19 +324,19 @@ void QwcSession::setupConnections()
 
     // Main Window actions
     //
-    connect( pConnWindow->actionNewConnection, SIGNAL(triggered()), this, SLOT(doActionNewConnection()) );
+    connect( connectionWindow->actionNewConnection, SIGNAL(triggered()), this, SLOT(doActionNewConnection()) );
 
-    connect( pConnWindow->actionDisconnect, SIGNAL(triggered(bool)), this, SLOT(doActionDisconnect()));
-    connect( pConnWindow->actionAccounts, SIGNAL(triggered(bool)), this, SLOT(doActionAccounts()) );
-    connect( pConnWindow->actionNews, SIGNAL(triggered()), this, SLOT(doActionNews()) );
-    connect( pConnWindow->actionServerInfo, SIGNAL(triggered(bool)), this, SLOT(doActionServerInfo()) );
-    connect( pConnWindow->actionBroadcast, SIGNAL(triggered(bool)), this, SLOT(doActionBroadcast()) );
-    connect( pConnWindow->actionFiles, SIGNAL(triggered(bool)), this, SLOT(doActionFiles()) );
-    connect( pConnWindow->actionPreferences, SIGNAL(triggered(bool)), this, SLOT(doActionPreferences()));
-    connect( pConnWindow->actionTrackers, SIGNAL(triggered(bool)), this, SLOT(doActionTrackers()) );
-    connect( pConnWindow->actionSearch, SIGNAL(triggered(bool)), this, SLOT(doActionFileSearch()) );
-    connect( pConnWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(doActionTransfers()) );
-    //connect( pConnWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
+    connect( connectionWindow->actionDisconnect, SIGNAL(triggered(bool)), this, SLOT(doActionDisconnect()));
+    connect( connectionWindow->actionAccounts, SIGNAL(triggered(bool)), this, SLOT(doActionAccounts()) );
+    connect( connectionWindow->actionNews, SIGNAL(triggered()), this, SLOT(doActionNews()) );
+    connect( connectionWindow->actionServerInfo, SIGNAL(triggered(bool)), this, SLOT(doActionServerInfo()) );
+    connect( connectionWindow->actionBroadcast, SIGNAL(triggered(bool)), this, SLOT(doActionBroadcast()) );
+    connect( connectionWindow->actionFiles, SIGNAL(triggered(bool)), this, SLOT(doActionFiles()) );
+    connect( connectionWindow->actionPreferences, SIGNAL(triggered(bool)), this, SLOT(doActionPreferences()));
+    connect( connectionWindow->actionTrackers, SIGNAL(triggered(bool)), this, SLOT(doActionTrackers()) );
+    connect( connectionWindow->actionSearch, SIGNAL(triggered(bool)), this, SLOT(doActionFileSearch()) );
+    connect( connectionWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(doActionTransfers()) );
+    //connect( connectionWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
 
     // Notification manager
     //
@@ -322,7 +361,7 @@ void QwcSession::fileInformation(QwcFileInfo theFile)
 
     if(!win) {
         win = new QwcFileInfoWidget();
-        win->setParent(pConnWindow, Qt::Window);
+        win->setParent(connectionWindow, Qt::Window);
         pFileInfos[theFile.path] = win;
     }
 
@@ -340,7 +379,7 @@ void QwcSession::fileInformation(QwcFileInfo theFile)
 // Enable/Disable GUI elements depending on the privileges
 void QwcSession::onSocketPrivileges(QwcUserInfo s)
 {
-    pConnWindow->actionAccounts->setEnabled(s.privEditAccounts);
+    connectionWindow->actionAccounts->setEnabled(s.privEditAccounts);
 }
 
 
@@ -350,7 +389,7 @@ void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theT
     QwcUserInfo tmpUsr = socket->users[theUserID]; //socket->getUserByID(theUserID); // Find the user
     if(theChat==1) {
         // Public chat
-        pMainChat->writeToChat(tmpUsr.userNickname, theText, theIsAction);
+        mainChatWidget->writeToChat(tmpUsr.userNickname, theText, theIsAction);
 
         // Trigger the event
         QStringList tmpParams;
@@ -369,9 +408,9 @@ void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theT
         chat->writeToChat(tmpUsr.userNickname, theText, theIsAction);
 
         // Find the index on the tab panel
-        int tmpIdx = pMainTabWidget->indexOf(chat);
-        if( tmpIdx>-1 && pMainTabWidget->currentIndex()!=tmpIdx )
-            pMainTabWidget->setTabIcon( tmpIdx, QIcon(":/icons/tab-content.png") );
+        int tmpIdx = connectionTabWidget->indexOf(chat);
+        if( tmpIdx>-1 && connectionTabWidget->currentIndex()!=tmpIdx )
+            connectionTabWidget->setTabIcon( tmpIdx, QIcon(":/icons/tab-content.png") );
     }
 }
 
@@ -382,7 +421,7 @@ void QwcSession::doHandleChatTopic(int theChatID, QString theNick, QString theLo
     Q_UNUSED(theIP);
     if( theChatID==1 ) {
         // Public chat
-        pMainChat->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
+        mainChatWidget->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
     } else if(pChats.contains(theChatID)) {
         // Topic of private chat
         QwcChatWidget *chat = pChats[theChatID];
@@ -396,10 +435,10 @@ void QwcSession::doHandleChatTopic(int theChatID, QString theNick, QString theLo
 void QwcSession::doHandleUserInfo(QwcUserInfo theUser)
 {
 
-    for(int i=0; i<pMainTabWidget->count(); i++) {
-        QwcUserInfoWidget *info = dynamic_cast<QwcUserInfoWidget*>(pMainTabWidget->widget(i));
+    for(int i=0; i<connectionTabWidget->count(); i++) {
+        QwcUserInfoWidget *info = dynamic_cast<QwcUserInfoWidget*>(connectionTabWidget->widget(i));
         if(info && info->pUserID==theUser.pUserID) { // Found existing window
-            pMainTabWidget->setCurrentIndex(i);
+            connectionTabWidget->setCurrentIndex(i);
             info->setUser(theUser);
             return;
         } }
@@ -410,7 +449,7 @@ void QwcSession::doHandleUserInfo(QwcUserInfo theUser)
 // Received an invitation to a private chat.
 void QwcSession::doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser)
 {
-    QMessageBox messageBox(pConnWindow);
+    QMessageBox messageBox(connectionWindow);
     messageBox.setWindowTitle(tr("Private Chat Invitation"));
     messageBox.setText(tr("%1 has invited you to a private chat.\nJoin to open a separate private chat with %1.").arg(theUser.userNickname) );
     messageBox.setIconPixmap( QPixmap(":/icons/btn_chat.png") );
@@ -437,7 +476,7 @@ void QwcSession::doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUse
 // Create a new private chat window and set the chat id on it.
 void QwcSession::doCreateNewChat(int theChatID)
 {
-    QwcChatWidget *chat = new QwcChatWidget(pConnWindow);
+    QwcChatWidget *chat = new QwcChatWidget(connectionWindow);
     QwcUserlistModel *model = new QwcUserlistModel(chat);
     chat->setSession(this);
     chat->pChatID = theChatID;
@@ -445,17 +484,17 @@ void QwcSession::doCreateNewChat(int theChatID)
     chat->fBtnChat->setVisible(false);
     pChats[theChatID] = chat;
 
-    int tmpIdx = pMainTabWidget->addTab(chat, tr("Private Chat"));
-    pMainTabWidget->setCurrentIndex(tmpIdx);
-    pMainTabWidget->setTabIcon(tmpIdx, QIcon(":/icons/tab-idle.png"));
+    int tmpIdx = connectionTabWidget->addTab(chat, tr("Private Chat"));
+    connectionTabWidget->setCurrentIndex(tmpIdx);
+    connectionTabWidget->setTabIcon(tmpIdx, QIcon(":/icons/tab-idle.png"));
 }
 
 
 /// Received the server info header. Update the connect window.
 void QwcSession::onSocketServerInfo()
 {
-    pConnectWindow->setStatus(tr("Connecting. Starting session..."));
-    if(pConnectWindow>0) pConnectWindow->setProgressBar(1,3);
+    connectWidget->setStatus(tr("Connecting. Starting session..."));
+    if(connectWidget>0) connectWidget->setProgressBar(1,3);
     if(pTrayMenuItem) pTrayMenuItem->setTitle(socket->serverInfo.name);
 }
 
@@ -480,18 +519,18 @@ void QwcSession::onDoConnect(QString theHost, QString theLogin, QString thePassw
 /// Enable/Disable connection-related toolbar items (true if connected)
 void QwcSession::setConnectionToolButtonsEnabled(bool theEnable)
 {
-    pConnWindow->actionReconnect->setEnabled(!theEnable);
-    pConnWindow->actionDisconnect->setEnabled(theEnable);
-    pConnWindow->actionServerInfo->setEnabled(theEnable);
-    pConnWindow->actionChat->setEnabled(theEnable);
-    pConnWindow->actionNews->setEnabled(theEnable);
-    pConnWindow->actionFiles->setEnabled(theEnable);
-    pConnWindow->actionTransfers->setEnabled(theEnable);
-    pConnWindow->actionAccounts->setEnabled(theEnable);
-    pConnWindow->actionInformation->setEnabled(theEnable);
-    pConnWindow->actionNewsPost->setEnabled(theEnable);
-    pConnWindow->actionBroadcast->setEnabled(theEnable);
-    pConnWindow->actionSearch->setEnabled(theEnable);
+    connectionWindow->actionReconnect->setEnabled(!theEnable);
+    connectionWindow->actionDisconnect->setEnabled(theEnable);
+    connectionWindow->actionServerInfo->setEnabled(theEnable);
+    connectionWindow->actionChat->setEnabled(theEnable);
+    connectionWindow->actionNews->setEnabled(theEnable);
+    connectionWindow->actionFiles->setEnabled(theEnable);
+    connectionWindow->actionTransfers->setEnabled(theEnable);
+    connectionWindow->actionAccounts->setEnabled(theEnable);
+    connectionWindow->actionInformation->setEnabled(theEnable);
+    connectionWindow->actionNewsPost->setEnabled(theEnable);
+    connectionWindow->actionBroadcast->setEnabled(theEnable);
+    connectionWindow->actionSearch->setEnabled(theEnable);
 }
 
 
@@ -511,17 +550,17 @@ void QwcSession::setBannerView(const QImage theBanner)
         bannerSpace2 = 0;
     }
 
-    bannerSpace = new QWidget(pConnWindow->fToolBar);
+    bannerSpace = new QWidget(connectionWindow->fToolBar);
     bannerSpace->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    pConnWindow->fToolBar->addWidget(bannerSpace);
+    connectionWindow->fToolBar->addWidget(bannerSpace);
 
-    bannerView = new QLabel(pConnWindow->fToolBar);
+    bannerView = new QLabel(connectionWindow->fToolBar);
     bannerView->setPixmap(QPixmap::fromImage(theBanner));
-    pConnWindow->fToolBar->addWidget(bannerView);
+    connectionWindow->fToolBar->addWidget(bannerView);
 
-    bannerSpace2 = new QWidget(pConnWindow->fToolBar);
+    bannerSpace2 = new QWidget(connectionWindow->fToolBar);
     bannerSpace2->setFixedWidth(10);
-    pConnWindow->fToolBar->addWidget(bannerSpace2);
+    connectionWindow->fToolBar->addWidget(bannerSpace2);
 
 }
 
@@ -546,17 +585,17 @@ void QwcSession::search_reveal_file(QString thePath)
 void QwcSession::setTrayMenuAction(QMenu *action)
 {
     pTrayMenuItem = action;
-    pTrayMenuItem->setTitle(pConnWindow->windowTitle());
+    pTrayMenuItem->setTitle(connectionWindow->windowTitle());
 
     QAction* tmpShowHide = new QAction(QIcon(":icons/icn_showhide.png"), tr("Show/Hide"), this );
-    connect(tmpShowHide, SIGNAL(triggered(bool)), pConnWindow, SLOT(toggleVisible()) );
+    connect(tmpShowHide, SIGNAL(triggered(bool)), connectionWindow, SLOT(toggleVisible()) );
 
 
-    pTrayMenuItem->addAction(pConnWindow->actionNews);
-    pTrayMenuItem->addAction(pConnWindow->actionFiles);
-    pTrayMenuItem->addAction(pConnWindow->actionTransfers);
-    pTrayMenuItem->addAction(pConnWindow->actionSearch);
-    pTrayMenuItem->addAction(pConnWindow->actionDisconnect);
+    pTrayMenuItem->addAction(connectionWindow->actionNews);
+    pTrayMenuItem->addAction(connectionWindow->actionFiles);
+    pTrayMenuItem->addAction(connectionWindow->actionTransfers);
+    pTrayMenuItem->addAction(connectionWindow->actionSearch);
+    pTrayMenuItem->addAction(connectionWindow->actionDisconnect);
     pTrayMenuItem->addAction(tmpShowHide);
 }
 
@@ -589,7 +628,7 @@ void QwcSession::triggerEvent(QString event, QStringList params)
 
     // Write to the chat
     if(conf.value(QString("events/%1/chat").arg(event)).toBool())
-        pMainChat->writeEventToChat(tmpMsg);
+        mainChatWidget->writeEventToChat(tmpMsg);
 
     // Show a message in the system tray
     if(conf.value(QString("events/%1/traymsg").arg(event)).toBool()) {
@@ -647,12 +686,14 @@ void QwcSession::newsPosted(QString theNick, QString, QString thePost)
 
 void QwcSession::transferStarted(QwcTransferInfo transfer)
 {
+    Q_UNUSED(transfer);
     //triggerEvent("TransferStarted", QStringList(transfer.fileName()));
 }
 
 
 void QwcSession::transferDone(QwcTransferInfo transfer)
 {
+    Q_UNUSED(transfer);
 //    QSettings s;
 //    if(s.value("files/queue_local", false).toBool()) {
 //        qDebug() << this<< "Transfer completed. Unfreezing next.";
@@ -674,10 +715,10 @@ void QwcSession::transferSocketError(QAbstractSocket::SocketError error)
 /// The login was successful, switch to forum view.
 void QwcSession::onLoginSuccessful()
 {
-    if(!pConnectWindow) return;
-    pMainTabWidget->addTab(pMainChat, "Chat");
-    pConnectWindow->setStatus(tr("Receiving user list..."));
-    pConnectWindow->setProgressBar(2,3);
+    if(!connectWidget) return;
+    connectionTabWidget->addTab(mainChatWidget, "Chat");
+    connectWidget->setStatus(tr("Receiving user list..."));
+    connectWidget->setProgressBar(2,3);
     triggerEvent("ServerConnected",QStringList());
 }
 
@@ -744,10 +785,10 @@ void QwcSession::doActionDisconnect()
     // And then we disconnect
     if(reallyDisconnect) {
         setConnectionToolButtonsEnabled(false);
-        pMainChat->resetForm();
-        pConnectWindow->resetForm();
+        mainChatWidget->resetForm();
+        connectWidget->resetForm();
         socket->disconnectFromServer();
-        pContainerLayout->setCurrentIndex(0); // go to connect dialog
+        connectionStackedWidget->setCurrentIndex(0); // go to connect dialog
         socket->serverInfo = QwServerInfo();
     }
 }
@@ -757,9 +798,9 @@ void QwcSession::doActionDisconnect()
 void QwcSession::doActionAccounts()
 {
     if(!pWinAccounts) {
-        pWinAccounts = new QwcAccountsWidget(pConnWindow);
-        int tmpIdx = pMainTabWidget->addTab(pWinAccounts, tr("Accounts"));
-        pMainTabWidget->setCurrentIndex(tmpIdx);
+        pWinAccounts = new QwcAccountsWidget(connectionWindow);
+        int tmpIdx = connectionTabWidget->addTab(pWinAccounts, tr("Accounts"));
+        connectionTabWidget->setCurrentIndex(tmpIdx);
         connect( socket, SIGNAL(receivedAccountList(QStringList)), pWinAccounts, SLOT(appendUserNames(QStringList)) );
         connect( socket, SIGNAL(receivedAccountGroupList(QStringList)), pWinAccounts, SLOT(appendGroupNames(QStringList)) );
         connect( socket, SIGNAL(userSpecReceived(QwcUserInfo)), pWinAccounts, SLOT(loadUserSpec(QwcUserInfo)) );
@@ -776,8 +817,8 @@ void QwcSession::doActionAccounts()
         socket->getGroups();
         socket->getUsers();
     } else {
-        int tmpIdx = pMainTabWidget->indexOf(pWinAccounts);
-        pMainTabWidget->setCurrentIndex(tmpIdx);
+        int tmpIdx = connectionTabWidget->indexOf(pWinAccounts);
+        connectionTabWidget->setCurrentIndex(tmpIdx);
     }
 }
 
@@ -785,43 +826,52 @@ void QwcSession::doActionAccounts()
 /// Request the news from the server.
 void QwcSession::doActionNews()
 {
-    if( !pWinNews ) {
-        pWinNews = new QwcNewsWidget();
-        connect( socket, SIGNAL(onServerNews(QString, QString, QString)), pWinNews, SLOT(addNewsItem(QString, QString, QString)) );
-        connect( socket, SIGNAL(onServerNewsPosted(QString, QString, QString)), pWinNews, SLOT(addFreshNewsItem(QString, QString, QString)) );
-        connect( socket, SIGNAL(newsDone()), pWinNews, SLOT(newsDone()) );
-        connect( pWinNews, SIGNAL(doRefreshNews()), socket, SLOT(getNews()) );
-
-        // We check for the proper purrmissions
-        // Also, we don't want the button to be active if there are no news to clear
-
-        qDebug("News counter: %u",pWinNews->newsCount());
-
-        if(socket->sessionUser.privClearNews && pWinNews->newsCount()) {
-            connect( pWinNews, SIGNAL(onDeleteNews()), socket, SLOT(clearNews()) );
-            connect( pWinNews, SIGNAL(onDeleteNews()), pWinNews, SLOT(clearTextArea()));
-        } else {
-            pWinNews->setDisabledClearButton(true);
-        }
-
-        if(socket->sessionUser.privPostNews) {
-            connect( pWinNews, SIGNAL(doPostNews(QString)), socket, SLOT(postNews(QString)) );
-        } else {
-            pWinNews->setDisabledPostButton(true);
-        }
-
-
-
-        // Display the widget using a Tab
-        int tmpIdx = pMainTabWidget->addTab(pWinNews, QIcon(), tr("News"));
-        pMainTabWidget->setCurrentIndex(tmpIdx);
-
-        socket->getNews();
-    } else {
-        int tmpIdx = pMainTabWidget->indexOf(pWinNews);
-        pMainTabWidget->setCurrentIndex(tmpIdx);
-        //pWinNews->raise();
+    if (pWinNews) {
+        int tmpIdx = connectionTabWidget->indexOf(pWinNews);
+        connectionTabWidget->setCurrentIndex(tmpIdx);
     }
+
+    pWinNews = new QwcNewsWidget();
+
+    connect(socket, SIGNAL(newsListingItem(QString,QDateTime&,QString)),
+            pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
+    connect(socket, SIGNAL(newsPosted(QString,QDateTime&,QString)),
+            pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
+    connect(socket, SIGNAL(newsListingDone()),
+            pWinNews, SLOT(newsDone()));
+
+    connect(pWinNews, SIGNAL(requestedRefresh()),
+            socket, SLOT(getNews()));
+
+    // Enable/Disable GUI elements depending on the privileges
+    pWinNews->setupFromUser(socket->sessionUser);
+
+
+    // We check for the proper purrmissions
+    // Also, we don't want the button to be active if there are no news to clear
+
+//    qDebug("News counter: %u",pWinNews->newsCount());
+//
+//    if (socket->sessionUser.privClearNews && pWinNews->newsCount()) {
+//        connect( pWinNews, SIGNAL(userPurgedNews()), socket, SLOT(clearNews()) );
+//    } else {
+//        pWinNews->setDisabledClearButton(true);
+//    }
+//
+//    if (socket->sessionUser.privPostNews) {
+//        connect( pWinNews, SIGNAL(doPostNews(QString)), socket, SLOT(postNews(QString)) );
+//    } else {
+//        pWinNews->setDisabledPostButton(true);
+//    }
+
+
+
+    // Display the widget using a Tab
+    int tmpIdx = connectionTabWidget->addTab(pWinNews, QIcon(), tr("News"));
+    connectionTabWidget->setCurrentIndex(tmpIdx);
+
+    socket->getNews();
+
 }
 
 
@@ -831,7 +881,7 @@ void QwcSession::doActionServerInfo()
     if( !pServerWindow ) {
         pServerWindow = new QwcServerInfoWidget();
         pServerWindow->loadInfo(socket);
-        pMainTabWidget->addTab(pServerWindow, tr("Server Info"));
+        connectionTabWidget->addTab(pServerWindow, tr("Server Info"));
     } else {
         pServerWindow->raise();
     }
@@ -842,8 +892,8 @@ void QwcSession::doActionServerInfo()
 void QwcSession::doActionBroadcast()
 {
 //    SendPrivateMessageWidget *msg = new SendPrivateMessageWidget();
-//    msg->setParent(pConnWindow, Qt::Window);
-//    msg->move( pConnWindow->pos() );
+//    msg->setParent(connectionWindow, Qt::Window);
+//    msg->move( connectionWindow->pos() );
 //    msg->show();
 }
 
@@ -853,18 +903,18 @@ void QwcSession::doActionFiles(QString thePath)
 {
     if(!pWinFileBrowser) {
         pWinFileBrowser = new QwcFileBrowserWidget;
-        pWinFileBrowser->setParent(pConnWindow, Qt::Window);
+        pWinFileBrowser->setParent(connectionWindow, Qt::Window);
         pWinFileBrowser->initWithConnection(this);
         pWinFileBrowser->setPath(thePath);
         pWinFileBrowser->pModel->pWaitingForList = true;
         socket->getFileList(thePath);
 
         // Display the widget using a Tab
-        pMainTabWidget->setCurrentIndex(pMainTabWidget->addTab(pWinFileBrowser, QIcon(), tr("Files")));
+        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(pWinFileBrowser, QIcon(), tr("Files")));
 
     } else {
-        int tmpIdx = pMainTabWidget->indexOf(pWinFileBrowser);
-        pMainTabWidget->setCurrentIndex(tmpIdx);
+        int tmpIdx = connectionTabWidget->indexOf(pWinFileBrowser);
+        connectionTabWidget->setCurrentIndex(tmpIdx);
     }
 }
 
@@ -883,8 +933,8 @@ void QwcSession::doActionPreferences()
 {
     if( pPrefsWindow==0 ) {
         pPrefsWindow = new QwcPreferencesWidget;
-        pPrefsWindow->setParent(pConnWindow, Qt::Window);
-        pPrefsWindow->move(pConnWindow->pos() );
+        pPrefsWindow->setParent(connectionWindow, Qt::Window);
+        pPrefsWindow->move(connectionWindow->pos() );
         pPrefsWindow->show();
     } else {
         pPrefsWindow->raise();
@@ -898,7 +948,7 @@ void QwcSession::doActionTrackers()
     if(!pWinTrackers) {
         QwcSingleton *tmpS = &WSINGLETON::Instance();
         pWinTrackers = new QwcTrackerlistWidget();
-        pWinTrackers->setParent(pConnWindow, Qt::Window);
+        pWinTrackers->setParent(connectionWindow, Qt::Window);
         connect(pWinTrackers, SIGNAL(newConnectionRequested(QString)), tmpS, SLOT(makeNewConnection(QString)));
         pWinTrackers->show();
     } else {
@@ -911,17 +961,17 @@ void QwcSession::doActionTrackers()
 void QwcSession::doActionFileSearch()
 {
     if(!pFileSearch) {
-        pFileSearch = new QwcFileSearchWidget(pConnWindow);
-        int tmpIdx = pMainTabWidget->addTab(pFileSearch, tr("File Search"));
-        pMainTabWidget->setCurrentIndex(tmpIdx);
+        pFileSearch = new QwcFileSearchWidget(connectionWindow);
+        int tmpIdx = connectionTabWidget->addTab(pFileSearch, tr("File Search"));
+        connectionTabWidget->setCurrentIndex(tmpIdx);
         connect( socket, SIGNAL(fileSearchDone(QList<QwcFileInfo>)),
                  pFileSearch, SLOT(updateResults(QList<QwcFileInfo>)) );
         connect( pFileSearch, SIGNAL(search(QString)), socket, SLOT(searchFiles(QString)) );
         connect( pFileSearch, SIGNAL(downloadFile(QString)), this, SLOT(search_download_file(QString)) );
         connect( pFileSearch, SIGNAL(revealFile(QString)), this, SLOT(search_reveal_file(QString)) );
     } else {
-        int tmpIdx = pMainTabWidget->indexOf(pFileSearch);
-        pMainTabWidget->setCurrentIndex(tmpIdx);
+        int tmpIdx = connectionTabWidget->indexOf(pFileSearch);
+        connectionTabWidget->setCurrentIndex(tmpIdx);
     }
 }
 
@@ -930,9 +980,9 @@ void QwcSession::doActionFileSearch()
 void QwcSession::doActionTransfers()
 {
     if( !pTranfersWindow ) {
-        pTranfersWindow = new QwcFiletransferWidget(pConnWindow);
-        int tmpIdx = pMainTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
-        pMainTabWidget->setCurrentIndex(tmpIdx);
+        pTranfersWindow = new QwcFiletransferWidget(connectionWindow);
+        int tmpIdx = connectionTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
+        connectionTabWidget->setCurrentIndex(tmpIdx);
         // Model
         QwcFiletransferModel *tmpModel = new QwcFiletransferModel(pTranfersWindow->transferList);
         tmpModel->setSocket(socket);
@@ -943,15 +993,16 @@ void QwcSession::doActionTransfers()
                 socket, SLOT(pauseTransfer(QwcTransferInfo)) );
 
     } else {
-        int tmpIdx = pMainTabWidget->indexOf(pTranfersWindow);
-        pMainTabWidget->setCurrentIndex(tmpIdx);
+        int tmpIdx = connectionTabWidget->indexOf(pTranfersWindow);
+        connectionTabWidget->setCurrentIndex(tmpIdx);
     }
 }
 
 
 void QwcSession::transferError(QwcTransferInfo transfer)
 {
-//    QMessageBox::critical(pConnWindow, tr("File Transfer Error"),
+    Q_UNUSED(transfer);
+//    QMessageBox::critical(connectionWindow, tr("File Transfer Error"),
 //                          tr("The transfer of file '%1' could not be completed because of an error.\n"
 //                             "Possibly the file transfer TCP port is blocked by a firewall or the server "
 //                             "is configured incorrectly.").arg(transfer.fileName()));
@@ -961,6 +1012,8 @@ void QwcSession::transferError(QwcTransferInfo transfer)
 
 void QwcSession::downloadFolder(const QString &remotePath, const QString &localPath)
 {
+    Q_UNUSED(localPath);
+    Q_UNUSED(remotePath);
 //    QSettings s;
 //    socket->getFolder(remotePath, localPath, true);
 //    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderDownload);
@@ -970,19 +1023,10 @@ void QwcSession::downloadFolder(const QString &remotePath, const QString &localP
 }
 
 
-void QwcSession::uploadFile(const QString &localPath, const QString &remotePath)
-{
-//    QSettings s;
-//    socket->putFile(localPath, remotePath, true);
-//    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeUpload);
-//    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
-//    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-//        socket->runTransferQueue(Qw::TransferTypeUpload);
-}
-
-
 void QwcSession::uploadFolder(const QString &localPath, const QString &remotePath)
 {
+    Q_UNUSED(remotePath);
+    Q_UNUSED(localPath);
 //    QSettings s;
 //    socket->putFolder(localPath, remotePath, true);
 //    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderUpload);
@@ -1031,10 +1075,10 @@ void QwcSession::uploadFolder(const QString &localPath, const QString &remotePat
 void QwcSession::showMessagerForUser(const QwcUserInfo targetUser)
 {
     if (!privateMessager) { return; }
-    if (pMainTabWidget->indexOf(privateMessager) == -1) {
-        pMainTabWidget->setCurrentIndex(pMainTabWidget->addTab(privateMessager, tr("Private Messages")));
+    if (connectionTabWidget->indexOf(privateMessager) == -1) {
+        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(privateMessager, tr("Private Messages")));
     } else {
-        pMainTabWidget->setCurrentIndex(pMainTabWidget->indexOf(privateMessager));
+        connectionTabWidget->setCurrentIndex(connectionTabWidget->indexOf(privateMessager));
     }
     privateMessager->handleNewMessage(targetUser, QString());
 }

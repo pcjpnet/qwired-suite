@@ -351,7 +351,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>fAddress</tabstop>
+  <tabstop>fLogin</tabstop>
+  <tabstop>fPassword</tabstop>
+  <tabstop>btnConnect</tabstop>
+  <tabstop>fBtnFavourites</tabstop>
+  <tabstop>fBtnCancel</tabstop>
+ </tabstops>
  <resources>
+  <include location="application.qrc"/>
   <include location="application.qrc"/>
  </resources>
  <connections/>

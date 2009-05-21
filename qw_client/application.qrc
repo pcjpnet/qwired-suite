@@ -102,5 +102,6 @@
         <file>icons/32x32/qwired-server-logo.png</file>
         <file>icons/16x16/qwired-server-logo.png</file>
         <file>icons/32x32/media-playback-pause.png</file>
+        <file>icons/16x16/mail-message-new.png</file>
     </qresource>
 </RCC>

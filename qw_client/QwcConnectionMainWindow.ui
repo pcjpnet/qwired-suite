@@ -247,10 +247,16 @@
    <property name="text">
     <string>Preferences...</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
+   </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About QWired...</string>
+    <string>About Qwired...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
    </property>
   </action>
   <action name="actionTrackers">
@@ -278,6 +284,7 @@
   </action>
  </widget>
  <resources>
+  <include location="application.qrc"/>
   <include location="application.qrc"/>
  </resources>
  <connections/>
