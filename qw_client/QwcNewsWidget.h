@@ -29,13 +29,13 @@ private:
 
 signals:
     void requestedRefresh();
-    void doPostNews(QString);
+    void doPostNews(QString text);
     /*! This signal is emitted when the user clicked the 'purge news' button and all news should
         be purged from the server database. */
     void userPurgedNews();
 
 public slots:
-    void addNewsItem(QString theNick, QDateTime &time, QString thePost);
+    void addNewsItem(QString theNick, QDateTime &time, QString thePost, bool insertAtTop = false);
     void newsDone();
 
 private slots:
