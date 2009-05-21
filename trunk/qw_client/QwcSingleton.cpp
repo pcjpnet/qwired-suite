@@ -29,7 +29,7 @@ QwcSingleton::~QwcSingleton()
 QString QwcSingleton::systemMonospaceFont()
 {
 #ifdef Q_WS_X11
-    return "FreeMono";
+    return "Monospace";
 #endif
 #ifdef Q_WS_WIN
     return "Andale Mono";
@@ -133,8 +133,8 @@ void QwcSingleton::makeNewConnection(QString address)     // <-- Very basic func
     QwcSession *tmpConn = new QwcSession();
     addSession(tmpConn);
     tmpConn->onDoConnect(address, QString(""), QString(""));
-    tmpConn->pConnectWindow->fContainer->setCurrentIndex(1);
-    tmpConn->pConnectWindow->fStatus->setText(tr("Connecting..."));
+//    tmpConn->pConnectWindow->fContainer->setCurrentIndex(1);
+//    tmpConn->pConnectWindow->fStatus->setText(tr("Connecting..."));
 }
 
 

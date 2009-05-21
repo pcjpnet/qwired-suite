@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="nl_NL">
+<!DOCTYPE TS>
+<TS version="2.0" language="nl_NL">
 <context>
     <name>QwcAboutWidget</name>
     <message>
@@ -41,11 +42,14 @@
         <translation type="unfinished">Annuleren</translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.cpp" line="193"/>
         <location filename="../QwcAccountsWidget.ui" line="730"/>
         <source>Apply Changes</source>
         <translation type="unfinished">Pas toe</translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.cpp" line="194"/>
+        <location filename="../QwcAccountsWidget.ui" line="383"/>
         <location filename="../QwcAccountsWidget.ui" line="723"/>
         <source>Delete</source>
         <translation type="unfinished">Verwijder</translation>
@@ -216,6 +220,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../QwcAccountsWidget.ui" line="626"/>
         <location filename="../QwcAccountsWidget.ui" line="683"/>
         <source>KB/s</source>
         <translation type="unfinished"></translation>
@@ -229,6 +234,7 @@
 <context>
     <name>QwcChatWidget</name>
     <message>
+        <location filename="../QwcChatWidget.cpp" line="328"/>
         <location filename="../QwcChatWidget.cpp" line="343"/>
         <source>Kick</source>
         <translation type="unfinished"></translation>
@@ -291,12 +297,12 @@ Geef een reden op en druk OK.</translation>
 <context>
     <name>QwcConnectWidget</name>
     <message>
-        <location filename="../QwcConnectWidget.cpp" line="30"/>
+        <location filename="../QwcConnectWidget.cpp" line="36"/>
         <source>Connecting...</source>
         <translation type="unfinished">Verbinding wordt tot stand gebracht...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectWidget.cpp" line="97"/>
+        <location filename="../QwcConnectWidget.cpp" line="103"/>
         <source>Waiting for reconnect...</source>
         <translation type="unfinished">Wachtend op de verbinding...</translation>
     </message>
@@ -429,6 +435,7 @@ Geef een reden op en druk OK.</translation>
         <translation type="unfinished">Bestanden</translation>
     </message>
     <message>
+        <location filename="../QwcConnectionMainWindow.ui" line="163"/>
         <location filename="../QwcConnectionMainWindow.ui" line="243"/>
         <source>Ctrl+F</source>
         <translation type="unfinished"></translation>
@@ -489,27 +496,31 @@ Geef een reden op en druk OK.</translation>
         <translation type="unfinished">Voorkeuren...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="253"/>
-        <source>About QWired...</source>
-        <translation type="unfinished">Over QWired...</translation>
+        <location filename="../QwcConnectionMainWindow.ui" line="256"/>
+        <source>About Qwired...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="258"/>
+        <source>About QWired...</source>
+        <translation type="obsolete">Over QWired...</translation>
+    </message>
+    <message>
+        <location filename="../QwcConnectionMainWindow.ui" line="264"/>
         <source>Trackers</source>
         <translation type="unfinished">Trackers</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="261"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="267"/>
         <source>Show a list of configured trackers and servers registered with them.</source>
         <translation type="unfinished">Toon een lijst van geconfigureerde trackers en servers die erbij geregistreerd zijn.</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="264"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="270"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="276"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="282"/>
         <source>Messages</source>
         <translation type="unfinished">Berichten</translation>
     </message>
@@ -522,7 +533,7 @@ Geef een reden op en druk OK.</translation>
         <translation type="unfinished">Verbreek Verbinding</translation>
     </message>
     <message>
-        <location filename="../QwcEventFilter.cpp" line="35"/>
+        <location filename="../QwcEventFilter.cpp" line="34"/>
         <source>Are you sure you want to continue? If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
 </source>
         <translation type="unfinished">Ben je zeker dat je verder wil gaan? Als je de verbinding met &quot;%1&quot; verbreekt zullen alle huidige transfers verbroken worden.</translation>
@@ -531,27 +542,28 @@ Geef een reden op en druk OK.</translation>
 <context>
     <name>QwcFileBrowserWidget</name>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="109"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="108"/>
         <source>%1 items, %2 total, %3 available</source>
         <translation type="unfinished">%1 items, %2 totaal, %3 beschikbaar</translation>
     </message>
     <message>
+        <location filename="../QwcFileBrowserWidget.cpp" line="114"/>
         <location filename="../QwcFileBrowserWidget.cpp" line="115"/>
         <source>Files - %1</source>
         <translation type="unfinished">Bestanden - %1</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="183"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="184"/>
         <source>Upload File</source>
         <translation type="unfinished">Upload Bestand</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="202"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="204"/>
         <source>Delete File</source>
         <translation type="unfinished">Verwijder Bestand</translation>
     </message>
     <message numerus="yes">
-        <location filename="../QwcFileBrowserWidget.cpp" line="202"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="204"/>
         <source>Are you sure you want to delete the selected %n item(s)?
 This can not be undone!</source>
         <translation type="unfinished">
@@ -561,12 +573,12 @@ Deze actie kan niet ongedaan worden!</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="224"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="226"/>
         <source>Create Folder</source>
         <translation type="unfinished">Maak Map Aan</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="224"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="226"/>
         <source>Enter a name for the new folder:</source>
         <translation type="unfinished">Geef een naam op voor de nieuwe map:</translation>
     </message>
@@ -576,6 +588,7 @@ Deze actie kan niet ongedaan worden!</numerusform>
         <translation type="unfinished">Bestanden</translation>
     </message>
     <message>
+        <location filename="../QwcFileBrowserWidget.ui" line="38"/>
         <location filename="../QwcFileBrowserWidget.ui" line="41"/>
         <source>Back</source>
         <translation type="unfinished">Terug</translation>
@@ -641,6 +654,11 @@ Deze actie kan niet ongedaan worden!</numerusform>
         <translation type="unfinished">Soort:</translation>
     </message>
     <message>
+        <location filename="../QwcFileInfoWidget.ui" line="80"/>
+        <location filename="../QwcFileInfoWidget.ui" line="112"/>
+        <location filename="../QwcFileInfoWidget.ui" line="144"/>
+        <location filename="../QwcFileInfoWidget.ui" line="176"/>
+        <location filename="../QwcFileInfoWidget.ui" line="208"/>
         <location filename="../QwcFileInfoWidget.ui" line="240"/>
         <source>file</source>
         <translation type="unfinished">bestand</translation>
@@ -722,19 +740,47 @@ Deze actie kan niet ongedaan worden!</numerusform>
 <context>
     <name>QwcFilelistModel</name>
     <message>
-        <location filename="../QwcFilelistModel.cpp" line="14"/>
+        <location filename="../QwcFilelistModel.cpp" line="13"/>
         <source>Name</source>
         <translation type="unfinished">Naam</translation>
     </message>
     <message>
-        <location filename="../QwcFilelistModel.cpp" line="14"/>
+        <location filename="../QwcFilelistModel.cpp" line="13"/>
         <source>Size</source>
         <translation type="unfinished">Grootte</translation>
     </message>
     <message>
-        <location filename="../QwcFilelistModel.cpp" line="14"/>
+        <location filename="../QwcFilelistModel.cpp" line="13"/>
         <source>Modified</source>
         <translation type="unfinished">Gewijzigd</translation>
+    </message>
+</context>
+<context>
+    <name>QwcFiletransferDelegate</name>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="38"/>
+        <source>Waiting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="42"/>
+        <source>Preparing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="46"/>
+        <source>Stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="50"/>
+        <source>Queued (position %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferDelegate.cpp" line="54"/>
+        <source>Running - %1 of %2 (%3%) - %4/s</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -745,14 +791,23 @@ Deze actie kan niet ongedaan worden!</numerusform>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFiletransferWidget.ui" line="45"/>
+        <location filename="../QwcFiletransferWidget.ui" line="48"/>
         <source>Reveal</source>
         <translation type="unfinished">Maak zichtbaar</translation>
     </message>
     <message>
-        <location filename="../QwcFiletransferWidget.ui" line="62"/>
+        <location filename="../QwcFiletransferWidget.ui" line="71"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFiletransferWidget.ui" line="94"/>
+        <source>Resume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cancel Transfer</source>
-        <translation type="unfinished">Annuleer Transfer</translation>
+        <translation type="obsolete">Annuleer Transfer</translation>
     </message>
 </context>
 <context>
@@ -781,30 +836,34 @@ Deze actie kan niet ongedaan worden!</numerusform>
 <context>
     <name>QwcNewsWidget</name>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="83"/>
         <source>%1/%2/%3 at %4 GTM %5</source>
-        <translation type="unfinished">%1/%2/%3 om %4 GTM %5</translation>
+        <translation type="obsolete">%1/%2/%3 om %4 GTM %5</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="92"/>
+        <location filename="../QwcNewsWidget.cpp" line="72"/>
+        <source>%1 news article(s), %2 total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.cpp" line="81"/>
         <source>From %1 (%2):
 </source>
         <translation type="unfinished">Van %1 (%2):</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="95"/>
+        <location filename="../QwcNewsWidget.cpp" line="84"/>
         <source>%1
 
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="142"/>
+        <location filename="../QwcNewsWidget.cpp" line="138"/>
         <source>Clear news</source>
         <translation type="unfinished">Verwijder Nieuws</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="142"/>
+        <location filename="../QwcNewsWidget.cpp" line="139"/>
         <source>Are you sure you want to clear all news items?
 
 This cannot be undone.</source>
@@ -818,7 +877,7 @@ Deze handeling kan niet ongedaan worden.</translation>
         <translation type="unfinished">Nieuws</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="77"/>
+        <location filename="../QwcNewsWidget.ui" line="33"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -827,17 +886,36 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="28"/>
+        <location filename="../QwcNewsWidget.ui" line="52"/>
         <source>Refresh</source>
         <translation type="unfinished">Vernieuw</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="58"/>
-        <source>Delete</source>
-        <translation type="unfinished">Verwijder</translation>
+        <location filename="../QwcNewsWidget.ui" line="107"/>
+        <source>Delete all news articles.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="65"/>
+        <location filename="../QwcNewsWidget.ui" line="110"/>
+        <source>Purge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="124"/>
+        <source>Post a new article.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="173"/>
+        <source>Loading news...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">Verwijder</translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="127"/>
         <source>Post...</source>
         <translation type="unfinished">Publiceer...</translation>
     </message>
@@ -915,52 +993,53 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Transfer Beëindigd</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="266"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="280"/>
         <source>Select Icon</source>
         <translation type="unfinished">Selecteer Pictogram</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="266"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="280"/>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation type="unfinished">Afbeeldingen (*.png *.xpm *.jpg)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="275"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="289"/>
         <source>Invalid File</source>
         <translation type="unfinished">Ongeldig Bestand</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="275"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="289"/>
         <source>Could not open the selected image.</source>
         <translation type="unfinished">Het is onmogelijk om de geselecteerde afbeelding te openen.</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="295"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="309"/>
         <source>Select Download Directory</source>
         <translation type="unfinished">Kies Downloadmap</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="393"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="415"/>
         <source>New Tracker</source>
         <translation type="unfinished">Nieuwe Tracker</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="395"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="417"/>
         <source>my.tracker.com</source>
         <translation type="unfinished">mijn.tracker.com</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="427"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="449"/>
         <source>New Bookmark</source>
         <translation type="unfinished">Nieuwe Bladwijzer</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="550"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="524"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="572"/>
         <source>(none)</source>
         <translation type="unfinished">(geen)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="545"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="567"/>
         <source>Select WAV Sound File</source>
         <translation type="unfinished">Selecteer WAV Geluidsbestand</translation>
     </message>
@@ -1002,6 +1081,12 @@ maximale grootte 32x32 pixels</translation>
         <translation type="unfinished">Standaard</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="184"/>
+        <location filename="../QwcPreferencesWidget.ui" line="480"/>
+        <location filename="../QwcPreferencesWidget.ui" line="487"/>
+        <location filename="../QwcPreferencesWidget.ui" line="629"/>
+        <location filename="../QwcPreferencesWidget.ui" line="695"/>
+        <location filename="../QwcPreferencesWidget.ui" line="803"/>
         <location filename="../QwcPreferencesWidget.ui" line="1484"/>
         <source>Set...</source>
         <translation type="unfinished">Stel In...</translation>
@@ -1019,11 +1104,14 @@ maximale grootte 32x32 pixels</translation>
         <translation type="unfinished">Gebruikersomgeving</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="246"/>
         <location filename="../QwcPreferencesWidget.ui" line="1042"/>
         <source>Chat</source>
         <translation type="unfinished">Gesprek</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="267"/>
+        <location filename="../QwcPreferencesWidget.ui" line="531"/>
         <location filename="../QwcPreferencesWidget.ui" line="739"/>
         <source>Text:</source>
         <translation type="unfinished">Tekst:</translation>
@@ -1049,6 +1137,8 @@ maximale grootte 32x32 pixels</translation>
         <translation type="unfinished">Pictogramgrootte:</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="328"/>
+        <location filename="../QwcPreferencesWidget.ui" line="570"/>
         <location filename="../QwcPreferencesWidget.ui" line="768"/>
         <source>Background:</source>
         <translation type="unfinished">Achtergrond:</translation>
@@ -1099,6 +1189,7 @@ maximale grootte 32x32 pixels</translation>
         <translation type="unfinished">Berichten</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="657"/>
         <location filename="../QwcPreferencesWidget.ui" line="1453"/>
         <source>Files</source>
         <translation type="unfinished">Bestanden</translation>
@@ -1109,6 +1200,7 @@ maximale grootte 32x32 pixels</translation>
         <translation type="unfinished">Bestandslettertype:</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="685"/>
         <location filename="../QwcPreferencesWidget.ui" line="845"/>
         <source>Use Alternating Row Background</source>
         <translation type="unfinished">Gebruik Wisselende Rij Achtergrond</translation>
@@ -1124,6 +1216,7 @@ maximale grootte 32x32 pixels</translation>
         <translation type="unfinished">Voorvertoningslettertype:</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="826"/>
         <location filename="../QwcPreferencesWidget.ui" line="1536"/>
         <source>Trackers</source>
         <translation type="unfinished">Trackers</translation>
@@ -1145,6 +1238,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Maak nieuwe bladwijzer aan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="901"/>
         <location filename="../QwcPreferencesWidget.ui" line="1556"/>
         <source>New</source>
         <translation type="unfinished">Nieuw</translation>
@@ -1161,6 +1255,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Verwijder de geselecteerde bladwijzer.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="919"/>
         <location filename="../QwcPreferencesWidget.ui" line="1566"/>
         <source>Delete</source>
         <translation type="unfinished">Verwijder</translation>
@@ -1301,7 +1396,52 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Tracker Adres:</translation>
     </message>
     <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1642"/>
+        <source>Proxies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1654"/>
+        <source>Proxy Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../QwcPreferencesWidget.ui" line="1660"/>
+        <source>Proxy Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1667"/>
+        <source>Proxy Host:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1677"/>
+        <source>Proxy Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1687"/>
+        <source>User Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1697"/>
+        <source>User Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1708"/>
+        <source>No Proxy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1726"/>
+        <source>Proxies might be required to connect to a Qwired server from inside a protected network. Also it can be used with Tor to give you more privacy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1817"/>
         <source>Apply Changes</source>
         <translation type="unfinished">Pas Wijzigingen Toe</translation>
     </message>
@@ -1324,7 +1464,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Onmogelijk om de berichtenhistoriek te bewaren</translation>
     </message>
     <message>
-        <location filename="../QwcPrivateMessager.cpp" line="242"/>
+        <location filename="../QwcPrivateMessager.cpp" line="241"/>
         <source>An error occourred while attempting to write the message log file (%1)</source>
         <translation type="unfinished">Er heeft zich een fout voorgedaan bij het wegschrijven van de berichtenhistoriek (%1)</translation>
     </message>
@@ -1377,6 +1517,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Omschrijving:</translation>
     </message>
     <message>
+        <location filename="../QwcServerInfoWidget.ui" line="119"/>
+        <location filename="../QwcServerInfoWidget.ui" line="157"/>
+        <location filename="../QwcServerInfoWidget.ui" line="195"/>
+        <location filename="../QwcServerInfoWidget.ui" line="233"/>
+        <location filename="../QwcServerInfoWidget.ui" line="271"/>
+        <location filename="../QwcServerInfoWidget.ui" line="347"/>
         <location filename="../QwcServerInfoWidget.ui" line="385"/>
         <source>TextLabel</source>
         <translation type="unfinished">TekstLabel</translation>
@@ -1425,46 +1571,47 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QwcSession</name>
     <message>
-        <location filename="../QwcSession.cpp" line="389"/>
+        <location filename="../QwcSession.cpp" line="421"/>
+        <location filename="../QwcSession.cpp" line="425"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation type="unfinished">Onderwerp: %1
 Geplaatst Door: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="414"/>
+        <location filename="../QwcSession.cpp" line="450"/>
         <source>Private Chat Invitation</source>
         <translation type="unfinished">Uitnodiging tot Privégesprek</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="415"/>
+        <location filename="../QwcSession.cpp" line="451"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation type="unfinished">%1 heeft jou uitgenodigd voor een privégesprek.
 Vervoeg om een privégesprek te openen met %1.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="417"/>
+        <location filename="../QwcSession.cpp" line="453"/>
         <source>Ignore</source>
         <translation type="unfinished">Negeer</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="418"/>
+        <location filename="../QwcSession.cpp" line="454"/>
         <source>Reject</source>
         <translation type="unfinished">Wijs Af</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="419"/>
+        <location filename="../QwcSession.cpp" line="455"/>
         <source>Join</source>
         <translation type="unfinished">Vervoeg</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="448"/>
+        <location filename="../QwcSession.cpp" line="484"/>
         <source>Private Chat</source>
         <translation type="unfinished">Privégesprek</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="457"/>
+        <location filename="../QwcSession.cpp" line="493"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished">Verbinding wordt tot stand gebracht. Bezig met de sessie op te starten...</translation>
     </message>
@@ -1474,7 +1621,7 @@ Vervoeg om een privégesprek te openen met %1.</translation>
         <translation type="unfinished">Verbinding Geweigerd</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="81"/>
+        <location filename="../QwcSession.cpp" line="80"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished">De verbinding werd geweigerd. Dit betekent meestal dat er geen Wired Server actief is op de computer op afstand.</translation>
     </message>
@@ -1574,137 +1721,141 @@ Vervoeg om een privégesprek te openen met %1.</translation>
         <translation type="unfinished">Serverfout</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="551"/>
+        <location filename="../QwcSession.cpp" line="142"/>
+        <source>Chat</source>
+        <extracomment>Text of the main connection tab in the connection window.</extracomment>
+        <translation type="unfinished">Gesprek</translation>
+    </message>
+    <message>
+        <location filename="../QwcSession.cpp" line="587"/>
         <source>Show/Hide</source>
         <translation type="unfinished">Toon/Verberg</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="575"/>
+        <location filename="../QwcSession.cpp" line="611"/>
         <source>Connected</source>
         <translation type="unfinished">Verbonden</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="576"/>
+        <location filename="../QwcSession.cpp" line="612"/>
         <source>Disconnected</source>
         <translation type="unfinished">Verbinding Verbroken</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="577"/>
+        <location filename="../QwcSession.cpp" line="613"/>
         <source>Server Error: %1</source>
         <translation type="unfinished">Serverfout: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="578"/>
+        <location filename="../QwcSession.cpp" line="614"/>
         <source>%1 joined</source>
         <translation type="unfinished">%1 kwam toe</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="579"/>
+        <location filename="../QwcSession.cpp" line="615"/>
         <source>%1 is now known as %2</source>
         <translation type="unfinished">%1 is nu bekend als %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="580"/>
+        <location filename="../QwcSession.cpp" line="616"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation type="unfinished">%1 veranderde zijn status naar &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="581"/>
+        <location filename="../QwcSession.cpp" line="617"/>
         <source>%1 left</source>
         <translation type="unfinished">%1 verliet</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="582"/>
+        <location filename="../QwcSession.cpp" line="618"/>
         <source>Chat from %1:
 %2</source>
         <translation type="unfinished">Gesprek van %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="583"/>
+        <location filename="../QwcSession.cpp" line="619"/>
         <source>Message from %1:
 %2</source>
         <translation type="unfinished">Bericht van %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="584"/>
+        <location filename="../QwcSession.cpp" line="620"/>
         <source>News Posted from %1:
 %2</source>
         <translation type="unfinished">Nieuwsbericht gepubliceerd van %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="585"/>
+        <location filename="../QwcSession.cpp" line="621"/>
         <source>Broadcast from %1:
 %2</source>
         <translation type="unfinished">Berichtomzending van %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="586"/>
+        <location filename="../QwcSession.cpp" line="622"/>
         <source>Transfer Started: %1</source>
         <translation type="unfinished">Transfer Gestart: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="587"/>
+        <location filename="../QwcSession.cpp" line="623"/>
         <source>Transfer Finished: %1</source>
         <translation type="unfinished">Transfer Beëindigd: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="669"/>
+        <location filename="../QwcSession.cpp" line="705"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation type="unfinished">De bestandstransfer is mislukt door een verbindingsfout. Error ID is: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="679"/>
+        <location filename="../QwcSession.cpp" line="715"/>
         <source>Receiving user list...</source>
         <translation type="unfinished">Bezig met gebruikerslijst te ontvangen...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="761"/>
+        <location filename="../QwcSession.cpp" line="797"/>
         <source>Accounts</source>
         <translation type="unfinished">Accounts</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="816"/>
+        <location filename="../QwcSession.cpp" line="859"/>
         <source>News</source>
         <translation type="unfinished">Nieuws</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="834"/>
+        <location filename="../QwcSession.cpp" line="877"/>
         <source>Server Info</source>
         <translation type="unfinished">Server Informatie</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="863"/>
+        <location filename="../QwcSession.cpp" line="906"/>
         <source>Files</source>
         <translation type="unfinished">Bestanden</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="915"/>
+        <location filename="../QwcSession.cpp" line="958"/>
         <source>File Search</source>
         <translation type="unfinished">Zoek bestand</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="934"/>
+        <location filename="../QwcSession.cpp" line="977"/>
         <source>Transfers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1042"/>
         <source>Folder Download</source>
-        <translation type="unfinished">Map Downloaden</translation>
+        <translation type="obsolete">Map Downloaden</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1044"/>
         <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
 Do you want to begin the transfer?</source>
-        <translation type="unfinished">Je staat op het punt %1 bestand(en) en %2 map(pen) te downloaden die in totaal %3 groot zijn.
+        <translation type="obsolete">Je staat op het punt %1 bestand(en) en %2 map(pen) te downloaden die in totaal %3 groot zijn.
 Wens je de overdracht te beginnen?</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1058"/>
+        <location filename="../QwcSession.cpp" line="1067"/>
         <source>Private Messages</source>
         <translation type="unfinished">Privéberichten</translation>
     </message>
@@ -1712,15 +1863,14 @@ Wens je de overdracht te beginnen?</translation>
 <context>
     <name>QwcSingleton</name>
     <message>
-        <location filename="../QwcSingleton.cpp" line="124"/>
         <source>Connecting...</source>
-        <translation type="unfinished">Verbinding wordt tot stand gebracht....</translation>
+        <translation type="obsolete">Verbinding wordt tot stand gebracht....</translation>
     </message>
 </context>
 <context>
     <name>QwcSocket</name>
     <message>
-        <location filename="../QwcSocket.cpp" line="768"/>
+        <location filename="../QwcSocket.cpp" line="827"/>
         <source>kittehday nait fevrar</source>
         <translation type="unfinished">kittehday nait fevrar</translation>
     </message>
@@ -1773,21 +1923,26 @@ Wens je de overdracht te beginnen?</translation>
         <translation type="unfinished">Adres</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="80"/>
         <location filename="../QwcTrackerlistWidget.ui" line="118"/>
         <source>%1 servers registered with tracker</source>
         <translation type="unfinished">%1 servers geregistreerd bij de tracker</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="93"/>
+        <location filename="../QwcTrackerlistWidget.cpp" line="105"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="109"/>
         <source>n/a</source>
         <translation type="unfinished">nvt</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="97"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="101"/>
         <source>Yes</source>
         <translation type="unfinished">Ja</translation>
     </message>
     <message>
+        <location filename="../QwcTrackerlistWidget.cpp" line="97"/>
         <location filename="../QwcTrackerlistWidget.cpp" line="101"/>
         <source>No</source>
         <translation type="unfinished">Neen</translation>
@@ -1828,7 +1983,7 @@ Reden: %1</translation>
         <translation type="unfinished">Gebruikersinformatie: %1</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.cpp" line="92"/>
+        <location filename="../QwcUserInfoWidget.cpp" line="91"/>
         <source>%1 MB of %2 MB at %3 KiB/sec</source>
         <translation type="unfinished">%1 MB van %2 MB aan %3 KiB/s</translation>
     </message>
@@ -1908,6 +2063,8 @@ Reden: %1</translation>
         <translation type="unfinished">Sleutel:</translation>
     </message>
     <message>
+        <location filename="../QwcUserInfoWidget.ui" line="235"/>
+        <location filename="../QwcUserInfoWidget.ui" line="258"/>
         <location filename="../QwcUserInfoWidget.ui" line="281"/>
         <source>TextLabel</source>
         <translation type="unfinished">TekstLabel</translation>
@@ -1923,6 +2080,7 @@ Reden: %1</translation>
         <translation type="unfinished">Tijd Afwezig:</translation>
     </message>
     <message>
+        <location filename="../QwcUserInfoWidget.ui" line="299"/>
         <location filename="../QwcUserInfoWidget.ui" line="317"/>
         <source>Downloads</source>
         <translation type="unfinished"></translation>

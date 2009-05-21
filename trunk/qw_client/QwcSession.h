@@ -57,24 +57,32 @@ public:
 
     // Main window widgets
     void initMainWindow();
-    QPointer<QWidget> pContainerWidget;
-    QPointer<QStackedLayout> pContainerLayout;
-    QPointer<QTabWidget> pMainTabWidget;
+//    QPointer<QWidget> pContainerWidget;
+//    QPointer<QStackedLayout> pContainerLayout;
+//    QPointer<QTabWidget> pMainTabWidget;
     QPointer<QwcPrivateMessager> privateMessager;
 
     // Wired Socket
     void initWiredSocket();
 
 
-    QPointer<QwcConnectionMainWindow> pConnWindow;
+    // Connection dialog widgets
+    QPointer<QwcConnectionMainWindow> connectionWindow;
+    QPointer<QwcConnectWidget> connectWidget;
+    QPointer<QTabWidget> connectionTabWidget;
+    QPointer<QwcChatWidget> mainChatWidget;
+    QPointer<QStackedWidget> connectionStackedWidget;
+
+
+
     QPointer<QwcNewsWidget> pWinNews;
     QPointer<QwcUserlistModel> pUserListModel;
     QHash<int, QPointer<QwcChatWidget> > pChats;
     QHash<QString,QPointer<QwcFileInfoWidget> > pFileInfos;
-    QPointer<QwcChatWidget> pMainChat;
+
     QPointer<QwcServerInfoWidget> pServerWindow;
     QPointer<QwcPreferencesWidget> pPrefsWindow;
-    QPointer<QwcConnectWidget> pConnectWindow;
+//    QPointer<QwcConnectWidget> pConnectWindow;
     QPointer<QwcFiletransferWidget> pTranfersWindow;
     QPointer<QwcFileSearchWidget> pFileSearch;
     QPointer<QwcAccountsWidget> pWinAccounts;
@@ -181,9 +189,7 @@ public slots:
 
     void setBannerView(const QImage theBanner);
 
-    //void downloadFile(const QString &remotePath, const QString &localPath);
     void downloadFolder(const QString &remotePath, const QString &localPath);
-    void uploadFile(const QString &localPath, const QString &remotePath);
     void uploadFolder(const QString &localPath, const QString &remotePath);
 //    void checkTransferQueue();
 

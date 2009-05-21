@@ -2,44 +2,49 @@
 #define QWCNEWSWIDGET_H
 
 #include "ui_QwcNewsWidget.h"
-#include "QwcNewsPostWidget.h"
+#include "QwcUserInfo.h"
+
 #include <QWidget>
 #include <QPointer>
+
 
 class QwcNewsWidget : public QWidget, private Ui_QwcNewsWidget
 {
     Q_OBJECT
 
-private:
-    QColor pColorTitle;
-    QColor pColorText;
-    int newsCounter;
-
 public:
     QwcNewsWidget(QWidget *parent=0);
     ~QwcNewsWidget();
-    QPointer<QwcNewsPostWidget> pWinPost;
-    int newsCount();
+
+    void setupFromUser(const QwcUserInfo user);
+
+private:
+    QColor pColorTitle;
+    QColor pColorText;
+    QFont newsFont;
+    /*! Stores the current number of news articles. */
+    int newsCounter;
+    void updateNewsStats();
+
 
 signals:
-    void doRefreshNews();
+    void requestedRefresh();
     void doPostNews(QString);
-    void onDeleteNews();
+    /*! This signal is emitted when the user clicked the 'purge news' button and all news should
+        be purged from the server database. */
+    void userPurgedNews();
 
 public slots:
-    void addNewsItem(QString theNick, QString theTime, QString thePost);
-    void addFreshNewsItem(QString theNick, QString theTime, QString thePost);
+    void addNewsItem(QString theNick, QDateTime &time, QString thePost);
     void newsDone();
-    void doSendNews();
-    void dontSendNews();
-    void setDisabledPostButton(bool b);
-    void setDisabledClearButton(bool b);
-    void clearTextArea();
 
 private slots:
     void on_fBtnRefresh_clicked(bool checked);
-    void on_fBtnPost_clicked(bool checked);
+    void on_fBtnPost_clicked();
     void on_fBtnDelete_clicked(bool checked);
+    void on_btnComposeCancel_clicked();
+    void on_btnComposePost_clicked();
+
     void reloadPreferences();
     void initPrefs();
 

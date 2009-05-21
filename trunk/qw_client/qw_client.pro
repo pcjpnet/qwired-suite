@@ -2,6 +2,7 @@ TEMPLATE = app
 CONFIG += warn_on \
     thread \
     qt
+CONFIG -= warnings
 
 # !debug_and_release:release:macx {
 # CONFIG += x86 ppc
@@ -76,7 +77,6 @@ FORMS += QwcConnectionMainWindow.ui \
     QwcFileInfoWidget.ui \
     QwcTrackerlistWidget.ui \
     QwcAboutWidget.ui \
-    QwcNewsPostWidget.ui \
     QwcPrivateMessager.ui
 HEADERS += QwcSession.h \
     QwcUserInfo.h \
@@ -109,6 +109,5 @@ HEADERS += QwcSession.h \
     QwcTrackerlistWidget.h \
     QwcTrackerServerInfo.h \
     QwcAboutWidget.h \
-    QwcNewsPostWidget.h \
     QwcEventFilter.h \
     QwcPrivateMessager.h

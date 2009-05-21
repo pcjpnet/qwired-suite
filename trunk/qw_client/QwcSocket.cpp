@@ -4,7 +4,6 @@
 #include <QProcess>
 #include <QBuffer>
 #include <QDirIterator>
-//#include <QNetworkProxy>
 
 
 /*! \class QwcSocket
@@ -27,20 +26,6 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
             this, SLOT(handleSocketConnected()));
     connect(this, SIGNAL(connectionLost()),
             this, SLOT(handleSocketConnectionLost()));
-
-//    // Configure the proxying, if needed
-//    QSettings settings;
-//    if (settings.value("proxy/type").toInt() != 0) {
-//        QNetworkProxy proxy;
-//        proxy.setType((QNetworkProxy::ProxyType)settings.value("proxy/type").toInt());
-//        proxy.setHostName(settings.value("proxy/host").toString());
-//        proxy.setPort(settings.value("proxy/port").toInt());
-//        proxy.setUser(settings.value("proxy/username").toString());
-//        proxy.setPassword(settings.value("proxy/password").toString());
-//        qDebug() << "Configured new socket to use proxy.";
-//        newSocket->setProxy(proxy);
-//    }
-
     // Set some basic information
     clientName = "Qwired SVN";
     clientSoftwareVersion = QWIRED_VERSION;
@@ -355,30 +340,28 @@ void QwcSocket::handleMessage311(const QwMessage &message)
 */
 void QwcSocket::handleMessage320(const QwMessage &message)
 {
-    emit onServerNews(message.getStringArgument(0),
-                      message.getStringArgument(1),
-                      message.getStringArgument(2));
+    QDateTime date = QDateTime::fromString(message.getStringArgument(1), Qt::ISODate);
+    emit newsListingItem(message.getStringArgument(0), date, message.getStringArgument(2));
 }
 
 
-/*! 321 News Done
+/*! \brief 321 News Done
     Received after a list of 320 News messages.
 */
 void QwcSocket::handleMessage321(const QwMessage &message)
 {
     Q_UNUSED(message);
-    emit newsDone();
+    emit newsListingDone();
 }
 
 
-/*! 322 News Posted
+/*! \brief 322 News Posted
     A user has posted a news item.
 */
 void QwcSocket::handleMessage322(const QwMessage &message)
 {
-    emit onServerNewsPosted(message.getStringArgument(0),
-                            message.getStringArgument(1),
-                            message.getStringArgument(2));
+    QDateTime date = QDateTime::fromString(message.getStringArgument(1), Qt::ISODate);
+    emit newsPosted(message.getStringArgument(0), date, message.getStringArgument(2));
 }
 
 
@@ -448,6 +431,7 @@ void QwcSocket::handleMessage400(const QwMessage &message)
 
     QwcTransferInfo transfer;
 
+    // Find the transfer in the pool and remove it.
     QMutableListIterator<QwcTransferInfo> i(transferPool);
     while (i.hasNext()) {
         QwcTransferInfo &item = i.next();
@@ -457,11 +441,10 @@ void QwcSocket::handleMessage400(const QwMessage &message)
             break;
         }
     }
-
     transfer.hash = transferHash;
+    transfer.bytesTransferred = transferOffset;
 
     QwcTransferSocket *transferSocket = new QwcTransferSocket(this);
-
     connect(transferSocket, SIGNAL(fileTransferDone(QwcTransferInfo)),
             this, SLOT(handleTransferDone(QwcTransferInfo)));
     connect(transferSocket, SIGNAL(fileTransferError(QwcTransferInfo)),
@@ -630,6 +613,7 @@ void QwcSocket::handleMessage410(const QwMessage &message)
 */
 void QwcSocket::handleMessage411(const QwMessage &message)
 {
+    Q_UNUSED(message);
 //    if(!pIndexingFiles) {
 //        emit onFilesListDone(message.getStringArgument(0),
 //                             message.getStringArgument(1).toLongLong() );
@@ -990,7 +974,9 @@ void QwcSocket::setIconImage(QImage icon)
 
 void QwcSocket::getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally)
 {
-//    Q_UNUSED(queueLocally);
+    Q_UNUSED(queueLocally);
+    Q_UNUSED(localPath);
+    Q_UNUSED(remotePath);
 //    // Check for duplicate downloads
 //    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
 //    while(i.hasNext()) {
@@ -1022,6 +1008,9 @@ void QwcSocket::getFolder(const QString &remotePath, const QString &localPath, c
 
 void QwcSocket::putFolder(const QString localPath, const QString remotePath, const bool queueLocally)
 {
+    Q_UNUSED(queueLocally);
+    Q_UNUSED(remotePath);
+    Q_UNUSED(localPath);
 //    Q_UNUSED(queueLocally);
 //    // Check for duplicate downloads
 //    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
@@ -1073,14 +1062,30 @@ void QwcSocket::getFile(QString remotePath, QString localPath)
     transfer.file.path = remotePath;
     transfer.file.localAbsolutePath = localPath;
     transferPool.append(transfer);
-    emit fileTransferQueued(transfer);
+    emit fileTransferQueueChanged(transfer);
     checkTransferQueue();
 }
 
 
 
-// Request uploading of a file to the server
-void QwcSocket::putFile(const QString theLocalPath, const QString theRemotePath, const bool queueLocally) {
+/*! Queue and upload a single file to a remote path on the server.
+*/
+void QwcSocket::putFile(const QString localPath, const QString remotePath)
+{
+    QFileInfo localFile(localPath);
+
+    qDebug() << this << "Queueing upload of file to" << remotePath;
+    QwcTransferInfo transfer;
+    transfer.type = Qw::TransferTypeUpload;
+    transfer.file.path = remotePath;
+    transfer.file.size = localFile.size();
+    transfer.file.localAbsolutePath = localPath;
+    transfer.file.updateLocalChecksum();
+    transferPool.append(transfer);
+    emit fileTransferQueueChanged(transfer);
+    checkTransferQueue();
+
+
  /*   QFile tmpFile(theLocalPath);
     QString remotePath = theRemotePath;
     if(remotePath.left(2)=="//") remotePath.remove(0,1);
@@ -1438,6 +1443,13 @@ void QwcSocket::checkTransferQueue()
         transfer->state = Qw::TransferInfoStateWaiting; // waiting for STAT
         sendMessage(QwMessage("STAT").appendArg(transfer->file.path));
         qDebug() << this << "Sending STAT command for download";
+
+    } else if (transfer->type == Qw::TransferTypeUpload) {
+        transfer->state = Qw::TransferInfoStateWaiting; // waiting for hash
+        sendMessage(QwMessage("PUT").appendArg(transfer->file.path)
+                    .appendArg(QString::number(transfer->file.size))
+                    .appendArg(transfer->file.checksum));
+
     }
 
 }

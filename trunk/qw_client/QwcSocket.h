@@ -153,6 +153,17 @@ signals:
     void fileTransferQueueChanged(const QwcTransferInfo &transfer);
 
 
+    /*! A news item was received from the server and should be added to the list of news. A series
+        of newsListingItem() signals is followed by a final newsListingDone() signal. */
+    void newsListingItem(QString nickname, QDateTime &time, QString text);
+    /*! Emitted after a series of newsListingItem() signals, indicating that all news items have
+        been received. */
+    void newsListingDone();
+    /*! Emitted when another user posts a new news item. */
+    void newsPosted(QString nickname, QDateTime &time, QString text);
+
+
+
     void receivedUserlist(int theChatID);
 
 
