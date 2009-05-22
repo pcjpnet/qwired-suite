@@ -337,9 +337,12 @@ void QwcSocket::handleMessage311(const QwMessage &message)
 
 /*! 320 News
     Received after a NEWS request.
+    \todo Qt's ISODate parser does not support the timezone offsets. This needs to be worked around
+          in the future.
 */
 void QwcSocket::handleMessage320(const QwMessage &message)
 {
+    qDebug() << message.getStringArgument(1);
     QDateTime date = QDateTime::fromString(message.getStringArgument(1), Qt::ISODate);
     emit newsListingItem(message.getStringArgument(0), date, message.getStringArgument(2));
 }

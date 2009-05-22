@@ -44,6 +44,7 @@ void QwcNewsWidget::reloadPreferences()
 //    fNews->setPlainText("");
     initPrefs();
 
+    fNews->clear();
     newsCounter = 0;
     updateNewsStats();
     pageWidget->setCurrentIndex(1);
