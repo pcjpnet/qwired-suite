@@ -122,12 +122,15 @@ void QwcSession::initMainWindow()
 
     // Create the tab bar for the normal program use
     connectionTabWidget = new QTabWidget(connectionStackedWidget);
+    connect(connectionTabWidget, SIGNAL(tabCloseRequested(int)),
+            this, SLOT(onTabBarCloseRequested(int)));
+    connect(connectionTabWidget, SIGNAL(currentChanged(int)),
+            this, SLOT(onTabBarCurrentChanged(int)) );
     connectionStackedWidget->addWidget(connectionTabWidget);
     connectionTabWidget->setDocumentMode(true);
     connectionTabWidget->setTabsClosable(true);
 
-    connect(connectionTabWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(onTabBarCurrentChanged(int)) );
+
 
 //    QToolButton *tabCloseButton = new QToolButton(stackedWidget);
 //    tabCloseButton->setIcon(QIcon(":/icons/icn_close.png"));
@@ -141,7 +144,7 @@ void QwcSession::initMainWindow()
     mainChatWidget = new QwcChatWidget(connectionWindow);
     /*: Text of the main connection tab in the connection window. */
     connectionTabWidget->addTab(mainChatWidget, tr("Chat"));
-        // Connection window/Forum
+    // Connection window/Forum
     pUserListModel = new QwcUserlistModel(mainChatWidget);
     pUserListModel->setWiredSocket(socket);
     mainChatWidget->setSession(this);
@@ -230,17 +233,6 @@ void QwcSession::onTabBarCloseButtonClicked()
 
 void QwcSession::onTabBarCurrentChanged(int index)
 {
-//    return;
-
-//    QWidget *tmpBtn = connectionTabWidget->cornerWidget();
-
-    // We check if the chat tab is the current one so that not to close it
-//    if(connectionTabWidget->currentWidget() != mainChatWidget) {
-//        tmpBtn->setEnabled(true);
-//    } else {
-//        tmpBtn->setEnabled(false);
-//    }
-
     // Icon removal for private chats
     QWidget *tmpWid = connectionTabWidget->widget(index);
     QwcChatWidget *tmpChat = qobject_cast<QwcChatWidget*>(tmpWid);
@@ -249,6 +241,17 @@ void QwcSession::onTabBarCurrentChanged(int index)
     }
 }
 
+
+/*! The user clicked a close box of a tab in the tab widget.
+*/
+void QwcSession::onTabBarCloseRequested(int index)
+{
+    QWidget *tabWidget = connectionTabWidget->widget(index);
+    if (!tabWidget) { return; }
+    if (tabWidget == mainChatWidget) { return; }
+    tabWidget->close();
+    tabWidget->deleteLater();
+}
 
 
 
