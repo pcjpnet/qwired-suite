@@ -115,6 +115,7 @@ private slots:
     // Main window widgets
     void onTabBarCloseButtonClicked();
     void onTabBarCurrentChanged(int index);
+    void onTabBarCloseRequested(int index);
 
 
     // Connect widget
