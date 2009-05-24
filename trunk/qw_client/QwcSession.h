@@ -164,6 +164,7 @@ public slots:
     void doActionNewConnection();
     void doActionBroadcast();
     void doActionFiles(QString thePath="/");
+    void doActionPublicChat();
 
     // Toolbar handlers
     void doActionPreferences();
