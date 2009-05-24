@@ -68,6 +68,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionChat"/>
    <addaction name="actionNews"/>
    <addaction name="actionMessages"/>
    <addaction name="actionFiles"/>
@@ -80,6 +81,9 @@
   <action name="actionNewConnection">
    <property name="text">
     <string>New Connection...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new connection window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
@@ -96,6 +100,9 @@
    <property name="text">
     <string>Disconnect...</string>
    </property>
+   <property name="toolTip">
+    <string>Disconnect from the server</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
    </property>
@@ -107,6 +114,9 @@
    <property name="text">
     <string>Reconnect</string>
    </property>
+   <property name="toolTip">
+    <string>Reconnect to the server</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+K</string>
    </property>
@@ -115,8 +125,15 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="application.qrc">
+     <normaloff>:/icons/32x32/help-browser.png</normaloff>:/icons/32x32/help-browser.png</iconset>
+   </property>
    <property name="text">
     <string>Server Information</string>
+   </property>
+   <property name="toolTip">
+    <string>Show server information</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+I</string>
@@ -126,8 +143,15 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="application.qrc">
+     <normaloff>:/icons/32x32/face-smile.png</normaloff>:/icons/32x32/face-smile.png</iconset>
+   </property>
    <property name="text">
     <string>Chat</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch to the public chat</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
@@ -144,6 +168,9 @@
    <property name="text">
     <string>News</string>
    </property>
+   <property name="toolTip">
+    <string>Show server news</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
@@ -158,6 +185,9 @@
    </property>
    <property name="text">
     <string>Files</string>
+   </property>
+   <property name="toolTip">
+    <string>Show server files</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
@@ -174,6 +204,9 @@
    <property name="text">
     <string>Transfers</string>
    </property>
+   <property name="toolTip">
+    <string>Show active and queued transfers</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
@@ -188,6 +221,9 @@
    </property>
    <property name="text">
     <string>Accounts</string>
+   </property>
+   <property name="toolTip">
+    <string>Show user accounts and groups</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
@@ -280,6 +316,9 @@
    </property>
    <property name="text">
     <string>Messages</string>
+   </property>
+   <property name="toolTip">
+    <string>Show private messages</string>
    </property>
   </action>
  </widget>

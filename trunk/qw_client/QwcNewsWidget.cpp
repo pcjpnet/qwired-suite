@@ -108,45 +108,6 @@ void QwcNewsWidget::addNewsItem(QString theNick, QDateTime &time, QString thePos
     newsCounter++;
     updateNewsStats();
 
-
-    /*
-
-    QTextBlock firstBlock = fNews->document()->firstBlock();
-    QTextCursor cursor(firstBlock);
-//    cursor.movePosition(QTextCursor::Start);
-//    cursor.movePosition(QTextCursor::PreviousBlock);
-    //cursor.setPosition(-1);
-    cursor.insertBlock();
-cursor.insertText(thePost);
-return;
-
-
-    QTextCharFormat charFormat;
-    charFormat.setFont(newsFont);
-    charFormat.setFontUnderline(true);
-
-    cursor.insertText(tr("From %1 (%2):\n").arg(theNick).arg(time.toString()),
-                      charFormat);
-
-    charFormat.setFontUnderline(false);
-    cursor.insertText(thePost, charFormat);
-
-    cursor.insertBlock();
-    return;
-
-
-//    fNews->setFo(newsFont);
-    fNews->moveCursor(QTextCursor::Start);
-
-    fNews->setFontWeight(QFont::Bold);
-    fNews->setTextColor(pColorTitle);
-//    fNews->insertPlainText(tr("From %1 (%2):\n").arg(theNick).arg(time.toString()));
-    fNews->setFontWeight(QFont::Normal);
-    fNews->setTextColor(pColorText);
-    fNews->insertPlainText(tr("%1\n\n").arg(thePost));
-
-    */
-
 }
 
 
