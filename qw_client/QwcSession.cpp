@@ -847,60 +847,39 @@ void QwcSession::doActionAccounts()
 }
 
 
-/// Request the news from the server.
+/*! Display the news browser as a new tab.
+*/
 void QwcSession::doActionNews()
 {
-    if (pWinNews) {
-        int tmpIdx = connectionTabWidget->indexOf(pWinNews);
-        connectionTabWidget->setCurrentIndex(tmpIdx);
+    if (!pWinNews) {
+        pWinNews = new QwcNewsWidget();
+        connect(socket, SIGNAL(newsListingItem(QString,QDateTime&,QString)),
+                pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
+        connect(socket, SIGNAL(newsPosted(QString,QDateTime&,QString)),
+                pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
+        connect(socket, SIGNAL(newsListingDone()),
+                pWinNews, SLOT(newsDone()));
+        connect(pWinNews, SIGNAL(requestedRefresh()),
+                socket, SLOT(getNews()));
+        connect(pWinNews, SIGNAL(userPurgedNews()),
+                socket, SLOT(clearNews()));
+        connect(pWinNews, SIGNAL(doPostNews(QString)),
+                socket, SLOT(postNews(QString)));
+
+        // Enable/Disable GUI elements depending on the privileges
+        pWinNews->setupFromUser(socket->sessionUser);
+
+        // Request the news from the server
+        socket->getNews();
     }
 
-    pWinNews = new QwcNewsWidget();
+    // Display the widget if it is not in the tab widget
+    if (connectionTabWidget->indexOf(pWinNews) == -1) {
+        connectionTabWidget->addTab(pWinNews, tr("News"));
+    }
 
-    connect(socket, SIGNAL(newsListingItem(QString,QDateTime&,QString)),
-            pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
-    connect(socket, SIGNAL(newsPosted(QString,QDateTime&,QString)),
-            pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
-    connect(socket, SIGNAL(newsListingDone()),
-            pWinNews, SLOT(newsDone()));
-
-    connect(pWinNews, SIGNAL(requestedRefresh()),
-            socket, SLOT(getNews()));
-
-    // Enable/Disable GUI elements depending on the privileges
-    pWinNews->setupFromUser(socket->sessionUser);
-
-
-    // We check for the proper purrmissions
-    // Also, we don't want the button to be active if there are no news to clear
-
-//    qDebug("News counter: %u",pWinNews->newsCount());
-//
-//    if (socket->sessionUser.privClearNews && pWinNews->newsCount()) {
-//        connect( pWinNews, SIGNAL(userPurgedNews()), socket, SLOT(clearNews()) );
-//    } else {
-//        pWinNews->setDisabledClearButton(true);
-//    }
-//
-//    if (socket->sessionUser.privPostNews) {
-//
-//    } else {
-//        pWinNews->setDisabledPostButton(true);
-//    }
-
-
-    connect(pWinNews, SIGNAL(userPurgedNews()),
-            socket, SLOT(clearNews()));
-    connect(pWinNews, SIGNAL(doPostNews(QString)),
-            socket, SLOT(postNews(QString)));
-
-
-    // Display the widget using a Tab
-    int tmpIdx = connectionTabWidget->addTab(pWinNews, QIcon(), tr("News"));
-    connectionTabWidget->setCurrentIndex(tmpIdx);
-
-    socket->getNews();
-
+    // Ensure it is the currently visible widget
+    connectionTabWidget->setCurrentWidget(pWinNews);
 }
 
 
