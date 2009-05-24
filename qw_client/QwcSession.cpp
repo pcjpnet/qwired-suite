@@ -142,6 +142,10 @@ void QwcSession::initMainWindow()
 
     // Create the initial tab for the main chat
     mainChatWidget = new QwcChatWidget(connectionWindow);
+
+    // Unser auto-delete so that we can use it with tab widgets
+    mainChatWidget->setAttribute(Qt::WA_DeleteOnClose, false);
+
     /*: Text of the main connection tab in the connection window. */
     connectionTabWidget->addTab(mainChatWidget, tr("Chat"));
     // Connection window/Forum
@@ -248,9 +252,7 @@ void QwcSession::onTabBarCloseRequested(int index)
 {
     QWidget *tabWidget = connectionTabWidget->widget(index);
     if (!tabWidget) { return; }
-    if (tabWidget == mainChatWidget) { return; }
-    tabWidget->close();
-    tabWidget->deleteLater();
+    connectionTabWidget->removeTab(index);
 }
 
 
@@ -289,6 +291,9 @@ void QwcSession::setupConnections()
     connect(socket, SIGNAL(userLeftRoom(int, QwcUserInfo)),
             privateMessager, SLOT(handleUserLeft(int, QwcUserInfo)));
 
+    // Session/User management
+    connect(socket, SIGNAL(receivedUserPrivileges(QwcUserInfo)),
+            this, SLOT(onSocketPrivileges(QwcUserInfo)) );
 
     connect(socket, SIGNAL(receivedChatMessage(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
     connect(socket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
@@ -307,7 +312,7 @@ void QwcSession::setupConnections()
 
     connect(socket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
 
-    connect(socket, SIGNAL(receivedUserPrivileges(QwcUserInfo)), this, SLOT(onSocketPrivileges(QwcUserInfo)) );
+
     connect(socket, SIGNAL(fileInformation(QwcFileInfo)), this, SLOT(fileInformation(QwcFileInfo)) );
 
     connect(socket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
@@ -327,18 +332,31 @@ void QwcSession::setupConnections()
 
     // Main Window actions
     //
-    connect( connectionWindow->actionNewConnection, SIGNAL(triggered()), this, SLOT(doActionNewConnection()) );
+    connect( connectionWindow->actionNewConnection, SIGNAL(triggered()),
+             this, SLOT(doActionNewConnection()) );
+    connect(connectionWindow->actionChat, SIGNAL(triggered()),
+            this, SLOT(doActionPublicChat()));
 
-    connect( connectionWindow->actionDisconnect, SIGNAL(triggered(bool)), this, SLOT(doActionDisconnect()));
-    connect( connectionWindow->actionAccounts, SIGNAL(triggered(bool)), this, SLOT(doActionAccounts()) );
-    connect( connectionWindow->actionNews, SIGNAL(triggered()), this, SLOT(doActionNews()) );
-    connect( connectionWindow->actionServerInfo, SIGNAL(triggered(bool)), this, SLOT(doActionServerInfo()) );
-    connect( connectionWindow->actionBroadcast, SIGNAL(triggered(bool)), this, SLOT(doActionBroadcast()) );
-    connect( connectionWindow->actionFiles, SIGNAL(triggered(bool)), this, SLOT(doActionFiles()) );
-    connect( connectionWindow->actionPreferences, SIGNAL(triggered(bool)), this, SLOT(doActionPreferences()));
-    connect( connectionWindow->actionTrackers, SIGNAL(triggered(bool)), this, SLOT(doActionTrackers()) );
-    connect( connectionWindow->actionSearch, SIGNAL(triggered(bool)), this, SLOT(doActionFileSearch()) );
-    connect( connectionWindow->actionTransfers, SIGNAL(triggered(bool)), this, SLOT(doActionTransfers()) );
+    connect( connectionWindow->actionDisconnect, SIGNAL(triggered(bool)),
+             this, SLOT(doActionDisconnect()));
+    connect( connectionWindow->actionAccounts, SIGNAL(triggered(bool)),
+             this, SLOT(doActionAccounts()) );
+    connect( connectionWindow->actionNews, SIGNAL(triggered()),
+             this, SLOT(doActionNews()) );
+    connect( connectionWindow->actionServerInfo, SIGNAL(triggered(bool)),
+             this, SLOT(doActionServerInfo()) );
+    connect( connectionWindow->actionBroadcast, SIGNAL(triggered(bool)),
+             this, SLOT(doActionBroadcast()) );
+    connect( connectionWindow->actionFiles, SIGNAL(triggered(bool)),
+             this, SLOT(doActionFiles()) );
+    connect( connectionWindow->actionPreferences, SIGNAL(triggered(bool)),
+             this, SLOT(doActionPreferences()));
+    connect( connectionWindow->actionTrackers, SIGNAL(triggered(bool)),
+             this, SLOT(doActionTrackers()) );
+    connect( connectionWindow->actionSearch, SIGNAL(triggered(bool)),
+             this, SLOT(doActionFileSearch()) );
+    connect( connectionWindow->actionTransfers, SIGNAL(triggered(bool)),
+             this, SLOT(doActionTransfers()) );
     //connect( connectionWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
 
     // Notification manager
@@ -383,6 +401,9 @@ void QwcSession::fileInformation(QwcFileInfo theFile)
 void QwcSession::onSocketPrivileges(QwcUserInfo s)
 {
     connectionWindow->actionAccounts->setEnabled(s.privEditAccounts);
+    if (!pWinNews.isNull()) {
+        pWinNews->setupFromUser(socket->sessionUser);
+    }
 }
 
 
@@ -924,6 +945,18 @@ void QwcSession::doActionFiles(QString thePath)
         int tmpIdx = connectionTabWidget->indexOf(pWinFileBrowser);
         connectionTabWidget->setCurrentIndex(tmpIdx);
     }
+}
+
+
+/*! Show the public chat window in the tab widget.
+*/
+void QwcSession::doActionPublicChat()
+{
+    if (!mainChatWidget) { return; }
+    if (connectionTabWidget->indexOf(mainChatWidget) == -1) {
+        connectionTabWidget->addTab(mainChatWidget, tr("Chat"));
+    }
+    connectionTabWidget->setCurrentWidget(mainChatWidget);
 }
 
 
