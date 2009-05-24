@@ -6,10 +6,10 @@ In order to release version 1.0 of Qwired Client and Server, the following goals
 
 == Client ==
 
-* Tracker support needs to be working again. For this I wrote a high-level socket wrapper for the general Wired protocol (QwSocket) that can be used. Please see the server implementation for more information.
-* File transfers need to be reliable again.
+  * Tracker support needs to be working again. For this I wrote a high-level socket wrapper for the general Wired protocol (QwSocket) that can be used. Please see the server implementation for more information.
+  * File transfers need to be reliable again.
 
 == Server ==
 
-* Tracker support needs to be working again. Unfortunately the original Wired client has the bad habit of encrypting the update UDP-packet using a bad SSL-socket hack. This is insecure and hard to implement on most systems.
-* A basic plugin backend should be implemented to allow server-side extensions.
+  * Tracker support needs to be working again. Unfortunately the original Wired client has the bad habit of encrypting the update UDP-packet using a bad SSL-socket hack. This is insecure and hard to implement on most systems.
+  * A basic plugin backend should be implemented to allow server-side extensions.
