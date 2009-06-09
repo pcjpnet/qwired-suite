@@ -25,6 +25,7 @@ QwcPreferencesWidget::QwcPreferencesWidget(QWidget *parent) : QWidget(parent)
     fLanguage->addItem("Italian", QString("it"));
     fLanguage->addItem("Portuguese", QString("pt"));
     fLanguage->addItem("Spanish", QString("es"));
+    fLanguage->addItem("Swedish", QString("se"));
     fLanguage->addItem("Japanese", QString("jp"));
 
     initEventsMenu();
