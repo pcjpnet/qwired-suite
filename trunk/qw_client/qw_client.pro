@@ -34,7 +34,8 @@ TRANSLATIONS += lang/lang_de.ts \
     lang/lang_fr.ts \
     lang/lang_es.ts \
     lang/lang_jp.ts \
-    lang/lang_nl.ts
+    lang/lang_nl.ts \
+    lang/lang_se.ts
 SOURCES += main.cpp \
     QwcSocket.cpp \
     QwcSession.cpp \
