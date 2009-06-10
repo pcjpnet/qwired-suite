@@ -1,6 +1,6 @@
 #!/bin/sh
 
-QW_CLIENT_PRO=qw_client/qw_client.pro
+QW_CLIENT_PRO=QwiredSuite.pro
 QW_BUILD_DIR=build_mac
 
 echo "Qwired Build Script 1.1"
@@ -54,5 +54,5 @@ else
   echo "  If you want to send your fresh Qwired to your friends, you will have to prepare it"
   echo "  for deployment. You can easily do that by executing the ./deploy_osx.sh script."
   sleep 4
-  open ../bin/;
+  open bin;
 fi
