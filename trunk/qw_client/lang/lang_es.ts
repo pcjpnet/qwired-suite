@@ -43,14 +43,12 @@
     </message>
     <message>
         <location filename="../QwcAccountsWidget.cpp" line="193"/>
-        <location filename="../QwcAccountsWidget.ui" line="730"/>
         <source>Apply Changes</source>
         <translation>Aplicar cambios</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.cpp" line="194"/>
-        <location filename="../QwcAccountsWidget.ui" line="383"/>
-        <location filename="../QwcAccountsWidget.ui" line="723"/>
+        <location filename="../QwcAccountsWidget.ui" line="606"/>
         <source>Delete</source>
         <translation>Borrar</translation>
     </message>
@@ -70,163 +68,172 @@
         <translation>Cuentas</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="27"/>
-        <source>New...</source>
-        <translation>Nueva...</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="61"/>
+        <location filename="../QwcAccountsWidget.ui" line="37"/>
         <source>Type:</source>
         <translation>Tipo:</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="75"/>
+        <location filename="../QwcAccountsWidget.ui" line="51"/>
         <source>Account</source>
         <translation>Cuenta</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="84"/>
+        <location filename="../QwcAccountsWidget.ui" line="60"/>
         <source>Group</source>
         <translation>Grupo</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="102"/>
+        <location filename="../QwcAccountsWidget.ui" line="78"/>
         <source>Name:</source>
         <translation>Nombre:</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="125"/>
+        <location filename="../QwcAccountsWidget.ui" line="101"/>
         <source>Password:</source>
         <translation>Contraseña:</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="151"/>
+        <location filename="../QwcAccountsWidget.ui" line="127"/>
         <source>Group:</source>
         <translation>Grupo:</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="181"/>
-        <source>Basic</source>
-        <translation>Básica</translation>
+        <location filename="../QwcAccountsWidget.ui" line="187"/>
+        <source>General</source>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="202"/>
-        <source>Get User Info</source>
-        <translation>Información del usuario</translation>
+        <location filename="../QwcAccountsWidget.ui" line="203"/>
+        <source>Post to the news</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="216"/>
-        <source>Post News</source>
-        <translation>Escribir noticia</translation>
+        <location filename="../QwcAccountsWidget.ui" line="217"/>
+        <source>Purge the news</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="230"/>
-        <source>Broadcast</source>
-        <translation>Mandar mensaje general</translation>
+        <location filename="../QwcAccountsWidget.ui" line="231"/>
+        <source>Get user information</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="244"/>
-        <source>Clear News</source>
-        <translation>Limpiar noticias</translation>
+        <location filename="../QwcAccountsWidget.ui" line="245"/>
+        <source>Send broadcast messages</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="258"/>
-        <source>Set Topic</source>
-        <translation>Cambiar el tema</translation>
+        <location filename="../QwcAccountsWidget.ui" line="259"/>
+        <source>Set chat topic</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="292"/>
+        <location filename="../QwcAccountsWidget.ui" line="288"/>
+        <source>Create folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="302"/>
+        <source>Download files and folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="316"/>
+        <source>Move &amp;&amp; Change files and folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="330"/>
+        <source>Upload files and folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="344"/>
+        <source>Delete files and folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="358"/>
+        <source>Upload anywhere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="372"/>
+        <source>View Drop Box contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="385"/>
+        <source>Administration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="401"/>
+        <source>Disconnect users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="415"/>
+        <source>Ban users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="429"/>
+        <source>Can not be disconnected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="443"/>
+        <source>Create accounts and groups</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="457"/>
+        <source>Edit accounts and groups</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="471"/>
+        <source>Delete accounts and groups</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="485"/>
+        <source>Elevate own privileges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="498"/>
+        <source>Transfer Limits (KB/sec)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="620"/>
+        <source>Save Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="665"/>
+        <source>Double-click on a user or group to edit, or click &quot;Create Group or Account...&quot; to create a new one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="681"/>
+        <source>Create Group or Account...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcAccountsWidget.ui" line="272"/>
         <source>Files &amp;&amp; Folders</source>
         <translation>Archivos y carpetas</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="313"/>
-        <source>Download</source>
-        <translation>Descargar</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="327"/>
-        <source>Create Folders</source>
-        <translation>Crear carpetas</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="341"/>
-        <source>Move &amp;&amp; Change</source>
-        <translation>Mover y cambiar</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="355"/>
-        <source>Upload</source>
-        <translation>Subir</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="369"/>
-        <source>Upload Anywhere</source>
-        <translation>Subir a cualquier sitio</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="397"/>
-        <source>View Drop Boxes</source>
-        <translation>Ver &quot;Drop Boxes&quot;</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="431"/>
-        <source>Users &amp;&amp; Groups</source>
-        <translation>Usuarios y grupos</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="452"/>
-        <source>Create Accounts</source>
-        <translation>Crear cuentas</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="466"/>
-        <source>Kick Users</source>
-        <translation>Echar usuarios</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="480"/>
-        <source>Edit Accounts</source>
-        <translation>Editar cuentas</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="494"/>
-        <source>Ban Users</source>
-        <translation>Vetar usuarios</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="508"/>
-        <source>Delete Accounts</source>
-        <translation>Borrar cuentas</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="522"/>
-        <source>Cannot Be Kicked</source>
-        <translation>No se le puede echar</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="536"/>
-        <source>Elevate Privileges</source>
-        <translation>Cambiar privilegios</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="570"/>
-        <source>Limits</source>
-        <translation>Límites</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="588"/>
+        <location filename="../QwcAccountsWidget.ui" line="516"/>
         <source>Download:</source>
         <translation>Descargas:</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.ui" line="626"/>
-        <location filename="../QwcAccountsWidget.ui" line="683"/>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
-    </message>
-    <message>
-        <location filename="../QwcAccountsWidget.ui" line="645"/>
+        <location filename="../QwcAccountsWidget.ui" line="554"/>
         <source>Upoad:</source>
         <translation>Subidas:</translation>
     </message>
@@ -551,10 +558,6 @@ Por favor introduzca una razón y pulse OK.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>About QWired...</source>
-        <translation type="obsolete">Acerca de QWired...</translation>
-    </message>
-    <message>
         <location filename="../QwcConnectionMainWindow.ui" line="300"/>
         <source>Trackers</source>
         <translation type="unfinished">Trackers</translation>
@@ -856,50 +859,9 @@ This can not be undone!</source>
         <source>Resume</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Cancel Transfer</source>
-        <translation type="obsolete">Cancelar transferencia</translation>
-    </message>
-</context>
-<context>
-    <name>QwcNewsPostWidget</name>
-    <message>
-        <source>Post News</source>
-        <translation type="obsolete">Escribir noticia</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-    <message>
-        <source>Post</source>
-        <translation type="obsolete">Crear</translation>
-    </message>
-    <message>
-        <source>Enter</source>
-        <translation type="obsolete">Entrar</translation>
-    </message>
 </context>
 <context>
     <name>QwcNewsWidget</name>
-    <message>
-        <source>%1/%2/%3 at %4 GTM %5</source>
-        <translation type="obsolete">%1/%2/%3 a las %4 GTM %5</translation>
-    </message>
-    <message>
-        <source>From %1 (%2):
-</source>
-        <translation type="obsolete">Por %1 (%2):
-</translation>
-    </message>
-    <message>
-        <source>%1
-
-</source>
-        <translation type="obsolete">%1
-
-</translation>
-    </message>
     <message>
         <location filename="../QwcNewsWidget.cpp" line="79"/>
         <source>%1 news article(s)</source>
@@ -930,22 +892,9 @@ Esta acción no puede deshacerse.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="168"/>
-        <source>[sent to server]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../QwcNewsWidget.ui" line="14"/>
         <source>News</source>
         <translation>Noticias</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="45"/>
@@ -991,10 +940,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../QwcNewsWidget.ui" line="245"/>
         <source>Enter</source>
         <translation type="unfinished">Entrar</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Borrar</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="120"/>
@@ -1804,7 +1749,7 @@ Acepta para abrir el chat privado con %1 en una ventana separada.</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="151"/>
-        <location filename="../QwcSession.cpp" line="941"/>
+        <location filename="../QwcSession.cpp" line="955"/>
         <source>Chat</source>
         <extracomment>Text of the main connection tab in the connection window.</extracomment>
         <translation type="unfinished">Chat</translation>
@@ -1888,72 +1833,55 @@ Acepta para abrir el chat privado con %1 en una ventana separada.</translation>
         <translation>Transferencia finalizada: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="735"/>
+        <location filename="../QwcSession.cpp" line="746"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation>La transferencia a fallado debido a un error de conexion. ID: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="745"/>
+        <location filename="../QwcSession.cpp" line="756"/>
         <source>Receiving user list...</source>
         <translation>Recibiendo lista de usuarios...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="827"/>
+        <location filename="../QwcSession.cpp" line="838"/>
         <source>Accounts</source>
         <translation>Cuentas</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="879"/>
+        <location filename="../QwcSession.cpp" line="890"/>
         <source>News</source>
         <translation>Noticias</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="897"/>
+        <location filename="../QwcSession.cpp" line="911"/>
         <source>Server Info</source>
         <translation>Información del servidor</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="928"/>
+        <location filename="../QwcSession.cpp" line="942"/>
         <source>Files</source>
         <translation>Archivos</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="990"/>
+        <location filename="../QwcSession.cpp" line="1004"/>
         <source>File Search</source>
         <translation>Búsqueda de archivos</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1009"/>
+        <location filename="../QwcSession.cpp" line="1023"/>
         <source>Transfers</source>
         <translation>Transferencias</translation>
     </message>
     <message>
-        <source>Folder Download</source>
-        <translation type="obsolete">Descarga de directorios</translation>
-    </message>
-    <message>
-        <source>You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.
-Do you want to begin the transfer?</source>
-        <translation type="obsolete">Van a descargarse %1 archivos(s) y %2 carpetas(s) que ocupan %3.
-¿Desea continuar?</translation>
-    </message>
-    <message>
-        <location filename="../QwcSession.cpp" line="1104"/>
+        <location filename="../QwcSession.cpp" line="1118"/>
         <source>Private Messages</source>
         <translation>Mensajes privados</translation>
     </message>
 </context>
 <context>
-    <name>QwcSingleton</name>
-    <message>
-        <source>Connecting...</source>
-        <translation type="obsolete">Conectando...</translation>
-    </message>
-</context>
-<context>
     <name>QwcSocket</name>
     <message>
-        <location filename="../QwcSocket.cpp" line="832"/>
+        <location filename="../QwcSocket.cpp" line="833"/>
         <source>kittehday nait fevrar</source>
         <translation>kittehday nait fevrar</translation>
     </message>
