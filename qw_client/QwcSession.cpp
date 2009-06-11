@@ -28,6 +28,7 @@ QwcSession::~QwcSession()
 {
     connectionWindow->deleteLater();
     mainChatWidget->deleteLater();
+    mainFileWidget->deleteLater();
 
 }
 
@@ -702,9 +703,20 @@ void QwcSession::userChanged(QwcUserInfo theOld, QwcUserInfo theNew)
 }
 
 
-void QwcSession::newsPosted(QString theNick, QString, QString thePost)
+/*! Connected to the newsPosted() signal of QwcSocket.
+*/
+void QwcSession::newsPosted(QString nickname, QDateTime time, QString post)
 {
-    triggerEvent("NewsPosted", QStringList() << theNick << thePost);
+    Q_UNUSED(time);
+    triggerEvent("NewsPosted", QStringList() << nickname << post);
+
+    // Update the toolbar icon if the news are not currently visible
+    if (connectionTabWidget->currentWidget() != pWinNews) {
+        QPixmap newIcon(":/icons/32x32/internet-news-reader.png");
+        QPainter iconPainter(&newIcon);
+        iconPainter.drawImage(16, 16, QImage(":/icons/16x16/emblem-important.png"));
+        connectionWindow->actionNews->setIcon(newIcon);
+    }
 }
 
 
@@ -853,10 +865,10 @@ void QwcSession::doActionNews()
 {
     if (!pWinNews) {
         pWinNews = new QwcNewsWidget();
-        connect(socket, SIGNAL(newsListingItem(QString,QDateTime&,QString)),
-                pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
-        connect(socket, SIGNAL(newsPosted(QString,QDateTime&,QString)),
-                pWinNews, SLOT(addNewsItem(QString, QDateTime&, QString)));
+        connect(socket, SIGNAL(newsListingItem(QString,QDateTime,QString)),
+                pWinNews, SLOT(addNewsItem(QString, QDateTime, QString)));
+        connect(socket, SIGNAL(newsPosted(QString, QDateTime, QString)),
+                pWinNews, SLOT(addNewsItemAtTop(QString, QDateTime, QString)));
         connect(socket, SIGNAL(newsListingDone()),
                 pWinNews, SLOT(newsDone()));
         connect(pWinNews, SIGNAL(requestedRefresh()),
@@ -880,19 +892,26 @@ void QwcSession::doActionNews()
 
     // Ensure it is the currently visible widget
     connectionTabWidget->setCurrentWidget(pWinNews);
+
+    // Reset the icon
+    connectionWindow->actionNews->setIcon(QIcon(":/icons/32x32/internet-news-reader.png"));
 }
 
 
-/// Display the server information dialog.
+/*! Display the server information in a tab.
+*/
 void QwcSession::doActionServerInfo()
 {
-    if( !pServerWindow ) {
-        pServerWindow = new QwcServerInfoWidget();
-        pServerWindow->loadInfo(socket);
-        connectionTabWidget->addTab(pServerWindow, tr("Server Info"));
-    } else {
-        pServerWindow->raise();
+    if (!mainServerInfoWidget) {
+        mainServerInfoWidget = new QwcServerInfoWidget();
+        mainServerInfoWidget->setInformationFromSocket(socket);
     }
+
+    if (connectionTabWidget->indexOf(mainServerInfoWidget) == -1) {
+        connectionTabWidget->addTab(mainServerInfoWidget, tr("Server Info"));
+    }
+
+    connectionTabWidget->setCurrentWidget(mainServerInfoWidget);
 }
 
 
@@ -906,24 +925,24 @@ void QwcSession::doActionBroadcast()
 }
 
 
-/// Open a new file browser and request the list of files (/) from the server.
-void QwcSession::doActionFiles(QString thePath)
+/* Show the file browser widget in a new tab.
+*/
+void QwcSession::doActionFiles(QString initialPath)
 {
-    if(!pWinFileBrowser) {
-        pWinFileBrowser = new QwcFileBrowserWidget;
-        pWinFileBrowser->setParent(connectionWindow, Qt::Window);
-        pWinFileBrowser->initWithConnection(this);
-        pWinFileBrowser->setPath(thePath);
-        pWinFileBrowser->pModel->pWaitingForList = true;
-        socket->getFileList(thePath);
-
-        // Display the widget using a Tab
-        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(pWinFileBrowser, QIcon(), tr("Files")));
-
-    } else {
-        int tmpIdx = connectionTabWidget->indexOf(pWinFileBrowser);
-        connectionTabWidget->setCurrentIndex(tmpIdx);
+    if (!mainFileWidget) {
+        mainFileWidget = new QwcFileBrowserWidget();
+        //mainFileWidget->setParent(this, Qt::Window);
+        mainFileWidget->initWithConnection(this);
+        mainFileWidget->setPath(initialPath);
+        mainFileWidget->pModel->pWaitingForList = true;
+        socket->getFileList(initialPath);
     }
+
+    if (connectionTabWidget->indexOf(mainFileWidget) == -1) {
+        connectionTabWidget->addTab(mainFileWidget, tr("Files"));
+    }
+
+    connectionTabWidget->setCurrentWidget(mainFileWidget);
 }
 
 

@@ -82,7 +82,7 @@ void QwcNewsWidget::updateNewsStats()
 }
 
 
-void QwcNewsWidget::addNewsItem(QString theNick, QDateTime &time, QString thePost, bool insertAtTop)
+void QwcNewsWidget::addNewsItem(QString theNick, QDateTime time, QString thePost, bool insertAtTop)
 {
     QListWidgetItem *itemHeader = new QListWidgetItem;
     QFont headerFont(newsFont);
@@ -164,8 +164,8 @@ void QwcNewsWidget::on_btnComposePost_clicked()
 {
     if (!composeMessage->toPlainText().isEmpty()) {
         emit doPostNews(composeMessage->toPlainText());
-        QDateTime currentDate = QDateTime::currentDateTime();
-        addNewsItem(tr("[sent to server]"), currentDate, composeMessage->toPlainText(), true);
+//        QDateTime currentDate = QDateTime::currentDateTime();
+//        addNewsItem(tr("[sent to server]"), currentDate, composeMessage->toPlainText(), true);
     }
     pageWidget->setCurrentIndex(0);
     composeMessage->setPlainText("");

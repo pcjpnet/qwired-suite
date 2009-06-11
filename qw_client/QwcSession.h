@@ -80,14 +80,14 @@ public:
     QHash<int, QPointer<QwcChatWidget> > pChats;
     QHash<QString,QPointer<QwcFileInfoWidget> > pFileInfos;
 
-    QPointer<QwcServerInfoWidget> pServerWindow;
+    QPointer<QwcServerInfoWidget> mainServerInfoWidget;
     QPointer<QwcPreferencesWidget> pPrefsWindow;
 //    QPointer<QwcConnectWidget> pConnectWindow;
     QPointer<QwcFiletransferWidget> pTranfersWindow;
     QPointer<QwcFileSearchWidget> pFileSearch;
     QPointer<QwcAccountsWidget> pWinAccounts;
     QPointer<QwcTrackerlistWidget> pWinTrackers;
-    QPointer<QwcFileBrowserWidget> pWinFileBrowser;
+    QPointer<QwcFileBrowserWidget> mainFileWidget;
 
     QWidget *bannerSpace;
     QLabel *bannerView;
@@ -135,7 +135,7 @@ private slots:
     void userJoined(int theChat, QwcUserInfo theUser);
     void userLeft(int theChat, QwcUserInfo theUser);
     void userChanged(QwcUserInfo theOld, QwcUserInfo theNew);
-    void newsPosted(QString theNick, QString theTime, QString thePost);
+    void newsPosted(QString nickname, QDateTime time, QString post);
 
 
     void transferStarted(QwcTransferInfo);
@@ -163,7 +163,7 @@ public slots:
     void doActionServerInfo();
     void doActionNewConnection();
     void doActionBroadcast();
-    void doActionFiles(QString thePath="/");
+    void doActionFiles(QString initialPath="/");
     void doActionPublicChat();
 
     // Toolbar handlers

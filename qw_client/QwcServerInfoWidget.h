@@ -1,8 +1,10 @@
 #ifndef WIDGETSERVERINFORMATION_H
 #define WIDGETSERVERINFORMATION_H
 
-#include "QwcSocket.h"
+
 #include "ui_QwcServerInfoWidget.h"
+#include "QwcSocket.h"
+
 #include <QWidget>
 
 
@@ -12,7 +14,7 @@ class QwcServerInfoWidget : public QWidget, public Ui_QwcServerInfoWidget
 
 public:
     QwcServerInfoWidget(QWidget *parent = 0);
-    void loadInfo(QwcSocket *);
+    void setInformationFromSocket(const QwcSocket *socket);
 
 };
 

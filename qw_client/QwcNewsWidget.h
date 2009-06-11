@@ -35,7 +35,10 @@ signals:
     void userPurgedNews();
 
 public slots:
-    void addNewsItem(QString theNick, QDateTime &time, QString thePost, bool insertAtTop = false);
+    void addNewsItem(QString theNick, QDateTime time, QString thePost, bool insertAtTop = false);
+    /*! Adds a new item to the top of the list. */
+    void addNewsItemAtTop(QString theNick, QDateTime time, QString thePost)
+    { addNewsItem(theNick, time, thePost, true); }
     void newsDone();
 
 private slots:
