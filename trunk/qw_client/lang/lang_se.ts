@@ -1593,286 +1593,292 @@ p, li { white-space: pre-wrap; }
         <source>SSL Protocol:</source>
         <translation type="unfinished">SSL-protokoll:</translation>
     </message>
+    <message>
+        <location filename="../QwcServerInfoWidget.cpp" line="31"/>
+        <source>Unknown Protocol</source>
+        <extracomment>If the encryption (SSL) protocol is unknown, this is shown instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QwcSession</name>
     <message>
-        <location filename="../QwcSession.cpp" line="47"/>
+        <location filename="../QwcSession.cpp" line="48"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation type="unfinished">Ett okänt serverfel inträffade. Felkoden är %1.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="49"/>
+        <location filename="../QwcSession.cpp" line="50"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation type="unfinished">Kommandot misslyckades. Ett odefinierat serverfel har inträffat.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="50"/>
+        <location filename="../QwcSession.cpp" line="51"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation type="unfinished">Kommandot kändes inte igen. Qwired skickade ett kommando som servern inte kände igen.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="51"/>
+        <location filename="../QwcSession.cpp" line="52"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation type="unfinished">Kommandot är inte implementerat. Det senaste kommandot är inte implementerat på servern.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="52"/>
+        <location filename="../QwcSession.cpp" line="53"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation type="unfinished">Syntaxfel. Det senaste kommandot var inte korrekt formaterat.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="53"/>
+        <location filename="../QwcSession.cpp" line="54"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation type="unfinished">Inloggningen misslyckades. Användarnamnet och/eller lösenordet accepterades inte av servern.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="54"/>
+        <location filename="../QwcSession.cpp" line="55"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation type="unfinished">Bannlyst. Du har banlysts från servern. Försök att logga in senare.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="55"/>
+        <location filename="../QwcSession.cpp" line="56"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation type="unfinished">Klienten hittades inte. Servern kunde inte hitta klienten.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="56"/>
+        <location filename="../QwcSession.cpp" line="57"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation type="unfinished">Kontot hittades inte. Servern kunde inte hitta kontot.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="57"/>
+        <location filename="../QwcSession.cpp" line="58"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation type="unfinished">Kontot finns redan. Kontot du angav kunde inte skapas.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="58"/>
+        <location filename="../QwcSession.cpp" line="59"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation type="unfinished">Användaren kan inte kopplas ner. Den valda användaren kan inte kopplas ner.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="59"/>
+        <location filename="../QwcSession.cpp" line="60"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation type="unfinished">Åtkomst nekad. Du har inte behörighet att utföra det senaste kommandot.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="60"/>
+        <location filename="../QwcSession.cpp" line="61"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation type="unfinished">Filen eller Mappen kunde inte hittas. Det senaste kommandot kunde inte utförras eftersom filen eller mappen inte kunde hittas.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="61"/>
+        <location filename="../QwcSession.cpp" line="62"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation type="unfinished">Det senaste kommandot kunde inte utföras eftersom filen eller mappen redan finns.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="62"/>
+        <location filename="../QwcSession.cpp" line="63"/>
         <source>Checksum Mismatch.</source>
         <translation type="unfinished">Checksummefel.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="63"/>
+        <location filename="../QwcSession.cpp" line="64"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation type="unfinished">Kögränsen är uppnådd. Det senaste kommandot kunde inte utföras eftersom serverkön är full.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="68"/>
+        <location filename="../QwcSession.cpp" line="69"/>
         <source>Server Error</source>
         <translation type="unfinished">Serverfel</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="79"/>
+        <location filename="../QwcSession.cpp" line="80"/>
         <source>Connection Refused</source>
         <translation type="unfinished">Uppkopplingen vägrades</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="80"/>
+        <location filename="../QwcSession.cpp" line="81"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished">Uppkopplingen vägrades av servern. Detta betyder normalt att det inte finns någon Wired-server på maskinen du försöker nå.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="84"/>
+        <location filename="../QwcSession.cpp" line="85"/>
         <source>Host not found</source>
         <translation type="unfinished">Värden hittades inte</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="85"/>
+        <location filename="../QwcSession.cpp" line="86"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation type="unfinished">Servern kunde inte nås eftersom värdnamnet inte kunde hittas.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="150"/>
-        <location filename="../QwcSession.cpp" line="936"/>
+        <location filename="../QwcSession.cpp" line="151"/>
+        <location filename="../QwcSession.cpp" line="941"/>
         <source>Chat</source>
         <extracomment>Text of the main connection tab in the connection window.</extracomment>
         <translation type="unfinished">Chatt</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="448"/>
-        <location filename="../QwcSession.cpp" line="452"/>
+        <location filename="../QwcSession.cpp" line="449"/>
+        <location filename="../QwcSession.cpp" line="453"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation type="unfinished">Ämne: %1
 Satt av: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="477"/>
+        <location filename="../QwcSession.cpp" line="478"/>
         <source>Private Chat Invitation</source>
         <translation type="unfinished">Privat chatt-inbjudan</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="478"/>
+        <location filename="../QwcSession.cpp" line="479"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation type="unfinished">%1 har bjudit in dig till en privat chatt.
 Acceptera för att starta en privat chatt med %1.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="480"/>
+        <location filename="../QwcSession.cpp" line="481"/>
         <source>Ignore</source>
         <translation type="unfinished">Ignorera</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="481"/>
+        <location filename="../QwcSession.cpp" line="482"/>
         <source>Reject</source>
         <translation type="unfinished">Avböj</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="482"/>
+        <location filename="../QwcSession.cpp" line="483"/>
         <source>Join</source>
         <translation type="unfinished">Acceptera</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="511"/>
+        <location filename="../QwcSession.cpp" line="512"/>
         <source>Private Chat</source>
         <translation type="unfinished">Privat chatt</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="520"/>
+        <location filename="../QwcSession.cpp" line="521"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished">Kopplar upp. Startar session...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="614"/>
+        <location filename="../QwcSession.cpp" line="615"/>
         <source>Show/Hide</source>
         <translation type="unfinished">Visa/Göm</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="638"/>
+        <location filename="../QwcSession.cpp" line="639"/>
         <source>Connected</source>
         <translation type="unfinished">Uppkopplad</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="639"/>
+        <location filename="../QwcSession.cpp" line="640"/>
         <source>Disconnected</source>
         <translation type="unfinished">Nedkopplad</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="640"/>
+        <location filename="../QwcSession.cpp" line="641"/>
         <source>Server Error: %1</source>
         <translation type="unfinished">Serverfel: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="641"/>
+        <location filename="../QwcSession.cpp" line="642"/>
         <source>%1 joined</source>
         <translation type="unfinished">%1 accepterade</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="642"/>
+        <location filename="../QwcSession.cpp" line="643"/>
         <source>%1 is now known as %2</source>
         <translation type="unfinished">%1 heter nu %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="643"/>
+        <location filename="../QwcSession.cpp" line="644"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation type="unfinished">%1 bytte status till &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="644"/>
+        <location filename="../QwcSession.cpp" line="645"/>
         <source>%1 left</source>
         <translation type="unfinished">%1 loggade ut</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="645"/>
+        <location filename="../QwcSession.cpp" line="646"/>
         <source>Chat from %1:
 %2</source>
         <translation type="unfinished">Chatt från %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="646"/>
+        <location filename="../QwcSession.cpp" line="647"/>
         <source>Message from %1:
 %2</source>
         <translation type="unfinished">Meddelande från %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="647"/>
+        <location filename="../QwcSession.cpp" line="648"/>
         <source>News Posted from %1:
 %2</source>
         <translation type="unfinished">Nyheter från %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="648"/>
+        <location filename="../QwcSession.cpp" line="649"/>
         <source>Broadcast from %1:
 %2</source>
         <translation type="unfinished">Broadcast från %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="649"/>
+        <location filename="../QwcSession.cpp" line="650"/>
         <source>Transfer Started: %1</source>
         <translation type="unfinished">Överföring påbörjades: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="650"/>
+        <location filename="../QwcSession.cpp" line="651"/>
         <source>Transfer Finished: %1</source>
         <translation type="unfinished">Överföring avslutad: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="734"/>
+        <location filename="../QwcSession.cpp" line="735"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation type="unfinished">Filöverföringen misslyckades pga ett uppkopplingsfel. Fel-ID: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="744"/>
+        <location filename="../QwcSession.cpp" line="745"/>
         <source>Receiving user list...</source>
         <translation type="unfinished">Tar emot användarlistan...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="826"/>
+        <location filename="../QwcSession.cpp" line="827"/>
         <source>Accounts</source>
         <translation type="unfinished">Konton</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="878"/>
+        <location filename="../QwcSession.cpp" line="879"/>
         <source>News</source>
         <translation type="unfinished">Nyheter</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="892"/>
+        <location filename="../QwcSession.cpp" line="897"/>
         <source>Server Info</source>
         <translation type="unfinished">Serverinfo</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="921"/>
+        <location filename="../QwcSession.cpp" line="928"/>
         <source>Files</source>
         <translation type="unfinished">Filer</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="985"/>
+        <location filename="../QwcSession.cpp" line="990"/>
         <source>File Search</source>
         <translation type="unfinished">Filsökning</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1004"/>
+        <location filename="../QwcSession.cpp" line="1009"/>
         <source>Transfers</source>
         <translation type="unfinished">Överföringar</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1099"/>
+        <location filename="../QwcSession.cpp" line="1104"/>
         <source>Private Messages</source>
         <translation type="unfinished">Privata meddelanden</translation>
     </message>

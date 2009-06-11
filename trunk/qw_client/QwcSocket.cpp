@@ -93,6 +93,7 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
     } else if (commandId == 311) {    handleMessage311(message); // User List Done
     } else if (commandId == 320) {    handleMessage320(message); // News
     } else if (commandId == 321) {    handleMessage321(message); // News Done
+    } else if (commandId == 322) {    handleMessage322(message); // News Posted
     } else if (commandId == 330) {    handleMessage330(message); // Private Chat Created
     } else if (commandId == 331) {    handleMessage331(message); // Private Chat Invitation
     } else if (commandId == 340) {    handleMessage340(message); // Client Image Change

@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQwired">
@@ -151,7 +151,7 @@
     <string>Chat</string>
    </property>
    <property name="toolTip">
-    <string>Switch to the public chat</string>
+    <string>Show public chat</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
@@ -163,7 +163,7 @@
    </property>
    <property name="icon">
     <iconset resource="application.qrc">
-     <normaloff>:/icons/tb_news.png</normaloff>:/icons/tb_news.png</iconset>
+     <normaloff>:/icons/32x32/internet-news-reader.png</normaloff>:/icons/32x32/internet-news-reader.png</iconset>
    </property>
    <property name="text">
     <string>News</string>

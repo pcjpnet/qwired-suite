@@ -13,5 +13,3 @@ In order to release version 1.0 of Qwired Client and Server, the following goals
 
   * Tracker support needs to be working again. Unfortunately the original Wired client has the bad habit of encrypting the update UDP-packet using a bad SSL-socket hack. This is insecure and hard to implement on most systems.
   * A basic plugin backend should be implemented to allow server-side extensions.
-
-  * Hallo Welt

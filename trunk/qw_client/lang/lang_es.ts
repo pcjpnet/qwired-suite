@@ -1643,281 +1643,287 @@ p, li { white-space: pre-wrap; }
         <source>SSL Protocol:</source>
         <translation>Protocolo SSL:</translation>
     </message>
+    <message>
+        <location filename="../QwcServerInfoWidget.cpp" line="31"/>
+        <source>Unknown Protocol</source>
+        <extracomment>If the encryption (SSL) protocol is unknown, this is shown instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QwcSession</name>
     <message>
-        <location filename="../QwcSession.cpp" line="448"/>
-        <location filename="../QwcSession.cpp" line="452"/>
+        <location filename="../QwcSession.cpp" line="449"/>
+        <location filename="../QwcSession.cpp" line="453"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation>Tema: %1
 Por: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="477"/>
+        <location filename="../QwcSession.cpp" line="478"/>
         <source>Private Chat Invitation</source>
         <translation>Invitacion a chat privado</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="478"/>
+        <location filename="../QwcSession.cpp" line="479"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation>%1 te ha invitado a un chat privado.
 Acepta para abrir el chat privado con %1 en una ventana separada.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="480"/>
+        <location filename="../QwcSession.cpp" line="481"/>
         <source>Ignore</source>
         <translation>Ignorar</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="481"/>
+        <location filename="../QwcSession.cpp" line="482"/>
         <source>Reject</source>
         <translation>Denegar</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="482"/>
+        <location filename="../QwcSession.cpp" line="483"/>
         <source>Join</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="511"/>
+        <location filename="../QwcSession.cpp" line="512"/>
         <source>Private Chat</source>
         <translation>Chat privado</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="520"/>
+        <location filename="../QwcSession.cpp" line="521"/>
         <source>Connecting. Starting session...</source>
         <translation>Conectando. Iniciando sesión...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="79"/>
+        <location filename="../QwcSession.cpp" line="80"/>
         <source>Connection Refused</source>
         <translation>Conexión denegada</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="80"/>
+        <location filename="../QwcSession.cpp" line="81"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation>El servidor ha rechazado la conexión. Esto suele ocurrir cuando no hay un servidor Wired en la máquina remota.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="84"/>
+        <location filename="../QwcSession.cpp" line="85"/>
         <source>Host not found</source>
         <translation>No se encuentra el servidor</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="85"/>
+        <location filename="../QwcSession.cpp" line="86"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation>No se ha podido resolver la dirección del servidor</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="47"/>
+        <location filename="../QwcSession.cpp" line="48"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation>A ocurrido un error desconocido en el servidor. El código de error es %1.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="49"/>
+        <location filename="../QwcSession.cpp" line="50"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation>A ocurrido un error interno desconocido.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="50"/>
+        <location filename="../QwcSession.cpp" line="51"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation>Comando no reconocido. Qwired ha enviado un comando desconocido para el servidor.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="51"/>
+        <location filename="../QwcSession.cpp" line="52"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation>Comando no implementado. El último comando enviado no está implementado en el servidor.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="52"/>
+        <location filename="../QwcSession.cpp" line="53"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation>Error de síntaxis. El comando no tiene el formato adecuado.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="53"/>
+        <location filename="../QwcSession.cpp" line="54"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation>Nombre de usuario o contraseña incorrecto.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="54"/>
+        <location filename="../QwcSession.cpp" line="55"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation>Has sido expulsado del servidor. Por favor intenta conectarte más tarde.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="55"/>
+        <location filename="../QwcSession.cpp" line="56"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation>Cliente desconocido. El servidor no ha podido encontrar el cliente especificado.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="56"/>
+        <location filename="../QwcSession.cpp" line="57"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation>Cuenta desconocida. El servidor no ha podido encontrar la cuenta especificada.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="57"/>
+        <location filename="../QwcSession.cpp" line="58"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation>Esta cuenta ya existe.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="58"/>
+        <location filename="../QwcSession.cpp" line="59"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation>Imposible desconectar al usuario. El usuario especificado no ha podido ser desconectado.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="59"/>
+        <location filename="../QwcSession.cpp" line="60"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation>Permiso denegado. No tiene suficientes privilegios para ejecutar esta orden.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="60"/>
+        <location filename="../QwcSession.cpp" line="61"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation>Archivo o directorio no encontrado. No se ha podido completar la orden porque el archivo o directorio no se ha encontrado.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="61"/>
+        <location filename="../QwcSession.cpp" line="62"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation>El archivo o directorio ya existe.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="62"/>
+        <location filename="../QwcSession.cpp" line="63"/>
         <source>Checksum Mismatch.</source>
         <translation>Checksum incorrecta.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="63"/>
+        <location filename="../QwcSession.cpp" line="64"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation>No se ha podido llevar a cabo porque la cola del servidor está llena.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="68"/>
+        <location filename="../QwcSession.cpp" line="69"/>
         <source>Server Error</source>
         <translation>Error del servidor</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="150"/>
-        <location filename="../QwcSession.cpp" line="936"/>
+        <location filename="../QwcSession.cpp" line="151"/>
+        <location filename="../QwcSession.cpp" line="941"/>
         <source>Chat</source>
         <extracomment>Text of the main connection tab in the connection window.</extracomment>
         <translation type="unfinished">Chat</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="614"/>
+        <location filename="../QwcSession.cpp" line="615"/>
         <source>Show/Hide</source>
         <translation>Ocultar/Mostrar</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="638"/>
+        <location filename="../QwcSession.cpp" line="639"/>
         <source>Connected</source>
         <translation>Conectado</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="639"/>
+        <location filename="../QwcSession.cpp" line="640"/>
         <source>Disconnected</source>
         <translation>Desconectado</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="640"/>
+        <location filename="../QwcSession.cpp" line="641"/>
         <source>Server Error: %1</source>
         <translation>Error del servidor: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="641"/>
+        <location filename="../QwcSession.cpp" line="642"/>
         <source>%1 joined</source>
         <translation>%1 se ha unido al servidor</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="642"/>
+        <location filename="../QwcSession.cpp" line="643"/>
         <source>%1 is now known as %2</source>
         <translation>%1 ha cambiado su nick a: %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="643"/>
+        <location filename="../QwcSession.cpp" line="644"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation>%1 está &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="644"/>
+        <location filename="../QwcSession.cpp" line="645"/>
         <source>%1 left</source>
         <translation>%1 ha dejado el servidor</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="645"/>
+        <location filename="../QwcSession.cpp" line="646"/>
         <source>Chat from %1:
 %2</source>
         <translation>Chat de: %1
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="646"/>
+        <location filename="../QwcSession.cpp" line="647"/>
         <source>Message from %1:
 %2</source>
         <translation>Mensaje de %1
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="647"/>
+        <location filename="../QwcSession.cpp" line="648"/>
         <source>News Posted from %1:
 %2</source>
         <translation>Noticias de %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="648"/>
+        <location filename="../QwcSession.cpp" line="649"/>
         <source>Broadcast from %1:
 %2</source>
         <translation>Mensaje general de %1:
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="649"/>
+        <location filename="../QwcSession.cpp" line="650"/>
         <source>Transfer Started: %1</source>
         <translation>Transferencia iniciada: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="650"/>
+        <location filename="../QwcSession.cpp" line="651"/>
         <source>Transfer Finished: %1</source>
         <translation>Transferencia finalizada: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="734"/>
+        <location filename="../QwcSession.cpp" line="735"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation>La transferencia a fallado debido a un error de conexion. ID: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="744"/>
+        <location filename="../QwcSession.cpp" line="745"/>
         <source>Receiving user list...</source>
         <translation>Recibiendo lista de usuarios...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="826"/>
+        <location filename="../QwcSession.cpp" line="827"/>
         <source>Accounts</source>
         <translation>Cuentas</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="878"/>
+        <location filename="../QwcSession.cpp" line="879"/>
         <source>News</source>
         <translation>Noticias</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="892"/>
+        <location filename="../QwcSession.cpp" line="897"/>
         <source>Server Info</source>
         <translation>Información del servidor</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="921"/>
+        <location filename="../QwcSession.cpp" line="928"/>
         <source>Files</source>
         <translation>Archivos</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="985"/>
+        <location filename="../QwcSession.cpp" line="990"/>
         <source>File Search</source>
         <translation>Búsqueda de archivos</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1004"/>
+        <location filename="../QwcSession.cpp" line="1009"/>
         <source>Transfers</source>
         <translation>Transferencias</translation>
     </message>
@@ -1932,7 +1938,7 @@ Do you want to begin the transfer?</source>
 ¿Desea continuar?</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1099"/>
+        <location filename="../QwcSession.cpp" line="1104"/>
         <source>Private Messages</source>
         <translation>Mensajes privados</translation>
     </message>

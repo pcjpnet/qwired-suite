@@ -1626,286 +1626,292 @@ p, li { white-space: pre-wrap; }
         <source>SSL Protocol:</source>
         <translation type="unfinished">SSLプロトコル :</translation>
     </message>
+    <message>
+        <location filename="../QwcServerInfoWidget.cpp" line="31"/>
+        <source>Unknown Protocol</source>
+        <extracomment>If the encryption (SSL) protocol is unknown, this is shown instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QwcSession</name>
     <message>
-        <location filename="../QwcSession.cpp" line="448"/>
-        <location filename="../QwcSession.cpp" line="452"/>
+        <location filename="../QwcSession.cpp" line="449"/>
+        <location filename="../QwcSession.cpp" line="453"/>
         <source>Topic: %1
 Set By: %2 --- %3</source>
         <translation type="unfinished">話題 : %1
 提案者 : %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="477"/>
+        <location filename="../QwcSession.cpp" line="478"/>
         <source>Private Chat Invitation</source>
         <translation type="unfinished">プライベートチャットに招待</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="478"/>
+        <location filename="../QwcSession.cpp" line="479"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation type="unfinished">%1 があなたをプライベートチャットに招待しました。
 「参加」ボタンで %1 とのチャットを開始します。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="480"/>
+        <location filename="../QwcSession.cpp" line="481"/>
         <source>Ignore</source>
         <translation type="unfinished">無視</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="481"/>
+        <location filename="../QwcSession.cpp" line="482"/>
         <source>Reject</source>
         <translation type="unfinished">辞退</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="482"/>
+        <location filename="../QwcSession.cpp" line="483"/>
         <source>Join</source>
         <translation type="unfinished">参加</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="511"/>
+        <location filename="../QwcSession.cpp" line="512"/>
         <source>Private Chat</source>
         <translation type="unfinished">プライベートチャット</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="520"/>
+        <location filename="../QwcSession.cpp" line="521"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished">接続しています。セッションを開始しています...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="79"/>
+        <location filename="../QwcSession.cpp" line="80"/>
         <source>Connection Refused</source>
         <translation type="unfinished">コネクションが拒絶されました。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="80"/>
+        <location filename="../QwcSession.cpp" line="81"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished">コネクションはリモートホストに拒絶されました。サーバが起動していないようです。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="84"/>
+        <location filename="../QwcSession.cpp" line="85"/>
         <source>Host not found</source>
         <translation type="unfinished">ホストが見つかりません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="85"/>
+        <location filename="../QwcSession.cpp" line="86"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation type="unfinished">ホスト名を解決できなかったので、サーバに接続できませんでした。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="47"/>
+        <location filename="../QwcSession.cpp" line="48"/>
         <source>An unknown server error occoured. The error code is %1.</source>
         <translation type="unfinished">未知のサーバエラーが起きました。エラーコード %1.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="49"/>
+        <location filename="../QwcSession.cpp" line="50"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation type="unfinished">コマンドに失敗しました。未知のサーバエラーです。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="50"/>
+        <location filename="../QwcSession.cpp" line="51"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation type="unfinished">コマンドが認識されません。Qwiredはサーバが未知のコマンドを送信しました。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="51"/>
+        <location filename="../QwcSession.cpp" line="52"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation type="unfinished">直前のコマンドはサーバに実装されていません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="52"/>
+        <location filename="../QwcSession.cpp" line="53"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation type="unfinished">シンタックスエラーです。直前のコマンドは正しいフォーマットではありません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="53"/>
+        <location filename="../QwcSession.cpp" line="54"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation type="unfinished">ログインに失敗しました。ログインネームとパスワードが許可されませんでした。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="54"/>
+        <location filename="../QwcSession.cpp" line="55"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation type="unfinished">バンされました。サーバーの管理者によって禁止されているので接続が拒否されました。しばらくしてから再接続してみてください。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="55"/>
+        <location filename="../QwcSession.cpp" line="56"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation type="unfinished">クライアントが見つかりません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="56"/>
+        <location filename="../QwcSession.cpp" line="57"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation type="unfinished">アカウントが見つかりません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="57"/>
+        <location filename="../QwcSession.cpp" line="58"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation type="unfinished">同名のアカウントが存在します。指定したアカウントを作成できませんでした。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="58"/>
+        <location filename="../QwcSession.cpp" line="59"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation type="unfinished">指定したユーザを切断できません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="59"/>
+        <location filename="../QwcSession.cpp" line="60"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation type="unfinished">アクセスが拒否されました。直前のコマンドを実行するのに十分な権限がありません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="60"/>
+        <location filename="../QwcSession.cpp" line="61"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation type="unfinished">ファイルまたはディレクトリが見つかりません。直前のコマンドに失敗しました。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="61"/>
+        <location filename="../QwcSession.cpp" line="62"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation type="unfinished">同名のディレクトリが既に存在します。直前のコマンドは完了しませんでした。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="62"/>
+        <location filename="../QwcSession.cpp" line="63"/>
         <source>Checksum Mismatch.</source>
         <translation type="unfinished">チェックサムが一致しません。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="63"/>
+        <location filename="../QwcSession.cpp" line="64"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation type="unfinished">サーバで設定されているキューの上限を超えるので、直前のコマンドは完了しませんでした。</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="68"/>
+        <location filename="../QwcSession.cpp" line="69"/>
         <source>Server Error</source>
         <translation type="unfinished">サーバエラー</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="150"/>
-        <location filename="../QwcSession.cpp" line="936"/>
+        <location filename="../QwcSession.cpp" line="151"/>
+        <location filename="../QwcSession.cpp" line="941"/>
         <source>Chat</source>
         <extracomment>Text of the main connection tab in the connection window.</extracomment>
         <translation type="unfinished">チャット</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="614"/>
+        <location filename="../QwcSession.cpp" line="615"/>
         <source>Show/Hide</source>
         <translation type="unfinished">表示 / 隠す</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="638"/>
+        <location filename="../QwcSession.cpp" line="639"/>
         <source>Connected</source>
         <translation type="unfinished">接続しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="639"/>
+        <location filename="../QwcSession.cpp" line="640"/>
         <source>Disconnected</source>
         <translation type="unfinished">切断しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="640"/>
+        <location filename="../QwcSession.cpp" line="641"/>
         <source>Server Error: %1</source>
         <translation type="unfinished">サーバエラー : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="641"/>
+        <location filename="../QwcSession.cpp" line="642"/>
         <source>%1 joined</source>
         <translation type="unfinished">%1 が参加しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="642"/>
+        <location filename="../QwcSession.cpp" line="643"/>
         <source>%1 is now known as %2</source>
         <translation type="unfinished">%1 が %2 に改名しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="643"/>
+        <location filename="../QwcSession.cpp" line="644"/>
         <source>%1 changed status to &apos;%2&apos;</source>
         <translation type="unfinished">%1 の状況が &apos;%2&apos; になりました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="644"/>
+        <location filename="../QwcSession.cpp" line="645"/>
         <source>%1 left</source>
         <translation type="unfinished">%1 が退室しました</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="645"/>
+        <location filename="../QwcSession.cpp" line="646"/>
         <source>Chat from %1:
 %2</source>
         <translation type="unfinished">%1: からのチャット
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="646"/>
+        <location filename="../QwcSession.cpp" line="647"/>
         <source>Message from %1:
 %2</source>
         <translation type="unfinished">%1: からのプライベートメッセージ
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="647"/>
+        <location filename="../QwcSession.cpp" line="648"/>
         <source>News Posted from %1:
 %2</source>
         <translation type="unfinished">%1 が投稿したニュース :
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="648"/>
+        <location filename="../QwcSession.cpp" line="649"/>
         <source>Broadcast from %1:
 %2</source>
         <translation type="unfinished">%1 からの一斉通知 :
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="649"/>
+        <location filename="../QwcSession.cpp" line="650"/>
         <source>Transfer Started: %1</source>
         <translation type="unfinished">転送が始まりました : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="650"/>
+        <location filename="../QwcSession.cpp" line="651"/>
         <source>Transfer Finished: %1</source>
         <translation type="unfinished">転送が終了しました : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="734"/>
+        <location filename="../QwcSession.cpp" line="735"/>
         <source>The file transfer failed due to a connection error. Error ID is: %1</source>
         <translation type="unfinished">転送はコネクションエラーで失敗しました。エラーID : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="744"/>
+        <location filename="../QwcSession.cpp" line="745"/>
         <source>Receiving user list...</source>
         <translation type="unfinished">ユーザリストを受信しています...</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="826"/>
+        <location filename="../QwcSession.cpp" line="827"/>
         <source>Accounts</source>
         <translation type="unfinished">アカウント</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="878"/>
+        <location filename="../QwcSession.cpp" line="879"/>
         <source>News</source>
         <translation type="unfinished">ニュース</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="892"/>
+        <location filename="../QwcSession.cpp" line="897"/>
         <source>Server Info</source>
         <translation type="unfinished">サーバの情報</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="921"/>
+        <location filename="../QwcSession.cpp" line="928"/>
         <source>Files</source>
         <translation type="unfinished">ファイル</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="985"/>
+        <location filename="../QwcSession.cpp" line="990"/>
         <source>File Search</source>
         <translation type="unfinished">検索</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1004"/>
+        <location filename="../QwcSession.cpp" line="1009"/>
         <source>Transfers</source>
         <translation type="unfinished">転送</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1099"/>
+        <location filename="../QwcSession.cpp" line="1104"/>
         <source>Private Messages</source>
         <translation type="unfinished"></translation>
     </message>
