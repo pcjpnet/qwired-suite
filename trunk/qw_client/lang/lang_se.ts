@@ -100,127 +100,127 @@
     <message>
         <location filename="../QwcAccountsWidget.ui" line="187"/>
         <source>General</source>
-        <translation type="unfinished">Generellt</translation>
+        <translation>Generellt</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="203"/>
         <source>Post to the news</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv Nyhet</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="217"/>
         <source>Purge the news</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa Nyheter</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="231"/>
         <source>Get user information</source>
-        <translation type="unfinished"></translation>
+        <translation>Användarinformation</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="245"/>
         <source>Send broadcast messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Skicka broadcastmeddelanden</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="259"/>
         <source>Set chat topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Sätt Chatt-ämne</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="288"/>
         <source>Create folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa mappar</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="302"/>
         <source>Download files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladda ner filer och mappar</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="316"/>
         <source>Move &amp;&amp; Change files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta &amp;&amp; Ändra filer och mappar</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="330"/>
         <source>Upload files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladda upp filer och mappar</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="344"/>
         <source>Delete files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Radera filer och mappar</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="358"/>
         <source>Upload anywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladda upp var som helst</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="372"/>
         <source>View Drop Box contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Se Brevlådors innehåll</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="385"/>
         <source>Administration</source>
-        <translation type="unfinished"></translation>
+        <translation>Administration</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="401"/>
         <source>Disconnect users</source>
-        <translation type="unfinished"></translation>
+        <translation>Koppla ner användare</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="415"/>
         <source>Ban users</source>
-        <translation type="unfinished"></translation>
+        <translation>Banblysa användare</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="429"/>
         <source>Can not be disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte bli nedkopplad</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="443"/>
         <source>Create accounts and groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa konton och grupper</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="457"/>
         <source>Edit accounts and groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera konton och grupper</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="471"/>
         <source>Delete accounts and groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Radera konton och grupper</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="485"/>
         <source>Elevate own privileges</source>
-        <translation type="unfinished"></translation>
+        <translation>Höja egna privilegier</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="498"/>
         <source>Transfer Limits (KB/sec)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bandbreddsbegränsingar (KB/sek)</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="620"/>
         <source>Save Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara ändringar</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="665"/>
         <source>Double-click on a user or group to edit, or click &quot;Create Group or Account...&quot; to create a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubbelklicka på en användare eller grupp för att redigera, eller klicka &quot;Skapa Grupp eller Konto...&quot; för att skapa en ny.</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="681"/>
         <source>Create Group or Account...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa Grupp eller Konto...</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="272"/>
