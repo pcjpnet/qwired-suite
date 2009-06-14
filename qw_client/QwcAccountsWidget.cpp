@@ -15,7 +15,7 @@ QwcAccountsWidget::QwcAccountsWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
-    pNewMode = false;
+    newAccountMode = false;
     fGroupBasic->setEnabled(false);
     fGroupFiles->setEnabled(false);
     fGroupAdmin->setEnabled(false);
@@ -110,7 +110,7 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
 
     }
 
-    if(pNewMode) {
+    if(newAccountMode) {
         QListWidgetItem *newItem = new QListWidgetItem;
         newItem->setText(u.name);
         if(fType->currentIndex()==0) {
@@ -139,7 +139,7 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
 
 void QwcAccountsWidget::on_fType_currentIndexChanged(int index)
 {
-    if(!pNewMode) return;
+    if(!newAccountMode) return;
     fPassword->setEnabled( index==0 );
     fGroup->setEnabled( index==0 );
     bool b = (index==0 && fGroup->currentIndex()==0) || (index==1);
@@ -163,7 +163,7 @@ void QwcAccountsWidget::on_fGroup_currentIndexChanged(int index)
 void QwcAccountsWidget::on_fBtnNew_clicked()
 {
     // Switch to "new account" mode and lock down the GUI.
-    pNewMode = true;
+    newAccountMode = true;
     pCurrentUser = QwcUserInfo();
     setPrivFlags(pCurrentUser);
 
@@ -190,11 +190,11 @@ void QwcAccountsWidget::on_fBtnNew_clicked()
 
 void QwcAccountsWidget::on_fBtnDelete_clicked()
 {
-    if(pNewMode) {
+    if(newAccountMode) {
         fBtnApply->setText(tr("Apply Changes"));
         fBtnDelete->setText(tr("Delete"));
         fBtnNew->setEnabled(true);
-        pNewMode = false;
+        newAccountMode = false;
         fList->setCurrentRow(-1);
         fList->setEnabled(true);
         enableGui(false);
