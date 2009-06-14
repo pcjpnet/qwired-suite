@@ -15,7 +15,7 @@ public:
 
 private:
     QwcUserInfo pCurrentUser;
-    bool pNewMode;
+    bool newAccountMode;
 
     void enableGui(bool);
     void setPrivFlags(const QwcUserInfo);
