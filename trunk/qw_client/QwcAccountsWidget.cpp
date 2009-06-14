@@ -10,6 +10,7 @@
 
 #include <QMessageBox>
 
+
 QwcAccountsWidget::QwcAccountsWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
