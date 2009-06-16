@@ -17,104 +17,128 @@
    <item row="0" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page">
-      <layout class="QGridLayout" name="gridLayout_3">
+      <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <layout class="QVBoxLayout" name="verticalLayout_8">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>Account Details</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_6">
-            <property name="margin">
-             <number>6</number>
-            </property>
-            <item>
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>Type:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="fType">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>User Account</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="application.qrc">
-                   <normaloff>:/icons/icon_account.png</normaloff>:/icons/icon_account.png</iconset>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Account Group</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="application.qrc">
-                   <normaloff>:/icons/icon_accountgroup.png</normaloff>:/icons/icon_accountgroup.png</iconset>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Name:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="fName">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>Password:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="fPassword">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="echoMode">
-                 <enum>QLineEdit::Password</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>Group:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QComboBox" name="fGroup">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
+          <layout class="QGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Type:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="fAccountType">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>Account</string>
+              </property>
+              <property name="icon">
+               <iconset resource="application.qrc">
+                <normaloff>:/icons/icon_account.png</normaloff>:/icons/icon_account.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Group</string>
+              </property>
+              <property name="icon">
+               <iconset resource="application.qrc">
+                <normaloff>:/icons/icon_accountgroup.png</normaloff>:/icons/icon_accountgroup.png</iconset>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Name:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="fName">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Password:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="fPassword">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::Password</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Group:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="fGroup">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <spacer name="verticalSpacer">
@@ -132,311 +156,450 @@
         </layout>
        </item>
        <item row="0" column="1">
-        <layout class="QVBoxLayout" name="verticalLayout_7">
-         <item>
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Account Privileges</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QScrollArea" name="scrollArea">
-           <property name="frameShape">
-            <enum>QFrame::Panel</enum>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <widget class="QWidget" name="scrollAreaWidgetContents">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>-270</y>
-              <width>284</width>
-              <height>657</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <property name="margin">
-              <number>6</number>
+        <widget class="QScrollArea" name="fPrivilegesBox">
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>291</width>
+            <height>625</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <property name="spacing">
+              <number>0</number>
              </property>
-             <item row="0" column="0">
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <property name="spacing">
-                <number>0</number>
+             <item>
+              <widget class="QGroupBox" name="fGroupBasic">
+               <property name="enabled">
+                <bool>false</bool>
                </property>
-               <item>
-                <widget class="QGroupBox" name="fGroupBasic">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="title">
-                  <string>General</string>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_4">
-                  <item>
-                   <widget class="QCheckBox" name="fBasicPostNews">
-                    <property name="text">
-                     <string>Post news</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fBasicClearNews">
-                    <property name="text">
-                     <string>Clear news</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fBasicGetUserInfo">
-                    <property name="text">
-                     <string>Get user information</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fBasicBroadcast">
-                    <property name="text">
-                     <string>Send broadcast messages</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fBasicSetTopic">
-                    <property name="text">
-                     <string>Set chat topic</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QGroupBox" name="fGroupFiles">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="title">
-                  <string>Files &amp;&amp; Folders</string>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_3">
-                  <item>
-                   <widget class="QCheckBox" name="fFilesCreateFolders">
-                    <property name="text">
-                     <string>Create folders</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fFilesDownload">
-                    <property name="text">
-                     <string>Download files and folders</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fFilesMoveChange">
-                    <property name="text">
-                     <string>Move &amp;&amp; Change files and folders</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fFilesUpload">
-                    <property name="text">
-                     <string>Upload files and folders</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fFilesDelete">
-                    <property name="text">
-                     <string>Delete files and folders</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fFilesUploadAnywhere">
-                    <property name="text">
-                     <string>Upload anywhere</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fFilesViewDropBoxes">
-                    <property name="text">
-                     <string>View Drop Box contents</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QGroupBox" name="fGroupAdmin">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="title">
-                  <string>Administration</string>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_5">
-                  <item>
-                   <widget class="QCheckBox" name="fUsersKick">
-                    <property name="text">
-                     <string>Disconnect users</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fUsersBan">
-                    <property name="text">
-                     <string>Ban users</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fUsersNoKick">
-                    <property name="text">
-                     <string>Can not be disconnected</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fUsersCreate">
-                    <property name="text">
-                     <string>Create accounts and groups</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fUsersEdit">
-                    <property name="text">
-                     <string>Edit accounts and groups</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fUsersDelete">
-                    <property name="text">
-                     <string>Delete accounts and groups</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="fUsersElevate">
-                    <property name="text">
-                     <string>Elevate own privileges</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QGroupBox" name="fGroupLimits">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="title">
-                  <string>Transfer Limits (KB/sec)</string>
-                 </property>
-                 <layout class="QFormLayout" name="formLayout">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_5">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Download:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="fLimitDown">
-                    <property name="minimumSize">
-                     <size>
-                      <width>60</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>70</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_6">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Upoad:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="fLimitUp">
-                    <property name="minimumSize">
-                     <size>
-                      <width>60</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>70</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-              </layout>
+               <property name="title">
+                <string>General</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
+                <property name="spacing">
+                 <number>3</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="fBasicPostNews">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Post to the news</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fBasicClearNews">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Purge the news</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fBasicGetUserInfo">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Get user information</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fBasicBroadcast">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Send broadcast messages</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fBasicSetTopic">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Set chat topic</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="fGroupFiles">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="title">
+                <string>Files &amp;&amp; Folders</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <property name="spacing">
+                 <number>3</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="fFilesCreateFolders">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Create folders</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fFilesDownload">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Download files and folders</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fFilesMoveChange">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Move &amp;&amp; Change files and folders</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fFilesUpload">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Upload files and folders</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fFilesDelete">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Delete files and folders</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fFilesUploadAnywhere">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Upload anywhere</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fFilesViewDropBoxes">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>View Drop Box contents</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="fGroupAdmin">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="title">
+                <string>Administration</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_5">
+                <property name="spacing">
+                 <number>3</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="fUsersKick">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Disconnect users</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fUsersBan">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Ban users</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fUsersNoKick">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Can not be disconnected</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fUsersCreate">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Create accounts and groups</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fUsersEdit">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Edit accounts and groups</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fUsersDelete">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Delete accounts and groups</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="fUsersElevate">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Elevate own privileges</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="fGroupLimits">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="title">
+                <string>Transfer Limits (KB/sec)</string>
+               </property>
+               <layout class="QFormLayout" name="formLayout">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Download:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="fLimitDown">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>70</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <weight>50</weight>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Upoad:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLineEdit" name="fLimitUp">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>70</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </item>
             </layout>
-            <zorder></zorder>
-           </widget>
-          </widget>
-         </item>
-        </layout>
+           </item>
+          </layout>
+          <zorder></zorder>
+         </widget>
+        </widget>
        </item>
        <item row="1" column="0" colspan="2">
         <layout class="QHBoxLayout">
+         <item>
+          <widget class="QToolButton" name="btnEditDelete">
+           <property name="text">
+            <string>Delete</string>
+           </property>
+           <property name="icon">
+            <iconset resource="application.qrc">
+             <normaloff>:/icons/16x16/edit-delete.png</normaloff>:/icons/16x16/edit-delete.png</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+          </widget>
+         </item>
          <item>
           <spacer>
            <property name="orientation">
@@ -451,13 +614,13 @@
           </spacer>
          </item>
          <item>
-          <widget class="QToolButton" name="fBtnDelete">
+          <widget class="QToolButton" name="btnEditCancel">
            <property name="text">
-            <string>Delete</string>
+            <string>Cancel</string>
            </property>
            <property name="icon">
             <iconset resource="application.qrc">
-             <normaloff>:/icons/16x16/edit-delete.png</normaloff>:/icons/16x16/edit-delete.png</iconset>
+             <normaloff>:/icons/16x16/process-stop.png</normaloff>:/icons/16x16/process-stop.png</iconset>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -488,7 +651,7 @@
         <widget class="QListWidget" name="fList">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>3</horstretch>
+           <horstretch>6</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
@@ -497,42 +660,65 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <spacer name="verticalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Double-click on a user or group to edit, or click &quot;Create Group or Account...&quot; to create a new one.</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="fBtnNew">
+          <widget class="QToolButton" name="btnCreateAccount">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>10</horstretch>
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Create Group or Account...</string>
+            <string>Create New Account or Group...</string>
            </property>
            <property name="icon">
             <iconset resource="application.qrc">
              <normaloff>:/icons/16x16/list-add.png</normaloff>:/icons/16x16/list-add.png</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="btnEditAccount">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Edit Selected Account or Group...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="application.qrc">
+             <normaloff>:/icons/16x16/stock-edit-16.png</normaloff>:/icons/16x16/stock-edit-16.png</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="btnRefreshAccounts">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Refresh Accounts and Groups</string>
+           </property>
+           <property name="icon">
+            <iconset resource="application.qrc">
+             <normaloff>:/icons/icn_refresh.png</normaloff>:/icons/icn_refresh.png</iconset>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextBesideIcon</enum>

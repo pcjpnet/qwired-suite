@@ -14,38 +14,52 @@ public:
     QwcAccountsWidget(QWidget *parent = 0);
 
 private:
-    QwcUserInfo pCurrentUser;
+    void setupEditWidgets();
+    QwcUserInfo currentAccount;
     bool newAccountMode;
 
-    void enableGui(bool);
-    void setPrivFlags(const QwcUserInfo);
+
+//    void enableGui(bool);
+
 
 private slots:
+    void on_btnCreateAccount_clicked();
+
     void on_fList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void on_fBtnApply_clicked();
-    void on_fBtnDelete_clicked();
-    void on_fBtnNew_clicked();
-    void on_fType_currentIndexChanged(int);
+    void on_btnRefreshAccounts_clicked();
+    void on_btnEditDelete_clicked();
+
+    void on_fAccountType_currentIndexChanged(int);
     void on_fGroup_currentIndexChanged(int);
+
+    void on_btnEditCancel_clicked();
+    void on_btnEditAccount_clicked();
 
 public slots:
     void appendUserNames(QStringList);
     void appendGroupNames(QStringList);
-    void loadUserSpec(QwcUserInfo);
-    void loadGroupSpec(QwcUserInfo);
+    void loadFromAccount(const QwcUserInfo account);
+//    void loadUserSpec(QwcUserInfo);
+//    void loadGroupSpec(QwcUserInfo);
 
 signals:
     void userSpecRequested(QString theName);
     void groupSpecRequested(QString theName);
     void saveUserSpec(QwcUserInfo);
     void saveGroupSpec(QwcUserInfo);
-    void userDeleted(QString);
-    void groupDeleted(QString);
-    void createUser(QwcUserInfo);
-    void editUser(QwcUserInfo);
-    void createGroup(QwcUserInfo);
-    void editGroup(QwcUserInfo);
 
+
+    void accountCreated(QwcUserInfo);
+    void accountEdited(QwcUserInfo);
+    void accountDeleted(QString);
+
+    void groupCreated(QwcUserInfo);
+    void groupEdited(QwcUserInfo);
+    void groupDeleted(QString);
+
+    /*! Emitted when the user wants to refresh the list of available groups and users. */
+    void refreshedAccountsAndGroups();
 
 };
 
