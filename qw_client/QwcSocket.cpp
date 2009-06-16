@@ -165,7 +165,7 @@ void QwcSocket::handleMessage201(const QwMessage &message)
 void QwcSocket::handleMessage203(const QwMessage &message)
 {
     serverImage.loadFromData(QByteArray::fromBase64(message.getStringArgument(0).toAscii()));
-    emit onServerBanner(serverImage);
+    emit serverBannerReceived(QPixmap::fromImage(serverImage));
 }
 
 
