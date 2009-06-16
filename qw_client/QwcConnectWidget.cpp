@@ -1,5 +1,7 @@
 #include "QwcConnectWidget.h"
 
+#include <QDebug>
+#include <QInputDialog>
 
 /*! \class QwcConnectWidget
     \author Bastian Bense <bastibense@gmail.com>
@@ -47,6 +49,34 @@ void QwcConnectWidget::on_fBtnCancel_clicked()
 
 void QwcConnectWidget::bookmarkSelected(QAction *action)
 {
+    if (!action) { return; }
+    if (action->text() == tr("Add Bookmark...")) {
+        bool ok;
+        QString bookmarkName = QInputDialog::getText(this,
+                                                    tr("Create New Bookmark"),
+                                                    tr("Please enter a name for the new bookmark:"),
+                                                    QLineEdit::Normal,
+                                                    fAddress->text(),
+                                                    &ok);
+        if (!ok) { return; }
+
+        // Actually add the new bookmark
+        QSettings settings;
+        // Read the count of existing entries
+        int bookmarkCount = settings.beginReadArray("bookmarks");
+        settings.endArray();
+        // Write the new entry
+        settings.beginWriteArray("bookmarks");
+        settings.setArrayIndex(bookmarkCount);
+        settings.setValue("name", bookmarkName);
+        settings.setValue("address", fAddress->text());
+        settings.setValue("login", fLogin->text());
+        settings.setValue("password", fPassword->text());
+        settings.endArray();
+
+        loadBookmarks();
+        return;
+    }
     QStringList tmpList = action->data().value<QStringList>();
     fAddress->setText(tmpList.at(0));
     fLogin->setText(tmpList.at(1));
@@ -57,27 +87,41 @@ void QwcConnectWidget::bookmarkSelected(QAction *action)
 
 void QwcConnectWidget::loadBookmarks()
 {
-    QSettings conf;
+    QSettings settings;
+
     QMenu *menu = fBtnFavourites->menu();
     if(!menu) {
         menu = new QMenu(fBtnFavourites);
-        connect( menu, SIGNAL(triggered(QAction*)), this, SLOT(bookmarkSelected(QAction*)) );
+        connect(menu, SIGNAL(triggered(QAction*)),
+                this, SLOT(bookmarkSelected(QAction*)));
         fBtnFavourites->setMenu(menu);
     }
+
     menu->clear();
-    int tmpCnt = conf.beginReadArray("bookmarks");
-    for(int i=0; i<tmpCnt; ++i) {
-        conf.setArrayIndex(i);
-        QStringList tmpData;
-        tmpData << conf.value("address").toString() << conf.value("login").toString() << conf.value("password").toString();
+
+    int bookmarkCount = settings.beginReadArray("bookmarks");
+    for (int i = 0; i < bookmarkCount; i++) {
+        settings.setArrayIndex(i);
+        QStringList tmpData = QStringList()
+                << settings.value("address").toString()
+                << settings.value("login").toString()
+                << settings.value("password").toString();
         QAction *action = new QAction(menu);
-        action->setText( conf.value("name").toString() );
+        action->setText(settings.value("name").toString());
         action->setIcon(QIcon(":/icons/icn_trackerserver.png"));
         action->setData(tmpData);
         menu->addAction(action);
     }
-    conf.endArray();
+    settings.endArray();
+
+    // Add the 'special' action that allows to add a bookmark automatically
+    menu->addSeparator();
+    QAction *addAction = new QAction(menu);
+    addAction->setText(tr("Add Bookmark..."));
+    addAction->setIcon(QIcon(":/icons/16x16/list-add.png"));
+    menu->addAction(addAction);
 }
+
 
 
 void QwcConnectWidget::timerEvent(QTimerEvent *)

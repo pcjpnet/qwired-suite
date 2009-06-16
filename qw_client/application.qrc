@@ -110,5 +110,6 @@
         <file>icons/16x16/emblem-important.png</file>
         <file>icons/32x32/internet-news-reader.png</file>
         <file>icons/16x16/stock-edit-16.png</file>
+        <file>icons/16x16/applications-internet.png</file>
     </qresource>
 </RCC>
