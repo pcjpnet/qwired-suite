@@ -51,7 +51,14 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>&lt;h2&gt;Qwired&lt;/h2&gt;&lt;p&gt;A free Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.&lt;/p&gt;&lt;p&gt;Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.&lt;/p&gt;&lt;p&gt;Copyright (c) Bastian Bense, Neo Software.&lt;/p&gt;</string>
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; font-weight:600;&quot;&gt;Qwired&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A free and open Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Copyright (c) Bastian Bense, Neo Software.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
@@ -131,7 +138,7 @@
  </widget>
  <resources>
   <include location="application.qrc"/>
-  <include location="../application.qrc"/>
+  <include location="application.qrc"/>
  </resources>
  <connections/>
 </ui>
