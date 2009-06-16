@@ -186,7 +186,7 @@ public slots:
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
     void doCreateNewChat(int theChatID);
 
-    void onSocketServerInfo();
+    void handleServerInformation();
     void onLoginSuccessful();
 
     void setBannerView(const QImage theBanner);
