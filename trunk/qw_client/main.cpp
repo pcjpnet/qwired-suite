@@ -51,13 +51,13 @@ int main (int argc, char *argv[])
         qDebug() << "Configured network proxy.";
     }
 
-    // Create the inital connection
-    QwcSession *firstSession = new QwcSession();
+
 
     // Singleton
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &WSINGLETON::Instance(), SLOT(cleanUp()));
-    WSINGLETON::Instance().addSession(firstSession);
+    QObject::connect(&app, SIGNAL(aboutToQuit()),
+                     &WSINGLETON::Instance(), SLOT(cleanUp()));
     WSINGLETON::Instance().createTrayIcon();
+    WSINGLETON::Instance().createInitialSessions();
 
     return app.exec();
 }
