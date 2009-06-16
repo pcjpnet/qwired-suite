@@ -54,6 +54,37 @@ QColor QwcSingleton::colorFromPrefs(QString theKey, QColor theDefault)
 }
 
 
+/*! Check the bookmarks for auto-connect enabled servers and create a session for each. Otherwise
+    create a new, blank session and leave it unconnected.
+*/
+void QwcSingleton::createInitialSessions()
+{
+    QSettings settings;
+    int bookmarkCount = settings.beginReadArray("bookmarks");
+    int autoconnectedBookmarks = 0;
+
+    // Run through all bookmarks and check if they have the autoconnect flag set.
+    for (int i = 0; i < bookmarkCount; i++) {
+        settings.setArrayIndex(i);
+        if (settings.value("autoconnect").toBool()) {
+            QwcSession *newSession = new QwcSession();
+            newSession->connectWidget->fAddress->insert(settings.value("address").toString());
+            newSession->connectWidget->fLogin->insert(settings.value("login").toString());
+            newSession->connectWidget->fPassword->insert(settings.value("password").toString());
+            newSession->connectWidget->btnConnect->click();
+            autoconnectedBookmarks++;
+        }
+    }
+
+    // No bookmarks exist. Create a new blank session.
+    if (autoconnectedBookmarks == 0) {
+        QwcSession *blankSession = new QwcSession();
+        addSession(blankSession);
+    }
+
+    settings.endArray();
+}
+
 /// Notify all connected objects about the changed prefs, so they can reload.
 void QwcSingleton::notifyPrefsChanged()
 {

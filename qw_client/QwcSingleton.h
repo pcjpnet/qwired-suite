@@ -24,6 +24,7 @@ public:
     QPointer<QMenu> pTrayMenu;
     QPointer<QSystemTrayIcon> pTrayIcon;
 
+
     // Global functions
     static QString systemMonospaceFont();
     static QColor colorFromPrefs(QString theKey, QColor theDefault);
@@ -36,6 +37,7 @@ signals:
     void prefsChanged();
 
 public slots:
+    void createInitialSessions();
     void notifyPrefsChanged();
     void cleanUp();
     void makeNewConnection(QString address);
