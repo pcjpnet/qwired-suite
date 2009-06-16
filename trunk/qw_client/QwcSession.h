@@ -67,7 +67,6 @@ public:
 
     QPointer<QwcServerInfoWidget> mainServerInfoWidget;
     QPointer<QwcPreferencesWidget> pPrefsWindow;
-//    QPointer<QwcConnectWidget> pConnectWindow;
     QPointer<QwcFiletransferWidget> pTranfersWindow;
     QPointer<QwcFileSearchWidget> pFileSearch;
     QPointer<QwcAccountsWidget> pWinAccounts;

@@ -26,7 +26,7 @@ QwcSession::QwcSession(QObject *parent) : QObject(parent)
 
 QwcSession::~QwcSession()
 {
-    qDebug() << connectionWindow->windowTitle();
+    qDebug() << "Session destroyed.";
     connectionWindow->deleteLater();
     mainChatWidget->deleteLater();
     mainFileWidget->deleteLater();
@@ -130,10 +130,6 @@ void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
         connectionStackedWidget->setCurrentIndex(0);
         connectWidget->resetForm();
         connectWidget->startReconnecting();
-
-        //connectionWindow->setEnabled(false);
-        //connectionWindow->setWindowTitle( connectionWindow->windowTitle()+tr(" [Disconnected]") );
-
         triggerEvent("ServerDisconnected",QStringList());
     }
     setConnectionToolButtonsEnabled(false);
@@ -178,16 +174,6 @@ void QwcSession::initMainWindow()
     connectionTabWidget->setDocumentMode(true);
     connectionTabWidget->setTabsClosable(true);
 
-
-
-//    QToolButton *tabCloseButton = new QToolButton(stackedWidget);
-//    tabCloseButton->setIcon(QIcon(":/icons/icn_close.png"));
-//    tabCloseButton->setShortcut(QKeySequence("ctrl+w"));
-//    tabCloseButton->setEnabled(false);
-//    connect(tabCloseButton, SIGNAL(clicked()),
-//            this, SLOT(onTabBarCloseButtonClicked()));
-//    connectionTabWidget->setCornerWidget(tabCloseButton);
-
     // Create the initial tab for the main chat
     mainChatWidget = new QwcChatWidget(connectionWindow);
 
@@ -201,10 +187,6 @@ void QwcSession::initMainWindow()
     pUserListModel->setWiredSocket(socket);
     mainChatWidget->setSession(this);
     mainChatWidget->setUserListModel(pUserListModel);
-
-    // Private messenger
-//    privateMessager = new QwcPrivateMessager;
-//    privateMessager->setParent(mainChatWidget, Qt::Window);
 
     setupConnections();
     connectionWindow->show();
