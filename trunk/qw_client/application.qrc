@@ -111,5 +111,6 @@
         <file>icons/32x32/internet-news-reader.png</file>
         <file>icons/16x16/stock-edit-16.png</file>
         <file>icons/16x16/applications-internet.png</file>
+        <file>icons/banner-missing.png</file>
     </qresource>
 </RCC>
