@@ -212,6 +212,9 @@ void QwcAccountsWidget::on_btnEditAccount_clicked()
     QListWidgetItem *item = fList->currentItem();
     if (!item) { return; }
 
+    newAccountMode = false;
+
+    // Request the account data from the server
     if (item->data(Qt::UserRole) == Qws::UserTypeAccount) {
         emit userSpecRequested(item->text());
     } else if (item->data(Qt::UserRole) == Qws::UserTypeGroup) {
@@ -220,45 +223,40 @@ void QwcAccountsWidget::on_btnEditAccount_clicked()
 
     // Switch to the editor form.
     stackedWidget->setCurrentIndex(0);
+
+    // Now enable/disable the controls
+    setupEditWidgets();
 }
 
 
+
+
+/*! The "Delete" button has been clicked.
+*/
 void QwcAccountsWidget::on_btnEditDelete_clicked()
 {
-    if(newAccountMode) {
-        fBtnApply->setText(tr("Apply Changes"));
-        btnEditDelete->setText(tr("Delete"));
-//        fBtnNew->setEnabled(true);
-        newAccountMode = false;
-        fList->setCurrentRow(-1);
-        fList->setEnabled(true);
-//        enableGui(false);
-        fGroup->setCurrentIndex(0);
-        fAccountType->setCurrentIndex(0);
-        fGroup->setEnabled(false);
-        btnEditDelete->setEnabled(false);
-        fGroupBasic->setEnabled(false);
-        fGroupFiles->setEnabled(false);
-        fGroupAdmin->setEnabled(false);
-        fGroupLimits->setEnabled(false);
 
-    } else {
-        QMessageBox::StandardButton result = QMessageBox::question(this,
-                    tr("Delete Account or Group"),
-                    tr("Are you sure you want to delete the current account or group? This can not be undone."),
-                    QMessageBox::Ok | QMessageBox::Cancel,
-                    QMessageBox::Ok );
-        if(result == QMessageBox::Ok) {
-            QListWidgetItem *tmpItm = fList->takeItem( fList->currentRow() );
-            QString tmpName = tmpItm->text();
-            int tmpType = tmpItm->data(Qt::UserRole).toInt();
-            delete tmpItm; tmpItm=0;
-            fList->setCurrentRow(-1);
-            if(tmpType==0)
-                emit accountDeleted(tmpName);
-            else emit groupDeleted(tmpName);
+    QMessageBox::StandardButton result = QMessageBox::question(this,
+                 tr("Delete Account or Group"),
+                 tr("Are you sure you want to delete the account/group \"%1\"?")
+                    .arg(currentAccount.name),
+                 QMessageBox::Ok | QMessageBox::Cancel,
+                 QMessageBox::Ok );
+
+    if (result == QMessageBox::Ok) {
+        QListWidgetItem *listItem = fList->takeItem( fList->currentRow() );
+        int accountType = listItem->data(Qt::UserRole).toInt();
+        if (accountType == Qws::UserTypeAccount) {
+            emit accountDeleted(listItem->text());
+        } else if (accountType == Qws::UserTypeGroup) {
+            emit groupDeleted(listItem->text());
         }
+        fList->setCurrentRow(-1);
+        delete listItem;
+        // Go back to the list
+        stackedWidget->setCurrentIndex(1);
     }
+
 }
 
 
@@ -296,29 +294,29 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     fGroupAdmin->setEnabled(currentAccount.pGroupName.isEmpty());
 
     // Basic Privileges
-    fBasicGetUserInfo->setChecked( currentAccount.privGetUserInfo );
-    fBasicPostNews->setChecked( currentAccount.privPostNews );
-    fBasicBroadcast->setChecked( currentAccount.privBroadcast );
-    fBasicSetTopic->setChecked( currentAccount.privChangeTopic );
-    fBasicClearNews->setChecked( currentAccount.privClearNews );
+    fBasicGetUserInfo->setChecked(currentAccount.privGetUserInfo);
+    fBasicPostNews->setChecked(currentAccount.privPostNews);
+    fBasicBroadcast->setChecked(currentAccount.privBroadcast);
+    fBasicSetTopic->setChecked(currentAccount.privChangeTopic);
+    fBasicClearNews->setChecked(currentAccount.privClearNews);
 
     // Transfer/Files Privileges
-    fFilesDownload->setChecked( currentAccount.privDownload );
-    fFilesUpload->setChecked( currentAccount.privUpload );
-    fFilesUploadAnywhere->setChecked( currentAccount.privUploadAnywhere );
-    fFilesViewDropBoxes->setChecked( currentAccount.privViewDropboxes );
-    fFilesCreateFolders->setChecked( currentAccount.privCreateFolders );
-    fFilesMoveChange->setChecked( currentAccount.privAlterFiles );
-    fFilesDelete->setChecked( currentAccount.privDeleteFiles );
+    fFilesDownload->setChecked(currentAccount.privDownload);
+    fFilesUpload->setChecked(currentAccount.privUpload);
+    fFilesUploadAnywhere->setChecked(currentAccount.privUploadAnywhere);
+    fFilesViewDropBoxes->setChecked(currentAccount.privViewDropboxes);
+    fFilesCreateFolders->setChecked(currentAccount.privCreateFolders);
+    fFilesMoveChange->setChecked(currentAccount.privAlterFiles);
+    fFilesDelete->setChecked(currentAccount.privDeleteFiles);
 
     // Administration Privileges
-    fUsersCreate->setChecked( currentAccount.privCreateAccounts );
-    fUsersEdit->setChecked( currentAccount.privEditAccounts );
-    fUsersDelete->setChecked( currentAccount.privDeleteAccounts );
-    fUsersElevate->setChecked( currentAccount.privElevatePrivileges );
-    fUsersKick->setChecked( currentAccount.privKickUsers );
-    fUsersBan->setChecked( currentAccount.privBanUsers );
-    fUsersNoKick->setChecked( currentAccount.privCannotBeKicked );
+    fUsersCreate->setChecked(currentAccount.privCreateAccounts);
+    fUsersEdit->setChecked(currentAccount.privEditAccounts);
+    fUsersDelete->setChecked(currentAccount.privDeleteAccounts);
+    fUsersElevate->setChecked(currentAccount.privElevatePrivileges);
+    fUsersKick->setChecked(currentAccount.privKickUsers);
+    fUsersBan->setChecked(currentAccount.privBanUsers);
+    fUsersNoKick->setChecked(currentAccount.privCannotBeKicked);
 
     // Transfer limits
     fLimitDown->setText(QString::number(currentAccount.privDownloadLimit));

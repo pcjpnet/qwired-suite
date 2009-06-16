@@ -36,12 +36,11 @@ private slots:
     void on_btnEditCancel_clicked();
     void on_btnEditAccount_clicked();
 
+
 public slots:
     void appendUserNames(QStringList);
     void appendGroupNames(QStringList);
     void loadFromAccount(const QwcUserInfo account);
-//    void loadUserSpec(QwcUserInfo);
-//    void loadGroupSpec(QwcUserInfo);
 
 signals:
     void userSpecRequested(QString theName);

@@ -856,15 +856,15 @@ void QwcSession::doActionAccounts()
                 socket, SLOT(createUser(QwcUserInfo)));
         connect(pWinAccounts, SIGNAL(accountEdited(QwcUserInfo)),
                 socket, SLOT(editUser(QwcUserInfo)));
-        connect(pWinAccounts, SIGNAL(userDeleted(QString)),
-                socket, SLOT(accountDeleted(QString)));
+        connect(pWinAccounts, SIGNAL(accountDeleted(QString)),
+                socket, SLOT(deleteUser(QString)));
 
         connect(pWinAccounts, SIGNAL(groupCreated(QwcUserInfo)),
                  socket, SLOT(createGroup(QwcUserInfo)));
         connect(pWinAccounts, SIGNAL(groupEdited(QwcUserInfo)),
                  socket, SLOT(editGroup(QwcUserInfo)));
         connect(pWinAccounts, SIGNAL(groupDeleted(QString)),
-                socket, SLOT(groupDeleted(QString)));
+                socket, SLOT(deleteGroup(QString)));
 
         connect(pWinAccounts, SIGNAL(refreshedAccountsAndGroups()),
                 socket, SLOT(getGroups()));
