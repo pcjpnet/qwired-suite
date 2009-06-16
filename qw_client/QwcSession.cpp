@@ -61,6 +61,14 @@ bool QwcSession::eventFilter(QObject *watched, QEvent *event)
             QSettings settings;
             settings.setValue("window_states/session", connectionWindow->saveGeometry());
         }
+
+    } else if (watched == connectionWindow->bannerToolbarWidget) {
+        // Catch the mouse event on the banner to show the server information.
+        if (event->type() == QEvent::MouseButtonRelease) {
+            doActionServerInfo();
+            event->ignore();
+            return true;
+        }
     }
     return false;
 }
@@ -297,9 +305,8 @@ void QwcSession::setupConnections()
 
     connect(socket, SIGNAL(onServerInformation()),
             this, SLOT(handleServerInformation()) );
-
-
-    connect(socket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
+    connect(socket, SIGNAL(serverBannerReceived(QPixmap)),
+            this, SLOT(setBannerView(QPixmap)) );
 
 
     connect(socket, SIGNAL(fileInformation(QwcFileInfo)), this, SLOT(fileInformation(QwcFileInfo)) );
@@ -561,33 +568,27 @@ void QwcSession::setConnectionToolButtonsEnabled(bool theEnable)
 }
 
 
-/// Set the banner image to the toolbar of the main window.
-void QwcSession::setBannerView(const QImage theBanner)
+/*! Update the banner in the main connection window toolbar.
+*/
+void QwcSession::setBannerView(const QPixmap banner)
 {
-    if(bannerSpace) {
-        delete bannerSpace;
-        bannerSpace = 0;
-    }
-    if(bannerView) {
-        delete bannerView;
-        bannerView = 0;
-    }
-    if(bannerSpace2) {
-        delete bannerSpace2;
-        bannerSpace2 = 0;
+    if (!connectionWindow->bannerToolbarWidget) {
+        connectionWindow->bannerToolbarWidget = new QLabel(connectionWindow->fToolBar);
+        connectionWindow->bannerToolbarWidgetSpacer = new QWidget(connectionWindow->fToolBar);
+        connectionWindow->bannerToolbarWidgetSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        connectionWindow->fToolBar->addWidget(connectionWindow->bannerToolbarWidgetSpacer);
+        connectionWindow->fToolBar->addWidget(connectionWindow->bannerToolbarWidget);
+        connectionWindow->bannerToolbarWidget->installEventFilter(this);
     }
 
-    bannerSpace = new QWidget(connectionWindow->fToolBar);
-    bannerSpace->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    connectionWindow->fToolBar->addWidget(bannerSpace);
+    if (banner.isNull()) {
+        // Show a default banner when there is no server banner defined.
+        connectionWindow->bannerToolbarWidget->setPixmap(QPixmap(":/icons/banner-missing.png"));
+    } else {
+        connectionWindow->bannerToolbarWidget->setPixmap(banner);
+    }
 
-    bannerView = new QLabel(connectionWindow->fToolBar);
-    bannerView->setPixmap(QPixmap::fromImage(theBanner));
-    connectionWindow->fToolBar->addWidget(bannerView);
 
-    bannerSpace2 = new QWidget(connectionWindow->fToolBar);
-    bannerSpace2->setFixedWidth(10);
-    connectionWindow->fToolBar->addWidget(bannerSpace2);
 
 }
 

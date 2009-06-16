@@ -74,10 +74,6 @@ public:
     QPointer<QwcTrackerlistWidget> pWinTrackers;
     QPointer<QwcFileBrowserWidget> mainFileWidget;
 
-    QWidget *bannerSpace;
-    QLabel *bannerView;
-    QWidget *bannerSpace2;
-
     QPointer<QMenu> pTrayMenuItem;
 
     // Misc
@@ -172,7 +168,7 @@ public slots:
     void handleServerInformation();
     void onLoginSuccessful();
 
-    void setBannerView(const QImage theBanner);
+    void setBannerView(const QPixmap banner);
 
     void downloadFolder(const QString &remotePath, const QString &localPath);
     void uploadFolder(const QString &localPath, const QString &remotePath);
