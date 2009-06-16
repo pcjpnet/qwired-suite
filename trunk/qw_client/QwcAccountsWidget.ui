@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -51,7 +51,7 @@
                <string>Account</string>
               </property>
               <property name="icon">
-               <iconset resource="application.qrc">
+               <iconset>
                 <normaloff>:/icons/icon_account.png</normaloff>:/icons/icon_account.png</iconset>
               </property>
              </item>
@@ -60,7 +60,7 @@
                <string>Group</string>
               </property>
               <property name="icon">
-               <iconset resource="application.qrc">
+               <iconset>
                 <normaloff>:/icons/icon_accountgroup.png</normaloff>:/icons/icon_accountgroup.png</iconset>
               </property>
              </item>
@@ -592,7 +592,7 @@
             <string>Delete</string>
            </property>
            <property name="icon">
-            <iconset resource="application.qrc">
+            <iconset>
              <normaloff>:/icons/16x16/edit-delete.png</normaloff>:/icons/16x16/edit-delete.png</iconset>
            </property>
            <property name="toolButtonStyle">
@@ -619,7 +619,7 @@
             <string>Cancel</string>
            </property>
            <property name="icon">
-            <iconset resource="application.qrc">
+            <iconset>
              <normaloff>:/icons/16x16/process-stop.png</normaloff>:/icons/16x16/process-stop.png</iconset>
            </property>
            <property name="toolButtonStyle">
@@ -633,7 +633,7 @@
             <string>Save Changes</string>
            </property>
            <property name="icon">
-            <iconset resource="application.qrc">
+            <iconset>
              <normaloff>:/icons/16x16/emblem-readonly.png</normaloff>:/icons/16x16/emblem-readonly.png</iconset>
            </property>
            <property name="toolButtonStyle">
@@ -671,7 +671,7 @@
             <string>Create New Account or Group...</string>
            </property>
            <property name="icon">
-            <iconset resource="application.qrc">
+            <iconset>
              <normaloff>:/icons/16x16/list-add.png</normaloff>:/icons/16x16/list-add.png</iconset>
            </property>
            <property name="toolButtonStyle">
@@ -694,7 +694,7 @@
             <string>Edit Selected Account or Group...</string>
            </property>
            <property name="icon">
-            <iconset resource="application.qrc">
+            <iconset>
              <normaloff>:/icons/16x16/stock-edit-16.png</normaloff>:/icons/16x16/stock-edit-16.png</iconset>
            </property>
            <property name="toolButtonStyle">
@@ -717,7 +717,7 @@
             <string>Refresh Accounts and Groups</string>
            </property>
            <property name="icon">
-            <iconset resource="application.qrc">
+            <iconset>
              <normaloff>:/icons/icn_refresh.png</normaloff>:/icons/icn_refresh.png</iconset>
            </property>
            <property name="toolButtonStyle">
@@ -726,7 +726,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_2">
+          <spacer name="verticalSpacer_3">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -746,9 +746,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="application.qrc"/>
-  <include location="application.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
