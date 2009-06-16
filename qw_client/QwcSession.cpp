@@ -40,19 +40,26 @@ QwcSession::~QwcSession()
 bool QwcSession::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == connectionWindow) {
-        if (event->type() == QEvent::Close && wiredSocket()->sslSocket()->isEncrypted()) {
+        if (event->type() == QEvent::Close) {
 
-            QMessageBox::StandardButton result = QMessageBox::question(connectionWindow,
+            // If the socket is still connected, confirm the disconnection first.
+            if (wiredSocket()->sslSocket()->isEncrypted()) {
+                QMessageBox::StandardButton result = QMessageBox::question(connectionWindow,
                     tr("Are you sure you want to disconnect?"),
                     tr("Closing this connection window will disconnect you from the remote server. "
                        "Are you sure you want to disconnect? Any ongoing file transfers will be aborted."),
-                    QMessageBox::Close | QMessageBox::Cancel,
-                    QMessageBox::Close);
+                       QMessageBox::Close | QMessageBox::Cancel,
+                       QMessageBox::Close);
 
-            if (result == QMessageBox::Cancel) {
-                event->ignore();
-                return true;
+                if (result == QMessageBox::Cancel) {
+                    event->ignore();
+                    return true;
+                }
             }
+
+            // Save the window geometry in order to restore it later on
+            QSettings settings;
+            settings.setValue("window_states/session", connectionWindow->saveGeometry());
         }
     }
     return false;
@@ -129,6 +136,13 @@ void QwcSession::initMainWindow()
 {
     connectionWindow = new QwcConnectionMainWindow();
     connectionWindow->installEventFilter(this);
+
+    // Restore the window geometry
+    QSettings settings;
+    if (settings.contains("window_states/session")) {
+        connectionWindow->restoreGeometry(settings.value("window_states/session").toByteArray());
+    }
+
     connect(connectionWindow, SIGNAL(destroyed(QObject*)),
             this, SLOT(connectionWindowDestroyed(QObject*)) );
 
