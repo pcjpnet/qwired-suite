@@ -835,27 +835,53 @@ void QwcSession::doActionAccounts()
 {
     if(!pWinAccounts) {
         pWinAccounts = new QwcAccountsWidget(connectionWindow);
-        int tmpIdx = connectionTabWidget->addTab(pWinAccounts, tr("Accounts"));
-        connectionTabWidget->setCurrentIndex(tmpIdx);
-        connect( socket, SIGNAL(receivedAccountList(QStringList)), pWinAccounts, SLOT(appendUserNames(QStringList)) );
-        connect( socket, SIGNAL(receivedAccountGroupList(QStringList)), pWinAccounts, SLOT(appendGroupNames(QStringList)) );
-        connect( socket, SIGNAL(userSpecReceived(QwcUserInfo)), pWinAccounts, SLOT(loadUserSpec(QwcUserInfo)) );
-        connect( socket, SIGNAL(groupSpecReceived(QwcUserInfo)), pWinAccounts, SLOT(loadGroupSpec(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(userSpecRequested(QString)), socket, SLOT(readUser(QString)) );
-        connect( pWinAccounts, SIGNAL(groupSpecRequested(QString)), socket, SLOT(readGroup(QString)) );
-        connect( pWinAccounts, SIGNAL(userDeleted(QString)), socket, SLOT(deleteUser(QString)) );
-        connect( pWinAccounts, SIGNAL(groupDeleted(QString)), socket, SLOT(deleteGroup(QString)) );
 
-        connect( pWinAccounts, SIGNAL(createUser(QwcUserInfo)), socket, SLOT(createUser(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(editUser(QwcUserInfo)), socket, SLOT(editUser(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(createGroup(QwcUserInfo)), socket, SLOT(createGroup(QwcUserInfo)) );
-        connect( pWinAccounts, SIGNAL(editGroup(QwcUserInfo)), socket, SLOT(editGroup(QwcUserInfo)) );
+        connect( socket, SIGNAL(receivedAccountList(QStringList)),
+                 pWinAccounts, SLOT(appendUserNames(QStringList)));
+        connect( socket, SIGNAL(receivedAccountGroupList(QStringList)),
+                 pWinAccounts, SLOT(appendGroupNames(QStringList)));
+
+        connect(socket, SIGNAL(userSpecReceived(QwcUserInfo)),
+                pWinAccounts, SLOT(loadFromAccount(QwcUserInfo)));
+        connect(socket, SIGNAL(groupSpecReceived(QwcUserInfo)),
+                pWinAccounts, SLOT(loadFromAccount(QwcUserInfo)));
+
+        connect(pWinAccounts, SIGNAL(userSpecRequested(QString)),
+                socket, SLOT(readUser(QString)));
+        connect(pWinAccounts, SIGNAL(groupSpecRequested(QString)),
+                socket, SLOT(readGroup(QString)));
+
+
+        connect(pWinAccounts, SIGNAL(accountCreated(QwcUserInfo)),
+                socket, SLOT(createUser(QwcUserInfo)));
+        connect(pWinAccounts, SIGNAL(accountEdited(QwcUserInfo)),
+                socket, SLOT(editUser(QwcUserInfo)));
+        connect(pWinAccounts, SIGNAL(userDeleted(QString)),
+                socket, SLOT(accountDeleted(QString)));
+
+        connect(pWinAccounts, SIGNAL(groupCreated(QwcUserInfo)),
+                 socket, SLOT(createGroup(QwcUserInfo)));
+        connect(pWinAccounts, SIGNAL(groupEdited(QwcUserInfo)),
+                 socket, SLOT(editGroup(QwcUserInfo)));
+        connect(pWinAccounts, SIGNAL(groupDeleted(QString)),
+                socket, SLOT(groupDeleted(QString)));
+
+        connect(pWinAccounts, SIGNAL(refreshedAccountsAndGroups()),
+                socket, SLOT(getGroups()));
+        connect(pWinAccounts, SIGNAL(refreshedAccountsAndGroups()),
+                socket, SLOT(getUsers()));
+
         socket->getGroups();
         socket->getUsers();
-    } else {
-        int tmpIdx = connectionTabWidget->indexOf(pWinAccounts);
-        connectionTabWidget->setCurrentIndex(tmpIdx);
     }
+
+    // Display the widget if it is not in the tab widget
+    if (connectionTabWidget->indexOf(pWinAccounts) == -1) {
+        connectionTabWidget->addTab(pWinAccounts, tr("Accounts"));
+    }
+
+    // Ensure it is the currently visible widget
+    connectionTabWidget->setCurrentWidget(pWinAccounts);
 }
 
 

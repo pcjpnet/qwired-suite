@@ -23,6 +23,27 @@ QwcAccountsWidget::QwcAccountsWidget(QWidget *parent) : QWidget(parent)
 }
 
 
+/*! Enable/Disable the widgets of the editor form depending on the current editor mode. (e.g.
+    disable some widgets when creating a new account).
+*/
+void QwcAccountsWidget::setupEditWidgets()
+{
+    btnEditDelete->setEnabled(!newAccountMode);
+}
+
+
+/*! The "New Account" button has been clicked.
+*/
+void QwcAccountsWidget::on_btnCreateAccount_clicked()
+{
+    currentAccount = QwcUserInfo();
+    newAccountMode = true;
+    loadFromAccount(currentAccount);
+    setupEditWidgets();
+    stackedWidget->setCurrentIndex(0);
+}
+
+
 void QwcAccountsWidget::appendUserNames(QStringList theUsers)
 {
     QStringListIterator i(theUsers);
@@ -53,155 +74,175 @@ void QwcAccountsWidget::appendGroupNames(QStringList theGroups)
     }
 }
 
-void QwcAccountsWidget::on_fList_currentItemChanged(QListWidgetItem * current, QListWidgetItem * previous)
-{
 
-    Q_UNUSED(previous)
-            if(current) {
-        if( current->data(Qt::UserRole).toInt() == 0 ) {
-            emit userSpecRequested(current->text());
-        } else {
-            emit groupSpecRequested(current->text());
-        }
-        enableGui(false);
-    } else {
-        enableGui(false);
-        fGroupBasic->setEnabled(false);
-        fGroupFiles->setEnabled(false);
-        fGroupAdmin->setEnabled(false);
-        fGroupLimits->setEnabled(false);
-    }
+void QwcAccountsWidget::on_fList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    Q_UNUSED(previous);
+    btnEditAccount->setEnabled(current != NULL);
+
+//
+//    if(current) {
+//        if( current->data(Qt::UserRole).toInt() == 0 ) {
+//            emit userSpecRequested(current->text());
+//        } else {
+//            emit groupSpecRequested(current->text());
+//        }
+////        enableGui(false);
+//    } else {
+////        enableGui(false);
+//        fGroupBasic->setEnabled(false);
+//        fGroupFiles->setEnabled(false);
+//        fGroupAdmin->setEnabled(false);
+//        fGroupLimits->setEnabled(false);
+//    }
 
 }
 
+
+/*! The save/create button has been clicked.
+*/
 void QwcAccountsWidget::on_fBtnApply_clicked()
 {
-    QwcUserInfo u;
-    u.name = fName->text();
-    u.pPassword = fPassword->text();
-    u.userType = (Qws::UserType)fType->currentIndex(); // 0=user, 1=group
-    if(fGroup->currentIndex()>0)
-        u.pGroupName = fGroup->currentText();
-    u.privGetUserInfo = fBasicGetUserInfo->isChecked();
-    u.privPostNews = fBasicPostNews->isChecked();
-    u.privBroadcast = fBasicBroadcast->isChecked();
-    u.privClearNews = fBasicClearNews->isChecked();
-    u.privChangeTopic = fBasicSetTopic->isChecked();
-    u.privDownload = fFilesDownload->isChecked();
-    u.privUpload = fFilesUpload->isChecked();
-    u.privUploadAnywhere = fFilesUploadAnywhere->isChecked();
-    u.privViewDropboxes = fFilesViewDropBoxes->isChecked();
-    u.privCreateFolders = fFilesCreateFolders->isChecked();
-    u.privAlterFiles = fFilesMoveChange->isChecked();
-    u.privDeleteFiles = fFilesDelete->isChecked();
-    u.privCreateAccounts = fUsersCreate->isChecked();
-    u.privEditAccounts = fUsersEdit->isChecked();
-    u.privDeleteAccounts = fUsersDelete->isChecked();
-    u.privElevatePrivileges = fUsersElevate->isChecked();
-    u.privKickUsers = fUsersKick->isChecked();
-    u.privBanUsers = fUsersBan->isChecked();
-    u.privCannotBeKicked = fUsersNoKick->isChecked();
-    u.privDownloadLimit = fLimitDown->text().toInt();
-    u.privUploadLimit = fLimitUp->text().toInt();
-    if(u.userType == Qws::UserTypeAccount) {
-        u.pPassword = fPassword->text();
-        if(pCurrentUser.pPassword != u.pPassword)// password, changed - reencode
-            u.pPassword = u.cryptedPassword();
+    QwcUserInfo newAccount;
+    newAccount.name = fName->text();
+    newAccount.userType = (Qws::UserType)fAccountType->currentIndex(); // 0=user, 1=group
 
+    newAccount.privGetUserInfo = fBasicGetUserInfo->isChecked();
+    newAccount.privPostNews = fBasicPostNews->isChecked();
+    newAccount.privBroadcast = fBasicBroadcast->isChecked();
+    newAccount.privClearNews = fBasicClearNews->isChecked();
+    newAccount.privChangeTopic = fBasicSetTopic->isChecked();
+    newAccount.privDownload = fFilesDownload->isChecked();
+    newAccount.privUpload = fFilesUpload->isChecked();
+    newAccount.privUploadAnywhere = fFilesUploadAnywhere->isChecked();
+    newAccount.privViewDropboxes = fFilesViewDropBoxes->isChecked();
+    newAccount.privCreateFolders = fFilesCreateFolders->isChecked();
+    newAccount.privAlterFiles = fFilesMoveChange->isChecked();
+    newAccount.privDeleteFiles = fFilesDelete->isChecked();
+    newAccount.privCreateAccounts = fUsersCreate->isChecked();
+    newAccount.privEditAccounts = fUsersEdit->isChecked();
+    newAccount.privDeleteAccounts = fUsersDelete->isChecked();
+    newAccount.privElevatePrivileges = fUsersElevate->isChecked();
+    newAccount.privKickUsers = fUsersKick->isChecked();
+    newAccount.privBanUsers = fUsersBan->isChecked();
+    newAccount.privCannotBeKicked = fUsersNoKick->isChecked();
+    newAccount.privDownloadLimit = fLimitDown->text().toInt();
+    newAccount.privUploadLimit = fLimitUp->text().toInt();
+
+    if (newAccount.userType == Qws::UserTypeAccount) {
+        newAccount.pPassword = fPassword->text();
+
+        // Re-hash the password if it changed
+        if (currentAccount.pPassword != newAccount.pPassword) {// password, changed - reencode
+            newAccount.pPassword = newAccount.cryptedPassword();
+        }
+
+        // Set the group name
+        if (fGroup->currentIndex() > 0) {
+            newAccount.pGroupName = fGroup->currentText();
+        }
     }
 
-    if(newAccountMode) {
-        QListWidgetItem *newItem = new QListWidgetItem;
-        newItem->setText(u.name);
-        if(fType->currentIndex()==0) {
-            emit createUser(u);
-            newItem->setIcon( QIcon(":/icons/icon_account.png") );
-            newItem->setData(Qt::UserRole, 0); // user
-        } else {
-            emit createGroup(u);
-            newItem->setIcon( QIcon(":/icons/icon_accountgroup.png") );
-            newItem->setData(Qt::UserRole, 1); // group
+    if (newAccountMode) {
+        // Create new account/group
+        if (newAccount.userType == Qws::UserTypeAccount) {
+            appendUserNames(QStringList() << newAccount.name);
+            emit accountCreated(newAccount);
+        } else if (newAccount.userType == Qws::UserTypeGroup) {
+            appendGroupNames(QStringList() << newAccount.name);
+            emit groupCreated(newAccount);
         }
-        fList->addItem(newItem);
-        fBtnDelete->click();
+        btnEditDelete->click();
 
-    } else { // Update
-        if(fType->currentIndex()==0) {
-            emit editUser(u);
+    } else {
+        // Update existing account/group
+        if(fAccountType->currentIndex()==0) {
+            emit accountEdited(newAccount);
         } else {
-            emit editGroup(u);
+            emit groupEdited(newAccount);
         }
         fBtnApply->setEnabled(false);
         fList->setCurrentRow(-1);
     }
+
+    // Display the list again
+    stackedWidget->setCurrentIndex(1);
 }
 
 
-void QwcAccountsWidget::on_fType_currentIndexChanged(int index)
+/*! The refresh button has been clicked.
+*/
+void QwcAccountsWidget::on_btnRefreshAccounts_clicked()
 {
-    if(!newAccountMode) return;
-    fPassword->setEnabled( index==0 );
-    fGroup->setEnabled( index==0 );
-    bool b = (index==0 && fGroup->currentIndex()==0) || (index==1);
-    fGroupBasic->setEnabled(b);
-    fGroupFiles->setEnabled(b);
-    fGroupAdmin->setEnabled(b);
-    fGroupLimits->setEnabled(b);
+    fList->clear();
+    emit refreshedAccountsAndGroups();
 }
 
+
+/*! The type of the account/group object changed.
+*/
+void QwcAccountsWidget::on_fAccountType_currentIndexChanged(int index)
+{
+    if (!newAccountMode) { return; }
+
+    fPassword->setEnabled(index == 0); // 0 = Account, 1 = Group
+    fGroup->setEnabled(index == 0);
+
+    // Enable privileges only if the object is a group or account, but not if the
+    // object is an account with a group set.
+    bool enablePrivileges = (index == 0 && fGroup->currentIndex() == 0) || (index == 1);
+    fGroupBasic->setEnabled(enablePrivileges);
+    fGroupFiles->setEnabled(enablePrivileges);
+    fGroupAdmin->setEnabled(enablePrivileges);
+    fGroupLimits->setEnabled(enablePrivileges);
+
+}
+
+
+/*! The account group has changed.
+*/
 void QwcAccountsWidget::on_fGroup_currentIndexChanged(int index)
 {
-    bool b = index==0;
-    fGroupBasic->setEnabled(b);
-    fGroupFiles->setEnabled(b);
-    fGroupAdmin->setEnabled(b);
-    fGroupLimits->setEnabled(b);
+    bool enablePrivileges = (index == 0);
+    fGroupBasic->setEnabled(enablePrivileges);
+    fGroupFiles->setEnabled(enablePrivileges);
+    fGroupAdmin->setEnabled(enablePrivileges);
+    fGroupLimits->setEnabled(enablePrivileges);
 }
 
 
-
-void QwcAccountsWidget::on_fBtnNew_clicked()
+/*! The "Cancel" button of the account editor has been clicked.
+*/
+void QwcAccountsWidget::on_btnEditCancel_clicked()
 {
-    // Switch to "new account" mode and lock down the GUI.
-    newAccountMode = true;
-    pCurrentUser = QwcUserInfo();
-    setPrivFlags(pCurrentUser);
+    stackedWidget->setCurrentIndex(1);
+}
 
-    fBtnApply->setText(tr("Create"));
 
-    fList->setCurrentRow(-1);
-    fList->setEnabled(false);
-    enableGui(true);
-    fGroup->setCurrentIndex(0);
-    fType->setCurrentIndex(0);
-    fGroup->setEnabled(true);
-    fBtnNew->setEnabled(false);
-    fBtnDelete->setEnabled(true);
-    fBtnDelete->setText(tr("Cancel"));
-    fGroupBasic->setEnabled(true);
-    fGroupFiles->setEnabled(true);
-    fGroupAdmin->setEnabled(true);
-    fGroupLimits->setEnabled(true);
-
+/*! The "Edit User/Group" button has been clicked.
+*/
+void QwcAccountsWidget::on_btnEditAccount_clicked()
+{
+    QListWidgetItem *item = fList->currentItem();
+    if (!item) { return; }
 
 }
 
 
-
-void QwcAccountsWidget::on_fBtnDelete_clicked()
+void QwcAccountsWidget::on_btnEditDelete_clicked()
 {
     if(newAccountMode) {
         fBtnApply->setText(tr("Apply Changes"));
-        fBtnDelete->setText(tr("Delete"));
-        fBtnNew->setEnabled(true);
+        btnEditDelete->setText(tr("Delete"));
+//        fBtnNew->setEnabled(true);
         newAccountMode = false;
         fList->setCurrentRow(-1);
         fList->setEnabled(true);
-        enableGui(false);
+//        enableGui(false);
         fGroup->setCurrentIndex(0);
-        fType->setCurrentIndex(0);
+        fAccountType->setCurrentIndex(0);
         fGroup->setEnabled(false);
-        fBtnDelete->setEnabled(false);
+        btnEditDelete->setEnabled(false);
         fGroupBasic->setEnabled(false);
         fGroupFiles->setEnabled(false);
         fGroupAdmin->setEnabled(false);
@@ -220,78 +261,55 @@ void QwcAccountsWidget::on_fBtnDelete_clicked()
             delete tmpItm; tmpItm=0;
             fList->setCurrentRow(-1);
             if(tmpType==0)
-                emit userDeleted(tmpName);
+                emit accountDeleted(tmpName);
             else emit groupDeleted(tmpName);
         }
     }
 }
 
-void QwcAccountsWidget::enableGui(bool e)
-{
-    fType->setEnabled(e);
-    fName->setEnabled(e);
-    fGroup->setEnabled(e);
-    fPassword->setEnabled(e);;
-    fBtnApply->setEnabled(e);
-    fBtnDelete->setEnabled(e);
-}
 
-void QwcAccountsWidget::loadGroupSpec(QwcUserInfo u)
+void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
 {
-    fName->setText(u.name);
-    enableGui(true);
-    setPrivFlags(u);
-}
-
-void QwcAccountsWidget::loadUserSpec(QwcUserInfo u)
-{
-    fName->setText(u.name);
-    enableGui(true);
-    setPrivFlags(u);
-}
-
-void QwcAccountsWidget::setPrivFlags(QwcUserInfo u)
-{
-    pCurrentUser = u; // to recover the password hash later
-    fGroupBasic->setEnabled(u.pGroupName.isEmpty());
-    fGroupLimits->setEnabled(u.pGroupName.isEmpty());
-    fGroupFiles->setEnabled(u.pGroupName.isEmpty());
-    fGroupAdmin->setEnabled(u.pGroupName.isEmpty());
-    fGroup->setEnabled(u.userType == Qws::UserTypeAccount);
-    fType->setCurrentIndex(u.userType);
-    fType->setEnabled(false);
+    currentAccount = account; // to recover the password hash later
+    fGroupBasic->setEnabled(currentAccount.pGroupName.isEmpty());
+    fGroupLimits->setEnabled(currentAccount.pGroupName.isEmpty());
+    fGroupFiles->setEnabled(currentAccount.pGroupName.isEmpty());
+    fGroupAdmin->setEnabled(currentAccount.pGroupName.isEmpty());
+    fGroup->setEnabled(currentAccount.userType == Qws::UserTypeAccount);
+    fAccountType->setCurrentIndex(currentAccount.userType);
+    fAccountType->setEnabled(false);
     fName->setEnabled(false);
-    fPassword->setEnabled(u.userType == Qws::UserTypeAccount);
-    fPassword->setText(u.pPassword);
+    fPassword->setEnabled(currentAccount.userType == Qws::UserTypeAccount);
+    fPassword->setText(currentAccount.pPassword);
 
-    fLimitDown->setText( QString::number(u.privDownloadLimit) );
-    fLimitUp->setText( QString::number(u.privUploadLimit) );
+    fLimitDown->setText( QString::number(currentAccount.privDownloadLimit) );
+    fLimitUp->setText( QString::number(currentAccount.privUploadLimit) );
 
-    fBasicGetUserInfo->setChecked( u.privGetUserInfo );
-    fBasicPostNews->setChecked( u.privPostNews );
-    fBasicBroadcast->setChecked( u.privBroadcast );
-    fBasicSetTopic->setChecked( u.privChangeTopic );
-    fBasicClearNews->setChecked( u.privClearNews );
+    fBasicGetUserInfo->setChecked( currentAccount.privGetUserInfo );
+    fBasicPostNews->setChecked( currentAccount.privPostNews );
+    fBasicBroadcast->setChecked( currentAccount.privBroadcast );
+    fBasicSetTopic->setChecked( currentAccount.privChangeTopic );
+    fBasicClearNews->setChecked( currentAccount.privClearNews );
 
-    fFilesDownload->setChecked( u.privDownload );
-    fFilesUpload->setChecked( u.privUpload );
-    fFilesUploadAnywhere->setChecked( u.privUploadAnywhere );
-    fFilesViewDropBoxes->setChecked( u.privViewDropboxes );
-    fFilesCreateFolders->setChecked( u.privCreateFolders );
-    fFilesMoveChange->setChecked( u.privAlterFiles );
-    fFilesDelete->setChecked( u.privDeleteFiles );
+    fFilesDownload->setChecked( currentAccount.privDownload );
+    fFilesUpload->setChecked( currentAccount.privUpload );
+    fFilesUploadAnywhere->setChecked( currentAccount.privUploadAnywhere );
+    fFilesViewDropBoxes->setChecked( currentAccount.privViewDropboxes );
+    fFilesCreateFolders->setChecked( currentAccount.privCreateFolders );
+    fFilesMoveChange->setChecked( currentAccount.privAlterFiles );
+    fFilesDelete->setChecked( currentAccount.privDeleteFiles );
 
-    fUsersCreate->setChecked( u.privCreateAccounts );
-    fUsersEdit->setChecked( u.privEditAccounts );
-    fUsersDelete->setChecked( u.privDeleteAccounts );
-    fUsersElevate->setChecked( u.privElevatePrivileges );
-    fUsersKick->setChecked( u.privKickUsers );
-    fUsersBan->setChecked( u.privBanUsers );
-    fUsersNoKick->setChecked( u.privCannotBeKicked );
+    fUsersCreate->setChecked( currentAccount.privCreateAccounts );
+    fUsersEdit->setChecked( currentAccount.privEditAccounts );
+    fUsersDelete->setChecked( currentAccount.privDeleteAccounts );
+    fUsersElevate->setChecked( currentAccount.privElevatePrivileges );
+    fUsersKick->setChecked( currentAccount.privKickUsers );
+    fUsersBan->setChecked( currentAccount.privBanUsers );
+    fUsersNoKick->setChecked( currentAccount.privCannotBeKicked );
 
 
 
-    int tmpIdx = fGroup->findData(u.pGroupName);
+    int tmpIdx = fGroup->findData(currentAccount.pGroupName);
     if(tmpIdx==-1) {
         fGroup->setCurrentIndex(0);
     } else {
