@@ -308,7 +308,8 @@ void QwcSession::setupConnections()
     connect(socket, SIGNAL(privateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
     connect(socket, SIGNAL(privateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
 
-    connect(socket, SIGNAL(onServerInformation()), this, SLOT(onSocketServerInfo()) );
+    connect(socket, SIGNAL(onServerInformation()),
+            this, SLOT(handleServerInformation()) );
 
 
     connect(socket, SIGNAL(onServerBanner(QPixmap)), this, SLOT(setBannerView(QPixmap)) );
@@ -515,12 +516,25 @@ void QwcSession::doCreateNewChat(int theChatID)
 }
 
 
-/// Received the server info header. Update the connect window.
-void QwcSession::onSocketServerInfo()
+/*! Server Information was received from the remote server.
+*/
+void QwcSession::handleServerInformation()
 {
-    connectWidget->setStatus(tr("Connecting. Starting session..."));
-    if(connectWidget>0) connectWidget->setProgressBar(1,3);
-    if(pTrayMenuItem) pTrayMenuItem->setTitle(socket->serverInfo.name);
+    // Update the window title
+    /*: This is the translateable string for the server name in the window title bar of the
+        connection window. */
+    connectionWindow->setWindowTitle(tr("Qwired - %1").arg(socket->serverInfo.name));
+
+    // Update the progress bar
+    if (connectWidget) {
+        connectWidget->setProgressBar(1,3);
+        connectWidget->setStatus(tr("Connecting. Starting session..."));
+    }
+
+    // Update the try icon menu
+    if (pTrayMenuItem) {
+        pTrayMenuItem->setTitle(socket->serverInfo.name);
+    }
 }
 
 
@@ -755,7 +769,8 @@ void QwcSession::onLoginSuccessful()
     connectionTabWidget->addTab(mainChatWidget, "Chat");
     connectWidget->setStatus(tr("Receiving user list..."));
     connectWidget->setProgressBar(2,3);
-    triggerEvent("ServerConnected",QStringList());
+    triggerEvent("ServerConnected", QStringList());
+
 }
 
 
