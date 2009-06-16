@@ -170,7 +170,7 @@ signals:
     void onServerInformation();
 
     void onServerLoginSuccessful();
-    void onServerBanner(const QImage banner);
+    void serverBannerReceived(const QPixmap banner);
 
 
     void userChanged(const QwcUserInfo theOld, const QwcUserInfo theNew);
