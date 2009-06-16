@@ -157,9 +157,6 @@
        </item>
        <item row="0" column="1">
         <widget class="QScrollArea" name="fPrivilegesBox">
-         <property name="frameShape">
-          <enum>QFrame::Panel</enum>
-         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -168,8 +165,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>291</width>
-            <height>625</height>
+            <width>284</width>
+            <height>669</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
@@ -187,18 +184,8 @@
                 <string>General</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_4">
-                <property name="spacing">
-                 <number>3</number>
-                </property>
                 <item>
                  <widget class="QCheckBox" name="fBasicPostNews">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Post to the news</string>
                   </property>
@@ -206,13 +193,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fBasicClearNews">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Purge the news</string>
                   </property>
@@ -220,13 +200,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fBasicGetUserInfo">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Get user information</string>
                   </property>
@@ -234,13 +207,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fBasicBroadcast">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Send broadcast messages</string>
                   </property>
@@ -248,13 +214,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fBasicSetTopic">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Set chat topic</string>
                   </property>
@@ -272,18 +231,8 @@
                 <string>Files &amp;&amp; Folders</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_3">
-                <property name="spacing">
-                 <number>3</number>
-                </property>
                 <item>
                  <widget class="QCheckBox" name="fFilesCreateFolders">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Create folders</string>
                   </property>
@@ -291,13 +240,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fFilesDownload">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Download files and folders</string>
                   </property>
@@ -305,13 +247,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fFilesMoveChange">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Move &amp;&amp; Change files and folders</string>
                   </property>
@@ -319,13 +254,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fFilesUpload">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Upload files and folders</string>
                   </property>
@@ -333,13 +261,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fFilesDelete">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Delete files and folders</string>
                   </property>
@@ -347,13 +268,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fFilesUploadAnywhere">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Upload anywhere</string>
                   </property>
@@ -361,13 +275,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fFilesViewDropBoxes">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>View Drop Box contents</string>
                   </property>
@@ -385,18 +292,8 @@
                 <string>Administration</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_5">
-                <property name="spacing">
-                 <number>3</number>
-                </property>
                 <item>
                  <widget class="QCheckBox" name="fUsersKick">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Disconnect users</string>
                   </property>
@@ -404,13 +301,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fUsersBan">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Ban users</string>
                   </property>
@@ -418,13 +308,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fUsersNoKick">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Can not be disconnected</string>
                   </property>
@@ -432,13 +315,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fUsersCreate">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Create accounts and groups</string>
                   </property>
@@ -446,13 +322,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fUsersEdit">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Edit accounts and groups</string>
                   </property>
@@ -460,13 +329,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fUsersDelete">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Delete accounts and groups</string>
                   </property>
@@ -474,13 +336,6 @@
                 </item>
                 <item>
                  <widget class="QCheckBox" name="fUsersElevate">
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Elevate own privileges</string>
                   </property>
@@ -505,12 +360,6 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
                   </property>
                   <property name="text">
                    <string>Download:</string>
@@ -543,12 +392,6 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
                   </property>
                   <property name="text">
                    <string>Upoad:</string>
@@ -654,6 +497,9 @@
            <horstretch>6</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
