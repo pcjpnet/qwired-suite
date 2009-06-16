@@ -58,7 +58,6 @@ SOURCES += main.cpp \
     QwcTrackerlistWidget.cpp \
     QwcSingleton.cpp \
     QwcServerInfoWidget.cpp \
-    QwcEventFilter.cpp \
     QwcAboutWidget.cpp \
     QwcColorButton.cpp \
     QwcConnectWidget.cpp \
@@ -110,5 +109,4 @@ HEADERS += QwcSession.h \
     QwcTrackerlistWidget.h \
     QwcTrackerServerInfo.h \
     QwcAboutWidget.h \
-    QwcEventFilter.h \
     QwcPrivateMessager.h

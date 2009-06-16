@@ -7,9 +7,6 @@
 #include "QwcChatWidget.h"
 #include "QwcConnectionMainWindow.h"
 #include "QwcSocket.h"
-
-#include "QwcEventFilter.h"
-
 #include "QwcNewsWidget.h"
 #include "QwcUserlistModel.h"
 #include "QwcPreferencesWidget.h"
@@ -40,6 +37,7 @@ public:
     QwcSession(QObject *parent = 0);
     ~QwcSession();
 
+    bool eventFilter(QObject *watched, QEvent *event);
 
 
     /*! Returns a pointer to the underlying protocol socket. */
@@ -79,8 +77,6 @@ public:
     QWidget *bannerSpace;
     QLabel *bannerView;
     QWidget *bannerSpace2;
-
-    QwcEventFilter *pEventFilter;
 
     QPointer<QMenu> pTrayMenuItem;
 
