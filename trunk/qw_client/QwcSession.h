@@ -24,20 +24,10 @@
 
 
 namespace Qwired {
-    enum Event { ServerConnected,
-                 ServerDisconnected,
-                 ServerError,
-                 UserJoined,
-                 UserChangedNick,
-                 UserChangedStatus,
-                 UserLeft,
-                 ChatReceived,
-                 MessageReceived,
-                 NewsPosted,
-                 BroadcastReceived,
-                 TransferStarted,
-                 TransferFinished };
-};
+    enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick,
+                 UserChangedStatus, UserLeft, ChatReceived, MessageReceived, NewsPosted,
+                 BroadcastReceived, TransferStarted, TransferFinished };
+}
 
 
 class QwcFileBrowserWidget;
@@ -57,9 +47,6 @@ public:
 
     // Main window widgets
     void initMainWindow();
-//    QPointer<QWidget> pContainerWidget;
-//    QPointer<QStackedLayout> pContainerLayout;
-//    QPointer<QTabWidget> pMainTabWidget;
     QPointer<QwcPrivateMessager> privateMessager;
 
     // Wired Socket

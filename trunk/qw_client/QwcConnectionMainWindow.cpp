@@ -13,7 +13,6 @@ QwcConnectionMainWindow::QwcConnectionMainWindow(QWidget *parent) : QMainWindow(
 {
     setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
-    setAttribute(Qt::WA_DeleteOnClose);
     setWindowIcon(QIcon(":/icons/qwired_logo_32.png"));
 }
 
@@ -39,7 +38,7 @@ void QwcConnectionMainWindow::toggleVisible()
 */
 void QwcConnectionMainWindow::on_actionAbout_triggered(bool)
 {
-    if(!pQwcAboutWidget) {
+    if (!pQwcAboutWidget) {
         pQwcAboutWidget = new QwcAboutWidget();
     }
     pQwcAboutWidget->show();
