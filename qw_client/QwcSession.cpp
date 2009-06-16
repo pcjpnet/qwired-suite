@@ -34,6 +34,30 @@ QwcSession::~QwcSession()
 }
 
 
+/*! This is the main event filter, responsible to catch events such as closing the main window and
+    keyboard input.
+*/
+bool QwcSession::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == connectionWindow) {
+        if (event->type() == QEvent::Close && wiredSocket()->sslSocket()->isEncrypted()) {
+
+            QMessageBox::StandardButton result = QMessageBox::question(connectionWindow,
+                    tr("Are you sure you want to disconnect?"),
+                    tr("Closing this connection window will disconnect you from the remote server. "
+                       "Are you sure you want to disconnect? Any ongoing file transfers will be aborted."),
+                    QMessageBox::Close | QMessageBox::Cancel,
+                    QMessageBox::Close);
+
+            if (result == QMessageBox::Cancel) {
+                event->ignore();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 
 /*! Handle a protocol-related error and display it to the user.
 */
@@ -103,8 +127,8 @@ void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
 
 void QwcSession::initMainWindow()
 {
-
     connectionWindow = new QwcConnectionMainWindow();
+    connectionWindow->installEventFilter(this);
     connect(connectionWindow, SIGNAL(destroyed(QObject*)),
             this, SLOT(connectionWindowDestroyed(QObject*)) );
 
@@ -162,11 +186,6 @@ void QwcSession::initMainWindow()
 
     setupConnections();
     connectionWindow->show();
-
-    // Install the event filter in connectionWindow
-    pEventFilter = new QwcEventFilter;
-    connectionWindow->installEventFilter(pEventFilter);
-    pEventFilter->setSocket(socket);
 }
 
 
@@ -770,34 +789,18 @@ void QwcSession::onConnectAborted()
 }
 
 
-// Prompt user to confirm disconnection
-bool QwcSession::confirmDisconnection()
-{
-    if(!pEventFilter->disconnectionPrompt()) {
-        return true;
-    }
-    return false;
-}
-
-
 // === ACTIONS FROM THE MAIN WINDOW === //
 // ==================================== //
 
 /// The disconnect button has been clicked. Disconnect from the server.
 void QwcSession::doActionDisconnect()
 {
-    // First we ask for confirmation
-    bool reallyDisconnect = confirmDisconnection();
-
-    // And then we disconnect
-    if(reallyDisconnect) {
-        setConnectionToolButtonsEnabled(false);
-        mainChatWidget->resetForm();
-        connectWidget->resetForm();
-        socket->disconnectFromServer();
-        connectionStackedWidget->setCurrentIndex(0); // go to connect dialog
-        socket->serverInfo = QwServerInfo();
-    }
+    setConnectionToolButtonsEnabled(false);
+    mainChatWidget->resetForm();
+    connectWidget->resetForm();
+    socket->disconnectFromServer();
+    connectionStackedWidget->setCurrentIndex(0); // go to connect dialog
+    socket->serverInfo = QwServerInfo();
 }
 
 
