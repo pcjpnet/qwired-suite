@@ -147,8 +147,6 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
         } else {
             emit groupEdited(newAccount);
         }
-        fBtnApply->setEnabled(false);
-        fList->setCurrentRow(-1);
     }
 
     // Display the list again
@@ -251,7 +249,6 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
         } else if (accountType == Qws::UserTypeGroup) {
             emit groupDeleted(listItem->text());
         }
-        fList->setCurrentRow(-1);
         delete listItem;
         // Go back to the list
         stackedWidget->setCurrentIndex(1);
