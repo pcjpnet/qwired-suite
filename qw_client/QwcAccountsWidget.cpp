@@ -20,6 +20,8 @@ QwcAccountsWidget::QwcAccountsWidget(QWidget *parent) : QWidget(parent)
     fGroupFiles->setEnabled(false);
     fGroupAdmin->setEnabled(false);
     fGroupLimits->setEnabled(false);
+    // Show the list by default
+    stackedWidget->setCurrentIndex(1);
 }
 
 
