@@ -176,33 +176,14 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="3">
-            <widget class="QPushButton" name="btnConnect">
-             <property name="text">
-              <string>Connect</string>
-             </property>
-             <property name="autoDefault">
-              <bool>true</bool>
-             </property>
-             <property name="default">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="1">
             <widget class="QToolButton" name="fBtnFavourites">
              <property name="text">
-              <string>Bookmarks</string>
+              <string>Bookmarks...</string>
              </property>
              <property name="icon">
               <iconset resource="application.qrc">
                <normaloff>:/icons/icon_favourite.png</normaloff>:/icons/icon_favourite.png</iconset>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
              </property>
              <property name="popupMode">
               <enum>QToolButton::InstantPopup</enum>
@@ -224,6 +205,23 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="3" column="3">
+            <widget class="QPushButton" name="btnConnect">
+             <property name="text">
+              <string>Connect</string>
+             </property>
+             <property name="icon">
+              <iconset resource="application.qrc">
+               <normaloff>:/icons/16x16/applications-internet.png</normaloff>:/icons/16x16/applications-internet.png</iconset>
+             </property>
+             <property name="autoDefault">
+              <bool>true</bool>
+             </property>
+             <property name="default">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
