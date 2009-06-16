@@ -262,29 +262,47 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
 }
 
 
+/*! Load the data of a requested account/group specification into the editor form.
+*/
 void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
 {
-    currentAccount = account; // to recover the password hash later
+    currentAccount = account;
+
+    // Disable the name/type fields when editing an existing group/account
+    fAccountType->setEnabled(newAccountMode);
+    fName->setEnabled(newAccountMode);
+    fName->setText(account.name);
+
+    fPassword->setEnabled(account.userType == Qws::UserTypeAccount);
+    fGroup->setEnabled(currentAccount.userType == Qws::UserTypeAccount);
+
+    if (account.userType == Qws::UserTypeAccount) {
+        // Select the correct group for an account
+        int groupIndex = fGroup->findData(currentAccount.pGroupName);
+        fGroup->setCurrentIndex(groupIndex == -1 ? 0 : groupIndex);
+        fPassword->setText(account.pPassword);
+
+    } else if (account.userType == Qws::UserTypeGroup) {
+        // Select no group when editing groups
+        fGroup->setCurrentIndex(0);
+    }
+
+    fAccountType->setCurrentIndex(account.userType);
+
+    // Privileges
     fGroupBasic->setEnabled(currentAccount.pGroupName.isEmpty());
     fGroupLimits->setEnabled(currentAccount.pGroupName.isEmpty());
     fGroupFiles->setEnabled(currentAccount.pGroupName.isEmpty());
     fGroupAdmin->setEnabled(currentAccount.pGroupName.isEmpty());
-    fGroup->setEnabled(currentAccount.userType == Qws::UserTypeAccount);
-    fAccountType->setCurrentIndex(currentAccount.userType);
-    fAccountType->setEnabled(false);
-    fName->setEnabled(false);
-    fPassword->setEnabled(currentAccount.userType == Qws::UserTypeAccount);
-    fPassword->setText(currentAccount.pPassword);
 
-    fLimitDown->setText( QString::number(currentAccount.privDownloadLimit) );
-    fLimitUp->setText( QString::number(currentAccount.privUploadLimit) );
-
+    // Basic Privileges
     fBasicGetUserInfo->setChecked( currentAccount.privGetUserInfo );
     fBasicPostNews->setChecked( currentAccount.privPostNews );
     fBasicBroadcast->setChecked( currentAccount.privBroadcast );
     fBasicSetTopic->setChecked( currentAccount.privChangeTopic );
     fBasicClearNews->setChecked( currentAccount.privClearNews );
 
+    // Transfer/Files Privileges
     fFilesDownload->setChecked( currentAccount.privDownload );
     fFilesUpload->setChecked( currentAccount.privUpload );
     fFilesUploadAnywhere->setChecked( currentAccount.privUploadAnywhere );
@@ -293,6 +311,7 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     fFilesMoveChange->setChecked( currentAccount.privAlterFiles );
     fFilesDelete->setChecked( currentAccount.privDeleteFiles );
 
+    // Administration Privileges
     fUsersCreate->setChecked( currentAccount.privCreateAccounts );
     fUsersEdit->setChecked( currentAccount.privEditAccounts );
     fUsersDelete->setChecked( currentAccount.privDeleteAccounts );
@@ -301,15 +320,9 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     fUsersBan->setChecked( currentAccount.privBanUsers );
     fUsersNoKick->setChecked( currentAccount.privCannotBeKicked );
 
-
-
-    int tmpIdx = fGroup->findData(currentAccount.pGroupName);
-    if(tmpIdx==-1) {
-        fGroup->setCurrentIndex(0);
-    } else {
-        fGroup->setCurrentIndex(tmpIdx);
-    }
-
+    // Transfer limits
+    fLimitDown->setText(QString::number(currentAccount.privDownloadLimit));
+    fLimitUp->setText(QString::number(currentAccount.privUploadLimit));
 
 }
 
