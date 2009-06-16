@@ -26,6 +26,7 @@ QwcSession::QwcSession(QObject *parent) : QObject(parent)
 
 QwcSession::~QwcSession()
 {
+    qDebug() << connectionWindow->windowTitle();
     connectionWindow->deleteLater();
     mainChatWidget->deleteLater();
     mainFileWidget->deleteLater();
@@ -161,53 +162,6 @@ void QwcSession::initMainWindow()
 
     setupConnections();
     connectionWindow->show();
-
-//    return;
-
-
-//    bannerSpace = 0;
-//    bannerView = 0;
-//    bannerSpace2 = 0;
-
-    // Init the main window (which contains the toolbar and other things)
-
-
-    // Init the main chat window (chat 0)
-//    mainChatWidget = new QwcChatWidget;
-//    mainChatWidget->setContentsMargins(0, 0, 0, 0);
-
-    // Set up the container widget, which makes sure there is some spacing
-//    pContainerWidget = new QWidget(connectionWindow);
-//    pContainerLayout = new QStackedLayout(connectionWindow); //(pContainerWidget);
-//#ifndef Q_WS_MAC
-//    pContainerWidget->setContentsMargins(6, 6, 6, 6);
-//#endif
-//    pContainerWidget->setLayout(pContainerLayout);
-
-    // Create the tab bar
-//    connectionTabWidget = new QTabWidget(connectionWindow);
-//    connectionTabWidget->clear();
-//    connectionTabWidget->setVisible(false);
-//#ifdef Q_WS_MAC
-//    connectionTabWidget->setDocumentMode(true);
-//#endif
-//    connect(connectionTabWidget, SIGNAL(currentChanged(int)),
-//            this, SLOT(onTabBarCurrentChanged(int)) );
-
-    // The tab bar's close button, too
-
-
-
-
-    // Add the widgets to the stacked layout
-//    pContainerWidget->layout()->addWidget(connectWidget);
-//    pContainerWidget->layout()->addWidget(connectionTabWidget);
-
-    // Set the virtual widget
-//    connectionWindow->setCentralWidget(connectionTabWidget);
-//    connectionWindow->show();
-
-
 
     // Install the event filter in connectionWindow
     pEventFilter = new QwcEventFilter;
@@ -364,7 +318,8 @@ void QwcSession::setupConnections()
     // Notification manager
     //
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()) );
+    connect( tmpS, SIGNAL(prefsChanged()),
+             this, SLOT(reloadPreferences()) );
 
 }
 
@@ -794,17 +749,17 @@ void QwcSession::initWiredSocket()
 /// Reload the preferences if the user changed those.
 void QwcSession::reloadPreferences()
 {
-    QSettings s;
+    QSettings settings;
 
-    if (socket->sessionUser.userNickname != s.value("general/nickname", "Unnamed").toString()) {
-        socket->setNickname(s.value("general/nickname").toString());
+    if (socket->sessionUser.userNickname != settings.value("general/nickname", tr("Anonymous")).toString()) {
+        socket->setNickname(settings.value("general/nickname").toString());
     }
 
-    if (socket->sessionUser.userStatus != s.value("general/status", "Qwired Newbie").toString()) {
-        socket->setUserStatus(s.value("general/status").toString());
+    if (socket->sessionUser.userStatus != settings.value("general/status", tr("Qwired Newbie")).toString()) {
+        socket->setUserStatus(settings.value("general/status").toString());
     }
 
-    QImage tmpNew = s.value("general/icon", QImage()).value<QImage>();
+    QImage tmpNew = settings.value("general/icon", QImage()).value<QImage>();
     socket->setIconImage(tmpNew);
 }
 
@@ -813,6 +768,7 @@ void QwcSession::onConnectAborted()
 {
     socket->disconnectFromServer();
 }
+
 
 // Prompt user to confirm disconnection
 bool QwcSession::confirmDisconnection()
