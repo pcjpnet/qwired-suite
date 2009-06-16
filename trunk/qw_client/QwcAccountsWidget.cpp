@@ -48,11 +48,11 @@ void QwcAccountsWidget::appendUserNames(QStringList theUsers)
 {
     QStringListIterator i(theUsers);
     while(i.hasNext()) {
-        QString tmpLogin = i.next();
+        QString accountName = i.next();
         QListWidgetItem *newItem = new QListWidgetItem;
-        newItem->setIcon( QIcon(":/icons/icon_account.png") );
-        newItem->setText(tmpLogin);
-        newItem->setData(Qt::UserRole, 0); // user
+        newItem->setIcon(QIcon(":/icons/icon_account.png"));
+        newItem->setText(accountName);
+        newItem->setData(Qt::UserRole, Qws::UserTypeAccount);
         fList->addItem(newItem);
     }
 
@@ -62,40 +62,26 @@ void QwcAccountsWidget::appendGroupNames(QStringList theGroups)
 {
     QStringListIterator i(theGroups);
     fGroup->clear();
+    /*: The entry in the account editor group-popup menu when no group is selected for an account. */
     fGroup->addItem(tr("No Group"), QString() );
     while(i.hasNext()) {
-        QString tmpGroup = i.next();
+        QString accountName = i.next();
         QListWidgetItem *newItem = new QListWidgetItem;
-        newItem->setIcon( QIcon(":/icons/icon_accountgroup.png") );
-        newItem->setText(tmpGroup);
-        newItem->setData(Qt::UserRole, 1); // group
-        fGroup->addItem(tmpGroup, tmpGroup);
+        newItem->setIcon(QIcon(":/icons/icon_accountgroup.png"));
+        newItem->setText(accountName);
+        newItem->setData(Qt::UserRole, Qws::UserTypeGroup);
+        fGroup->addItem(accountName, accountName);
         fList->addItem(newItem);
     }
 }
 
 
+/*! The currently selected group/user in the list has changed.
+*/
 void QwcAccountsWidget::on_fList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
     Q_UNUSED(previous);
     btnEditAccount->setEnabled(current != NULL);
-
-//
-//    if(current) {
-//        if( current->data(Qt::UserRole).toInt() == 0 ) {
-//            emit userSpecRequested(current->text());
-//        } else {
-//            emit groupSpecRequested(current->text());
-//        }
-////        enableGui(false);
-//    } else {
-////        enableGui(false);
-//        fGroupBasic->setEnabled(false);
-//        fGroupFiles->setEnabled(false);
-//        fGroupAdmin->setEnabled(false);
-//        fGroupLimits->setEnabled(false);
-//    }
-
 }
 
 
@@ -226,6 +212,14 @@ void QwcAccountsWidget::on_btnEditAccount_clicked()
     QListWidgetItem *item = fList->currentItem();
     if (!item) { return; }
 
+    if (item->data(Qt::UserRole) == Qws::UserTypeAccount) {
+        emit userSpecRequested(item->text());
+    } else if (item->data(Qt::UserRole) == Qws::UserTypeGroup) {
+        emit groupSpecRequested(item->text());
+    }
+
+    // Switch to the editor form.
+    stackedWidget->setCurrentIndex(0);
 }
 
 
