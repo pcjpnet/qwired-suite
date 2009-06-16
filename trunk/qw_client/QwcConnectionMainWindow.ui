@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQwired">
@@ -57,10 +57,10 @@
     <bool>false</bool>
    </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonTextUnderIcon</enum>
+    <enum>Qt::ToolButtonIconOnly</enum>
    </property>
    <property name="floatable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -94,7 +94,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/disconnect.png</normaloff>:/icons/disconnect.png</iconset>
    </property>
    <property name="text">
@@ -126,7 +126,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/help-browser.png</normaloff>:/icons/32x32/help-browser.png</iconset>
    </property>
    <property name="text">
@@ -144,7 +144,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/face-smile.png</normaloff>:/icons/32x32/face-smile.png</iconset>
    </property>
    <property name="text">
@@ -162,7 +162,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/internet-news-reader.png</normaloff>:/icons/32x32/internet-news-reader.png</iconset>
    </property>
    <property name="text">
@@ -180,7 +180,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/files.png</normaloff>:/icons/files.png</iconset>
    </property>
    <property name="text">
@@ -198,7 +198,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/transfers.png</normaloff>:/icons/transfers.png</iconset>
    </property>
    <property name="text">
@@ -216,7 +216,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/accounts.png</normaloff>:/icons/accounts.png</iconset>
    </property>
    <property name="text">
@@ -269,7 +269,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/filesearch.png</normaloff>:/icons/filesearch.png</iconset>
    </property>
    <property name="text">
@@ -311,7 +311,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/mail-message-new.png</normaloff>:/icons/32x32/mail-message-new.png</iconset>
    </property>
    <property name="text">
@@ -322,9 +322,6 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="application.qrc"/>
-  <include location="application.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
