@@ -82,6 +82,7 @@ void QwcAccountsWidget::on_fList_currentItemChanged(QListWidgetItem *current, QL
 {
     Q_UNUSED(previous);
     btnEditAccount->setEnabled(current != NULL);
+    btnDeleteAccount->setEnabled(current != NULL);
 }
 
 
@@ -228,6 +229,21 @@ void QwcAccountsWidget::on_btnEditAccount_clicked()
 
 
 
+/*! The delete button next to the group/account list has been clicked.
+*/
+void QwcAccountsWidget::on_btnDeleteAccount_clicked()
+{
+    QListWidgetItem *item = fList->currentItem();
+    if (!item) { return; }
+
+    currentAccount = QwcUserInfo();
+    currentAccount.userType = (Qws::UserType)item->data(Qt::UserRole).toInt();
+    currentAccount.name = item->text();
+
+    // We use the existing delete mechanism to save some code
+    on_btnEditDelete_clicked();
+}
+
 
 /*! The "Delete" button has been clicked.
 */
@@ -242,14 +258,17 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
                  QMessageBox::Ok );
 
     if (result == QMessageBox::Ok) {
+        // Remove from the main list
         QListWidgetItem *listItem = fList->takeItem( fList->currentRow() );
-        int accountType = listItem->data(Qt::UserRole).toInt();
-        if (accountType == Qws::UserTypeAccount) {
-            emit accountDeleted(listItem->text());
-        } else if (accountType == Qws::UserTypeGroup) {
-            emit groupDeleted(listItem->text());
-        }
         delete listItem;
+        if (currentAccount.userType == Qws::UserTypeAccount) {
+            emit accountDeleted(currentAccount.name);
+        } else if (currentAccount.userType == Qws::UserTypeGroup) {
+            emit groupDeleted(currentAccount.name);
+            // Also delete from the popup-menu if this is a group
+            fGroup->removeItem(fGroup->findText(currentAccount.name));
+        }
+
         // Go back to the list
         stackedWidget->setCurrentIndex(1);
     }

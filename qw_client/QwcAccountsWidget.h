@@ -35,6 +35,7 @@ private slots:
 
     void on_btnEditCancel_clicked();
     void on_btnEditAccount_clicked();
+    void on_btnDeleteAccount_clicked();
 
 
 public slots:
