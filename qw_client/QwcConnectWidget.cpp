@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QInputDialog>
+#include <QMessageBox>
 
 /*! \class QwcConnectWidget
     \author Bastian Bense <bastibense@gmail.com>
@@ -59,6 +60,12 @@ void QwcConnectWidget::bookmarkSelected(QAction *action)
                                                     fAddress->text(),
                                                     &ok);
         if (!ok) { return; }
+        if (bookmarkName.trimmed().isEmpty()) {
+            QMessageBox::warning(this, tr("Please enter a name for the bookmark."),
+                                 tr("You can not create a bookmark without a name. Entering a short "
+                                    "and specific name for a bookmark helps to identify it later."));
+            return;
+        }
 
         // Actually add the new bookmark
         QSettings settings;
