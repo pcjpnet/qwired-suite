@@ -20,6 +20,8 @@ public:
     void setUserListModel(QwcUserlistModel *model);
     void setSession(QwcSession *session);
 
+    bool eventFilter(QObject *watched, QEvent *event);
+
     QwcSession* session();
     int pChatID;
     bool pEmoticonsEnabled;
@@ -27,10 +29,6 @@ public:
 signals:
     /*! This signal is emitted if a entry has been double-clicked in the user list. */
     void userDoubleClicked(const QwcUserInfo user);
-
-
-protected:
-    bool eventFilter(QObject *watched, QEvent *event);
 
 
 public slots:
