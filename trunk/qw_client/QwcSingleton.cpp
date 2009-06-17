@@ -72,6 +72,7 @@ void QwcSingleton::createInitialSessions()
             newSession->connectWidget->fLogin->insert(settings.value("login").toString());
             newSession->connectWidget->fPassword->insert(settings.value("password").toString());
             newSession->connectWidget->btnConnect->click();
+            addSession(newSession);
             autoconnectedBookmarks++;
         }
     }
@@ -121,8 +122,10 @@ void QwcSingleton::addSession(QwcSession *session)
 void QwcSingleton::sessionDestroyed(QObject *obj)
 {
     QwcSession *session = static_cast<QwcSession*>(obj);
-    if(pSessions.contains(session))
+    if (!session) { return; }
+    if (pSessions.contains(session)) {
         pSessions.removeAll(session);
+    }
 
 }
 
@@ -133,12 +136,12 @@ void QwcSingleton::createTrayIcon()
     if(!pTrayIcon)
         qt_mac_set_dock_menu(pTrayMenu);
 #else
-    if(!pTrayIcon) {
+    if (!pTrayIcon) {
         pTrayIcon = new QSystemTrayIcon(this);
         pTrayIcon->setIcon(QIcon(":/icons/qwired_logo_18.png"));
-        // 		pTrayIcon->setContextMenu(pTrayMenu);
         pTrayIcon->show();
-        connect(pTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(showTrayMenu(QSystemTrayIcon::ActivationReason)));
+        connect(pTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+                this, SLOT(showTrayMenu(QSystemTrayIcon::ActivationReason)));
     }
 #endif
 
@@ -147,7 +150,7 @@ void QwcSingleton::createTrayIcon()
 
 void QwcSingleton::showTrayMenu(QSystemTrayIcon::ActivationReason reason)
 {
-    if(pTrayMenu && reason==QSystemTrayIcon::Trigger) {
+    if (pTrayMenu && reason == QSystemTrayIcon::Trigger) {
         pTrayMenu->exec(QCursor::pos());
     }
 }
