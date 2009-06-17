@@ -418,17 +418,23 @@ void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theT
 }
 
 
-/// The chat topic was changed or received. Update the chat window.
-void QwcSession::doHandleChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic) {
-    Q_UNUSED(theLogin);
-    Q_UNUSED(theIP);
-    if( theChatID==1 ) {
+/*! Display the chat topic of a certain chat in the chat widget.
+*/
+void QwcSession::handleChatTopic(int chatId, QString nickname, QString login, QHostAddress userIp, QDateTime date, QString topic)
+{
+    Q_UNUSED(login);
+    Q_UNUSED(userIp);
+
+    if (chatId == 1) {
         // Public chat
-        mainChatWidget->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
-    } else if(pChats.contains(theChatID)) {
+        mainChatWidget->fTopic->setText(topic);
+        mainChatWidget->fTopic->setToolTip(QString("%1\n%2").arg(nickname).arg(date.toString()));
+
+    } else if (pChats.contains(chatId)) {
         // Topic of private chat
-        QwcChatWidget *chat = pChats[theChatID];
-        chat->fTopic->setText(tr("Topic: %1\nSet By: %2 --- %3").arg(theTopic).arg(theNick).arg(theDateTime.toString()));
+        QwcChatWidget *targetChat = pChats[chatId];
+        targetChat->fTopic->setText(topic);
+        targetChat->fTopic->setToolTip(QString("%1\n%2").arg(nickname).arg(date.toString()));
     }
 }
 
