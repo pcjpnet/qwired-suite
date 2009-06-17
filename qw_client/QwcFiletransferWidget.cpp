@@ -4,6 +4,8 @@
 #include <QDesktopServices>
 #include <QtDebug>
 #include <QUrl>
+#include <QFileInfo>
+#include <QDir>
 
 QwcFiletransferWidget::QwcFiletransferWidget(QWidget *parent) : QWidget(parent)
 {
@@ -50,9 +52,20 @@ void QwcFiletransferWidget::on_btnStop_clicked()
 }
 
 
+/*! Reveal a file/directory on the user's desktop system.
+*/
 void QwcFiletransferWidget::on_btnReveal_clicked()
 {
-
+    QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
+    QListIterator<QModelIndex> i(selectedIndexes);
+    while (i.hasNext()) {
+        QModelIndex item = i.next();
+        if (!item.isValid()) { continue; }
+        if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
+        QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
+        QFileInfo targetFile(transfer.file.localAbsolutePath);
+        QDesktopServices::openUrl(QUrl::fromLocalFile(targetFile.dir().absolutePath()));
+    }
 }
 
 
