@@ -70,6 +70,59 @@ void QwcChatWidget::setSession(QwcSession *session)
 }
 
 
+/*! This is the chat widget's event filter. This can be used for things like tab auto-completition.
+*/
+bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    // Check for tab-auto completition.
+    if (watched == fChatInput) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Tab) {
+                QTextCursor textCursor = fChatInput->textCursor();
+                textCursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+                QString searchTerm = textCursor.selectedText().trimmed();
+
+                if (searchTerm.isEmpty()) {
+                    // We can't do much with an empty hint, so let's ignore that.
+                    return true;
+                }
+
+                // Get information about the current room from the socket
+                QwRoom currentRoom = pSession->wiredSocket()->rooms[pChatID];
+                QListIterator<int> i(currentRoom.pUsers);
+                while (i.hasNext()) {
+                    // Now run through all user IDs registered in this room and get the proper
+                    // QwcUserInfo from the socket.
+                    int itemUserId = i.next();
+                    QwcUserInfo targetUser = pSession->wiredSocket()->users[itemUserId];
+                    // Check if the nickname starts with the entered seach terms and auto-complete.
+                    if (targetUser.userNickname.startsWith(searchTerm, Qt::CaseInsensitive)) {
+                        if (textCursor.selectionStart() == 0) {
+                            // If the target nickname is entered first, we should add a colon.
+                            textCursor.insertText(targetUser.userNickname + ": ");
+                        } else {
+                            // Otherwise the user might be using the target nickname in a
+                            // conversation.
+                            textCursor.insertText(targetUser.userNickname);
+                        }
+                        break;
+                    }
+                }
+                return true;
+
+            } else if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
+                // Check if the pressed key was return or enter in order to send the chat text.
+                postChatInputText();
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
 /// Write an event to the chat
 void QwcChatWidget::writeEventToChat(QString theMsg)
 {
@@ -96,22 +149,6 @@ void QwcChatWidget::writeEventToChat(QString theMsg)
 
     tc.movePosition(QTextCursor::End);
     fChatLog->ensureCursorVisible();
-}
-
-
-/// The event filter for the input field
-bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
-{
-    if(watched == fChatInput && event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (!keyEvent) return false;
-        if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
-        {
-            postChatInputText();
-            return true;
-        }
-    }
-    return false;
 }
 
 
