@@ -105,122 +105,122 @@
     <message>
         <location filename="../QwcAccountsWidget.ui" line="203"/>
         <source>Post to the news</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ニュースを投稿</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="217"/>
         <source>Purge the news</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ニュースを消去</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="231"/>
         <source>Get user information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">情報を見る</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="245"/>
         <source>Send broadcast messages</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">一斉通知</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="259"/>
         <source>Set chat topic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">チャットの話題を設定</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="288"/>
         <source>Create folders</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">新規フォルダ</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="302"/>
         <source>Download files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ダウンロード</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="316"/>
         <source>Move &amp;&amp; Change files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">移動および変更</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="330"/>
         <source>Upload files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">アップロード</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="344"/>
         <source>Delete files and folders</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">削除</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="358"/>
         <source>Upload anywhere</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">どこでもアップロード</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="372"/>
         <source>View Drop Box contents</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ドロップボックスの閲覧</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="385"/>
         <source>Administration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">管理</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="401"/>
         <source>Disconnect users</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ユーザーの切断</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="415"/>
         <source>Ban users</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ユーザーのBan</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="429"/>
         <source>Can not be disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">キックされない</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="443"/>
         <source>Create accounts and groups</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">アカウントの作成</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="457"/>
         <source>Edit accounts and groups</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">アカウントの編集</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="471"/>
         <source>Delete accounts and groups</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">アカウントの削除</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="485"/>
         <source>Elevate own privileges</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">特権をあたえる</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="498"/>
         <source>Transfer Limits (KB/sec)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">帯域の制約(KB/sec)</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="620"/>
         <source>Save Changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">保存</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="665"/>
         <source>Double-click on a user or group to edit, or click &quot;Create Group or Account...&quot; to create a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ユーザーやグループをダブルクリックすると編集できます。&quot;アカウントの作成をクリックすると新しいユーザーやグループが作成できます。</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="681"/>
         <source>Create Group or Account...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">アカウントの作成</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="272"/>
@@ -288,12 +288,12 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcChatWidget.ui" line="183"/>
         <source>Ban from server</source>
-        <translation type="unfinished">サーバからバン</translation>
+        <translation type="unfinished">サーバーからバン</translation>
     </message>
     <message>
         <location filename="../QwcChatWidget.ui" line="212"/>
         <source>Kick from server</source>
-        <translation type="unfinished">サーバからキック</translation>
+        <translation type="unfinished">サーバーからキック</translation>
     </message>
     <message>
         <location filename="../QwcChatWidget.ui" line="241"/>
@@ -356,7 +356,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectWidget.ui" line="89"/>
         <source>&lt;b&gt;Welcome to Qwired!&lt;/b&gt;&lt;br&gt;&lt;br&gt;Please enter a server address and your login credentials, then press Connect. Alternatively you can select one of your bookmarks from the Bookmarks-Menu below.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Welcome to Qwired!&lt;/b&gt;&lt;br&gt;&lt;br&gt;サーバーーのアドレスとログイン情報を入力して、接続をクリックしてください。もしくは、ブックマークから接続先を選択してください。</translation>
     </message>
 </context>
 <context>
@@ -369,7 +369,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="30"/>
         <source>Connection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">接続</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="54"/>
@@ -384,7 +384,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="86"/>
         <source>Create a new connection window</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">新しいウィンドウの作成</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="89"/>
@@ -399,7 +399,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="104"/>
         <source>Disconnect from the server</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">切断</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="107"/>
@@ -414,7 +414,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="118"/>
         <source>Reconnect to the server</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">再接続</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="121"/>
@@ -424,12 +424,12 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="133"/>
         <source>Server Information</source>
-        <translation type="unfinished">サーバ情報</translation>
+        <translation type="unfinished">サーバー情報</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="136"/>
         <source>Show server information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">サーバー情報</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="139"/>
@@ -490,7 +490,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="208"/>
         <source>Show active and queued transfers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">転送状況を表示</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="211"/>
@@ -505,7 +505,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="226"/>
         <source>Show user accounts and groups</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ユーザー情報の表示</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="229"/>
@@ -550,12 +550,12 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="292"/>
         <source>About Qwired...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qwiredについて...</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="321"/>
         <source>Show private messages</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">プライベートメッセージの表示</translation>
     </message>
     <message>
         <location filename="../QwcConnectionMainWindow.ui" line="300"/>
@@ -583,13 +583,13 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcEventFilter.cpp" line="34"/>
         <source>Disconnect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">切断</translation>
     </message>
     <message>
         <location filename="../QwcEventFilter.cpp" line="34"/>
         <source>Are you sure you want to continue? If you disconnect from &quot;%1&quot;, any ongoing transfers will be cancelled.
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">本当に &quot;%1&quot; との接続を切断しますか？すべての転送処理はキャンセルされます。</translation>
     </message>
 </context>
 <context>
@@ -811,27 +811,27 @@ This can not be undone!</source>
     <message>
         <location filename="../QwcFiletransferDelegate.cpp" line="38"/>
         <source>Waiting</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">処理待ち</translation>
     </message>
     <message>
         <location filename="../QwcFiletransferDelegate.cpp" line="42"/>
         <source>Preparing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">準備中</translation>
     </message>
     <message>
         <location filename="../QwcFiletransferDelegate.cpp" line="46"/>
         <source>Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">停止</translation>
     </message>
     <message>
         <location filename="../QwcFiletransferDelegate.cpp" line="50"/>
         <source>Queued (position %1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Queued (順位 %1)</translation>
     </message>
     <message>
         <location filename="../QwcFiletransferDelegate.cpp" line="54"/>
         <source>Running - %1 of %2 (%3%) - %4/s</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">転送中 - %1 of %2 (%3%) - %4/s</translation>
     </message>
 </context>
 <context>
@@ -849,12 +849,12 @@ This can not be undone!</source>
     <message>
         <location filename="../QwcFiletransferWidget.ui" line="71"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">停止</translation>
     </message>
     <message>
         <location filename="../QwcFiletransferWidget.ui" line="94"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">再開</translation>
     </message>
 </context>
 <context>
@@ -862,29 +862,31 @@ This can not be undone!</source>
     <message>
         <location filename="../QwcNewsWidget.cpp" line="79"/>
         <source>%1 news article(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 件の新しいニュース</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.cpp" line="93"/>
         <source>From %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 から (%2)</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.cpp" line="137"/>
         <source>Clear news</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">消去</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.cpp" line="138"/>
         <source>Are you sure you want to clear all news items?
 
 This cannot be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">本当に消去しますか？
+
+この処理は取り消しできません。</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.cpp" line="150"/>
         <source>Are you sure you want to lose all changes to the current news article?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">本当にニュースの変更を取り消しますか？</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="14"/>
@@ -899,27 +901,27 @@ This cannot be undone.</source>
     <message>
         <location filename="../QwcNewsWidget.ui" line="100"/>
         <source>Delete all news articles.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">すべて削除</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="103"/>
         <source>Purge</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">消去</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="117"/>
         <source>Post a new article.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">記事の投稿</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="166"/>
         <source>Loading news...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ニュースの読み込み中...</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="190"/>
         <source>Compose a new article and press &quot;Post&quot; to send it to the server.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">新しい記事を作成して、&quot;Post&quot; をクリック</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="224"/>
@@ -952,17 +954,17 @@ This cannot be undone.</source>
     <message>
         <location filename="../QwcPreferencesWidget.cpp" line="46"/>
         <source>Server Connected</source>
-        <translation type="unfinished">サーバに接続</translation>
+        <translation type="unfinished">サーバーに接続</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.cpp" line="49"/>
         <source>Server Disconnected</source>
-        <translation type="unfinished">サーバから切断</translation>
+        <translation type="unfinished">サーバーから切断</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.cpp" line="51"/>
         <source>Server Error</source>
-        <translation type="unfinished">サーバエラー</translation>
+        <translation type="unfinished">サーバーエラー</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.cpp" line="53"/>
@@ -1183,7 +1185,7 @@ max size 32x32 pixels</source>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="428"/>
         <source>Userlist Background Opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ユーザーリストの透明度</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="459"/>
@@ -1314,7 +1316,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1095"/>
         <source>Wired</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wired</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1102"/>
@@ -1389,7 +1391,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1508"/>
         <source>Encrypt Transfers (slower on local networks)</source>
-        <translation type="unfinished">転送を暗号化する（高速な回線では速度が低下）</translation>
+        <translation type="unfinished">転送を暗号化する（速度が低下）</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1528"/>
@@ -1414,47 +1416,47 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1642"/>
         <source>Proxies</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">プロキシ</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1654"/>
         <source>Proxy Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">プロキシ設定</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1660"/>
         <source>Proxy Type:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">タイプ :</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1667"/>
         <source>Proxy Host:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ホスト :</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1677"/>
         <source>Proxy Port:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ポート :</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1687"/>
         <source>User Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ユーザー名 :</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1697"/>
         <source>User Password:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">パスワード :</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1708"/>
         <source>No Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">プロキシ無し</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1726"/>
         <source>Proxies might be required to connect to a Qwired server from inside a protected network. Also it can be used with Tor to give you more privacy.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">プロキシは保護されたネットワークから接続する時に必要になります。Torと一緒に使用する事でより匿名性が向上します。</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="1817"/>
@@ -1467,7 +1469,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcPrivateMessager.cpp" line="236"/>
         <source>Save message log as HTML file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">メッセージログをHTMLで保存</translation>
     </message>
     <message>
         <location filename="../QwcPrivateMessager.cpp" line="236"/>
@@ -1477,27 +1479,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcPrivateMessager.cpp" line="241"/>
         <source>Unable to save message log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">メッセージログが保存できません</translation>
     </message>
     <message>
         <location filename="../QwcPrivateMessager.cpp" line="241"/>
         <source>An error occourred while attempting to write the message log file (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">メッセージログを書き込む際にエラーが発生しました。 (%1)</translation>
     </message>
     <message>
         <location filename="../QwcPrivateMessager.cpp" line="284"/>
         <source>%1 [user left]</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 さんは退室しました。</translation>
     </message>
     <message>
         <location filename="../QwcPrivateMessager.ui" line="14"/>
         <source>Private Messages</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">会話</translation>
     </message>
     <message>
         <location filename="../QwcPrivateMessager.ui" line="48"/>
         <source>Remove the selected message log from the list.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">選択したメッセージを削除。</translation>
     </message>
     <message>
         <location filename="../QwcPrivateMessager.ui" line="51"/>
@@ -1507,12 +1509,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcPrivateMessager.ui" line="77"/>
         <source>Save the message log to a HTML file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">メッセージログをHTMLで保存</translation>
     </message>
     <message>
         <location filename="../QwcPrivateMessager.ui" line="80"/>
         <source>Save...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">保存...</translation>
     </message>
 </context>
 <context>
@@ -1520,12 +1522,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="20"/>
         <source>Server Information</source>
-        <translation type="unfinished">サーバ情報</translation>
+        <translation type="unfinished">サーバー情報</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="35"/>
         <source>Server Name</source>
-        <translation type="unfinished">サーバ名</translation>
+        <translation type="unfinished">サーバー名</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="103"/>
@@ -1587,7 +1589,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../QwcServerInfoWidget.cpp" line="31"/>
         <source>Unknown Protocol</source>
         <extracomment>If the encryption (SSL) protocol is unknown, this is shown instead.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">不明なプロトコル</translation>
     </message>
 </context>
 <context>
@@ -1645,7 +1647,7 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="81"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
-        <translation type="unfinished">コネクションはリモートホストに拒絶されました。サーバが起動していないようです。</translation>
+        <translation type="unfinished">コネクションはリモートホストに拒絶されました。サーバーが起動していないようです。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="85"/>
@@ -1655,27 +1657,27 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="86"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
-        <translation type="unfinished">ホスト名を解決できなかったので、サーバに接続できませんでした。</translation>
+        <translation type="unfinished">ホスト名を解決できなかったので、サーバーに接続できませんでした。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="48"/>
         <source>An unknown server error occoured. The error code is %1.</source>
-        <translation type="unfinished">未知のサーバエラーが起きました。エラーコード %1.</translation>
+        <translation type="unfinished">未知のサーバーエラーが起きました。エラーコード %1.</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="50"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
-        <translation type="unfinished">コマンドに失敗しました。未知のサーバエラーです。</translation>
+        <translation type="unfinished">コマンドに失敗しました。未知のサーバーエラーです。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="51"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
-        <translation type="unfinished">コマンドが認識されません。Qwiredはサーバが未知のコマンドを送信しました。</translation>
+        <translation type="unfinished">コマンドが認識されません。Qwiredはサーバーが未知のコマンドを送信しました。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="52"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
-        <translation type="unfinished">直前のコマンドはサーバに実装されていません。</translation>
+        <translation type="unfinished">直前のコマンドはサーバーに実装されていません。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="53"/>
@@ -1690,7 +1692,7 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="55"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
-        <translation type="unfinished">バンされました。サーバーの管理者によって禁止されているので接続が拒否されました。しばらくしてから再接続してみてください。</translation>
+        <translation type="unfinished">バンされました。サーバーーの管理者によって禁止されているので接続が拒否されました。しばらくしてから再接続してみてください。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="56"/>
@@ -1735,12 +1737,12 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="64"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
-        <translation type="unfinished">サーバで設定されているキューの上限を超えるので、直前のコマンドは完了しませんでした。</translation>
+        <translation type="unfinished">サーバーで設定されているキューの上限を超えるので、直前のコマンドは完了しませんでした。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="69"/>
         <source>Server Error</source>
-        <translation type="unfinished">サーバエラー</translation>
+        <translation type="unfinished">サーバーエラー</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="151"/>
@@ -1767,7 +1769,7 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="641"/>
         <source>Server Error: %1</source>
-        <translation type="unfinished">サーバエラー : %1</translation>
+        <translation type="unfinished">サーバーエラー : %1</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="642"/>
@@ -1850,7 +1852,7 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="911"/>
         <source>Server Info</source>
-        <translation type="unfinished">サーバの情報</translation>
+        <translation type="unfinished">サーバーの情報</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="942"/>
@@ -1870,7 +1872,7 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="1118"/>
         <source>Private Messages</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">会話</translation>
     </message>
 </context>
 <context>
@@ -1932,7 +1934,7 @@ Join to open a separate private chat with %1.</source>
         <location filename="../QwcTrackerlistWidget.cpp" line="80"/>
         <location filename="../QwcTrackerlistWidget.ui" line="118"/>
         <source>%1 servers registered with tracker</source>
-        <translation type="unfinished">%1 のサーバがトラッカーに登録済み</translation>
+        <translation type="unfinished">%1 のサーバーがトラッカーに登録済み</translation>
     </message>
     <message>
         <location filename="../QwcTrackerlistWidget.cpp" line="93"/>
@@ -1962,7 +1964,7 @@ Join to open a separate private chat with %1.</source>
         <location filename="../QwcTrackerlistWidget.cpp" line="136"/>
         <source>A connection error occured while trying to connect to the tracker.
 Reason: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">とラッカーに接続する際にエラーが発生しました。</translation>
     </message>
     <message>
         <location filename="../QwcTrackerlistWidget.ui" line="14"/>
