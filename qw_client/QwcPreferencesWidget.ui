@@ -422,43 +422,7 @@ max size 32x32 pixels</string>
                  </property>
                 </spacer>
                </item>
-               <item>
-                <widget class="QLabel" name="label_36">
-                 <property name="text">
-                  <string>Userlist Background Opacity:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSlider" name="sliderUserlistBackgroundOpacity">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>6</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximum">
-                  <number>100</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>10</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="tickPosition">
-                  <enum>QSlider::TicksBelow</enum>
-                 </property>
-                </widget>
-               </item>
               </layout>
-             </item>
-             <item row="6" column="1">
-              <widget class="QCheckBox" name="fBtnIfUserlistAlternateRow">
-               <property name="text">
-                <string>Alternating Row Background</string>
-               </property>
-              </widget>
              </item>
              <item row="2" column="1">
               <widget class="QLineEdit" name="fIfChatFont">
@@ -485,6 +449,35 @@ max size 32x32 pixels</string>
               <widget class="QToolButton" name="fBtnIfUserlistFont">
                <property name="text">
                 <string>Set...</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_36">
+               <property name="text">
+                <string>Userlist Background Opacity:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QSlider" name="sliderUserlistBackgroundOpacity">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>6</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="singleStep">
+                <number>10</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::TicksBelow</enum>
                </property>
               </widget>
              </item>
