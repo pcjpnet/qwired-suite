@@ -144,7 +144,6 @@ void QwcPreferencesWidget::initPrefs() {
     tmpBool = conf.value("interface/userlist/compact",false).toBool();
     fBtnIfUserlistCompactLarge->setChecked(!tmpBool);
     fBtnIfUserlistCompactSmall->setChecked(tmpBool);
-    fBtnIfUserlistAlternateRow->setCheckState(Qt::Checked);
 
     sliderUserlistBackgroundOpacity->setValue(conf.value("interface/userlist/background_opacity", 30).toInt());
 
