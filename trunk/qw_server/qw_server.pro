@@ -10,7 +10,7 @@ QT += network \
     xml \
     sql
 
-macx {
+macx : !debug {
   # Copy the binary into the GUI bundle if it exists
   message("Hint: Copying server binary to GUI bundle!")
   DESTDIR = "$${DESTDIR}/Qwired Server GUI.app/Contents/MacOS/"

@@ -842,9 +842,14 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
         return;
     }
 
-    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks );
+    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks);
     while (it.hasNext()) {
         it.next();
+
+        if (it.fileName().startsWith(".")) {
+            // Skip files that start with "." (invisible files or special directories)
+            continue;
+        }
 
         QwsFile itemFile;
         itemFile.localFilesRoot = targetDirectory.localAbsolutePath;
