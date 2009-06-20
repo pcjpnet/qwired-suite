@@ -10,10 +10,10 @@ SOURCES += main.cpp \
     QwmTransfersListDelegate.cpp
 FORMS += QwmMonitorWindow.ui
 DESTDIR = ../bin
-
-macx:TARGET = "Qwired Server"
+macx:TARGET = "Qwired Server GUI"
 !macx:TARGET = qw_server_gui
-RESOURCES += ../qw_client/application.qrc
+RESOURCES += ../qw_client/application.qrc \
+    qw_server_gui.qrc
 QT += network
 TRANSLATIONS = lang/lang_de.ts \
     lang/lang_nl.ts

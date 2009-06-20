@@ -67,7 +67,8 @@ void QwmMonitorController::startDaemonProcess()
 #elif defined(Q_OS_LINUX)
     command = "./qwired_server";
 #elif defined(Q_OS_MAC)
-    command = "../../../qwired_server";
+// On Mac OS X the server binary is within the bundle.
+    command = "./qwired_server";
 #endif
 
     daemonProcess.start(command, procArguments);
