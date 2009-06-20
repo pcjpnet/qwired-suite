@@ -24,13 +24,10 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     QStringList cliArgs = a.arguments();
 
-    /*! Print version if requested. */
+    // Print version if requested.
     if (cliArgs.contains("-v")) {
         QTextStream so(stdout);
-        so << "Qwired Server Version " << QWSERVER_VERSION << "\n"
-                "Copyright (c) " << QDate::currentDate().year()
-                << " by Bastian Bense <bastibense@gmail.com>\n";
-
+        so << "Qwired Server " << QWSERVER_VERSION << endl;
         return 0;
     }
 
