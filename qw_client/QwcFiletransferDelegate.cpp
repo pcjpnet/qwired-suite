@@ -60,7 +60,7 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         // Icon
         if (transfer.type == Qw::TransferTypeDownload) {
             icon = QPixmap(":icons/32x32/go-down.png");
-        } else if (transfer.type == Qw::TransferTypeDownload) {
+        } else if (transfer.type == Qw::TransferTypeUpload) {
             icon = QPixmap(":icons/32x32/go-up.png");
         }
     }
