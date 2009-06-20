@@ -70,7 +70,7 @@ bool QwsFile::updateLocalPath(bool quickCheck)
     if (localPathInfo.isDir()) {
         // Read directory information
         QDir localPathDir(localAbsolutePath);
-        localPathDir.setFilter(QDir::NoDotAndDotDot);
+        localPathDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
         this->type = Qw::FileTypeFolder;
         this->size = localPathDir.count();
         this->checksum = "";
