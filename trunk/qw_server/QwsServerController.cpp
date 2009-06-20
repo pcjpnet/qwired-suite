@@ -25,6 +25,8 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
 
     logToStdout = true;
     delayedUserImagesEnabled = true;
+
+    serverRootDirectory = QDir::current();
 }
 
 
@@ -39,14 +41,8 @@ QwsServerController::~QwsServerController()
  */
 bool QwsServerController::loadConfiguration()
 {
-    QStringList tmpCmdArgs = QCoreApplication::arguments();
 
-    // Override database path, if the user specifies it.
-    QString databasePath = "qwired_server.db";
-    if (int index = tmpCmdArgs.indexOf("-db") > -1) {
-        databasePath = tmpCmdArgs.value(index+1);
-    }
-
+    QString databasePath = serverRootDirectory.absoluteFilePath("qwired_server.db");
     qwLog(tr("Loading configuration database at '%1'").arg(databasePath));
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -231,7 +227,8 @@ void QwsServerController::reindexFiles()
     filesIndexerThread = new QwsFileIndexerThread(this);
     connect(filesIndexerThread, SIGNAL(logMessage(QString)),
             this, SLOT(qwLog(QString)));
-    filesIndexerThread->filesRootPath = getConfigurationParam("files/root", "./files").toString();
+    filesIndexerThread->filesRootPath = serverRootDirectory.absoluteFilePath(
+            getConfigurationParam("files/root", "files").toString());
     filesIndexerThread->run();
 }
 
@@ -359,7 +356,8 @@ void QwsServerController::acceptSessionSslConnection()
     connect(clientSocket, SIGNAL(receivedMessagePUT(QwsFile)),
             this, SLOT(handleMessagePUT(QwsFile)));
 
-    clientSocket->filesRootPath = getConfigurationParam("files/root", "./files").toString();
+    clientSocket->filesRootPath = serverRootDirectory.absoluteFilePath(
+            getConfigurationParam("files/root", "files").toString());
 
     sockets[clientSocket->user.pUserID] = clientSocket;
 }

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
         so << a.tr("Server-mode commands:\n"
                    "    -d            Run in daemon mode.\n"
                    "    -r            Enable console socket for GUI.\n"
-                   "    -db <file>    Override default path to configuration database.\n"
+                   "    -root <file>  Override default root path (current directory).\n"
                    "\nAdministration commands:\n"
                    "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
                    "                  more information about available configuration keys.\n"
@@ -53,6 +53,17 @@ int main(int argc, char *argv[])
 
 
     QwsServerController controller;
+
+    // Override the root directory if needed
+    if (int index = cliArgs.indexOf("-root") > -1) {
+        QDir newRootPath(cliArgs.value(index+1));
+        if (!newRootPath.exists() || !newRootPath.isReadable()) {
+            QTextStream so(stderr);
+            so << a.tr("Fatal: Root directory does not exist or is unreadable.") << endl;
+            return 1;
+        }
+        controller.serverRootDirectory = newRootPath;
+    }
 
     // Don't print to std when in remote mode!
     controller.logToStdout = !cliArgs.contains("-r");

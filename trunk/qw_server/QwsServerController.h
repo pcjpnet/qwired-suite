@@ -47,6 +47,9 @@ public:
     /*! If true, the user images will be sent after the login is complete to speed up the login
         sequence on slower machines. */
     bool delayedUserImagesEnabled;
+    /*! The server root points to a directory where the database, files and other information
+        will be stored. By default this will be the current working directory. */
+    QDir serverRootDirectory;
 
 private:
     int sessionIdCounter;
