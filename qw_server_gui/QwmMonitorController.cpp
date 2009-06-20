@@ -1,6 +1,7 @@
 #include "QwmMonitorController.h"
 #include <QApplication>
 #include <QMessageBox>
+#include <QDir>
 
 QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
 {
@@ -59,7 +60,10 @@ void QwmMonitorController::startMonitor()
 
 void QwmMonitorController::startDaemonProcess()
 {
-    QStringList procArguments("-r");
+    QStringList procArguments;
+    procArguments << "-root" << QDir(qApp->applicationDirPath()).cleanPath("../../../");
+    procArguments << "-r"; // Enable remote-mode
+
     QString command;
 
 #ifdef Q_OS_WIN32
@@ -67,8 +71,8 @@ void QwmMonitorController::startDaemonProcess()
 #elif defined(Q_OS_LINUX)
     command = "./qwired_server";
 #elif defined(Q_OS_MAC)
-// On Mac OS X the server binary is within the bundle.
-    command = "./qwired_server";
+    // On Mac OS X the server binary is within the bundle.
+    command = QDir(qApp->applicationDirPath()).absoluteFilePath("qwired_server");
 #endif
 
     daemonProcess.start(command, procArguments);
