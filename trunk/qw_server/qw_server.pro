@@ -9,6 +9,14 @@ win32:CONFIG += console
 QT += network \
     xml \
     sql
+
+macx {
+  # Copy the binary into the GUI bundle if it exists
+  message("Hint: Copying server binary to GUI bundle!")
+  DESTDIR = "$${DESTDIR}/Qwired Server GUI.app/Contents/MacOS/"
+}
+
+
 SOURCES += main.cpp \
     QwsServerController.cpp \
     QwsClientSocket.cpp \
