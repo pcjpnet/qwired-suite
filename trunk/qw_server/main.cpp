@@ -25,9 +25,9 @@ int main(int argc, char *argv[])
     QStringList cliArgs = a.arguments();
 
     // Print version if requested.
-    if (cliArgs.contains("-v")) {
+    if (cliArgs.contains("-v") || cliArgs.contains("--version")) {
         QTextStream so(stdout);
-        so << "Qwired Server " << QWSERVER_VERSION << endl;
+        so << "Qwired Server Core " << QWSERVER_VERSION << endl;
         return 0;
     }
 
@@ -37,13 +37,15 @@ int main(int argc, char *argv[])
         QTextStream so(stdout);
         so << a.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
         so << a.tr("Server-mode commands:\n"
-                   "    -d            Run in daemon mode.\n"
-                   "    -r            Enable console socket for GUI.\n"
+                   "    -daemon       Run in daemon mode.\n"
+                   "    -remote       Enable console socket for GUI.\n"
                    "    -root <file>  Override default root path (current directory).\n"
                    "\nAdministration commands:\n"
-                   "    -c <key>=<value>  Set a configuration parameter. See documentation for\n"
+                   "    -sc <key>=<value>\n"
+                   "                  Set a configuration parameter. See documentation for\n"
                    "                  more information about available configuration keys.\n"
-                   "    -v            Print version and exit.\n"
+                   "    -v\n"
+                   "    -version      Print version and exit.\n"
                    "\n");
         return 0;
     }
@@ -63,7 +65,7 @@ int main(int argc, char *argv[])
     }
 
     // Don't print to std when in remote mode!
-    controller.logToStdout = !cliArgs.contains("-r");
+    controller.logToStdout = !cliArgs.contains("-remote");
 
     if (!controller.loadConfiguration()) {
         return 1;

@@ -61,8 +61,8 @@ void QwmMonitorController::startMonitor()
 void QwmMonitorController::startDaemonProcess()
 {
     QStringList procArguments;
+    procArguments << "-remote"; // Enable remote-mode
     procArguments << "-root" << QDir(qApp->applicationDirPath()).cleanPath("../../../");
-    procArguments << "-r"; // Enable remote-mode
 
     QString command;
 
