@@ -26,6 +26,8 @@ private slots:
     void handleCommandUSERS(QList<QwUser> users);
     void handleLogMessage(const QString logMessage);
 
+    void handleSelectedNewBanner(QImage);
+
     // Daemon handling
     void handleDaemonStarted();
     void handleDaemonFinished(int exitCode, QProcess::ExitStatus exitStatus);

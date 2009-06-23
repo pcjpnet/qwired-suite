@@ -17,11 +17,15 @@ private slots:
     void on_btnTransfersDisconnectUser_clicked();
     void on_fUsersList_itemSelectionChanged();
 
+    void on_btnConfigurationSetBanner_clicked();
+
 
 
 signals:
     void requestedTransferAbort(QString transferId);
     void requestedUserKick(int userId);
+    /*! A new banner file has been selected by the user. */
+    void selectedNewBanner(QImage data);
 
 
 };
