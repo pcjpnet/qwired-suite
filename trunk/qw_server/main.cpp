@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
     }
 
     // Don't print to std when in remote mode!
+    controller.qwLog(a.tr("Switching to remote console mode..."));
     controller.logToStdout = !cliArgs.contains("-remote");
 
     if (!controller.loadConfiguration()) {
@@ -106,7 +107,7 @@ int main(int argc, char *argv[])
 
     // Attempt to start the console socket
     QwsConsoleSocketController consoleController;
-    if (cliArgs.contains("-r")) {
+    if (cliArgs.contains("-remote")) {
         consoleController.authSecret = controller.getConfigurationParam("console/secret", "").toString();
         consoleController.setServerController(&controller);
 

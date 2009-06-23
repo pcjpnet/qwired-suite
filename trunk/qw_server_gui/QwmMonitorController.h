@@ -37,6 +37,7 @@ private slots:
 
 public:
     QwmMonitorController(QObject *parent=0);
+    ~QwmMonitorController();
 
 public slots:
     void startMonitor();

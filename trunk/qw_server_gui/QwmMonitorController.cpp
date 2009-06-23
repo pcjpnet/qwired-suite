@@ -31,6 +31,12 @@ QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
 }
 
 
+QwmMonitorController::~QwmMonitorController()
+{
+    daemonProcess.kill();
+}
+
+
 /*! Initialize the monitor window and display it to the user.
 */
 void QwmMonitorController::startMonitor()
@@ -60,21 +66,23 @@ void QwmMonitorController::startMonitor()
 
 void QwmMonitorController::startDaemonProcess()
 {
-    QStringList procArguments;
-    procArguments << "-remote"; // Enable remote-mode
-    procArguments << "-root" << QDir(qApp->applicationDirPath()).cleanPath("../../../");
-
     QString command;
+    QStringList procArguments;
+
+    procArguments << "-remote"; // Enable remote-mode
 
 #ifdef Q_OS_WIN32
-    command = "./qwired_server.exe";
+    command = "qwired_server.exe";
 #elif defined(Q_OS_LINUX)
     command = "./qwired_server";
 #elif defined(Q_OS_MAC)
     // On Mac OS X the server binary is within the bundle.
     command = QDir(qApp->applicationDirPath()).absoluteFilePath("qwired_server");
+    // Root is usually outside of the bundle
+    procArguments << "-root" << QDir(qApp->applicationDirPath()).cleanPath("../../../");
 #endif
 
+    qDebug() << command << procArguments;
     daemonProcess.start(command, procArguments);
 }
 
@@ -85,7 +93,10 @@ void QwmMonitorController::stopDaemonProcess()
                               tr("Are you sure you want to shut down the server?"),
                               QMessageBox::Yes | QMessageBox::No,
                               QMessageBox::No) == QMessageBox::Yes) {
-        daemonProcess.terminate();
+        qDebug() << "Terminating daemon.";
+        daemonProcess.kill();
+        daemonProcess.waitForFinished();
+        qDebug() << "Terminated";
     }
 }
 

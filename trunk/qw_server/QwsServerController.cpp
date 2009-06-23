@@ -241,7 +241,7 @@ void QwsServerController::qwLog(QString message)
     QString data = QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(message);
     if (logToStdout) {
         QTextStream stream(stdout);
-        stream << data << "\n";
+        stream << data << endl;
     }
     emit serverLogMessage(message);
 }
@@ -265,15 +265,17 @@ bool QwsServerController::generateNewCertificate(QString *data)
     QProcess createCommand;
     QStringList commandArguments;
     commandArguments << "req" << "-x509"
-              << "-newkey" << "rsa:1024" << "-subj"
-              << QString("/CN=%1").arg(QHostInfo::localHostName())
+              << "-newkey" << "rsa:1024"
+              << "-subj" << QString("/CN=%1").arg(QHostInfo::localHostName())
               << "-days" << "365" << "-nodes"
               << "-keyout" << tempFile.fileName() << "-out" << tempFile.fileName();
 
-    qDebug() << commandArguments;
-    createCommand.start("openssl", commandArguments);
-    createCommand.waitForFinished();
     qDebug() << "Creating new SSL certificate at" << tempFile.fileName() << "|" << commandArguments;
+
+    createCommand.start("openssl", commandArguments);
+    createCommand.setStandardOutputFile("stdout.txt");
+    createCommand.waitForFinished();
+
 
     if (createCommand.exitCode() != 0 ) {
         qDebug() << "OpenSSL failed:" << createCommand.errorString() << createCommand.readAllStandardError();
@@ -305,7 +307,7 @@ void QwsServerController::acceptSessionSslConnection()
     clientSocket->user.userIpAddress = clientSocket->socket->peerAddress().toString();
     clientSocket->resolveHostname();
 
-    qwLog(tr("[%1] Accepted new transfer connection from %2")
+    qwLog(tr("[%1] Accepted new session connection from %2")
           .arg(clientSocket->user.pUserID)
           .arg(newSocket->peerAddress().toString()));
 
