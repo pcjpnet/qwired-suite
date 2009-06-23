@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QDir>
+#include <QtCore/QBuffer>
 
 QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
 {
@@ -254,7 +255,12 @@ void QwmMonitorController::handleLogMessage(const QString logMessage)
 */
 void QwmMonitorController::handleSelectedNewBanner(QImage banner)
 {
+    QByteArray bannerData;
+    QBuffer bannerDataBuffer(&bannerData);
+    bannerDataBuffer.open(QIODevice::WriteOnly);
+    banner.save(&bannerDataBuffer, "PNG");
 
+    socket->sendCommandCONFIG_WRITE("server/banner", bannerData.toBase64());
 }
 
 
