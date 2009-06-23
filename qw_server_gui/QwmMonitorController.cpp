@@ -53,6 +53,9 @@ void QwmMonitorController::startMonitor()
     connect(monitorWindow, SIGNAL(requestedUserKick(int)),
             socket, SLOT(sendCommandKICK(int)));
 
+    connect(monitorWindow, SIGNAL(selectedNewBanner(QImage)),
+            this, SLOT(handleSelectedNewBanner(QImage)));
+
     connect(monitorWindow->btnRebuildIndex, SIGNAL(clicked()),
             this, SLOT(handle_btnRebuildIndex_clicked()));
 }
@@ -244,6 +247,14 @@ void QwmMonitorController::handleCommandUSERS(QList<QwUser> users)
 void QwmMonitorController::handleLogMessage(const QString logMessage)
 {
     monitorWindow->fStatsLog->append(logMessage);
+}
+
+
+/*! A new banner was selected and it has to be stored in the database.
+*/
+void QwmMonitorController::handleSelectedNewBanner(QImage banner)
+{
+
 }
 
 
