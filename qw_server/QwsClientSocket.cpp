@@ -333,7 +333,8 @@ void QwsClientSocket::handleMessageBANNER(QwMessage &message)
     query.first();
     QwMessage reply("203");
     if (query.isValid()) {
-        reply.appendArg(query.value(0).toString());
+        QByteArray bannerData = query.value(0).toByteArray();
+        reply.appendArg(bannerData.toBase64());
     } else {
         qDebug() << this << "Unable to load banner from database:" << query.lastError().text();
         reply.appendArg("");
