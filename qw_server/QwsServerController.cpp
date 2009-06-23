@@ -173,6 +173,15 @@ bool QwsServerController::startServer()
             qwLog(tr("Created new certificate."));
         }
     }
+
+    // Check if the files directory exists
+    QDir filesDirectory(getConfigurationParam("files/root", "files").toString());
+    if (!filesDirectory.exists()) {
+        qwLog(tr("Files directory is missing. Creating a new one."));
+        // We use "." to create the directory itself
+        filesDirectory.mkpath(".");
+    }
+
     //QFileInfo certificateFileInfo(certificateFile);
     //if (!certificateFileInfo.exists()) {
 //        qwLog(tr("Certificate file does not exist. Attempting to create one..."));
