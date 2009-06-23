@@ -73,7 +73,6 @@ void QwmMonitorController::startDaemonProcess()
     QString command;
     QStringList procArguments;
 
-    procArguments << "-remote"; // Enable remote-mode
 
 #ifdef Q_OS_WIN32
     command = "qwired_server.exe";
@@ -85,6 +84,8 @@ void QwmMonitorController::startDaemonProcess()
     // Root is usually outside of the bundle
     procArguments << "-root" << QDir(qApp->applicationDirPath()).cleanPath("../../../");
 #endif
+
+    procArguments << "-remote"; // Enable remote-mode
 
     qDebug() << command << procArguments;
     daemonProcess.start(command, procArguments);
@@ -98,6 +99,7 @@ void QwmMonitorController::stopDaemonProcess()
                               QMessageBox::Yes | QMessageBox::No,
                               QMessageBox::No) == QMessageBox::Yes) {
         qDebug() << "Terminating daemon.";
+        handleLogMessage(tr("Waiting for daemon to terminate..."));
         daemonProcess.kill();
         daemonProcess.waitForFinished();
         qDebug() << "Terminated";
