@@ -113,6 +113,16 @@ void QwmConsoleSocket::handleSocketReadyRead()
                     resultHash[item.left(separatorPos)] = item.mid(separatorPos+1);
                 }
                 emit receivedResponseSTAT(resultHash);
+
+
+            } else if (activeCommand == "CONFIG") {
+                // Received a response to a CONFIG command. If configReadKeyName is empty, we
+                // previously issued a WRITE subcommand. Otherwise it contains the name of the
+                // requested configuration key.
+                if (!configReadKeyName.isEmpty()) {
+                    emit receivedResponseCONFIG_READ(configReadKeyName, inputBuffer.join("").toUtf8());
+                    configReadKeyName.clear();
+                }
             }
 
             emit commandCompleted(activeCommand);
@@ -172,11 +182,21 @@ void QwmConsoleSocket::sendCommandKICK(int userId)
 
 /*! Set a configuration parameter in the server configuration database.
 */
-void QwmConsoleSocket::sendCommandCONFIG_WRITE(QString configName, QString configValue)
+void QwmConsoleSocket::sendCommandCONFIG_WRITE(QString configName, QByteArray configValue)
 {
-    sendCommand(QString("CONFIG WRITE %1:%2").arg(configName).arg(configValue));
+    sendCommand(QString("CONFIG WRITE %1:%2")
+                .arg(configName)
+                .arg(QString::fromUtf8(configValue.toBase64())));
 }
 
+
+/*! Request a configuration parameter from the server configuration database.
+*/
+void QwmConsoleSocket::sendCommandCONFIG_READ(QString configName)
+{
+    configReadKeyName = configName;
+    sendCommand(QString("CONFIG READ %1").arg(configName));
+}
 
 
 
