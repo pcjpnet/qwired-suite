@@ -29,6 +29,7 @@ public slots:
     void sendCommandTRANSFERS();
     void sendCommandABORT(QString transferId);
     void sendCommandKICK(int userId);
+    void sendCommandCONFIG_WRITE(QString configName, QString configValue);
 
 private slots:
 

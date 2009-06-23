@@ -170,6 +170,15 @@ void QwmConsoleSocket::sendCommandKICK(int userId)
 }
 
 
+/*! Set a configuration parameter in the server configuration database.
+*/
+void QwmConsoleSocket::sendCommandCONFIG_WRITE(QString configName, QString configValue)
+{
+    sendCommand(QString("CONFIG WRITE %1:%2").arg(configName).arg(configValue));
+}
+
+
+
 
 /*! LOG - Enable/Disable log messages
     Enables/Disables log message from the server.
