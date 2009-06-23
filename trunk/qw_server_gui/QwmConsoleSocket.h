@@ -29,7 +29,8 @@ public slots:
     void sendCommandTRANSFERS();
     void sendCommandABORT(QString transferId);
     void sendCommandKICK(int userId);
-    void sendCommandCONFIG_WRITE(QString configName, QString configValue);
+    void sendCommandCONFIG_WRITE(QString configName, QByteArray configValue);
+    void sendCommandCONFIG_READ(QString configName);
 
 private slots:
 
@@ -44,6 +45,7 @@ signals:
     void receivedResponseSTAT(QHash<QString,QString> data);
     void receivedResponseTRANSFERS(QList<QwTransferInfo> transfers);
     void receivedResponseUSERS(QList<QwUser> users);
+    void receivedResponseCONFIG_READ(QString configName, QByteArray configValue);
     void receivedLogMessage(const QString logMessage);
 
 private:
@@ -57,6 +59,8 @@ private:
     QString activeCommand;
     /*! The plain socket responsible for data transmission. */
     QTcpSocket *socket;
+    /*! This member temporarily stores the name of a requested configuration key. */
+    QString configReadKeyName;
 
 };
 

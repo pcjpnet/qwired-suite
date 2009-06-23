@@ -19,6 +19,9 @@ QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
     connect(socket, SIGNAL(receivedLogMessage(const QString)),
             this, SLOT(handleLogMessage(const QString)));
 
+    connect(socket, SIGNAL(receivedResponseCONFIG_READ(QString,QByteArray)),
+            this, SLOT(handleCommandCONFIG_READ(QString,QByteArray)));
+
 
     // Daemon Process
     connect(&daemonProcess, SIGNAL(started()),
@@ -165,6 +168,8 @@ void QwmMonitorController::handleCommandCompleted(QString command)
 {
     if (command == "REINDEX") {
         monitorWindow->btnRebuildIndex->setEnabled(true);
+    } else if (command == "AUTH") {
+        socket->sendCommandCONFIG_READ("server/banner");
     }
 }
 
@@ -243,6 +248,19 @@ void QwmMonitorController::handleCommandUSERS(QList<QwUser> users)
     }
 
 }
+
+
+void QwmMonitorController::handleCommandCONFIG_READ(QString configName, QByteArray configValue)
+{
+    if (configName == "server/banner") {
+        QPixmap serverBanner;
+        if (serverBanner.loadFromData(QByteArray::fromBase64(configValue))) {
+            monitorWindow->fConfigurationBanner->setPixmap(serverBanner);
+        }
+
+    }
+}
+
 
 
 /*! Handle a new log message from the remote console and display it in the log window.
