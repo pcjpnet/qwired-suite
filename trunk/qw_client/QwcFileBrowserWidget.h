@@ -39,11 +39,14 @@ signals:
     void requestedRefresh(QString path);
     /*! This signal is emitted when the user reqested information about a path. */
     void requestedInformation(QString path);
+    /*! This signal is emitted when a path needs to be deleted. */
+    void requestedDelete(QString path);
 
 private slots:
     void on_btnBack_clicked();
     void on_btnInfo_clicked();
     void on_btnRefresh_clicked();
+    void on_btnDelete_clicked();
     void on_fList_itemSelectionChanged();
     void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void fileTransferDone(QwcTransferInfo);
@@ -66,7 +69,6 @@ public slots:
     void on_fBtnDownload_clicked(bool checked);
 
     void on_fBtnUpload_clicked(bool checked);
-    void on_fBtnDelete_clicked(bool checked);
     void on_fBtnNewFolder_clicked(bool checked);
     void on_fFilter_textEdited(QString);
 
