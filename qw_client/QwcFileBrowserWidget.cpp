@@ -126,6 +126,34 @@ void QwcFileBrowserWidget::on_btnRefresh_clicked()
 }
 
 
+/*! The "Delete" button has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnDelete_clicked()
+{
+    QList<QTreeWidgetItem*> items = fList->selectedItems();
+
+    // Confirm first
+    QMessageBox::StandardButton button = QMessageBox::question(this,
+        tr("Delete Files and Folders"),
+        tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", items.count()),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+    if (button == QMessageBox::No) { return; }
+
+    // Now delete the selected items
+    QListIterator<QTreeWidgetItem*> i(items);
+    while (i.hasNext()) {
+        QTreeWidgetItem *item = i.next();
+        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+        emit requestedDelete(itemInfo.path);
+    }
+
+    // Reset the file browser
+    resetForListing();
+    emit requestedRefresh(remotePath);
+}
+
+
 // Download button pressed
 void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
 {
@@ -163,30 +191,6 @@ void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
 //    }
 //    // Display the transfer pane
 //    pSession->doActionTransfers();
-}
-
-
-void QwcFileBrowserWidget::on_fBtnDelete_clicked(bool)
-{
-//    QModelIndexList list = fList->selectionModel()->selectedRows(0);
-//
-//    QMessageBox::StandardButton button = QMessageBox::question(this,
-//                                                               tr("Delete File"), tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", list.count()),
-//                                                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-//    if (button != QMessageBox::Yes) return;
-//
-//    QListIterator<QModelIndex> i(list);
-//    while(i.hasNext()) {
-//        QModelIndex index = i.next();
-//        if(!index.isValid()) continue;
-//        QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
-//        pSession->wiredSocket()->deleteFile(tmpFile.path);
-//    }
-//
-//    // Request an updated list
-//    pModel->clearList();
-//    pModel->pWaitingForList = true;
-//    pSession->wiredSocket()->getFileList(pModel->pCurrentPath);
 }
 
 
@@ -250,6 +254,7 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
 void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
 {
     btnInfo->setEnabled(fList->selectedItems().count());
+    btnDelete->setEnabled(fList->selectedItems().count());
 }
 
 
