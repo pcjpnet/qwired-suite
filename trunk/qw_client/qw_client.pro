@@ -46,7 +46,6 @@ SOURCES += main.cpp \
     QwcUserInfoWidget.cpp \
     QwcUserlistWidget.cpp \
     QwcFileBrowserWidget.cpp \
-    QwcFilelistModel.cpp \
     QwcFileInfo.cpp \
     QwcPreferencesWidget.cpp \
     QwcTransferSocket.cpp \
@@ -90,7 +89,6 @@ HEADERS += QwcSession.h \
     QwcUserlistWidget.h \
     QwcServerInfoWidget.h \
     QwcFileBrowserWidget.h \
-    QwcFilelistModel.h \
     QwcFileInfo.h \
     QwcPreferencesWidget.h \
     QwcConnectWidget.h \

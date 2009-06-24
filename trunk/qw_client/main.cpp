@@ -5,6 +5,8 @@
 #include "QwcGlobals.h"
 #include <QNetworkProxy>
 
+
+
 int main (int argc, char *argv[])
 {
 
@@ -13,6 +15,8 @@ int main (int argc, char *argv[])
     QCoreApplication::setOrganizationName("NeoSoftware");
     QCoreApplication::setOrganizationDomain("neo.de");
     QCoreApplication::setApplicationName("Qwired");
+
+
 
     QSettings tmpPrefs;
 
