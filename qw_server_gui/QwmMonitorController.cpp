@@ -116,6 +116,9 @@ void QwmMonitorController::handleDaemonStarted()
     monitorWindow->btnStopServer->setEnabled(true);
 
     monitorWindow->btnRebuildIndex->setEnabled(true);
+    monitorWindow->tabConfiguration->setEnabled(true);
+    monitorWindow->tabTransfers->setEnabled(true);
+    monitorWindow->tabUsers->setEnabled(true);
     //QTimer::singleShot(500, this, SLOT(connectToConsole()));
     //handleLogMessage(tr("Server daemon started with PID %1.").arg(daemonProcess.pid()));
 }
@@ -129,6 +132,9 @@ void QwmMonitorController::handleDaemonFinished(int exitCode, QProcess::ExitStat
     monitorWindow->btnStopServer->setEnabled(false);
 
     monitorWindow->btnRebuildIndex->setEnabled(false);
+    monitorWindow->tabConfiguration->setEnabled(false);
+    monitorWindow->tabTransfers->setEnabled(false);
+    monitorWindow->tabUsers->setEnabled(false);
     socket->resetSocket();
 }
 
@@ -169,6 +175,7 @@ void QwmMonitorController::handleCommandCompleted(QString command)
     if (command == "REINDEX") {
         monitorWindow->btnRebuildIndex->setEnabled(true);
     } else if (command == "AUTH") {
+        qDebug() << "Requesting server banner...";
         socket->sendCommandCONFIG_READ("server/banner");
     }
 }
@@ -252,10 +259,15 @@ void QwmMonitorController::handleCommandUSERS(QList<QwUser> users)
 
 void QwmMonitorController::handleCommandCONFIG_READ(QString configName, QByteArray configValue)
 {
+    qDebug() << this << "Received CONFIG param:" << configName << QByteArray::fromBase64(configValue);
     if (configName == "server/banner") {
         QPixmap serverBanner;
         if (serverBanner.loadFromData(QByteArray::fromBase64(configValue))) {
             monitorWindow->fConfigurationBanner->setPixmap(serverBanner);
+        } else {
+            QMessageBox::warning(monitorWindow, tr("Corrupted server banner image"),
+                                 tr("The server banner image seems to be corrupted and can not be "
+                                    "displayed. Please select a new banner image."));
         }
 
     }
@@ -267,7 +279,10 @@ void QwmMonitorController::handleCommandCONFIG_READ(QString configName, QByteArr
 */
 void QwmMonitorController::handleLogMessage(const QString logMessage)
 {
-    monitorWindow->fStatsLog->append(logMessage);
+
+    monitorWindow->fStatsLog->append(QString("%1 --- %2")
+                                     .arg(QDateTime::currentDateTime().toString(Qt::TextDate))
+                                     .arg(logMessage));
 }
 
 
@@ -280,7 +295,7 @@ void QwmMonitorController::handleSelectedNewBanner(QImage banner)
     bannerDataBuffer.open(QIODevice::WriteOnly);
     banner.save(&bannerDataBuffer, "PNG");
 
-    socket->sendCommandCONFIG_WRITE("server/banner", bannerData.toBase64());
+    socket->sendCommandCONFIG_WRITE("server/banner", bannerData);
 }
 
 
