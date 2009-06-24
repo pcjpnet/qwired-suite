@@ -617,7 +617,8 @@ void QwcSocket::handleMessage410(const QwMessage &message)
 */
 void QwcSocket::handleMessage411(const QwMessage &message)
 {
-    Q_UNUSED(message);
+    emit onFilesListDone(message.getStringArgument(0),
+                         message.getStringArgument(1).toLongLong());
 //    if(!pIndexingFiles) {
 //        emit onFilesListDone(message.getStringArgument(0),
 //                             message.getStringArgument(1).toLongLong() );

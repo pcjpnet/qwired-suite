@@ -3,8 +3,8 @@
 
 #include "ui_QwcFileBrowserWidget.h"
 
-#include "QwcFilelistModel.h"
 #include "QwcTransferInfo.h"
+#include "QwcFileInfo.h"
 
 #include <QPointer>
 #include <QSortFilterProxyModel>
@@ -26,35 +26,51 @@ class QwcFileBrowserWidget : public QWidget, private Ui_QwcFileBrowserWidget
 public:
     QwcFileBrowserWidget(QWidget *parent = 0);
 
-    void initWithConnection(QwcSession *theSession);
-    void setPath(QString thePath);
-    QPointer<QwcFilelistModel> pModel;
-    QPointer<QSortFilterProxyModel> pFilterProxy;
-    QPointer<QwcSession> pSession;
+    /*! The path to the current directory on the remote server. */
+    QString remotePath;
 
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
+    void resetForListing();
+
+//    void dragEnterEvent(QDragEnterEvent *event);
+//    void dropEvent(QDropEvent *event);
+
+signals:
+    /*! This signal is emitted when the user wants to refresh the contents of the current directory. */
+    void requestedRefresh(QString path);
+    /*! This signal is emitted when the user reqested information about a path. */
+    void requestedInformation(QString path);
 
 private slots:
+    void on_btnBack_clicked();
+    void on_btnInfo_clicked();
+    void on_btnRefresh_clicked();
+    void on_fList_itemSelectionChanged();
+    void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void fileTransferDone(QwcTransferInfo);
 
 
 private:
+    /*! This member is true if the browser is expecting more list items. */
+    bool waitingForListItems;
+    /*! This contains the amount of free space on the remote server. */
+    qlonglong freeRemoteSpace;
+    /*! This contains the total amount of data for all listed items. */
+    qlonglong totalUsedSpace;
+
     void downloadFile(QString path);
 
 public slots:
-    void on_fBtnDownload_clicked(bool checked);
+    void handleFilesListItem(QwcFileInfo item);
+    void handleFilesListDone(QString path, qlonglong freeSpace);
 
-    void doUpdateBrowserStats(QString thePath, qlonglong theFree);
-    void on_fList_doubleClicked(const QModelIndex &index);
-    void on_fList_clicked(const QModelIndex &index);
-    void on_fBtnBack_clicked(bool checked);
+    void on_fBtnDownload_clicked(bool checked);
 
     void on_fBtnUpload_clicked(bool checked);
     void on_fBtnDelete_clicked(bool checked);
     void on_fBtnNewFolder_clicked(bool checked);
-    void on_fBtnInfo_clicked(bool checked);
     void on_fFilter_textEdited(QString);
+
+
 };
 
 #endif

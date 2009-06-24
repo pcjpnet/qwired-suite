@@ -13,224 +13,193 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) : QWidget(parent)
     setupUi(this);
     setAcceptDrops(true);
     setAttribute(Qt::WA_DeleteOnClose);
+
+    waitingForListItems = false;
+    totalUsedSpace = 0;
+    freeRemoteSpace = 0;
+    labelCurrentPath->setText("/");
 }
 
-void QwcFileBrowserWidget::initWithConnection(QwcSession *theSession)
+
+/*! Resets the browser to a state where the user can see that a new listing is loading. Also sets
+    some internal variables that allow a proper behaviour.
+*/
+void QwcFileBrowserWidget::resetForListing()
 {
-    pModel = new QwcFilelistModel(this);
-    pFilterProxy = new QSortFilterProxyModel(this);
-    pFilterProxy->setSourceModel(pModel);
-    pFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    pFilterProxy->setSortRole(Qt::UserRole);
-
-    pSession = theSession;
-    connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(QwcFileInfo)), pModel, SLOT(onServerFileListItem(QwcFileInfo)) );
-    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
-    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
-    connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(QwcTransferInfo)), this, SLOT(fileTransferDone(QwcTransferInfo)) );
-
-    fList->setModel(pFilterProxy);
-    fList->setAlternatingRowColors(true);
-
-    fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
+    fList->clear();
+    labelCurrentPath->setText(remotePath);
+    totalUsedSpace = 0;
+    freeRemoteSpace = 0;
+    waitingForListItems = true;
+    this->setEnabled(false);
 }
+
+
+//void QwcFileBrowserWidget::initWithConnection(QwcSession *theSession)
+//{
+//    pModel = new QwcFilelistModel(this);
+//    pFilterProxy = new QSortFilterProxyModel(this);
+//    pFilterProxy->setSourceModel(pModel);
+//    pFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+//    pFilterProxy->setSortRole(Qt::UserRole);
+//
+//    pSession = theSession;
+//    connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(QwcFileInfo)), pModel, SLOT(onServerFileListItem(QwcFileInfo)) );
+//    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
+//    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
+//    connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(QwcTransferInfo)), this, SLOT(fileTransferDone(QwcTransferInfo)) );
+//
+//    fList->setModel(pFilterProxy);
+//    fList->setAlternatingRowColors(true);
+//
+//    fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
+//}
 
 
 void QwcFileBrowserWidget::on_fFilter_textEdited(QString theFilter)
 {
-    pFilterProxy->setFilterWildcard(theFilter);
+//    pFilterProxy->setFilterWildcard(theFilter);
 }
 
-
-// Item has been double-clicked; if it is a folder, browse it
-void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
-{
-    if(pModel!=0 and pSession!=0) {
-        QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
-
-        if (tmpFile.type == Qw::FileTypeRegular) {
-            if(!pSession->wiredSocket()->sessionUser.privDownload) return;
-            downloadFile(tmpFile.path);
-            pSession->doActionTransfers();
-
-        } else if(tmpFile.type>0) { // Directories
-            pFilterProxy->setFilterWildcard("");
-            fFilter->setText("");
-            pModel->clearList();
-            pModel->pWaitingForList = true;
-            pModel->pCurrentPath = tmpFile.path; // Load path from data
-            pSession->wiredSocket()->getFileList(tmpFile.path);
-            fBtnBack->setEnabled( tmpFile.path!="/" );
-        }
-    }
-}
-
-
-void QwcFileBrowserWidget::setPath(QString thePath)
-{
-    if(pModel)
-        pModel->pCurrentPath = thePath;
-}
-
-
-// Navigate back
-void QwcFileBrowserWidget::on_fBtnBack_clicked(bool)
-{
-    QString tmpPath = pModel->pCurrentPath.section("/",0,-2);
-    if(tmpPath.isEmpty()) tmpPath="/";
-    pModel->clearList();
-    pModel->pWaitingForList = true;
-    pModel->pCurrentPath = tmpPath;
-    pFilterProxy->setFilterWildcard("");
-    fFilter->setText("");
-    pSession->wiredSocket()->getFileList(tmpPath);
-    fBtnBack->setEnabled(tmpPath!="/");
-}
-
-
-void QwcFileBrowserWidget::on_fBtnInfo_clicked(bool)
-{
-    QModelIndex tmpIdx = fList->currentIndex();
-    if (tmpIdx.isValid()) {
-        QwcFileInfo tmpFile = tmpIdx.data(Qt::UserRole+1).value<QwcFileInfo>();
-        pSession->wiredSocket()->statFile(tmpFile.path);
-        fBtnInfo->setEnabled(false);
-    }
-}
-
-
-// Update the stats in the browser
-void QwcFileBrowserWidget::doUpdateBrowserStats(QString thePath, qlonglong theFree)
-{
-    Q_UNUSED(theFree)
-            if( thePath == pModel->pCurrentPath ) {
-        QString tmpStr;
-        tmpStr = tr("%1 items, %2 total, %3 available")
-                 .arg(pModel->rowCount())
-                 .arg( QwcFileInfo::humanReadableSize(pModel->pTotalSize) )
-                 .arg( QwcFileInfo::humanReadableSize(pModel->pFreeSize) );
-
-        if(thePath!="/")
-            setWindowTitle(tr("Files - %1").arg(pModel->pCurrentPath.section("/",-1)));
-        else	setWindowTitle(tr("Files - %1").arg(pModel->pCurrentPath));
-
-        fStats->setText(tmpStr);
-        fList->resizeColumnToContents(0);
-        fList->resizeColumnToContents(1);
-        fList->resizeColumnToContents(2);
-    }
-}
 
 
 /*! The user clicked on a file and the download of the said file should be started.
 */
 void QwcFileBrowserWidget::downloadFile(QString path)
 {
-    QSettings settings;
-    QString fileName = path.section("/", -1, -1);
-    QDir localTargetFolder(settings.value("files/download_dir", QDir::homePath()).toString());
-    //QFile localTargetFile(localTargetFolder.absoluteFilePath(fileName));
-    //pSession->downloadFile(path, localTargetFile.fileName());
-    pSession->wiredSocket()->getFile(path, localTargetFolder.absoluteFilePath(fileName));
+//    QSettings settings;
+//    QString fileName = path.section("/", -1, -1);
+//    QDir localTargetFolder(settings.value("files/download_dir", QDir::homePath()).toString());
+//    //QFile localTargetFile(localTargetFolder.absoluteFilePath(fileName));
+//    //pSession->downloadFile(path, localTargetFile.fileName());
+//    pSession->wiredSocket()->getFile(path, localTargetFolder.absoluteFilePath(fileName));
+}
+
+/*! Handle a new listing item from the server and add it to the file list.
+*/
+void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
+{
+    if (!waitingForListItems) { return; }
+    QTreeWidgetItem *treeItem = new QTreeWidgetItem(fList);
+    treeItem->setText(0, item.fileName());
+    treeItem->setIcon(0, item.fileIcon());
+    treeItem->setData(0, Qt::UserRole, QVariant::fromValue(item));
+
+    if (item.type == Qw::FileTypeRegular) {
+        treeItem->setText(1, item.humanReadableSize(item.size));
+    } else {
+        treeItem->setText(1, QString("%1 item(s)").arg(item.size));
+    }
+
+    treeItem->setText(2, item.modified.toLocalTime().toString());
+
+    if (item.type == Qw::FileTypeRegular) {
+        totalUsedSpace += item.size;
+    }
+}
+
+
+/*! Handle the end of a file listing.
+*/
+void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace)
+{
+    if (!waitingForListItems) { return; }
+    waitingForListItems = false;
+    freeRemoteSpace = freeSpace;
+    fStats->setText(tr("%1 items, %2 total, %3 available")
+                    .arg(fList->topLevelItemCount())
+                    .arg(QwFile::humanReadableSize(totalUsedSpace))
+                    .arg(QwFile::humanReadableSize(freeRemoteSpace)));
+    waitingForListItems = false;
+    this->setEnabled(true);
+    btnBack->setEnabled(remotePath != "/");
+}
+
+
+/*! Request a refresh of the browser contents from the server.
+*/
+void QwcFileBrowserWidget::on_btnRefresh_clicked()
+{
+    resetForListing();
+    emit requestedRefresh(remotePath);
 }
 
 
 // Download button pressed
 void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
 {
-    if(!pSession->wiredSocket()->sessionUser.privDownload) return;
-    QListIterator<QModelIndex> i(fList->selectionModel()->selectedRows(0));
-    while(i.hasNext()) {
-        QModelIndex index = i.next();
-        if(!index.isValid()) continue;
-        QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
-        if (tmpFile.type == Qw::FileTypeFolder|| tmpFile.type == Qw::FileTypeDropBox|| tmpFile.type == Qw::FileTypeUploadsFolder) {
-            // Folder download
-            QSettings settings;
-            QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
-            pSession->downloadFolder(tmpFile.path, tmpDownloadFolder.path());
-        } else { // Regular file
-            downloadFile(tmpFile.path);
-        }
-    }
-    pSession->doActionTransfers();
+//    if(!pSession->wiredSocket()->sessionUser.privDownload) return;
+//    QListIterator<QModelIndex> i(fList->selectionModel()->selectedRows(0));
+//    while(i.hasNext()) {
+//        QModelIndex index = i.next();
+//        if(!index.isValid()) continue;
+//        QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
+//        if (tmpFile.type == Qw::FileTypeFolder|| tmpFile.type == Qw::FileTypeDropBox|| tmpFile.type == Qw::FileTypeUploadsFolder) {
+//            // Folder download
+//            QSettings settings;
+//            QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
+//            pSession->downloadFolder(tmpFile.path, tmpDownloadFolder.path());
+//        } else { // Regular file
+//            downloadFile(tmpFile.path);
+//        }
+//    }
+//    pSession->doActionTransfers();
 }
 
-
-// Another file has been selected
-void QwcFileBrowserWidget::on_fList_clicked(const QModelIndex&)
-{
-    QModelIndex tmpIdx = fList->currentIndex();
-    if(tmpIdx.isValid()) {
-        QwcFileInfo tmpFile = tmpIdx.data(Qt::UserRole+1).value<QwcFileInfo>();
-        fBtnDownload->setEnabled(pSession->wiredSocket()->sessionUser.privDownload); // Only files can be downloaded now
-        fBtnInfo->setEnabled(true);
-        fBtnDelete->setEnabled( pSession->wiredSocket()->sessionUser.privDeleteFiles );
-        fBtnUpload->setEnabled( pSession->wiredSocket()->sessionUser.privUpload || pSession->wiredSocket()->sessionUser.privUploadAnywhere );
-        fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
-        return;
-    }
-
-    fBtnNewFolder->setEnabled(false);
-    fBtnDelete->setEnabled(false);
-    fBtnDownload->setEnabled(false);
-    fBtnInfo->setEnabled(false);
-    fBtnUpload->setEnabled(false);
-}
 
 
 void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
 {
-    QStringList files = QFileDialog::getOpenFileNames(this, tr("Upload File"), QDir::homePath());
-    QStringListIterator i(files);
-    while (i.hasNext()) {
-        QString item = i.next();
-        QFileInfo itemInfo(item);
-        if (!itemInfo.exists() || !itemInfo.isReadable()) { continue; }
-        QString remotePath = pModel->pCurrentPath + "/" + itemInfo.fileName();
-        pSession->wiredSocket()->putFile(itemInfo.absoluteFilePath(), remotePath);
-        //pSession->uploadFile(itemInfo.absoluteFilePath(), remotePath);
-    }
-    // Display the transfer pane
-    pSession->doActionTransfers();
+//    QStringList files = QFileDialog::getOpenFileNames(this, tr("Upload File"), QDir::homePath());
+//    QStringListIterator i(files);
+//    while (i.hasNext()) {
+//        QString item = i.next();
+//        QFileInfo itemInfo(item);
+//        if (!itemInfo.exists() || !itemInfo.isReadable()) { continue; }
+//        QString remotePath = pModel->pCurrentPath + "/" + itemInfo.fileName();
+//        pSession->wiredSocket()->putFile(itemInfo.absoluteFilePath(), remotePath);
+//        //pSession->uploadFile(itemInfo.absoluteFilePath(), remotePath);
+//    }
+//    // Display the transfer pane
+//    pSession->doActionTransfers();
 }
 
 
 void QwcFileBrowserWidget::on_fBtnDelete_clicked(bool)
 {
-    QModelIndexList list = fList->selectionModel()->selectedRows(0);
-
-    QMessageBox::StandardButton button = QMessageBox::question(this,
-                                                               tr("Delete File"), tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", list.count()),
-                                                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if (button != QMessageBox::Yes) return;
-
-    QListIterator<QModelIndex> i(list);
-    while(i.hasNext()) {
-        QModelIndex index = i.next();
-        if(!index.isValid()) continue;
-        QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
-        pSession->wiredSocket()->deleteFile(tmpFile.path);
-    }
-
-    // Request an updated list
-    pModel->clearList();
-    pModel->pWaitingForList = true;
-    pSession->wiredSocket()->getFileList(pModel->pCurrentPath);
+//    QModelIndexList list = fList->selectionModel()->selectedRows(0);
+//
+//    QMessageBox::StandardButton button = QMessageBox::question(this,
+//                                                               tr("Delete File"), tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", list.count()),
+//                                                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+//    if (button != QMessageBox::Yes) return;
+//
+//    QListIterator<QModelIndex> i(list);
+//    while(i.hasNext()) {
+//        QModelIndex index = i.next();
+//        if(!index.isValid()) continue;
+//        QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
+//        pSession->wiredSocket()->deleteFile(tmpFile.path);
+//    }
+//
+//    // Request an updated list
+//    pModel->clearList();
+//    pModel->pWaitingForList = true;
+//    pSession->wiredSocket()->getFileList(pModel->pCurrentPath);
 }
 
 
 void QwcFileBrowserWidget::on_fBtnNewFolder_clicked(bool)
 {
-    QString tmpFolderName = QInputDialog::getText(this,
-                                                  tr("Create Folder"), tr("Enter a name for the new folder:"));
-    if(!tmpFolderName.isEmpty()) {
-        tmpFolderName = tmpFolderName.replace("/","_");
-        pSession->wiredSocket()->createFolder( pModel->pCurrentPath+"/"+tmpFolderName );
-        pModel->clearList();
-        pModel->pWaitingForList = true;
-        pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
-    }
+//    QString tmpFolderName = QInputDialog::getText(this,
+//                                                  tr("Create Folder"), tr("Enter a name for the new folder:"));
+//    if(!tmpFolderName.isEmpty()) {
+//        tmpFolderName = tmpFolderName.replace("/","_");
+//        pSession->wiredSocket()->createFolder( pModel->pCurrentPath+"/"+tmpFolderName );
+//        pModel->clearList();
+//        pModel->pWaitingForList = true;
+//        pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
+//    }
 }
 
 
@@ -239,45 +208,75 @@ void QwcFileBrowserWidget::on_fBtnNewFolder_clicked(bool)
 //
 
 /// Check if they got something we can handle.
-void QwcFileBrowserWidget::dragEnterEvent(QDragEnterEvent *event)
+//void QwcFileBrowserWidget::dragEnterEvent(QDragEnterEvent *event)
+//{
+//    if(event->mimeData()->hasUrls())
+//        event->acceptProposedAction();
+//}
+
+
+
+
+/*! The "Back" button has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnBack_clicked()
 {
-    if(event->mimeData()->hasUrls())
-        event->acceptProposedAction();
+    remotePath = remotePath.section("/", 0, -2);
+    if (!remotePath.startsWith("/")) {
+        remotePath = remotePath.prepend("/");
+    }
+    resetForListing();
+    emit requestedRefresh(remotePath);
 }
 
 
-/// A file has been dropped, lets upload.
-void QwcFileBrowserWidget::dropEvent(QDropEvent *event)
+/*! The "Get Info" button has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnInfo_clicked()
 {
-    QList<QUrl> tmpUrls = event->mimeData()->urls();
-    QListIterator<QUrl> i(tmpUrls);
-    while(i.hasNext()) {
-        QUrl tmpUrl = i.next();
-        QFileInfo fileInfo(tmpUrl.toLocalFile());
-        QFile tmpFile(tmpUrl.toLocalFile());
-        if(fileInfo.exists()) {
-            QString tmpRemote = pModel->pCurrentPath+"/"+fileInfo.fileName();
-            qDebug() <<this<< "Got a drop event:"<<tmpFile.fileName()<<"folder:"<<fileInfo.isDir()<<"file:"<<fileInfo.isFile();
-            if(fileInfo.isDir()) {
-                pSession->uploadFolder(fileInfo.filePath(), tmpRemote);
-            } else {
-                pSession->wiredSocket()->putFile(tmpFile.fileName(), tmpRemote);
-            }
-
-        }
+    QList<QTreeWidgetItem*> items = fList->selectedItems();
+    QListIterator<QTreeWidgetItem*> i(items);
+    while (i.hasNext()) {
+        QTreeWidgetItem *item = i.next();
+        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+        emit requestedInformation(itemInfo.path);
     }
-    pSession->doActionTransfers();
-    event->acceptProposedAction();
+}
+
+
+/*! Another item was selected from the list.
+*/
+void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
+{
+    btnInfo->setEnabled(fList->selectedItems().count());
+}
+
+
+/*! An item has been double-clicked. If it is a directory, we should descent into it.
+*/
+void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    if (!item) { return; }
+    QwcFileInfo fileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+    if (fileInfo.type == Qw::FileTypeDropBox
+        || fileInfo.type == Qw::FileTypeFolder
+        || fileInfo.type == Qw::FileTypeUploadsFolder)
+    {
+        remotePath = fileInfo.path;
+        resetForListing();
+        emit requestedRefresh(remotePath);
+    }
+
 }
 
 
 /// File transfer completed. Refresh the view.
 void QwcFileBrowserWidget::fileTransferDone(QwcTransferInfo transfer)
 {
-    if(transfer.type != Qw::TransferTypeUpload) return;
-    pModel->clearList();
-    pModel->pWaitingForList = true;
-    pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
+//    if(transfer.type != Qw::TransferTypeUpload) return;
+//    pModel->clearList();
+//    pModel->pWaitingForList = true;
+//    pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
 }
 
 

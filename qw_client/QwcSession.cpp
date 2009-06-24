@@ -934,10 +934,17 @@ void QwcSession::doActionFiles(QString initialPath)
 {
     if (!mainFileWidget) {
         mainFileWidget = new QwcFileBrowserWidget();
-        //mainFileWidget->setParent(this, Qt::Window);
-        mainFileWidget->initWithConnection(this);
-        mainFileWidget->setPath(initialPath);
-        mainFileWidget->pModel->pWaitingForList = true;
+        mainFileWidget->resetForListing();
+        mainFileWidget->remotePath = initialPath;
+
+        connect(mainFileWidget, SIGNAL(requestedRefresh(QString)),
+                socket, SLOT(getFileList(QString)));
+
+        connect(socket, SIGNAL(onFilesListItem(QwcFileInfo)),
+                mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));
+        connect(socket, SIGNAL(onFilesListDone(QString,qlonglong)),
+                mainFileWidget, SLOT(handleFilesListDone(QString,qlonglong)));
+
         socket->getFileList(initialPath);
     }
 
