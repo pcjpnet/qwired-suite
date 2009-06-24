@@ -16,6 +16,7 @@ macx {
   DESTDIR = "$${DESTDIR}/Qwired Server GUI.app/Contents/MacOS/"
 }
 
+DEFINES += QWS_VERSION=\\\"svn-snapshot\\\"
 
 SOURCES += main.cpp \
     QwsServerController.cpp \

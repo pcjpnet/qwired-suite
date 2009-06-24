@@ -123,6 +123,9 @@ void QwmConsoleSocket::handleSocketReadyRead()
                     emit receivedResponseCONFIG_READ(configReadKeyName, inputBuffer.join("").toUtf8());
                     configReadKeyName.clear();
                 }
+
+            } else if (activeCommand == "VERSION") {
+                emit receivedResponseVERSION(inputBuffer.first());
             }
 
             emit commandCompleted(activeCommand);
@@ -196,6 +199,14 @@ void QwmConsoleSocket::sendCommandCONFIG_READ(QString configName)
 {
     configReadKeyName = configName;
     sendCommand(QString("CONFIG READ %1").arg(configName));
+}
+
+
+/*! Request the version number string form the server.
+*/
+void QwmConsoleSocket::sendCommandVERSION()
+{
+    sendCommand("VERSION");
 }
 
 

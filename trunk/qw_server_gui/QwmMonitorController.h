@@ -24,6 +24,7 @@ private slots:
     void handleCommandSTAT(QHash<QString,QString> parameters);
     void handleCommandTRANSFERS(QList<QwTransferInfo> transfers);
     void handleCommandUSERS(QList<QwUser> users);
+    void handleCommandVERSION(QString version);
     void handleCommandCONFIG_READ(QString configName, QByteArray configValue);
     void handleLogMessage(const QString logMessage);
 

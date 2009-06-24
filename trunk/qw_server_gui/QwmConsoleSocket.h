@@ -31,6 +31,7 @@ public slots:
     void sendCommandKICK(int userId);
     void sendCommandCONFIG_WRITE(QString configName, QByteArray configValue);
     void sendCommandCONFIG_READ(QString configName);
+    void sendCommandVERSION();
 
 private slots:
 
@@ -46,6 +47,7 @@ signals:
     void receivedResponseTRANSFERS(QList<QwTransferInfo> transfers);
     void receivedResponseUSERS(QList<QwUser> users);
     void receivedResponseCONFIG_READ(QString configName, QByteArray configValue);
+    void receivedResponseVERSION(QString version);
     void receivedLogMessage(const QString logMessage);
 
 private:

@@ -18,6 +18,8 @@ QwmMonitorController::QwmMonitorController(QObject *parent) : QObject(parent)
             this, SLOT(handleCommandUSERS(QList<QwUser>)));
     connect(socket, SIGNAL(receivedLogMessage(const QString)),
             this, SLOT(handleLogMessage(const QString)));
+    connect(socket, SIGNAL(receivedResponseVERSION(QString)),
+            this, SLOT(handleCommandVERSION(QString)));
 
     connect(socket, SIGNAL(receivedResponseCONFIG_READ(QString,QByteArray)),
             this, SLOT(handleCommandCONFIG_READ(QString,QByteArray)));
@@ -177,6 +179,7 @@ void QwmMonitorController::handleCommandCompleted(QString command)
     } else if (command == "AUTH") {
         qDebug() << "Requesting server banner...";
         socket->sendCommandCONFIG_READ("server/banner");
+        socket->sendCommandVERSION();
     }
 }
 
@@ -254,6 +257,12 @@ void QwmMonitorController::handleCommandUSERS(QList<QwUser> users)
         monitorWindow->fUsersList->setCurrentItem(results.takeFirst());
     }
 
+}
+
+
+void QwmMonitorController::handleCommandVERSION(QString version)
+{
+    monitorWindow->fStatsServerVersion->setText(version);
 }
 
 
