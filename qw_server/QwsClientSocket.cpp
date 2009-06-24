@@ -16,6 +16,10 @@
 #include <QDirIterator>
 #include <QtSql>
 
+#ifdef Q_OS_UNIX
+#include <sys/statvfs.h>
+#endif
+
 QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
 {
     qRegisterMetaType<QwMessage>();
@@ -870,7 +874,19 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
     // End of list
     QwMessage reply("411");
     reply.appendArg(targetDirectory.path);
+
+
+#ifdef Q_OS_UNIX
+    struct statvfs diskInfo;
+    if (statvfs("/", &diskInfo) == 0) {
+        reply.appendArg(QString::number((qlonglong)diskInfo.f_bfree * (qlonglong)diskInfo.f_frsize));
+    } else {
+        reply.appendArg("0");
+    }
+#else
     reply.appendArg("0");
+#endif
+
     sendMessage(reply);
 }
 
@@ -1304,9 +1320,9 @@ void QwsClientSocket::sendServerInfo()
      response.appendArg("3.0"); // proto-version
      response.appendArg("Qwired Server");
      response.appendArg("A very early Qwired Server build.");
-     response.appendArg(""); // start time
-     response.appendArg("31337"); // file count
-     response.appendArg("1024"); // total size
+     response.appendArg(QDateTime::currentDateTime().toString(Qt::ISODate)+"+00:00"); // start time
+     response.appendArg("0"); // file count
+     response.appendArg("0"); // total size
      sendMessage(response);
 }
 
