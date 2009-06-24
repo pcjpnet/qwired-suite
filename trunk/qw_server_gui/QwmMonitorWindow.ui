@@ -21,7 +21,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="iconSize">
       <size>
@@ -29,7 +29,7 @@
        <height>20</height>
       </size>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tabStatus">
       <attribute name="icon">
        <iconset resource="../qw_client/application.qrc">
         <normaloff>:/icons/icn_trackerserver.png</normaloff>:/icons/icn_trackerserver.png</iconset>
@@ -54,7 +54,13 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QTextBrowser" name="fStatsLog"/>
+           <widget class="QTextBrowser" name="fStatsLog">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -396,7 +402,10 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="tabConfiguration">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <attribute name="icon">
        <iconset resource="../qw_client/application.qrc">
         <normaloff>:/icons/icn_quit.png</normaloff>:/icons/icn_quit.png</iconset>
@@ -533,7 +542,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="tabTransfers">
       <attribute name="icon">
        <iconset resource="../qw_client/application.qrc">
         <normaloff>:/icons/icn_download.png</normaloff>:/icons/icn_download.png</iconset>
@@ -593,7 +602,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tabUsers">
       <attribute name="icon">
        <iconset resource="../qw_client/application.qrc">
         <normaloff>:/icons/16x16/system-users.png</normaloff>:/icons/16x16/system-users.png</iconset>

@@ -247,7 +247,8 @@ void QwsServerController::reindexFiles()
 */
 void QwsServerController::qwLog(QString message)
 {
-    QString data = QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(message);
+//    QString data = QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(message);
+    QString data = message;
     if (logToStdout) {
         QTextStream stream(stdout);
         stream << data << endl;
