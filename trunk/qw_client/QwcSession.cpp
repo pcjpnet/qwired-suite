@@ -939,6 +939,8 @@ void QwcSession::doActionFiles(QString initialPath)
 
         connect(mainFileWidget, SIGNAL(requestedRefresh(QString)),
                 socket, SLOT(getFileList(QString)));
+        connect(mainFileWidget, SIGNAL(requestedInformation(QString)),
+                socket, SLOT(statFile(QString)));
 
         connect(socket, SIGNAL(onFilesListItem(QwcFileInfo)),
                 mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));

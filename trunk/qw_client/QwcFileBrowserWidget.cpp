@@ -113,6 +113,7 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
     waitingForListItems = false;
     this->setEnabled(true);
     btnBack->setEnabled(remotePath != "/");
+    fList->resizeColumnToContents(0);
 }
 
 
