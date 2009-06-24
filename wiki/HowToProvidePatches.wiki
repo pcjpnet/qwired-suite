@@ -8,7 +8,7 @@ Making changes to existing source code is often a lot of work that is easily los
 To ensure the best results when making changes to Qwired source code, your changes to the source files must be recorded into a so called _patch file_ or _diff file_. These _patch_ files contain just the information about what has been changed since the last time.
 
 Wikipedia contains some more detailed information:
-http://en.wikipedia.org/wiki/Patch_(computing)
+[http://en.wikipedia.org/wiki/Patch_(computing)]
 
 
 = Sounds like more work than needed, why not just send the whole file? =
