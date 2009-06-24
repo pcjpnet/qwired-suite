@@ -380,6 +380,29 @@
                 </property>
                </widget>
               </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Server Version:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLabel" name="fStatsServerVersion">
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string notr="true">n/a</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
@@ -543,6 +566,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabTransfers">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <attribute name="icon">
        <iconset resource="../qw_client/application.qrc">
         <normaloff>:/icons/icn_download.png</normaloff>:/icons/icn_download.png</iconset>
@@ -603,6 +629,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabUsers">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <attribute name="icon">
        <iconset resource="../qw_client/application.qrc">
         <normaloff>:/icons/16x16/system-users.png</normaloff>:/icons/16x16/system-users.png</iconset>

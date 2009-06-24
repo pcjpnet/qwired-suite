@@ -119,6 +119,11 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
                       "file indexer is started every 24 hours.");
             writeLine("+OK");
             return;
+
+        } else if (commandArg == "VERSION") {
+            writeLine("VERSION  returns the version string of the server software.");
+            writeLine("+OK");
+            return;
         }
 
         writeLine("ABORT <id>     (admin) Abort a specific file transfer.");
@@ -135,6 +140,7 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         writeLine("TRANSFERS      (admin) Print currently active and queued transfers.");
         writeLine("USER <id>      (admin) Display information about a specific user.");
         writeLine("USERS          (admin) Print currently connected users.");
+        writeLine("VERSION        Display the software version of the server software.");
         writeLine("+OK");
 
     } else if (commandName == "TRANSFERS") {
@@ -337,6 +343,10 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         writeLine("+OK");
         socket->disconnectFromHost();
         emit error(QAbstractSocket::RemoteHostClosedError);
+
+    } else if (commandName == "VERSION") {
+        writeLine(QWS_VERSION);
+        writeLine("+OK");
 
     } else {
         writeLine("+ERROR");
