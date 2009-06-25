@@ -290,8 +290,8 @@ void QwcSession::setupConnections()
     connect(socket, SIGNAL(serverBannerReceived(QPixmap)),
             this, SLOT(setBannerView(QPixmap)) );
 
-
-    connect(socket, SIGNAL(fileInformation(QwcFileInfo)), this, SLOT(fileInformation(QwcFileInfo)) );
+    connect(socket, SIGNAL(fileInformation(QwcFileInfo)),
+            this, SLOT(handleFileInformation(QwcFileInfo)) );
 
     connect(socket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
     connect(socket, SIGNAL(userLeftRoom(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
@@ -346,32 +346,13 @@ void QwcSession::setupConnections()
 }
 
 
-/**
- * Received information about a file (get info) from the server. Create a new window or
- * display the old window respectively.
- * @param theFile The information about the file.
- */
-void QwcSession::fileInformation(QwcFileInfo theFile)
+/*! Handle file information (STAT) returned from the server.
+    Normally this is passed to a file browser, which then displays the information about a file.
+*/
+void QwcSession::handleFileInformation(QwcFileInfo file)
 {
-    QwcFileInfoWidget *win=0;
-
-    if(pFileInfos.contains(theFile.path)) {
-        win = pFileInfos[theFile.path];
-    }
-
-    if(!win) {
-        win = new QwcFileInfoWidget();
-        win->setParent(connectionWindow, Qt::Window);
-        pFileInfos[theFile.path] = win;
-    }
-
-    if(win) {
-        win->loadFromFile(theFile);
-        win->fName->setReadOnly(!socket->sessionUser.privAlterFiles);
-        win->fComments->setReadOnly(!socket->sessionUser.privAlterFiles);
-        win->show();
-        win->raise();
-    }
+    if (!mainFileWidget) { return; }
+    mainFileWidget->setFileInformation(file);
 }
 
 

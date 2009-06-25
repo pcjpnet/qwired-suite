@@ -18,6 +18,8 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) : QWidget(parent)
     totalUsedSpace = 0;
     freeRemoteSpace = 0;
     labelCurrentPath->setText("/");
+
+    stackedWidget->setCurrentWidget(pageBrowser);
 }
 
 
@@ -32,6 +34,21 @@ void QwcFileBrowserWidget::resetForListing()
     freeRemoteSpace = 0;
     waitingForListItems = true;
     this->setEnabled(false);
+}
+
+
+/*! Set the information about a file on the info display page.
+*/
+void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
+{
+    infoName->setText(file.fileName());
+    infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
+    infoSize->setText(QString("%1 (%2 bytes)").arg(QwcFileInfo::humanReadableSize(file.size)).arg(file.size));
+    infoPath->setText(file.path);
+    infoModified->setText(file.modified.toString());
+    infoCreated->setText(file.created.toString());
+    infoChecksum->setText(file.checksum);
+    infoComment->setText(file.comment);
 }
 
 
@@ -240,12 +257,11 @@ void QwcFileBrowserWidget::on_btnBack_clicked()
 void QwcFileBrowserWidget::on_btnInfo_clicked()
 {
     QList<QTreeWidgetItem*> items = fList->selectedItems();
-    QListIterator<QTreeWidgetItem*> i(items);
-    while (i.hasNext()) {
-        QTreeWidgetItem *item = i.next();
-        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-        emit requestedInformation(itemInfo.path);
-    }
+    if (items.count() == 0) { return; }
+    QTreeWidgetItem *item = items.first();
+    QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+    emit requestedInformation(itemInfo.path);
+    stackedWidget->setCurrentWidget(pageInfo);
 }
 
 
@@ -305,6 +321,13 @@ void QwcFileBrowserWidget::fileTransferDone(QwcTransferInfo transfer)
 //    pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
 }
 
+
+/*! The "Cancel" button of the info page has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnInfoCancel_clicked()
+{
+    stackedWidget->setCurrentWidget(pageBrowser);
+}
 
 
 
