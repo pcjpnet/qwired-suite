@@ -73,7 +73,6 @@ FORMS += QwcConnectionMainWindow.ui \
     QwcFiletransferWidget.ui \
     QwcFileSearchWidget.ui \
     QwcAccountsWidget.ui \
-    QwcFileInfoWidget.ui \
     QwcTrackerlistWidget.ui \
     QwcAboutWidget.ui \
     QwcPrivateMessager.ui
@@ -103,7 +102,6 @@ HEADERS += QwcSession.h \
     singleton.h \
     QwcColorButton.h \
     QwcAccountsWidget.h \
-    QwcFileInfoWidget.h \
     QwcTrackerlistWidget.h \
     QwcTrackerServerInfo.h \
     QwcAboutWidget.h \

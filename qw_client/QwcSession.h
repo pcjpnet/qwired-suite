@@ -15,7 +15,6 @@
 #include "QwcFileSearchWidget.h"
 #include "QwcAccountsWidget.h"
 #include "QwcTrackerlistWidget.h"
-#include "QwcFileInfoWidget.h"
 #include "QwcServerInfoWidget.h"
 #include "QwcPrivateMessager.h"
 
@@ -63,7 +62,6 @@ public:
     QPointer<QwcNewsWidget> pWinNews;
     QPointer<QwcUserlistModel> pUserListModel;
     QHash<int, QPointer<QwcChatWidget> > pChats;
-    QHash<QString,QPointer<QwcFileInfoWidget> > pFileInfos;
 
     QPointer<QwcServerInfoWidget> mainServerInfoWidget;
     QPointer<QwcPreferencesWidget> pPrefsWindow;
@@ -108,7 +106,7 @@ private slots:
     void onSocketPrivileges(QwcUserInfo);
     void doActionTrackers();
 
-    void fileInformation(QwcFileInfo theFile);
+    void handleFileInformation(QwcFileInfo file);
 
     void userJoined(int theChat, QwcUserInfo theUser);
     void userLeft(int theChat, QwcUserInfo theUser);

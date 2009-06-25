@@ -30,6 +30,7 @@ public:
     QString remotePath;
 
     void resetForListing();
+    void setFileInformation(QwcFileInfo file);
 
 //    void dragEnterEvent(QDragEnterEvent *event);
 //    void dropEvent(QDropEvent *event);
@@ -54,6 +55,9 @@ private slots:
     void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void fileTransferDone(QwcTransferInfo);
 
+    // Info page
+    void on_btnInfoCancel_clicked();
+
 
 private:
     /*! This member is true if the browser is expecting more list items. */
@@ -72,7 +76,6 @@ public slots:
     void on_fBtnDownload_clicked(bool checked);
 
     void on_fBtnUpload_clicked(bool checked);
-    void on_fBtnNewFolder_clicked(bool checked);
     void on_fFilter_textEdited(QString);
 
 
