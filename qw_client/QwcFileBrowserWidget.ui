@@ -164,9 +164,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="fBtnNewFolder">
+      <widget class="QToolButton" name="btnNewFolder">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="toolTip">
         <string>New Folder...</string>

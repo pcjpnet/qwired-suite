@@ -943,6 +943,8 @@ void QwcSession::doActionFiles(QString initialPath)
                 socket, SLOT(statFile(QString)));
         connect(mainFileWidget, SIGNAL(requestedDelete(QString)),
                 socket, SLOT(deleteFile(QString)));
+        connect(mainFileWidget, SIGNAL(requestedNewFolder(QString)),
+                socket, SLOT(createFolder(QString)));
 
         connect(socket, SIGNAL(onFilesListItem(QwcFileInfo)),
                 mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));

@@ -41,10 +41,13 @@ signals:
     void requestedInformation(QString path);
     /*! This signal is emitted when a path needs to be deleted. */
     void requestedDelete(QString path);
+    /*! This signal is emitted when a new folder should be created. */
+    void requestedNewFolder(QString path);
 
 private slots:
     void on_btnBack_clicked();
     void on_btnInfo_clicked();
+    void on_btnNewFolder_clicked();
     void on_btnRefresh_clicked();
     void on_btnDelete_clicked();
     void on_fList_itemSelectionChanged();
