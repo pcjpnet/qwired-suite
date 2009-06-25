@@ -211,19 +211,6 @@ void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
 }
 
 
-void QwcFileBrowserWidget::on_fBtnNewFolder_clicked(bool)
-{
-//    QString tmpFolderName = QInputDialog::getText(this,
-//                                                  tr("Create Folder"), tr("Enter a name for the new folder:"));
-//    if(!tmpFolderName.isEmpty()) {
-//        tmpFolderName = tmpFolderName.replace("/","_");
-//        pSession->wiredSocket()->createFolder( pModel->pCurrentPath+"/"+tmpFolderName );
-//        pModel->clearList();
-//        pModel->pWaitingForList = true;
-//        pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
-//    }
-}
-
 
 //
 // Drag And Drop
