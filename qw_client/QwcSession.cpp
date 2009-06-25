@@ -361,8 +361,13 @@ void QwcSession::handleFileInformation(QwcFileInfo file)
 void QwcSession::onSocketPrivileges(QwcUserInfo s)
 {
     connectionWindow->actionAccounts->setEnabled(s.privEditAccounts);
-    if (!pWinNews.isNull()) {
+
+    if (pWinNews) {
         pWinNews->setupFromUser(socket->sessionUser);
+    }
+
+    if (mainFileWidget) {
+        mainFileWidget->setUserInformation(s);
     }
 }
 
@@ -917,6 +922,7 @@ void QwcSession::doActionFiles(QString initialPath)
         mainFileWidget = new QwcFileBrowserWidget();
         mainFileWidget->resetForListing();
         mainFileWidget->remotePath = initialPath;
+        mainFileWidget->setUserInformation(socket->sessionUser);
 
         connect(mainFileWidget, SIGNAL(requestedRefresh(QString)),
                 socket, SLOT(getFileList(QString)));
