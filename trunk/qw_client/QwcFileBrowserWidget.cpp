@@ -49,6 +49,26 @@ void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
     infoCreated->setText(file.created.toString());
     infoChecksum->setText(file.checksum);
     infoComment->setText(file.comment);
+
+    switch (file.type) {
+    case Qw::FileTypeDropBox:
+        infoKind->setText(tr("Drop Box"));
+        break;
+    case Qw::FileTypeFolder:
+        infoKind->setText(tr("Folder"));
+        break;
+    case Qw::FileTypeRegular:
+        infoKind->setText(tr("File"));
+        break;
+    case Qw::FileTypeUploadsFolder:
+        infoKind->setText(tr("Upload Folder"));
+        break;
+    default:
+        infoKind->setText(tr("n/a"));
+    }
+
+    pageInfo->setEnabled(true);
+
 }
 
 
@@ -249,6 +269,7 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
     QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
     emit requestedInformation(itemInfo.path);
     stackedWidget->setCurrentWidget(pageInfo);
+    pageInfo->setEnabled(false);
 }
 
 
