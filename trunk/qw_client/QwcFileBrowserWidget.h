@@ -5,6 +5,7 @@
 
 #include "QwcTransferInfo.h"
 #include "QwcFileInfo.h"
+#include "QwcUserInfo.h"
 
 #include <QPointer>
 #include <QSortFilterProxyModel>
@@ -28,9 +29,14 @@ public:
 
     /*! The path to the current directory on the remote server. */
     QString remotePath;
+    /*! Information about the current directory/folder. */
+    QwcFileInfo currentFolderInfo;
+    /*! A copy of the user info object for the current session. */
+    QwcUserInfo userInfo;
 
     void resetForListing();
     void setFileInformation(QwcFileInfo file);
+    void setUserInformation(QwcUserInfo info);
 
 //    void dragEnterEvent(QDragEnterEvent *event);
 //    void dropEvent(QDropEvent *event);
@@ -57,6 +63,7 @@ private slots:
 
     // Info page
     void on_btnInfoCancel_clicked();
+    void on_btnInfoApply_clicked();
 
 
 private:
@@ -73,9 +80,9 @@ public slots:
     void handleFilesListItem(QwcFileInfo item);
     void handleFilesListDone(QString path, qlonglong freeSpace);
 
-    void on_fBtnDownload_clicked(bool checked);
+//    void on_fBtnDownload_clicked(bool checked);
 
-    void on_fBtnUpload_clicked(bool checked);
+//    void on_fBtnUpload_clicked(bool checked);
     void on_fFilter_textEdited(QString);
 
 

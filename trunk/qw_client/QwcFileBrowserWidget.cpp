@@ -68,9 +68,25 @@ void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
     }
 
     pageInfo->setEnabled(true);
-
 }
 
+
+/*! Set the user information for the current session. This will enable/disable features based on the
+    set of privileges the user has.
+*/
+void QwcFileBrowserWidget::setUserInformation(QwcUserInfo info)
+{
+    userInfo = info;
+
+    // Browser page
+    btnDelete->setVisible(info.privDeleteFiles);
+    btnNewFolder->setVisible(info.privCreateFolders);
+
+    // Info page
+    btnInfoApply->setEnabled(info.privAlterFiles);
+    infoName->setEnabled(info.privAlterFiles);
+    infoComment->setReadOnly(!info.privAlterFiles);
+}
 
 //void QwcFileBrowserWidget::initWithConnection(QwcSession *theSession)
 //{
@@ -151,6 +167,20 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
     this->setEnabled(true);
     btnBack->setEnabled(remotePath != "/");
     fList->resizeColumnToContents(0);
+
+    // Set the root information as we don't get this from previous requests.
+    if (remotePath == "/") {
+        currentFolderInfo = QwcFileInfo();
+        currentFolderInfo.path = "/";
+        currentFolderInfo.type = Qw::FileTypeFolder;
+    }
+
+    // Enable/disable upload/download as needed
+    btnUpload->setEnabled(
+            (userInfo.privUploadAnywhere) ||
+            (currentFolderInfo.type == Qw::FileTypeUploadsFolder && userInfo.privUpload) ||
+            (currentFolderInfo.type == Qw::FileTypeDropBox && userInfo.privUpload) );
+
 }
 
 
@@ -192,8 +222,8 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
 
 
 // Download button pressed
-void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
-{
+//void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
+//{
 //    if(!pSession->wiredSocket()->sessionUser.privDownload) return;
 //    QListIterator<QModelIndex> i(fList->selectionModel()->selectedRows(0));
 //    while(i.hasNext()) {
@@ -210,12 +240,12 @@ void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
 //        }
 //    }
 //    pSession->doActionTransfers();
-}
+//}
 
 
 
-void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
-{
+//void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
+//{
 //    QStringList files = QFileDialog::getOpenFileNames(this, tr("Upload File"), QDir::homePath());
 //    QStringListIterator i(files);
 //    while (i.hasNext()) {
@@ -228,7 +258,7 @@ void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
 //    }
 //    // Display the transfer pane
 //    pSession->doActionTransfers();
-}
+//}
 
 
 
@@ -302,6 +332,8 @@ void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
 {
     btnInfo->setEnabled(fList->selectedItems().count());
     btnDelete->setEnabled(fList->selectedItems().count());
+
+    btnDownload->setEnabled(fList->selectedItems().count() && userInfo.privDownload);
 }
 
 
@@ -316,6 +348,7 @@ void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int
         || fileInfo.type == Qw::FileTypeUploadsFolder)
     {
         remotePath = fileInfo.path;
+        currentFolderInfo = fileInfo;
         resetForListing();
         emit requestedRefresh(remotePath);
     }
@@ -341,6 +374,12 @@ void QwcFileBrowserWidget::on_btnInfoCancel_clicked()
 }
 
 
+/*! The "Apply" button of the info page has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnInfoApply_clicked()
+{
+
+}
 
 
 
