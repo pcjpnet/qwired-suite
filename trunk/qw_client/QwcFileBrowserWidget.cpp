@@ -249,6 +249,26 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
 }
 
 
+/*! The "New Folder" button has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnNewFolder_clicked()
+{
+    QString folderName = QInputDialog::getText(this,
+        tr("Create Folder"), tr("Enter a name for the new folder:"));
+
+    if (folderName.isEmpty()) {
+        QMessageBox::warning(this, tr("No name defined"),
+            tr("Can not create a folder without a name. Please enter a name for the new folder."));
+        return;
+    }
+
+    folderName = folderName.replace("/","_");
+    emit requestedNewFolder(remotePath + "/" + folderName);
+    resetForListing();
+    emit requestedRefresh(remotePath);
+}
+
+
 /*! Another item was selected from the list.
 */
 void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
