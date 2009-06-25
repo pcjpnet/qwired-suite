@@ -277,9 +277,12 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
 */
 void QwcFileBrowserWidget::on_btnNewFolder_clicked()
 {
+    bool ok;
     QString folderName = QInputDialog::getText(this,
-        tr("Create Folder"), tr("Enter a name for the new folder:"));
+        tr("Create Folder"), tr("Enter a name for the new folder:"),
+        QLineEdit::Normal, QString(), &ok);
 
+    if (!ok) { return; }
     if (folderName.isEmpty()) {
         QMessageBox::warning(this, tr("No name defined"),
             tr("Can not create a folder without a name. Please enter a name for the new folder."));
