@@ -31,6 +31,8 @@ public:
     QString remotePath;
     /*! Information about the current directory/folder. */
     QwcFileInfo currentFolderInfo;
+    /*! Information about the currently selected file/folder in the list (for get info) */
+    QwcFileInfo currentFileInfo;
     /*! A copy of the user info object for the current session. */
     QwcUserInfo userInfo;
 
@@ -50,6 +52,8 @@ signals:
     void requestedDelete(QString path);
     /*! This signal is emitted when a new folder should be created. */
     void requestedNewFolder(QString path);
+    /*! This signal is emitted when a file/folder is modified, moved or otherwise changed. */
+    void requestedPathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo);
 
 private slots:
     void on_btnBack_clicked();

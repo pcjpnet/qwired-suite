@@ -20,6 +20,8 @@ public:
     QwFile();
 
     QString fileName() const;
+    QString directoryPath() const;
+
     void updateLocalChecksum();
 
     /*! The relative location of the file or directory in the server's [protocol] file system. */

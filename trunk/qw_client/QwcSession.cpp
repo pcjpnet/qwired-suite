@@ -778,6 +778,24 @@ void QwcSession::onConnectAborted()
 }
 
 
+/*! This method handles the modification of files and folders. This is conencted to the
+    \a requestedPathChanged() signal of the file browser and dispatches further handling to
+    the socket.
+*/
+void QwcSession::handlePathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo)
+{
+    if (oldInfo.comment != newInfo.comment) {
+        qDebug() << "Setting new file comment on" << oldInfo.path;
+        wiredSocket()->setFileComment(newInfo.path, newInfo.comment);
+    }
+
+    if (oldInfo.path != newInfo.path) {
+        qDebug() << "Moveing from" << oldInfo.path << "to" << newInfo.path;
+        wiredSocket()->moveFile(oldInfo.path, newInfo.path);
+    }
+}
+
+
 // === ACTIONS FROM THE MAIN WINDOW === //
 // ==================================== //
 
@@ -932,6 +950,8 @@ void QwcSession::doActionFiles(QString initialPath)
                 socket, SLOT(deleteFile(QString)));
         connect(mainFileWidget, SIGNAL(requestedNewFolder(QString)),
                 socket, SLOT(createFolder(QString)));
+        connect(mainFileWidget, SIGNAL(requestedPathChange(QwcFileInfo,QwcFileInfo)),
+                this, SLOT(handlePathChange(QwcFileInfo,QwcFileInfo)));
 
         connect(socket, SIGNAL(onFilesListItem(QwcFileInfo)),
                 mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));
