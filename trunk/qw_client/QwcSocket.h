@@ -117,6 +117,8 @@ public slots:
     void setUserStatus(QString theStatus);
     void statFile(const QString thePath);
 
+    void setFileComment(QString path, QString comment);
+
 private slots:
     void handleTransferDone(const QwcTransferInfo &transfer);
     void handleTransferError(const QwcTransferInfo &transfer);
