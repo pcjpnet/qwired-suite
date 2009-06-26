@@ -336,8 +336,6 @@ void QwcSession::setupConnections()
              this, SLOT(doActionPreferences()));
     connect( connectionWindow->actionTrackers, SIGNAL(triggered(bool)),
              this, SLOT(doActionTrackers()) );
-    connect( connectionWindow->actionSearch, SIGNAL(triggered(bool)),
-             this, SLOT(doActionFileSearch()) );
     connect( connectionWindow->actionTransfers, SIGNAL(triggered(bool)),
              this, SLOT(doActionTransfers()) );
     //connect( connectionWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
@@ -543,7 +541,6 @@ void QwcSession::setConnectionToolButtonsEnabled(bool theEnable)
     connectionWindow->actionInformation->setEnabled(theEnable);
     connectionWindow->actionNewsPost->setEnabled(theEnable);
     connectionWindow->actionBroadcast->setEnabled(theEnable);
-    connectionWindow->actionSearch->setEnabled(theEnable);
 }
 
 
@@ -601,7 +598,6 @@ void QwcSession::setTrayMenuAction(QMenu *action)
     pTrayMenuItem->addAction(connectionWindow->actionNews);
     pTrayMenuItem->addAction(connectionWindow->actionFiles);
     pTrayMenuItem->addAction(connectionWindow->actionTransfers);
-    pTrayMenuItem->addAction(connectionWindow->actionSearch);
     pTrayMenuItem->addAction(connectionWindow->actionDisconnect);
     pTrayMenuItem->addAction(tmpShowHide);
 }
@@ -1029,25 +1025,6 @@ void QwcSession::doActionTrackers()
         pWinTrackers->show();
     } else {
         pWinTrackers->raise();
-    }
-}
-
-
-/// Show the file search dialog.
-void QwcSession::doActionFileSearch()
-{
-    if(!pFileSearch) {
-        pFileSearch = new QwcFileSearchWidget(connectionWindow);
-        int tmpIdx = connectionTabWidget->addTab(pFileSearch, tr("File Search"));
-        connectionTabWidget->setCurrentIndex(tmpIdx);
-        connect( socket, SIGNAL(fileSearchDone(QList<QwcFileInfo>)),
-                 pFileSearch, SLOT(updateResults(QList<QwcFileInfo>)) );
-        connect( pFileSearch, SIGNAL(search(QString)), socket, SLOT(searchFiles(QString)) );
-        connect( pFileSearch, SIGNAL(downloadFile(QString)), this, SLOT(search_download_file(QString)) );
-        connect( pFileSearch, SIGNAL(revealFile(QString)), this, SLOT(search_reveal_file(QString)) );
-    } else {
-        int tmpIdx = connectionTabWidget->indexOf(pFileSearch);
-        connectionTabWidget->setCurrentIndex(tmpIdx);
     }
 }
 

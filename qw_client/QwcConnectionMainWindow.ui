@@ -72,7 +72,6 @@
    <addaction name="actionNews"/>
    <addaction name="actionMessages"/>
    <addaction name="actionFiles"/>
-   <addaction name="actionSearch"/>
    <addaction name="actionTransfers"/>
    <addaction name="actionAccounts"/>
    <addaction name="separator"/>
@@ -94,7 +93,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/disconnect.png</normaloff>:/icons/disconnect.png</iconset>
    </property>
    <property name="text">
@@ -126,7 +125,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/32x32/help-browser.png</normaloff>:/icons/32x32/help-browser.png</iconset>
    </property>
    <property name="text">
@@ -144,7 +143,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/32x32/face-smile.png</normaloff>:/icons/32x32/face-smile.png</iconset>
    </property>
    <property name="text">
@@ -162,7 +161,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/32x32/internet-news-reader.png</normaloff>:/icons/32x32/internet-news-reader.png</iconset>
    </property>
    <property name="text">
@@ -180,7 +179,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/files.png</normaloff>:/icons/files.png</iconset>
    </property>
    <property name="text">
@@ -198,7 +197,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/transfers.png</normaloff>:/icons/transfers.png</iconset>
    </property>
    <property name="text">
@@ -216,7 +215,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/accounts.png</normaloff>:/icons/accounts.png</iconset>
    </property>
    <property name="text">
@@ -264,21 +263,6 @@
     <string>Ctrl+Shift+B</string>
    </property>
   </action>
-  <action name="actionSearch">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/icons/filesearch.png</normaloff>:/icons/filesearch.png</iconset>
-   </property>
-   <property name="text">
-    <string>Search</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+F</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="text">
     <string>Preferences...</string>
@@ -311,7 +295,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="application.qrc">
      <normaloff>:/icons/32x32/mail-message-new.png</normaloff>:/icons/32x32/mail-message-new.png</iconset>
    </property>
    <property name="text">
@@ -322,6 +306,9 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="application.qrc"/>
+  <include location="application.qrc"/>
+ </resources>
  <connections/>
 </ui>
