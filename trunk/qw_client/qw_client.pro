@@ -52,7 +52,6 @@ SOURCES += main.cpp \
     QwcFiletransferWidget.cpp \
     QwcFiletransferModel.cpp \
     QwcFiletransferDelegate.cpp \
-    QwcFileSearchWidget.cpp \
     QwcAccountsWidget.cpp \
     QwcTrackerlistWidget.cpp \
     QwcSingleton.cpp \
@@ -71,7 +70,6 @@ FORMS += QwcConnectionMainWindow.ui \
     QwcPreferencesWidget.ui \
     QwcConnectWidget.ui \
     QwcFiletransferWidget.ui \
-    QwcFileSearchWidget.ui \
     QwcAccountsWidget.ui \
     QwcTrackerlistWidget.ui \
     QwcAboutWidget.ui \
@@ -98,7 +96,6 @@ HEADERS += QwcSession.h \
     QwcGlobals.h \
     QwcFiletransferDelegate.h \
     QwcSingleton.h \
-    QwcFileSearchWidget.h \
     singleton.h \
     QwcColorButton.h \
     QwcAccountsWidget.h \

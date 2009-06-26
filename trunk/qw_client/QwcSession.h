@@ -12,7 +12,6 @@
 #include "QwcPreferencesWidget.h"
 #include "QwcConnectWidget.h"
 #include "QwcFiletransferWidget.h"
-#include "QwcFileSearchWidget.h"
 #include "QwcAccountsWidget.h"
 #include "QwcTrackerlistWidget.h"
 #include "QwcServerInfoWidget.h"
@@ -66,7 +65,6 @@ public:
     QPointer<QwcServerInfoWidget> mainServerInfoWidget;
     QPointer<QwcPreferencesWidget> pPrefsWindow;
     QPointer<QwcFiletransferWidget> pTranfersWindow;
-    QPointer<QwcFileSearchWidget> pFileSearch;
     QPointer<QwcAccountsWidget> pWinAccounts;
     QPointer<QwcTrackerlistWidget> pWinTrackers;
     QPointer<QwcFileBrowserWidget> mainFileWidget;
@@ -148,7 +146,6 @@ public slots:
     // Toolbar handlers
     void doActionPreferences();
     void doActionTransfers();
-    void doActionFileSearch();
 
 
     void search_download_file(QString);
