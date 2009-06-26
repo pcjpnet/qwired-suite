@@ -98,7 +98,12 @@ void QwcSession::handleProtocolError(Qw::ProtocolError error)
         case Qw::ErrorAccountExists: errorText=tr("Account Exists. Could not create the account you specified."); break;
         case Qw::ErrorCannotBeDisconnected: errorText=tr("User can not be disconnected. The specified user can not be disconnected."); break;
         case Qw::ErrorPermissionDenied: errorText=tr("Permission Denied. You don't have sufficient privileges to execute the last command."); break;
-        case Qw::ErrorFileOrDirectoryNotFound: errorText=tr("File or Directory not found. The last command could not be completed because the file or directory could not be found."); break;
+        case Qw::ErrorFileOrDirectoryNotFound:
+            errorText = tr("File or Directory not found. The last command could not be completed because the file or directory could not be found.");
+            if (mainFileWidget != 0 && connectionTabWidget->currentWidget() == mainFileWidget) {
+                mainFileWidget->stackedWidget->setCurrentWidget(mainFileWidget->pageBrowser);
+            }
+            break;
         case Qw::ErrorFileOrDirectoryExists: errorText=tr("The last command could not be completed because the file or directory already exists."); break;
         case Qw::ErrorChecksumMismatch: errorText=tr("Checksum Mismatch.");
         case Qw::ErrorQueueLimitExceeded: errorText=tr("Queue Limit Exceeded. Could not complete the last command because the server queue is full."); break;
@@ -952,17 +957,26 @@ void QwcSession::doActionFiles(QString initialPath)
                 socket, SLOT(createFolder(QString)));
         connect(mainFileWidget, SIGNAL(requestedPathChange(QwcFileInfo,QwcFileInfo)),
                 this, SLOT(handlePathChange(QwcFileInfo,QwcFileInfo)));
+        connect(mainFileWidget, SIGNAL(requestedFileSearch(QString)),
+                socket, SLOT(searchFiles(QString)));
+
 
         connect(socket, SIGNAL(onFilesListItem(QwcFileInfo)),
                 mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));
         connect(socket, SIGNAL(onFilesListDone(QString,qlonglong)),
                 mainFileWidget, SLOT(handleFilesListDone(QString,qlonglong)));
 
+        connect(socket, SIGNAL(fileSearchResultListItem(QwcFileInfo)),
+                mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));
+        connect(socket, SIGNAL(fileSearchResultListDone()),
+                mainFileWidget, SLOT(handleSearchResultListDone()));
+
         socket->getFileList(initialPath);
     }
 
     if (connectionTabWidget->indexOf(mainFileWidget) == -1) {
         connectionTabWidget->addTab(mainFileWidget, tr("Files"));
+        mainFileWidget->stackedWidget->setCurrentWidget(mainFileWidget->pageBrowser);
     }
 
     connectionTabWidget->setCurrentWidget(mainFileWidget);

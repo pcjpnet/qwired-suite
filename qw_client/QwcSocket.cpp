@@ -674,17 +674,17 @@ void QwcSocket::handleMessage411(const QwMessage &message)
 */
 void QwcSocket::handleMessage420(const QwMessage &message)
 {
-    QwcFileInfo tmpFile;
-    tmpFile.path = message.getStringArgument(0);
-    tmpFile.type = (Qw::FileType)message.getStringArgument(1).toInt();
-    tmpFile.size = message.getStringArgument(2).toLongLong();
-    tmpFile.created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
-    tmpFile.modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
-    if(pSearchResults.count()<1024) {
-        pSearchResults.append(tmpFile);
-    }
-
+    QwcFileInfo newInfo;
+    newInfo.path = message.getStringArgument(0);
+    newInfo.type = (Qw::FileType)message.getStringArgument(1).toInt();
+    newInfo.size = message.getStringArgument(2).toLongLong();
+    newInfo.created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
+    newInfo.modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
+//    if (fileSearchResults.count() > 2048) { return; }
+//    fileSearchResults.append(newInfo);
+    emit fileSearchResultListItem(newInfo);
 }
+
 
 /*! 421 Search Listing Done
     Search result list complete.
@@ -692,8 +692,8 @@ void QwcSocket::handleMessage420(const QwMessage &message)
 void QwcSocket::handleMessage421(const QwMessage &message)
 {
     Q_UNUSED(message);
-    emit fileSearchDone(pSearchResults);
-    pSearchResults.clear();
+    emit fileSearchResultListDone();
+//    fileSearchResults.clear();
 }
 
 
@@ -1357,6 +1357,10 @@ void QwcSocket::readGroup(QString theName)
     sendMessage(QwMessage("READGROUP").appendArg(theName));
 }
 
+
+/*! Search files on the server.
+    This will emit a \a fileSearchDone() signal.
+*/
 void QwcSocket::searchFiles(const QString theSearch)
 {
     sendMessage(QwMessage("SEARCH").appendArg(theSearch));

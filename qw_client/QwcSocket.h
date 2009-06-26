@@ -192,9 +192,15 @@ signals:
 
 
 
+    /*! This signal is emitted for each returned search result of the last. */
+    void fileSearchResultListItem(QwcFileInfo item);
+    /*! This signal is emitted when all results have been received. */
+    void fileSearchResultListDone();
 
-    void fileSearchDone(QList<QwcFileInfo> theResults);
+    /*! This signal is emitted when a new file list item has been received. */
     void onFilesListItem(QwcFileInfo file);
+    /*! This signal is emitted when the file listing is complete and also provides some information
+        about the server. */
     void onFilesListDone(QString thePath, qlonglong theFreeSpace);
     void onFilesListRecursiveDone(const QList<QwcFileInfo>);
     void onServerFileTransferReady(QwcTransferInfo theTransfer);
@@ -280,8 +286,8 @@ private:
     /// transactions, so we have to hope that this works well enough for now.
     int pInvitedUserID;
 
-    /// The temporary list of items for the search results.
-    QList<QwcFileInfo> pSearchResults;
+    /*! Contains a temporary list of file search results. */
+    QList<QwcFileInfo> fileSearchResults;
     QList<QwcTrackerServerInfo> pTrackerServers;
 
 
