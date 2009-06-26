@@ -1239,6 +1239,17 @@ void QwcSocket::statFile(const QString path)
 }
 
 
+/*! Set the comment of a file or folder on the server.
+*/
+void QwcSocket::setFileComment(QString path, QString comment)
+{
+    QwMessage reply("COMMENT");
+    reply.appendArg(path);
+    reply.appendArg(comment);
+    sendMessage(reply);
+}
+
+
 /*! Create a folder at the specified path.
 */
 void QwcSocket::createFolder(const QString path)
