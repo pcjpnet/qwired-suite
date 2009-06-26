@@ -98,6 +98,9 @@ private slots:
     void onConnectAborted();
 
 
+    // File browser
+    void handlePathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo);
+
     // Chat Window
     void onUserlistComplete(int chatId);
 

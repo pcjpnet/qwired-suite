@@ -18,6 +18,15 @@ QString QwFile::fileName() const
     return path.section("/", -1);
 }
 
+
+/*! Returns the path to the containing directory of this file/folder.
+*/
+QString QwFile::directoryPath() const
+{
+    return path.section("/", 0, -2, QString::SectionIncludeLeadingSep | QString::SectionIncludeTrailingSep);
+}
+
+
 /*! Calculate the checksum of the local path.
 */
 void QwFile::updateLocalChecksum()

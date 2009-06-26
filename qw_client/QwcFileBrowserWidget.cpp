@@ -296,8 +296,8 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
     QList<QTreeWidgetItem*> items = fList->selectedItems();
     if (items.count() == 0) { return; }
     QTreeWidgetItem *item = items.first();
-    QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-    emit requestedInformation(itemInfo.path);
+    currentFileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+    emit requestedInformation(currentFileInfo.path);
     stackedWidget->setCurrentWidget(pageInfo);
     pageInfo->setEnabled(false);
 }
@@ -378,7 +378,16 @@ void QwcFileBrowserWidget::on_btnInfoCancel_clicked()
 */
 void QwcFileBrowserWidget::on_btnInfoApply_clicked()
 {
+    QwcFileInfo newInfo = currentFileInfo;
+    newInfo.comment = infoComment->toPlainText();
 
+    // Replace all slashes to prevent corrupted names
+    newInfo.path = currentFileInfo.directoryPath() + infoName->text().replace("/", "_");
+
+    emit requestedPathChange(currentFileInfo, newInfo);
+    resetForListing();
+    emit requestedRefresh(currentFolderInfo.path);
+    stackedWidget->setCurrentWidget(pageBrowser);
 }
 
 
