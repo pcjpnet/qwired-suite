@@ -20,7 +20,7 @@ class QwcSession;
     such as download requests, get info requests and so on.
 */
 
-class QwcFileBrowserWidget : public QWidget, private Ui_QwcFileBrowserWidget
+class QwcFileBrowserWidget : public QWidget, public Ui_QwcFileBrowserWidget
 {
     Q_OBJECT
 
@@ -54,6 +54,8 @@ signals:
     void requestedNewFolder(QString path);
     /*! This signal is emitted when a file/folder is modified, moved or otherwise changed. */
     void requestedPathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo);
+    /*! This signal is emitted when the user has entered search terms to find files on the server. */
+    void requestedFileSearch(QString searchTerm);
 
 private slots:
     void on_btnBack_clicked();
@@ -61,6 +63,7 @@ private slots:
     void on_btnNewFolder_clicked();
     void on_btnRefresh_clicked();
     void on_btnDelete_clicked();
+    void on_findFilter_returnPressed();
     void on_fList_itemSelectionChanged();
     void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void fileTransferDone(QwcTransferInfo);
@@ -83,12 +86,7 @@ private:
 public slots:
     void handleFilesListItem(QwcFileInfo item);
     void handleFilesListDone(QString path, qlonglong freeSpace);
-
-//    void on_fBtnDownload_clicked(bool checked);
-
-//    void on_fBtnUpload_clicked(bool checked);
-    void on_fFilter_textEdited(QString);
-
+    void handleSearchResultListDone();
 
 };
 

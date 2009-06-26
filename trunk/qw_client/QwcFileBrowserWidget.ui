@@ -285,7 +285,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="fFilter"/>
+          <widget class="QLineEdit" name="findFilter">
+           <property name="toolTip">
+            <string>Enter search terms to find files on the server.</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

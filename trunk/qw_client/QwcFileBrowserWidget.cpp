@@ -88,31 +88,6 @@ void QwcFileBrowserWidget::setUserInformation(QwcUserInfo info)
     infoComment->setReadOnly(!info.privAlterFiles);
 }
 
-//void QwcFileBrowserWidget::initWithConnection(QwcSession *theSession)
-//{
-//    pModel = new QwcFilelistModel(this);
-//    pFilterProxy = new QSortFilterProxyModel(this);
-//    pFilterProxy->setSourceModel(pModel);
-//    pFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-//    pFilterProxy->setSortRole(Qt::UserRole);
-//
-//    pSession = theSession;
-//    connect( pSession->wiredSocket(), SIGNAL(onFilesListItem(QwcFileInfo)), pModel, SLOT(onServerFileListItem(QwcFileInfo)) );
-//    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), pModel, SLOT(onServerFileListDone(QString,qlonglong)) );
-//    connect( pSession->wiredSocket(), SIGNAL(onFilesListDone(QString,qlonglong)), this, SLOT(doUpdateBrowserStats(QString,qlonglong)) );
-//    connect( pSession->wiredSocket(), SIGNAL(fileTransferDone(QwcTransferInfo)), this, SLOT(fileTransferDone(QwcTransferInfo)) );
-//
-//    fList->setModel(pFilterProxy);
-//    fList->setAlternatingRowColors(true);
-//
-//    fBtnNewFolder->setEnabled( pSession->wiredSocket()->sessionUser.privCreateFolders );
-//}
-
-
-void QwcFileBrowserWidget::on_fFilter_textEdited(QString theFilter)
-{
-//    pFilterProxy->setFilterWildcard(theFilter);
-}
 
 
 
@@ -163,7 +138,6 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
                     .arg(fList->topLevelItemCount())
                     .arg(QwFile::humanReadableSize(totalUsedSpace))
                     .arg(QwFile::humanReadableSize(freeRemoteSpace)));
-    waitingForListItems = false;
     this->setEnabled(true);
     btnBack->setEnabled(remotePath != "/");
     fList->resizeColumnToContents(0);
@@ -181,6 +155,33 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
             (currentFolderInfo.type == Qw::FileTypeUploadsFolder && userInfo.privUpload) ||
             (currentFolderInfo.type == Qw::FileTypeDropBox && userInfo.privUpload) );
 
+
+    // Disable some controls if we are in "search mode"
+    if (!findFilter->text().isEmpty()) {
+        pageBrowser->setEnabled(true);
+    }
+
+}
+
+
+/*! Handle the end of the file search results list.
+*/
+void QwcFileBrowserWidget::handleSearchResultListDone()
+{
+
+    if (!waitingForListItems) { return; }
+    qDebug() << "DONE";
+    waitingForListItems = false;
+    freeRemoteSpace = 0;
+    fStats->setText(tr("%1 results for \"%2\"")
+                    .arg(fList->topLevelItemCount())
+                    .arg(findFilter->text()));
+    this->setEnabled(true);
+    fList->resizeColumnToContents(0);
+    currentFolderInfo = QwcFileInfo();
+    btnUpload->setEnabled(false);
+    btnRefresh->setEnabled(false);
+    labelCurrentPath->clear();
 }
 
 
@@ -218,6 +219,20 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
     // Reset the file browser
     resetForListing();
     emit requestedRefresh(remotePath);
+}
+
+
+/*! The user has pressed return and the server should now search for the files.
+*/
+void QwcFileBrowserWidget::on_findFilter_returnPressed()
+{
+    resetForListing();
+    if (!findFilter->text().isEmpty()) {
+        this->setEnabled(false);
+        emit requestedFileSearch(findFilter->text());
+    } else {
+        emit requestedRefresh("/");
+    }
 }
 
 
