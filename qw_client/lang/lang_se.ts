@@ -995,7 +995,7 @@ Detta kan inte ångras.</translation>
     <message>
         <location filename="../QwcNewsWidget.ui" line="120"/>
         <source>Post...</source>
-        <translation>Sänd...</translation>
+        <translation>Skicka...</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="166"/>
@@ -1005,7 +1005,7 @@ Detta kan inte ångras.</translation>
     <message>
         <location filename="../QwcNewsWidget.ui" line="190"/>
         <source>Compose a new article and press &quot;Post&quot; to send it to the server.</source>
-        <translation>Skriv en ny artikel och klicka &quot;Sänd&quot; för att skicka den till servern.</translation>
+        <translation>Skriv en ny artikel och klicka &quot;Skicka&quot; för att skicka den till servern.</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="224"/>
@@ -1015,7 +1015,7 @@ Detta kan inte ångras.</translation>
     <message>
         <location filename="../QwcNewsWidget.ui" line="238"/>
         <source>Post</source>
-        <translation>Sänd</translation>
+        <translation>Skicka</translation>
     </message>
     <message>
         <location filename="../QwcNewsWidget.ui" line="245"/>
