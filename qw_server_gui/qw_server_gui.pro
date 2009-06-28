@@ -16,7 +16,8 @@ RESOURCES += ../qw_client/application.qrc \
     qw_server_gui.qrc
 QT += network
 TRANSLATIONS = lang/lang_de.ts \
-    lang/lang_nl.ts
+    lang/lang_nl.ts \
+    lang/lang_jp.ts
 LIBS += ../bin/libqwlibrary.a
 INCLUDEPATH += ../qw_library
 ICON = icons/icon-server.icns
