@@ -22,7 +22,14 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A free and open Wired client for Linux, Windows and Mac OS X written in C++ using the Qt4 framework.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Qwired is available under the terms of the GPL (General Public License) Version 2 or later. Please see source code for more information.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Copyright (c) Bastian Bense, Neo Software.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; font-weight:600;&quot;&gt;Qwired&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;QwiredはQt4フレームワークとC++で作成されたフリーでオープンなLinux, Windows, Mac OS X の Wiredクライアントです。&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;QwiredはGPL (General Public License) Version 2以上のライセンスに基づきます。詳細はソースコードを参照してください。&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Copyright (c) Bastian Bense, Neo Software.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../QwcAboutWidget.ui" line="108"/>
@@ -46,7 +53,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcAccountsWidget.cpp" line="257"/>
         <source>Are you sure you want to delete the account/group &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>本当にユーザー／グループを削除しますか？</translation>
     </message>
     <message>
         <source>Create</source>
@@ -228,22 +235,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcAccountsWidget.ui" line="517"/>
         <source>Create New Account or Group...</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー／グループを作成...</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="540"/>
         <source>Edit Selected Account or Group...</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー／グループを編集...</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="563"/>
         <source>Refresh Accounts and Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー／グループを再読み込み...</translation>
     </message>
     <message>
         <location filename="../QwcAccountsWidget.ui" line="602"/>
         <source>Delete Selected Account or Group...</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザー／グループを削除...</translation>
     </message>
     <message>
         <source>Double-click on a user or group to edit, or click &quot;Create Group or Account...&quot; to create a new one.</source>
@@ -303,12 +310,12 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcChatWidget.ui" line="41"/>
         <source>Topic:</source>
-        <translation type="unfinished"></translation>
+        <translation>話題:</translation>
     </message>
     <message>
         <location filename="../QwcChatWidget.ui" line="56"/>
         <source>(none)</source>
-        <translation type="unfinished">（なし）</translation>
+        <translation>（なし）</translation>
     </message>
     <message>
         <location filename="../QwcChatWidget.ui" line="115"/>
@@ -352,27 +359,27 @@ Please enter a reason and press OK.</source>
         <location filename="../QwcConnectWidget.cpp" line="54"/>
         <location filename="../QwcConnectWidget.cpp" line="127"/>
         <source>Add Bookmark...</source>
-        <translation type="unfinished"></translation>
+        <translation>ブックマークに追加...</translation>
     </message>
     <message>
         <location filename="../QwcConnectWidget.cpp" line="57"/>
         <source>Create New Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>ブックマークを作成</translation>
     </message>
     <message>
         <location filename="../QwcConnectWidget.cpp" line="58"/>
         <source>Please enter a name for the new bookmark:</source>
-        <translation type="unfinished"></translation>
+        <translation>名称を入力してください。</translation>
     </message>
     <message>
         <location filename="../QwcConnectWidget.cpp" line="64"/>
         <source>Please enter a name for the bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>名称を入力してください。</translation>
     </message>
     <message>
         <location filename="../QwcConnectWidget.cpp" line="65"/>
         <source>You can not create a bookmark without a name. Entering a short and specific name for a bookmark helps to identify it later.</source>
-        <translation type="unfinished"></translation>
+        <translation>後で参照する時の為に、ブックマークには名称が必要です。</translation>
     </message>
     <message>
         <location filename="../QwcConnectWidget.cpp" line="154"/>
@@ -402,7 +409,7 @@ Please enter a reason and press OK.</source>
     <message>
         <location filename="../QwcConnectWidget.ui" line="182"/>
         <source>Bookmarks...</source>
-        <translation type="unfinished"></translation>
+        <translation>ブックマーク...</translation>
     </message>
     <message>
         <location filename="../QwcConnectWidget.ui" line="212"/>
@@ -1594,47 +1601,47 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="35"/>
         <source>My Great Server</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="108"/>
         <source>Server Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>サーバー統計</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="120"/>
         <source>Server Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>説明:</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="149"/>
         <source>Server Uptime:</source>
-        <translation type="unfinished"></translation>
+        <translation>起動時間:</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="178"/>
         <source>Server URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>URL:</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="207"/>
         <source>Number of files:</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル数:</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="236"/>
         <source>Total size of files:</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル容量:</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="265"/>
         <source>Server Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>バージョン:</translation>
     </message>
     <message>
         <location filename="../QwcServerInfoWidget.ui" line="294"/>
         <source>Session Protocol:</source>
-        <translation type="unfinished"></translation>
+        <translation>プロコトル:</translation>
     </message>
     <message>
         <source>Server Name</source>
@@ -1761,12 +1768,12 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="48"/>
         <source>Are you sure you want to disconnect?</source>
-        <translation type="unfinished"></translation>
+        <translation>本当に接続を切断しますか？</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="49"/>
         <source>Closing this connection window will disconnect you from the remote server. Are you sure you want to disconnect? Any ongoing file transfers will be aborted.</source>
-        <translation type="unfinished"></translation>
+        <translation>ウィンドウを閉じるとサーバーとの接続は切断されます。本当に接続を切断しますか？進行中のファイル転送はすべて終了します。</translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="90"/>
@@ -1859,7 +1866,7 @@ Join to open a separate private chat with %1.</source>
         <location filename="../QwcSession.cpp" line="509"/>
         <source>Qwired - %1</source>
         <extracomment>This is the translateable string for the server name in the window title bar of the connection window.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="606"/>
@@ -1952,12 +1959,12 @@ Join to open a separate private chat with %1.</source>
     <message>
         <location filename="../QwcSession.cpp" line="776"/>
         <source>Anonymous</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="780"/>
         <source>Qwired Newbie</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../QwcSession.cpp" line="857"/>
