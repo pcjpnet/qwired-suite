@@ -222,6 +222,22 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
 }
 
 
+/*! The "Download" button has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnDownload_clicked()
+{
+    QList<QTreeWidgetItem*> items = fList->selectedItems();
+
+    // Now delete the selected items
+    QListIterator<QTreeWidgetItem*> i(items);
+    while (i.hasNext()) {
+        QTreeWidgetItem *item = i.next();
+        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+        emit requestedDownload(itemInfo);
+    }
+}
+
+
 /*! The user has pressed return and the server should now search for the files.
 */
 void QwcFileBrowserWidget::on_findFilter_returnPressed()
