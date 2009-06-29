@@ -56,6 +56,8 @@ signals:
     void requestedPathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo);
     /*! This signal is emitted when the user has entered search terms to find files on the server. */
     void requestedFileSearch(QString searchTerm);
+    /*! This signal is emitted when a file/folder should be downloaded. */
+    void requestedDownload(QwcFileInfo info);
 
 private slots:
     void on_btnBack_clicked();
@@ -63,6 +65,7 @@ private slots:
     void on_btnNewFolder_clicked();
     void on_btnRefresh_clicked();
     void on_btnDelete_clicked();
+    void on_btnDownload_clicked();
     void on_findFilter_returnPressed();
     void on_fList_itemSelectionChanged();
     void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
