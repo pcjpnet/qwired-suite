@@ -6,10 +6,15 @@
 #include <QString>
 
 namespace Qw {
-    enum FileType { FileTypeRegular,
+    enum FileType { /*! A regular file. */
+                    FileTypeRegular,
+                    /*! A regular folder/directory. */
                     FileTypeFolder,
+                    /*! A folder where guest users can upload data to. */
                     FileTypeUploadsFolder,
-                    FileTypeDropBox };
+                    /*! A folder where guest users can upload data to, but can't see contents. */
+                    FileTypeDropBox
+                };
 }
 
 
@@ -39,7 +44,9 @@ public:
     /*! The type of the file. See \a Qw::FileType for more information. */
     Qw::FileType type;
     /*! The path to the file or directory on the local disk. This is used when generating checksums
-        or when reading and writing to the file. */
+        or when reading and writing to the file. A target path can be set when using this class for
+        download-transfers in client-mode. If it is empty, a path should be generated automatically.
+    */
     QString localAbsolutePath;
 
     static QString humanReadableSize(qint64 size);
