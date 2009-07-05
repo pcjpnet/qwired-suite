@@ -3,6 +3,8 @@
 
 #include "ui_QwcFiletransferWidget.h"
 #include "QwcTransferInfo.h"
+#include "QwcFiletransferModel.h"
+
 #include <QWidget>
 
 
@@ -14,7 +16,13 @@ class QwcFiletransferWidget : public QWidget, public Ui_QwcFiletransferWidget
 public:
     QwcFiletransferWidget(QWidget *parent = 0);
     ~QwcFiletransferWidget();
-    void init();
+
+    /*! Returns a pointer to the currently used data model. */
+    QwcFiletransferModel* transferModel() { return dataModel; };
+
+private:
+    /*! Contains a pointer to the current data model. */
+    QwcFiletransferModel *dataModel;
 
 signals:
     /*! The user decided to pause/stop a transfer. */

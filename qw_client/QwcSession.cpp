@@ -1006,28 +1006,27 @@ void QwcSession::doActionTrackers()
 }
 
 
-/// Show the list of transfers.
+/*! Show the transfers list.
+*/
 void QwcSession::doActionTransfers()
 {
-    if( !pTranfersWindow ) {
-        pTranfersWindow = new QwcFiletransferWidget(connectionWindow);
-        int tmpIdx = connectionTabWidget->addTab(pTranfersWindow, QIcon(), tr("Transfers"));
-        connectionTabWidget->setCurrentIndex(tmpIdx);
-        // Model
-        QwcFiletransferModel *tmpModel = new QwcFiletransferModel(pTranfersWindow->transferList);
-        tmpModel->setSocket(socket);
-        pTranfersWindow->transferList->setModel(tmpModel);
-        pTranfersWindow->init();
 
+      if (!pTranfersWindow) {
+        pTranfersWindow = new QwcFiletransferWidget();
+
+        // Connect the signals
         connect(pTranfersWindow, SIGNAL(transferStopped(QwcTransferInfo)),
                 socket, SLOT(pauseTransfer(QwcTransferInfo)) );
 
-    } else {
-        int tmpIdx = connectionTabWidget->indexOf(pTranfersWindow);
-        connectionTabWidget->setCurrentIndex(tmpIdx);
-    }
-}
+        // Ensure that the model can access data from the socket, like the current list of transfers.
+        pTranfersWindow->transferModel()->setSocket(socket);
 
+
+    }
+
+    if (connectionTabWidget->indexOf(pTranfersWindow) == -1) {
+        connectionTabWidget->addTab(pTranfersWindow, tr("Transfers"));
+    }
 
     connectionTabWidget->setCurrentWidget(pTranfersWindow);
 }

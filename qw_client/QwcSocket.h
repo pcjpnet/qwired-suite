@@ -106,8 +106,8 @@ public slots:
     void leaveChat(int theChatID);
     void moveFile(const QString source, const QString destination);
     void postNews(QString thePost);
-    void putFile(const QString localPath, const QString remotePath);
-    void putFolder(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
+//    void putFile(const QString localPath, const QString remotePath);
+//    void putFolder(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
     void readGroup(QString theName);
     void readUser(QString theName);
     void rejectChat(int theChatID);
