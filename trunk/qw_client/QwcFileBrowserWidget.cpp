@@ -271,7 +271,7 @@ void QwcFileBrowserWidget::on_btnUpload_clicked()
         QwcFileInfo targetInfo;
         targetInfo.localAbsolutePath = itemFile;
         // .path contains the remote path of the file to be uploaded
-        targetInfo.path = currentFolderInfo.path + "/" + itemInfo.fileName();
+        targetInfo.path = currentFolderInfo.path + itemInfo.fileName();
         targetInfo.size = itemInfo.size();
         targetInfo.updateLocalChecksum();
         emit requestedUpload(targetInfo);
