@@ -40,6 +40,8 @@ public:
         transferSpeedLimit = 0;
         currentTransferSpeed = 0;
         state = Qw::TransferInfoStateNone;
+        targetUserId = 0;
+        type = Qw::TransferTypeDownload;
     }
 
     /*! The state of the transfer info. */
@@ -54,7 +56,7 @@ public:
     int currentTransferSpeed;
     /*! The ID of the user who requested the transfer. */
     int targetUserId;
-    /*! The type of the transfer (up-/download). */
+    /*! The type of the transfer. (Default: TransferTypeDownload) */
     Qw::TransferType type;
     /*! A file information object for keeping information about the file locally or remotely. */
     QwFile file;
