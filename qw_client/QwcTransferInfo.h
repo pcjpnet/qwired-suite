@@ -13,6 +13,11 @@
 class QwcTransferInfo : public QwTransferInfo
 {
 public:
+    QwcTransferInfo()
+    {
+        queuePosition = 0;
+    }
+
     /*! The position of the transfer in the server queue. */
     int queuePosition;
 
