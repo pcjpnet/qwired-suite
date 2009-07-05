@@ -114,12 +114,6 @@ private slots:
     void userChanged(QwcUserInfo theOld, QwcUserInfo theNew);
     void newsPosted(QString nickname, QDateTime time, QString post);
 
-
-    void transferStarted(QwcTransferInfo);
-    void transferDone(QwcTransferInfo);
-    void transferSocketError(QAbstractSocket::SocketError);
-    void transferError(QwcTransferInfo);
-
 //    void fileListingRecursiveDone(const QList<QwcFileInfo>);
 
 

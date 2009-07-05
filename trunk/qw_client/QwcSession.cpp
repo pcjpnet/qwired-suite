@@ -307,11 +307,11 @@ void QwcSession::setupConnections()
             this, SLOT(newsPosted(QString,QDateTime,QString)) );
 
     // File transfer signals
-    connect(socket, SIGNAL(fileTransferDone(const QwcTransferInfo)), this, SLOT(transferDone(QwcTransferInfo)) );
-    connect(socket, SIGNAL(fileTransferStarted(const QwcTransferInfo)), this, SLOT(transferStarted(QwcTransferInfo)) );
-    connect(socket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
-    connect(socket, SIGNAL(fileTransferError(const QwcTransferInfo)), this, SLOT(transferError(QwcTransferInfo)) );
-    connect(socket, SIGNAL(onFilesListRecursiveDone(const QList<QwcFileInfo>)), this, SLOT(fileListingRecursiveDone(const QList<QwcFileInfo>)));
+//    connect(socket, SIGNAL(fileTransferDone(const QwcTransferInfo)), this, SLOT(transferDone(QwcTransferInfo)) );
+//    connect(socket, SIGNAL(fileTransferStarted(const QwcTransferInfo)), this, SLOT(transferStarted(QwcTransferInfo)) );
+//    connect(socket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
+//    connect(socket, SIGNAL(fileTransferError(const QwcTransferInfo)), this, SLOT(transferError(QwcTransferInfo)) );
+//    connect(socket, SIGNAL(onFilesListRecursiveDone(const QList<QwcFileInfo>)), this, SLOT(fileListingRecursiveDone(const QList<QwcFileInfo>)));
 
     // Main Window actions
     //
@@ -698,33 +698,6 @@ void QwcSession::newsPosted(QString nickname, QDateTime time, QString post)
 }
 
 
-void QwcSession::transferStarted(QwcTransferInfo transfer)
-{
-    Q_UNUSED(transfer);
-    //triggerEvent("TransferStarted", QStringList(transfer.fileName()));
-}
-
-
-void QwcSession::transferDone(QwcTransferInfo transfer)
-{
-    Q_UNUSED(transfer);
-//    QSettings s;
-//    if(s.value("files/queue_local", false).toBool()) {
-//        qDebug() << this<< "Transfer completed. Unfreezing next.";
-//        socket->runTransferQueue(transfer.type);
-//    }
-//
-//    triggerEvent("TransferFinished", QStringList(transfer.fileName()));
-}
-
-
-void QwcSession::transferSocketError(QAbstractSocket::SocketError error)
-{
-    QStringList tmpParams;
-    tmpParams << tr("The file transfer failed due to a connection error. Error ID is: %1").arg(error);
-    triggerEvent("ServerError",tmpParams);
-}
-
 
 /// The login was successful, switch to forum view.
 void QwcSession::onLoginSuccessful()
@@ -1056,13 +1029,7 @@ void QwcSession::doActionTransfers()
 }
 
 
-void QwcSession::transferError(QwcTransferInfo transfer)
-{
-    Q_UNUSED(transfer);
-//    QMessageBox::critical(connectionWindow, tr("File Transfer Error"),
-//                          tr("The transfer of file '%1' could not be completed because of an error.\n"
-//                             "Possibly the file transfer TCP port is blocked by a firewall or the server "
-//                             "is configured incorrectly.").arg(transfer.fileName()));
+    connectionTabWidget->setCurrentWidget(pTranfersWindow);
 }
 
 
