@@ -20,7 +20,7 @@ namespace Qw {
             On the client this indicates that the transfer is server-queued. */
         TransferInfoStateQueued,
         /*! The transfer info is waiting to be accepted by the client (waiting for transfer connection).
-            On the client this indicates that the transfer has been requested, but is not active yet. */
+            On the client this means that a STAT has been requested. */
         TransferInfoStateWaiting,
         /*! The transfer is active and running. (not used in the server!)
             \todo Use this state in server mode, too - currently we are using a separate socket state there. */

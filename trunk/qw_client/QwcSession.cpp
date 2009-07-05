@@ -955,6 +955,10 @@ void QwcSession::doActionFiles(QString initialPath)
                 this, SLOT(handlePathChange(QwcFileInfo,QwcFileInfo)));
         connect(mainFileWidget, SIGNAL(requestedFileSearch(QString)),
                 socket, SLOT(searchFiles(QString)));
+        connect(mainFileWidget, SIGNAL(requestedDownload(QwcFileInfo)),
+                socket, SLOT(downloadFileOrFolder(QwcFileInfo)));
+        connect(mainFileWidget, SIGNAL(requestedUpload(QwcFileInfo)),
+                socket, SLOT(uploadFileOrFolder(QwcFileInfo)));
 
 
         connect(socket, SIGNAL(onFilesListItem(QwcFileInfo)),
