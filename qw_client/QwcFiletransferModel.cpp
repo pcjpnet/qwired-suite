@@ -48,13 +48,7 @@ void QwcFiletransferModel::setSocket(QwcSocket *socket)
     if (!socket) { return; }
     this->socket = socket;
     connect(socket, SIGNAL(fileTransferStatus(QwcTransferInfo)),
-            this, SLOT(updateTransfers(QwcTransferInfo)) );
-    connect(socket, SIGNAL(fileTransferStarted(QwcTransferInfo)),
-            this, SLOT(reloadTransfers()) );
-    connect(socket, SIGNAL(fileTransferDone(QwcTransferInfo)),
-            this, SLOT(reloadTransfers()) );
-    connect(socket, SIGNAL(fileTransferError(QwcTransferInfo)),
-            this, SLOT(reloadTransfers()) );
+            this, SLOT(updateTransfers(QwcTransferInfo)));
     connect(socket, SIGNAL(fileTransferQueueChanged(QwcTransferInfo)),
             this, SLOT(reloadTransfers()));
 }
