@@ -46,7 +46,8 @@ void QwcTransferSocket::handleSocketEncrypted()
 
     // First we send the TRANSFER message with the secret hash. After that data transfer immediately
     // begins.
-    sslSocket->write(QString("TRANSFER %1\x04").arg(transferInfo.hash).toUtf8());
+    sslSocket->write(QString("TRANSFER %1\x04").arg(transferInfo.hash).toAscii());
+    sslSocket->flush();
 
     // Start the transfer timer which is responsible for sending chunks of data
     if (transferInfo.type == Qw::TransferTypeDownload) {
@@ -144,7 +145,7 @@ void QwcTransferSocket::transmitFileChunk()
 
         // Otherwise we simply keep transferring more data
         QByteArray dataBuffer;
-        dataBuffer = fileReader.read(chunkSize);
+        dataBuffer = fileReader.read(chunkSize * 2);
 
 //        qDebug() << "Transferring" << chunkSize << "(" << dataBuffer.size() << ")" << "from" << fileReader.pos();
 
