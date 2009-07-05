@@ -11,8 +11,13 @@ QwcFiletransferWidget::QwcFiletransferWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
-    transferList->setItemDelegate(new QwcFiletransferDelegate(this));
+    transferList->setItemDelegate(new QwcFiletransferDelegate(transferList));
 
+    // Create the model
+    dataModel = new QwcFiletransferModel(transferList);
+    transferList->setModel(dataModel);
+    connect(transferList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(handleTransferListSelectionChanged(QItemSelection,QItemSelection)));
 
 }
 
@@ -37,7 +42,8 @@ void QwcFiletransferWidget::on_btnResume_clicked()
 }
 
 
-/*! Pause/Stop a transfer. */
+/*! Pause/Stop a transfer.
+*/
 void QwcFiletransferWidget::on_btnStop_clicked()
 {
     QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
@@ -78,9 +84,3 @@ void QwcFiletransferWidget::handleTransferListSelectionChanged(const QItemSelect
     btnReveal->setEnabled(transferList->selectionModel()->hasSelection());
 }
 
-
-void QwcFiletransferWidget::init()
-{
-    connect(transferList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(handleTransferListSelectionChanged(QItemSelection,QItemSelection)) );
-}

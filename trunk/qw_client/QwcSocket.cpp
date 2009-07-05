@@ -53,12 +53,13 @@ void QwcSocket::handleTransferDone(const QwcTransferInfo &transfer)
         if (item->transferInfo.hash == transfer.hash) {
             qDebug() << this << "Removing completed transfer socket.";
             i.remove();
-            emit fileTransferDone(transfer);
+            emit fileTransferQueueChanged(item->transferInfo);
             item->deleteLater();
-            checkTransferQueue();
             break;
         }
     }
+
+    checkTransferQueue();
 }
 
 
@@ -69,10 +70,10 @@ void QwcSocket::handleTransferError(const QwcTransferInfo &transfer)
     QMutableListIterator<QwcTransferSocket*> i(transferSockets);
     while (i.hasNext()) {
         QwcTransferSocket *item = i.next();
-        if (item->transferInfo.hash == transfer.hash) {
+        if (item->transferInfo.file.path == transfer.file.path) {
             qDebug() << this << "Removing failed transfer socket.";
             i.remove();
-            emit fileTransferError(transfer);
+            emit fileTransferQueueChanged(item->transferInfo);
             item->deleteLater();
             break;
         }
@@ -451,25 +452,39 @@ void QwcSocket::handleMessage400(const QwMessage &message)
             break;
         }
     }
+
+    // Read the offset and the hash from the message
     transfer.hash = transferHash;
     transfer.bytesTransferred = transferOffset;
 
     qDebug() << "Transfer ready:" << filePath << "Off:" << transferOffset << "hash:" << transferHash;
 
     QwcTransferSocket *transferSocket = new QwcTransferSocket(this);
+
+    // Connect handler routines
     connect(transferSocket, SIGNAL(fileTransferDone(QwcTransferInfo)),
             this, SLOT(handleTransferDone(QwcTransferInfo)));
     connect(transferSocket, SIGNAL(fileTransferError(QwcTransferInfo)),
             this, SLOT(handleTransferError(QwcTransferInfo)));
+
+
+    // Set up relay of signals using this instance
     connect(transferSocket, SIGNAL(fileTransferStatus(QwcTransferInfo)),
             this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
     connect(transferSocket, SIGNAL(fileTransferStarted(QwcTransferInfo)),
             this, SIGNAL(fileTransferStarted(QwcTransferInfo)));
+    connect(transferSocket, SIGNAL(fileTransferDone(QwcTransferInfo)),
+            this, SIGNAL(fileTransferDone(QwcTransferInfo)));
+    connect(transferSocket, SIGNAL(fileTransferError(QwcTransferInfo)),
+            this, SIGNAL(fileTransferError(QwcTransferInfo)));
+
 
     transferSocket->setServer(serverAddress, serverPort);
-    transferSockets.append(transferSocket);
     transferSocket->transferInfo = transfer;
+    transferSockets.append(transferSocket);
     transferSocket->beginTransfer();
+
+    emit fileTransferQueueChanged(transfer);
 }
 
 
@@ -489,6 +504,7 @@ void QwcSocket::handleMessage401(const QwMessage &message)
         if (item.file.path == filePath) {
             qDebug() << "Updated transfer information in pool.";
             item.queuePosition = queuePosition;
+            emit fileTransferStatus(item);
             break;
         }
     }
@@ -1020,11 +1036,11 @@ void QwcSocket::getFolder(const QString &remotePath, const QString &localPath, c
 }
 
 
-void QwcSocket::putFolder(const QString localPath, const QString remotePath, const bool queueLocally)
-{
-    Q_UNUSED(queueLocally);
-    Q_UNUSED(remotePath);
-    Q_UNUSED(localPath);
+//void QwcSocket::putFolder(const QString localPath, const QString remotePath, const bool queueLocally)
+//{
+//    Q_UNUSED(queueLocally);
+//    Q_UNUSED(remotePath);
+//    Q_UNUSED(localPath);
 //    Q_UNUSED(queueLocally);
 //    // Check for duplicate downloads
 //    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
@@ -1063,27 +1079,27 @@ void QwcSocket::putFolder(const QString localPath, const QString remotePath, con
 //    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
 //    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<localPath<<"to"<<remotePath;
 //    emit fileTransferStarted(tmpSock->pTransfer);
-}
+//}
 
 
-/*! Queue and upload a single file to a remote path on the server.
-*/
-void QwcSocket::putFile(const QString localPath, const QString remotePath)
-{
-    QFileInfo localFile(localPath);
-
-    qDebug() << this << "Queueing upload of file to" << remotePath;
-    QwcTransferInfo transfer;
-    transfer.type = Qw::TransferTypeUpload;
-    transfer.file.path = remotePath;
-    transfer.file.size = localFile.size();
-    transfer.file.localAbsolutePath = localPath;
-    transfer.file.updateLocalChecksum();
-    transferPool.append(transfer);
-    emit fileTransferQueueChanged(transfer);
-    checkTransferQueue();
-
-}
+///*! Queue and upload a single file to a remote path on the server.
+//*/
+//void QwcSocket::putFile(const QString localPath, const QString remotePath)
+//{
+//    QFileInfo localFile(localPath);
+//
+//    qDebug() << this << "Queueing upload of file to" << remotePath;
+//    QwcTransferInfo transfer;
+//    transfer.type = Qw::TransferTypeUpload;
+//    transfer.file.path = remotePath;
+//    transfer.file.size = localFile.size();
+//    transfer.file.localAbsolutePath = localPath;
+//    transfer.file.updateLocalChecksum();
+//    transferPool.append(transfer);
+//    emit fileTransferQueueChanged(transfer);
+//    checkTransferQueue();
+//
+//}
 
 
 
@@ -1236,11 +1252,11 @@ void QwcSocket::downloadFileOrFolder(QwcFileInfo fileInfo)
 */
 void QwcSocket::uploadFileOrFolder(QwcFileInfo fileInfo)
 {
-    QwcTransferInfo transfer;
-    transfer.type = Qw::TransferTypeUpload;
-    transfer.file = fileInfo;
-    transferPool.append(transfer);
-    emit fileTransferQueueChanged(transfer);
+    QwcTransferInfo newTransfer;
+    newTransfer.type = Qw::TransferTypeUpload;
+    newTransfer.file = fileInfo;
+    transferPool.append(newTransfer);
+    emit fileTransferQueueChanged(newTransfer);
     checkTransferQueue();
 }
 
@@ -1429,44 +1445,65 @@ void QwcSocket::checkTransferQueue()
     int maximumTransfers = 1;
 
     qDebug() << this << "Checking transfer queue...";
-    if (transferPool.isEmpty()) { return; }
+
+    if (transferPool.isEmpty()) {
+        qDebug() << this << "No more waiting transfers in queue.";
+        return;
+    }
 
     // Count the waiting transfers
     int transfersWaitingCount = 0;
     QMutableListIterator<QwcTransferInfo> i(transferPool);
     while (i.hasNext()) {
         QwcTransferInfo item = i.next();
-        if (item.state == Qw::TransferInfoStateWaiting) { transfersWaitingCount += 1; }
+        if (item.state == Qw::TransferInfoStateWaiting) {
+            transfersWaitingCount += 1;
+        }
     }
-    if (transfersWaitingCount+transferSockets.count() >= maximumTransfers) { return; }
 
-    // Start a new transfer
-    QwcTransferInfo *transfer = NULL;// transferPool.first();
+    if (transfersWaitingCount+transferSockets.count() >= maximumTransfers) {
+        // Return if there are more waiting+active transfers than allowed.
+        return;
+    }
+
+
+    // Start a new transfer:
+    // Find the first transfer in the queue with the status Qw::TransferInfoStateNone (locally
+    // queued) and update it. Afterwards send a command to the server to kick off the transfer
+    // procedure.
+
+    QwcTransferInfo *transfer = NULL;
     i.toFront();
     while (i.hasNext()) {
         QwcTransferInfo &item = i.next();
         if (item.state == Qw::TransferInfoStateNone) {
             transfer = &item;
+            break;
         }
     }
 
-    if (!transfer) { return; }
+    if (!transfer) {
+        qDebug() << this << "Invalid transfer. Aborting.";
+        return;
+    }
 
     qDebug() << this << "Starting new waiting transfer from queue:" << transfer->file.path;
 
     // Request the transfer on the server
     if (transfer->type == Qw::TransferTypeDownload) {
-        transfer->state = Qw::TransferInfoStateWaiting; // waiting for STAT
+        transfer->state = Qw::TransferInfoStateWaiting; // waiting for STAT/hash
         sendMessage(QwMessage("STAT").appendArg(transfer->file.path));
         qDebug() << this << "Sending STAT command for download";
 
     } else if (transfer->type == Qw::TransferTypeUpload) {
-        transfer->state = Qw::TransferInfoStateWaiting; // waiting for hash
+        transfer->state = Qw::TransferInfoStateWaiting; // waiting for STAT/hash
         sendMessage(QwMessage("PUT").appendArg(transfer->file.path)
                     .appendArg(QString::number(transfer->file.size))
                     .appendArg(transfer->file.checksum));
 
     }
+
+    emit fileTransferStatus(*transfer);
 
 }
 
