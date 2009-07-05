@@ -43,6 +43,10 @@ public:
     /*! The user entered server port. */
     int serverPort;
 
+
+    /*! Contains the default directory where downloads should go to. (Default: ~) */
+    QString defaultDownloadDirectory;
+
     // User Information
     void setNickname(QString);
     void setUserAccount(QString, QString);
@@ -90,7 +94,6 @@ public slots:
 
     void editUser(QwcUserInfo);
     void getClientInfo(int userId);
-    void getFile(QString remotePath, QString localPath);
     void getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally);
     void getFileList(QString thePath);
     void getFileListRecusive(const QString &path);
@@ -118,6 +121,13 @@ public slots:
     void statFile(const QString thePath);
 
     void setFileComment(QString path, QString comment);
+
+    // Transfers
+    //
+
+    void downloadFileOrFolder(QwcFileInfo fileInfo);
+    void uploadFileOrFolder(QwcFileInfo fileInfo);
+
 
 private slots:
     void handleTransferDone(const QwcTransferInfo &transfer);

@@ -43,7 +43,7 @@ void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
 {
     infoName->setText(file.fileName());
     infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
-    infoSize->setText(QString("%1 (%2 bytes)").arg(QwcFileInfo::humanReadableSize(file.size)).arg(file.size));
+    infoSize->setText(tr("%1 (%2 bytes)").arg(QwcFileInfo::humanReadableSize(file.size)).arg(file.size));
     infoPath->setText(file.path);
     infoModified->setText(file.modified.toString());
     infoCreated->setText(file.created.toString());
@@ -233,7 +233,48 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
     while (i.hasNext()) {
         QTreeWidgetItem *item = i.next();
         QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+
+        QDir downloadDirectory = QDir::home();
+
+        // Check if the target file already exists
+        if (QFile::exists(downloadDirectory.absoluteFilePath(itemInfo.fileName()))) {
+            if (QMessageBox::Cancel == QMessageBox::question(this,
+                tr("File exists"),
+                tr("The file or directory \"%1\" already exists. Do you want to overwrite it?").arg(itemInfo.fileName()),
+                QMessageBox::Cancel | QMessageBox::Save,
+                QMessageBox::Cancel))
+            {
+                return;
+            }
+        }
+
+        // Set the local path properly
+        itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
+
         emit requestedDownload(itemInfo);
+    }
+}
+
+
+/*! The "Upload" button has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnUpload_clicked()
+{
+    QStringList targetFiles = QFileDialog::getOpenFileNames(this, tr("Upload Files"),
+        QDir::homePath(), tr("Any File (*.*)"));
+    if (targetFiles.isEmpty()) { return; }
+
+    QStringListIterator i(targetFiles);
+    while (i.hasNext()) {
+        QString itemFile = i.next();
+        QFileInfo itemInfo(itemFile);
+        QwcFileInfo targetInfo;
+        targetInfo.localAbsolutePath = itemFile;
+        // .path contains the remote path of the file to be uploaded
+        targetInfo.path = currentFolderInfo.path + "/" + itemInfo.fileName();
+        targetInfo.size = itemInfo.size();
+        targetInfo.updateLocalChecksum();
+        emit requestedUpload(targetInfo);
     }
 }
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>399</height>
+    <height>448</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -304,6 +304,9 @@
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
          <property name="rootIsDecorated">
           <bool>false</bool>
          </property>
@@ -400,14 +403,14 @@
          <property name="title">
           <string>Information</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <layout class="QFormLayout" name="formLayout">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
              <widget class="QLabel" name="label_2">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -428,8 +431,8 @@
             <item row="0" column="1">
              <widget class="QLabel" name="infoKind">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>8</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -447,8 +450,8 @@
             <item row="1" column="0">
              <widget class="QLabel" name="label_3">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -469,8 +472,8 @@
             <item row="1" column="1">
              <widget class="QLabel" name="infoSize">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>8</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -488,8 +491,8 @@
             <item row="2" column="0">
              <widget class="QLabel" name="label_4">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -510,8 +513,8 @@
             <item row="2" column="1">
              <widget class="QLabel" name="infoPath">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>8</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -529,8 +532,8 @@
             <item row="3" column="0">
              <widget class="QLabel" name="label_5">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -551,8 +554,8 @@
             <item row="3" column="1">
              <widget class="QLabel" name="infoCreated">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>8</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -570,8 +573,8 @@
             <item row="4" column="0">
              <widget class="QLabel" name="label_6">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -592,8 +595,8 @@
             <item row="4" column="1">
              <widget class="QLabel" name="infoModified">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>8</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -611,8 +614,8 @@
             <item row="5" column="0">
              <widget class="QLabel" name="label_7">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -633,8 +636,8 @@
             <item row="5" column="1">
              <widget class="QLabel" name="infoChecksum">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>8</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>

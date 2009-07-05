@@ -34,6 +34,12 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
     pIndexingFiles = false;
     pInvitedUserID = 0;
 
+    // Set the default download directory.
+    defaultDownloadDirectory = QDir::homePath();
+#ifdef Q_WS_MAC
+    defaultDownloadDirectory = QDir::home().absoluteFilePath("Downloads");
+#endif
+
 }
 
 
@@ -100,7 +106,7 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
     } else if (commandId == 341) {    handleMessage341(message); // Chat Topic
     } else if (commandId == 400) {    handleMessage400(message); // Transfer Ready
     } else if (commandId == 401) {    handleMessage401(message); // Transfer Queued
-    } else if (commandId == 402) {    handleMessage402(message); // File Information
+    } else if (commandId == 402) {    handleMessage402(message); // File Information/STAT
     } else if (commandId == 410) {    handleMessage410(message); // File Listing
     } else if (commandId == 411) {    handleMessage411(message); // File Listing Done
     } else if (commandId == 420) {    handleMessage420(message); // Search Listing
@@ -448,6 +454,8 @@ void QwcSocket::handleMessage400(const QwMessage &message)
     transfer.hash = transferHash;
     transfer.bytesTransferred = transferOffset;
 
+    qDebug() << "Transfer ready:" << filePath << "Off:" << transferOffset << "hash:" << transferHash;
+
     QwcTransferSocket *transferSocket = new QwcTransferSocket(this);
     connect(transferSocket, SIGNAL(fileTransferDone(QwcTransferInfo)),
             this, SLOT(handleTransferDone(QwcTransferInfo)));
@@ -502,7 +510,8 @@ void QwcSocket::handleMessage402(const QwMessage &message)
         QwcTransferInfo &item = i.next();
         if (item.type == Qw::TransferTypeDownload
             && item.state == Qw::TransferInfoStateWaiting
-            && item.file.path == fileInfo.path) {
+            && item.file.path == fileInfo.path)
+        {
 
             qDebug() << this << "Received response to download STAT";
             fileInfo.localAbsolutePath = item.file.localAbsolutePath;
@@ -1057,22 +1066,6 @@ void QwcSocket::putFolder(const QString localPath, const QString remotePath, con
 }
 
 
-/*! Queue a download transfer and check the queue.
-*/
-void QwcSocket::getFile(QString remotePath, QString localPath)
-{
-    qDebug() << this << "Queueing download for file:" << remotePath << "to" << localPath;
-    QwcTransferInfo transfer;
-    transfer.type = Qw::TransferTypeDownload;
-    transfer.file.path = remotePath;
-    transfer.file.localAbsolutePath = localPath;
-    transferPool.append(transfer);
-    emit fileTransferQueueChanged(transfer);
-    checkTransferQueue();
-}
-
-
-
 /*! Queue and upload a single file to a remote path on the server.
 */
 void QwcSocket::putFile(const QString localPath, const QString remotePath)
@@ -1090,43 +1083,6 @@ void QwcSocket::putFile(const QString localPath, const QString remotePath)
     emit fileTransferQueueChanged(transfer);
     checkTransferQueue();
 
-
- /*   QFile tmpFile(theLocalPath);
-    QString remotePath = theRemotePath;
-    if(remotePath.left(2)=="//") remotePath.remove(0,1);
-    if(tmpFile.exists() && !remotePath.isEmpty()) {
-
-        // Check for duplicate uploads
-        QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
-        while( i.hasNext() ) {
-            QwcTransferSocket *tmpT = i.next();
-            if(!tmpT) continue;
-            if(tmpT->pTransfer.pRemotePath==remotePath) return;
-        }
-
-        QwcTransferSocket *tmpSock = new QwcTransferSocket;
-        pTransferSockets.append(tmpSock);
-        connect(tmpSock, SIGNAL(fileTransferDone(QwcTransferInfo)), this, SIGNAL(fileTransferDone(QwcTransferInfo)));
-        connect(tmpSock, SIGNAL(fileTransferError(QwcTransferInfo)), this, SIGNAL(fileTransferError(QwcTransferInfo)));
-        connect(tmpSock, SIGNAL(fileTransferStatus(QwcTransferInfo)), this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
-        connect(tmpSock, SIGNAL(fileTransferStarted(QwcTransferInfo)), this, SIGNAL(fileTransferStarted(QwcTransferInfo)));
-        connect(tmpSock, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)));
-        connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-        tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
-        tmpSock->pTransfer.pTransferType = WiredTransfer::TypeUpload;
-        tmpSock->pTransfer.pRemotePath = remotePath;
-        tmpSock->pTransfer.pLocalPath = theLocalPath;
-        tmpSock->pTransfer.pTotalSize = tmpFile.size();
-        tmpSock->pTransfer.calcLocalChecksum();
-
-        // Request upload slot
-        if(queueLocally) {
-            tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
-            qDebug() << this << "Queued transfer locally:"<<tmpSock->pTransfer.pRemotePath;
-        }
-        emit fileTransferStarted(tmpSock->pTransfer);
-    }
-    */
 }
 
 
@@ -1243,11 +1199,51 @@ void QwcSocket::statFile(const QString path)
 */
 void QwcSocket::setFileComment(QString path, QString comment)
 {
-    QwMessage reply("COMMENT");
-    reply.appendArg(path);
-    reply.appendArg(comment);
-    sendMessage(reply);
+    sendMessage(QwMessage("COMMENT").appendArg(path).appendArg(comment));
 }
+
+
+/*! Start a transfer of a remote file or folder from the server to the client. This method takes
+    a QwcFileInfo object and acts automatically on it. Local queueing is done automatically. Please
+    note that QwcSocket must be configured properly and be connected to the remote server.
+*/
+void QwcSocket::downloadFileOrFolder(QwcFileInfo fileInfo)
+{
+    qDebug() << this << "Initiating transfer of" << fileInfo.path;
+
+    // Create a new transfer object and append it to the local queue. Afterwards we simply call
+    // checkTransferQueue(), which will check for running transfers and start a new one if
+    // neccessary.
+    QwcTransferInfo transfer;
+    transfer.type = Qw::TransferTypeDownload;
+    transfer.file = fileInfo;
+
+    // Automatically set a download directory, if it is not set.
+    if (transfer.file.localAbsolutePath.isEmpty()) {
+        qDebug() << this << "Warning: Unable to start transfer due to missing local path.";
+        return;
+    }
+
+    transferPool.append(transfer);
+    emit fileTransferQueueChanged(transfer);
+    checkTransferQueue();
+}
+
+
+/*! Start a transfer of a remote file or folder from the server to the client. This method takes
+    a QwcFileInfo object and acts automatically on it. Local queueing is done automatically. Please
+    note that QwcSocket must be configured properly and be connected to the remote server.
+*/
+void QwcSocket::uploadFileOrFolder(QwcFileInfo fileInfo)
+{
+    QwcTransferInfo transfer;
+    transfer.type = Qw::TransferTypeUpload;
+    transfer.file = fileInfo;
+    transferPool.append(transfer);
+    emit fileTransferQueueChanged(transfer);
+    checkTransferQueue();
+}
+
 
 
 /*! Create a folder at the specified path.
