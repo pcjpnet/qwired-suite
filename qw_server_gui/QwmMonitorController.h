@@ -16,7 +16,6 @@ class QwmMonitorController : public QObject
 private:
     QPointer<QwmConsoleSocket> socket;
     QPointer<QwmMonitorWindow> monitorWindow;
-    QString humanReadableSize(qlonglong theBytes);
     QProcess daemonProcess;
 
 private slots:
