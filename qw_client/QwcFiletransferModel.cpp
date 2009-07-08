@@ -12,7 +12,7 @@ QwcFiletransferModel::QwcFiletransferModel(QObject *parent) : QAbstractListModel
 int QwcFiletransferModel::rowCount(const QModelIndex &) const
 {
     if (socket.isNull()) { return 0; }
-    return socket->allTransferSockets().count() + socket->allQueuedTransfers().count();
+    return socket->transferSockets.count();
 }
 
 
@@ -25,19 +25,24 @@ QVariant QwcFiletransferModel::data(const QModelIndex &index, int role) const
     if (role != Qt::UserRole) { return QVariant(); }
     if (index.row() >= rowCount()) { return QVariant(); }
 
-    if (index.row() < socket->allTransferSockets().count()) {
-        // Active transfer
-        QwcTransferSocket *transferSocket = socket->allTransferSockets().value(index.row());
-        if (!transferSocket) { return QVariant(); }
-        return QVariant::fromValue(transferSocket->transferInfo);
+    QwcTransferSocket *transferSocket = socket->transferSockets[index.row()];
+    if (!transferSocket) { return QVariant(); }
 
-    } else if (index.row() >= socket->allTransferSockets().count() && index.row() < rowCount()) {
-        // Queued transfer
-        return QVariant::fromValue(socket->allQueuedTransfers()
-                                   .value(index.row()-socket->allTransferSockets().count()));
-    }
+    return QVariant::fromValue(transferSocket->transferInfo);
 
-    return QVariant();
+//    if (index.row() < socket->allTransferSockets().count()) {
+//        // Active transfer
+//        QwcTransferSocket *transferSocket = socket->allTransferSockets().value(index.row());
+//        if (!transferSocket) { return QVariant(); }
+//        return QVariant::fromValue(transferSocket->transferInfo);
+//
+//    } else if (index.row() >= socket->allTransferSockets().count() && index.row() < rowCount()) {
+//        // Queued transfer
+//        return QVariant::fromValue(socket->allQueuedTransfers()
+//                                   .value(index.row()-socket->allTransferSockets().count()));
+//    }
+
+//    return QVariant();
 }
 
 
@@ -49,7 +54,7 @@ void QwcFiletransferModel::setSocket(QwcSocket *socket)
     this->socket = socket;
     connect(socket, SIGNAL(fileTransferStatus(QwcTransferInfo)),
             this, SLOT(updateTransfers(QwcTransferInfo)));
-    connect(socket, SIGNAL(fileTransferQueueChanged(QwcTransferInfo)),
+    connect(socket, SIGNAL(fileTransferQueueChanged()),
             this, SLOT(reloadTransfers()));
 }
 
@@ -59,14 +64,20 @@ void QwcFiletransferModel::setSocket(QwcSocket *socket)
 */
 void QwcFiletransferModel::updateTransfers(const QwcTransferInfo &transfer)
 {
-    qDebug() << "update transfer";
     for (int i = 0; i < rowCount(); i++) {
         QModelIndex itemIndex = createIndex(i, 0);
         QwcTransferInfo existingTransfer = data(itemIndex, Qt::UserRole).value<QwcTransferInfo>();
-        if (transfer.file.path == existingTransfer.file.path) {
+
+        bool isFolderTransferAndValid = ((transfer.type == Qw::TransferTypeFolderDownload || transfer.type == Qw::TransferTypeFolderUpload)
+                                         && transfer.folder.path == existingTransfer.folder.path);
+        bool isNormalTransferAndValid = ((transfer.type == Qw::TransferTypeDownload || transfer.type == Qw::TransferTypeUpload)
+                                         && transfer.file.path == existingTransfer.file.path);
+
+        if (isFolderTransferAndValid || isNormalTransferAndValid) {
             emit dataChanged(itemIndex, itemIndex);
             return;
         }
+
     }
 }
 

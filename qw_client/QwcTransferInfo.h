@@ -21,7 +21,7 @@ public:
     */
     void applyNextFile()
     {
-        qDebug() << this << "Applying next file from internal queueue.";
+        qDebug() << this << "Applying next file from internal queueue and resetting transfer.";
         file = recursiveFiles.takeFirst();
 
         QString newLocalPath = file.path;
