@@ -632,8 +632,6 @@ void QwcSocket::handleMessage420(const QwMessage &message)
     newInfo.size = message.getStringArgument(2).toLongLong();
     newInfo.created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
     newInfo.modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
-//    if (fileSearchResults.count() > 2048) { return; }
-//    fileSearchResults.append(newInfo);
     emit fileSearchResultListItem(newInfo);
 }
 
@@ -924,109 +922,6 @@ void QwcSocket::setIconImage(QImage icon)
     sessionUser.userImage = icon;
     sendMessage(QwMessage("ICON").appendArg("0").appendArg(imageData.toBase64()));
 }
-
-
-
-
-
-void QwcSocket::getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally)
-{
-    Q_UNUSED(queueLocally);
-    Q_UNUSED(localPath);
-    Q_UNUSED(remotePath);
-//    // Check for duplicate downloads
-//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
-//    while(i.hasNext()) {
-//        QwcTransferSocket *tmpT = i.next();
-//        if(!tmpT) continue;
-//        if(tmpT->pTransfer.pRemotePath==remotePath) return;
-//    }
-//
-//    QwcTransferSocket *tmpSock = new QwcTransferSocket;
-//    pTransferSockets.append(tmpSock);
-//
-//    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeFolderDownload;
-//    tmpSock->pTransfer.pRemotePath = remotePath;
-//    // 	tmpSock->pTransfer.pLocalPath = localPath;
-//    tmpSock->pTransfer.pLocalRoot = localPath;
-//
-//    connect(tmpSock, SIGNAL(fileTransferDone(QwcTransferInfo)), this, SIGNAL(fileTransferDone(QwcTransferInfo)));
-//    connect(tmpSock, SIGNAL(fileTransferError(QwcTransferInfo)), this, SIGNAL(fileTransferError(QwcTransferInfo)));
-//    connect(tmpSock, SIGNAL(fileTransferStatus(QwcTransferInfo)), this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
-//    connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcTransferInfo)), this, SLOT(fileTransferFileDone(const QwcTransferInfo))); // for folder transfers
-//    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-//
-//    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
-//    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
-//    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<remotePath<<"to"<<localPath;
-//    emit fileTransferStarted(tmpSock->pTransfer);
-}
-
-
-//void QwcSocket::putFolder(const QString localPath, const QString remotePath, const bool queueLocally)
-//{
-//    Q_UNUSED(queueLocally);
-//    Q_UNUSED(remotePath);
-//    Q_UNUSED(localPath);
-//    Q_UNUSED(queueLocally);
-//    // Check for duplicate downloads
-//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
-//    while(i.hasNext()) {
-//        QwcTransferSocket *tmpT = i.next();
-//        if(!tmpT) continue;
-//        if(tmpT->pTransfer.pRemotePath==remotePath) return;
-//    }
-//
-//    QwcTransferSocket *tmpSock = new QwcTransferSocket;
-//    pTransferSockets.append(tmpSock);
-//
-//    tmpSock->pTransfer.pTransferType = WiredTransfer::TypeFolderUpload;
-//    tmpSock->pTransfer.pRemotePath = remotePath;
-//    tmpSock->pTransfer.pRemoteFolder = remotePath;
-//    tmpSock->pTransfer.pLocalRoot = localPath;
-//
-//    QDirIterator dir(localPath, QDirIterator::Subdirectories);
-//    while(dir.hasNext()) {
-//        QString path = dir.next();
-//        QFileInfo fileInfo(path);
-//        tmpSock->pTransfer.fileListLocal.append(fileInfo.absoluteFilePath());
-//        tmpSock->pTransfer.pFolderSize += fileInfo.size();
-//        tmpSock->pTransfer.pFilesCount += 1;
-//    }
-//
-//    // 	qDebug() << "Files:" << tmpSock->pTransfer.fileListLocal;
-//
-//    connect(tmpSock, SIGNAL(fileTransferDone(QwcTransferInfo)), this, SIGNAL(fileTransferDone(QwcTransferInfo)));
-//    connect(tmpSock, SIGNAL(fileTransferError(QwcTransferInfo)), this, SIGNAL(fileTransferError(QwcTransferInfo)));
-//    connect(tmpSock, SIGNAL(fileTransferStatus(QwcTransferInfo)), this, SIGNAL(fileTransferStatus(QwcTransferInfo)));
-//    connect(tmpSock, SIGNAL(fileTransferFileDone(const QwcTransferInfo)), this, SLOT(fileTransferFileDone(const QwcTransferInfo))); // for folder transfers
-//    connect(tmpSock, SIGNAL(destroyed()), this, SLOT(cleanTransfers()));
-//
-//    tmpSock->setServer( socket->peerAddress().toString(), socket->peerPort() );
-//    tmpSock->pTransfer.pStatus = WiredTransfer::StatusQueuedLocal;
-//    qDebug() << "Transfer Phase 1/3: LocalQueued:"<<localPath<<"to"<<remotePath;
-//    emit fileTransferStarted(tmpSock->pTransfer);
-//}
-
-
-///*! Queue and upload a single file to a remote path on the server.
-//*/
-//void QwcSocket::putFile(const QString localPath, const QString remotePath)
-//{
-//    QFileInfo localFile(localPath);
-//
-//    qDebug() << this << "Queueing upload of file to" << remotePath;
-//    QwcTransferInfo transfer;
-//    transfer.type = Qw::TransferTypeUpload;
-//    transfer.file.path = remotePath;
-//    transfer.file.size = localFile.size();
-//    transfer.file.localAbsolutePath = localPath;
-//    transfer.file.updateLocalChecksum();
-//    transferPool.append(transfer);
-//    emit fileTransferQueueChanged(transfer);
-//    checkTransferQueue();
-//
-//}
 
 
 
