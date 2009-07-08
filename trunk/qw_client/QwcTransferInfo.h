@@ -2,6 +2,7 @@
 #define QWCFILETRANSFERINFO_H
 
 #include "QwTransferInfo.h"
+#include "QwcFileInfo.h"
 
 //namespace Qwc {
 //    enum TransferState {
@@ -20,6 +21,8 @@ public:
 
     /*! The position of the transfer in the server queue. */
     int queuePosition;
+    /*! A list of files that need to be transferred in the context of a folder download/upload. */
+    QList<QwcFileInfo> recursiveFiles;
 
 
 };

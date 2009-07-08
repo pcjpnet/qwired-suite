@@ -4,6 +4,7 @@
 #include "QwFile.h"
 
 #include <QString>
+#include <QList>
 
 namespace Qw {
     /*! The type of the transfer, from the perspective of the client. */
@@ -23,6 +24,7 @@ namespace Qw {
             On the client this means that a STAT has been requested. */
         TransferInfoStateWaiting,
         /*! The transfer is active and running. (not used in the server!)
+            This might indicate that the client is receiving a recursive listing of files.
             \todo Use this state in server mode, too - currently we are using a separate socket state there. */
         TransferInfoStateActive,
         /*! The transfer is paused. (used only in client) */
