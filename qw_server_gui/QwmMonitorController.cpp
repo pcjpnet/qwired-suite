@@ -81,13 +81,17 @@ void QwmMonitorController::startDaemonProcess()
 
 #ifdef Q_OS_WIN32
     command = "qwired_server.exe";
-#elif defined(Q_OS_LINUX)
+#endif
+
+#ifdef Q_OS_LINUX
     command = "./qwired_server";
-#elif defined(Q_OS_MAC)
+#endif
+
+#ifdef Q_OS_MAC
     // On Mac OS X the server binary is within the bundle.
     command = QDir(qApp->applicationDirPath()).absoluteFilePath("qwired_server");
     // Root is usually outside of the bundle
-    procArguments << "-root" << QDir(qApp->applicationDirPath()).cleanPath("../../../");
+    procArguments << "-root" << QDir(qApp->applicationDirPath()).absoluteFilePath("../../../");
 #endif
 
     procArguments << "-remote"; // Enable remote-mode
