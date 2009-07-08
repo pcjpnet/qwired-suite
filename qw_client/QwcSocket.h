@@ -60,10 +60,9 @@ public:
 
 
 
-    // File Transfers
-    bool pIndexingFiles; // true if the client is indexing server fails
-    QList<QwcFileInfo> pRecursiveFileListing;
-    QString pRecursivePath;
+
+//    QList<QwcFileInfo> pRecursiveFileListing;
+//    QString pRecursivePath;
 
 
     void proceedFolderDownload(QwcTransferSocket *);
@@ -286,6 +285,12 @@ private:
     // No further comment on those, and, no, you can not has cheezeburger.
     bool pIzCaturday;
     QString tranzlate(QString);
+
+    /*! If this member is set to true, a LISTRECURSIVE command likely has been issued and results
+        are collected. */
+    bool indexingFiles;
+    /*! This list contains all file information items returned during recursive listing. */
+    QList<QwcFileInfo> indexingResults;
 
     // Buffers while receiving the list of groups and users (admin mode)
     QStringList pAdminGroups;
