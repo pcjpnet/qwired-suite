@@ -58,60 +58,59 @@ public:
 
 
 public slots:
-    void pauseTransfer(const QwcTransferInfo &transfer);
+
+    // Session
+    //
     void disconnectSocketFromServer();
+    void disconnectFromServer();
+    void setIconImage(QImage icon);
+    void setUserStatus(QString theStatus);
+    void setCaturday(bool);
 
 
+    // Chats and Communication
+    //
+    void clearNews();
+    void getNews();
+    void postNews(QString thePost);
+    void leaveChat(int theChatID);
+    void rejectChat(int theChatID);
+    void createChatWithClient(int firstInvitedUser = 0);
+    void setChatTopic(int chatId, QString topic);
+    void sendPrivateMessage(int userId, QString message);
+    void sendChatToRoom(int theChatID, QString theText, bool theIsAction);
+    void inviteClientToChat(int chatId, int userId);
+    void joinChat(int theChatID);
+
+    // Administration
+    //
+    void getClientInfo(int userId);
+    void readGroup(QString theName);
     void createGroup(QwcUserInfo user);
     void editGroup(QwcUserInfo user);
     void deleteGroup(QString theName);
-
-    // Wired Subsystem (not for Trackers)
-    //
-    void banClient(int userId, QString reason);
-    void clearNews();
-    void createChatWithClient(int firstInvitedUser = 0);
-    void createFolder(const QString thePath);
-
-    void createUser(QwcUserInfo user);
-    void deleteFile(const QString thePath);
-
-    void deleteUser(QString theLogin);
-    void disconnectFromServer();
-
-    void editUser(QwcUserInfo);
-    void getClientInfo(int userId);
-    void getFolder(const QString &remotePath, const QString &localPath, const bool &queueLocally);
-    void getFileList(QString thePath);
-    void getFileListRecusive(const QString &path);
-    void getGroups();
-    void getNews();
-    void getUsers();
-    void inviteClientToChat(int chatId, int userId);
-    void joinChat(int theChatID);
-    void kickClient(int userId, QString reason);
-    void leaveChat(int theChatID);
-    void moveFile(const QString source, const QString destination);
-    void postNews(QString thePost);
-    void readGroup(QString theName);
     void readUser(QString theName);
-    void rejectChat(int theChatID);
-    void searchFiles(const QString theSearch);
-    void sendChatToRoom(int theChatID, QString theText, bool theIsAction);
-    void sendPrivateMessage(int userId, QString message);
-    void setCaturday(bool);
-    void setChatTopic(int chatId, QString topic);
-    void setIconImage(QImage icon);
-    void setUserStatus(QString theStatus);
-    void statFile(const QString thePath);
+    void createUser(QwcUserInfo user);
+    void editUser(QwcUserInfo);
+    void deleteUser(QString theLogin);
+    void getGroups();
+    void getUsers();
+    void kickClient(int userId, QString reason);
+    void banClient(int userId, QString reason);
 
-    void setFileComment(QString path, QString comment);
-
-    // Transfers
+    // Files and Transfers
     //
-
+    void createFolder(const QString thePath);
+    void deleteFile(const QString thePath);
+    void pauseTransfer(const QwcTransferInfo &transfer);
+    void setFileComment(QString path, QString comment);
+    void statFile(const QString thePath);
     void downloadFileOrFolder(QwcFileInfo fileInfo);
     void uploadFileOrFolder(QwcFileInfo fileInfo);
+    void searchFiles(const QString theSearch);
+    void getFileList(QString thePath);
+    void getFileListRecusive(const QString &path);
+    void moveFile(const QString source, const QString destination);
 
 
 private slots:
