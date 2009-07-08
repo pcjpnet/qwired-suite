@@ -1588,13 +1588,13 @@ void QwcSocket::disconnectSocketFromServer()
 }
 
 
+/*! Request the list of files recursively from the remote server. This is basically the same as the
+    getFileList() command, but will return all directory contents below the specified path. ("/"
+    would list all files on the remote server.
+*/
 void QwcSocket::getFileListRecusive(const QString & path)
 {
-    qDebug() << this << "Starting recursive indexing of" << path;
-    pRecursiveFileListing.clear();
-    pRecursivePath = path;
-    pIndexingFiles = true;
-    getFileList(path);
+    sendMessage(QwMessage("LISTRECURSIVE").appendArg(path));
 }
 
 
