@@ -10,6 +10,8 @@ namespace Qw {
     /*! The type of the transfer, from the perspective of the client. */
     enum TransferType { TransferTypeDownload,
                         TransferTypeUpload,
+                        /*! Indicates the transfer of a folder. Technically it's the same as a normal
+                            download, but it has to be pre-processed properly before. */
                         TransferTypeFolderDownload,
                         TransferTypeFolderUpload
                     };
@@ -28,7 +30,9 @@ namespace Qw {
             \todo Use this state in server mode, too - currently we are using a separate socket state there. */
         TransferInfoStateActive,
         /*! The transfer is paused. (used only in client) */
-        TransferInfoStatePaused
+        TransferInfoStatePaused,
+        /*! The transfer information is still being indexed (folder transfers). */
+        TransferInfoStateIndexing
     };
 }
 

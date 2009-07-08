@@ -47,6 +47,7 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
 */
 void QwcSocket::handleTransferDone(const QwcTransferInfo &transfer)
 {
+    // Remove the transfer socket, but queue the next file directly
     QMutableListIterator<QwcTransferSocket*> i(transferSockets);
     while (i.hasNext()) {
         QwcTransferSocket *item = i.next();
@@ -57,6 +58,12 @@ void QwcSocket::handleTransferDone(const QwcTransferInfo &transfer)
             item->deleteLater();
             break;
         }
+    }
+
+
+    transferPool.prepend(transfer);
+    if (!transferPool.first().recursiveFiles.isEmpty()) {
+        transferPool.first().applyNextFile();
     }
 
     checkTransferQueue();
@@ -524,7 +531,7 @@ void QwcSocket::handleMessage402(const QwMessage &message)
     QMutableListIterator<QwcTransferInfo> i(transferPool);
     while (i.hasNext()) {
         QwcTransferInfo &item = i.next();
-        if (item.type == Qw::TransferTypeDownload
+        if ((item.type == Qw::TransferTypeDownload ||item.type == Qw::TransferTypeFolderDownload)
             && item.state == Qw::TransferInfoStateWaiting
             && item.file.path == fileInfo.path)
         {
@@ -550,74 +557,7 @@ void QwcSocket::handleMessage402(const QwMessage &message)
 
 
     // This was not a response to a download.
-
     emit fileInformation(fileInfo);
-
-//
-//    // Check if we are waiting for a stat
-//    QListIterator<QPointer<QwcTransferSocket> > i(pTransferSockets);
-//    int tmpIdx=0;
-//    while( i.hasNext() ) {
-//        QwcTransferSocket *tmpT = i.next();
-//        if(!tmpT) continue;
-//
-//
-//        if( (tmpT->pTransfer.pTransferType==WiredTransfer::TypeDownload
-//             && tmpT->pTransfer.pStatus==WiredTransfer::StatusWaitingForStat
-//             && tmpT->pTransfer.pRemotePath==tmpPath)
-//            || (tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload
-//                && tmpT->pTransfer.pFileStatus==WiredTransfer::StatusWaitingForStat
-//                && tmpT->pTransfer.pRemotePath==tmpPath) ) {
-//
-//            qDebug() << "Transfer Phase 1/3:"<<tmpPath<<": received stat, requesting transfer:"<<tmpPath<<tmpChecksum;
-//
-//            // Check if we need to resume
-//            tmpT->pTransfer.pOffset = 0;
-//            tmpT->pTransfer.pDoneSize = 0;
-//
-//            QString tmpFilePath = tmpT->pTransfer.pLocalPath+".WiredTransfer";
-//            QFile tmpFile(tmpFilePath);
-//            if(tmpFile.exists()) {
-//                if(tmpFile.open(QIODevice::ReadOnly)) {
-//                    QByteArray tmpDat = tmpFile.read(1024*1024);
-//                    QString tmpCS = QCryptographicHash::hash(tmpDat, QCryptographicHash::Sha1).toHex();
-//                    qDebug() << "QwcSocket: Download file exists, checksum:"<<tmpCS<<"; server:"<<tmpChecksum;
-//                    if(tmpChecksum==tmpCS && tmpFile.size()<tmpSize) {
-//                        qDebug() << "QwcSocket: Checksums are identical. Offset is"<<tmpFile.size();
-//                        tmpT->pTransfer.pOffset = tmpFile.size();
-//                        tmpT->pTransfer.pDoneSize = tmpFile.size();
-//                    } else {
-//                        qDebug() << "QwcSocket: Checksums are NOT identical, deleting file.";
-//                        tmpFile.close();
-//                        tmpFile.remove();
-//                    }
-//                }
-//            }
-//
-//            // Set some more info
-//            tmpT->pTransfer.pChecksum = tmpChecksum;
-//            tmpT->pTransfer.pTotalSize = tmpSize;
-//
-//            if(tmpT->pTransfer.pTransferType==WiredTransfer::TypeFolderDownload)
-//                tmpT->pTransfer.pFileStatus = WiredTransfer::StatusQueued;
-//            else	tmpT->pTransfer.pStatus = WiredTransfer::StatusQueued;
-//
-//            // Request a file download from the server
-//            sendMessage(QwMessage("GET").appendArg(tmpPath)
-//                        .appendArg(QByteArray::number(tmpT->pTransfer.pOffset)));
-//
-//            qDebug() << "QwcSocket: GET'ing the file with offset"<<tmpT->pTransfer.pOffset<<"main status"<<tmpT->pTransfer.pStatus<<"file status"<<tmpT->pTransfer.pFileStatus;
-//            return;
-//        }
-//    }
-//    tmpIdx++;
-//
-//
-//    // Not in the transfer queue, pass the event to the user code.
-//    QwcFileInfo tmpFile;
-//    tmpFile.setFromMessage402(message);
-//    emit fileInformation(tmpFile);
-
 }
 
 
@@ -634,7 +574,9 @@ void QwcSocket::handleMessage410(const QwMessage &message)
         emit onFilesListItem(file);
     } else {
         // Otherwise we simply add the result to the transfer information.
-        indexingResults.append(file);
+        if (file.type == Qw::FileTypeRegular) {
+            indexingResults.append(file);
+        }
     }
 }
 
@@ -658,62 +600,24 @@ void QwcSocket::handleMessage411(const QwMessage &message)
         QMutableListIterator<QwcTransferInfo> i(transferPool);
         while (i.hasNext()) {
             QwcTransferInfo &item = i.next();
-            if (item.file.path == remotePath && item.type == Qw::TransferTypeFolderDownload) {
+            if (item.file.path == remotePath && item.type == Qw::TransferTypeFolderDownload
+                && item.state == Qw::TransferInfoStateIndexing)
+            {
                 qDebug() << this << "Updated transfer information for listing";
+                item.indexingComplete = true;
                 item.recursiveFiles = indexingResults;
+                item.state = Qw::TransferInfoStateNone;
+                item.applyNextFile();
+
             }
         }
 
         indexingFiles = false;
         indexingResults.clear();
+
+        // Now update the transfer
+        checkTransferQueue();
     }
-//    if(!pIndexingFiles) {
-//        emit onFilesListDone(message.getStringArgument(0),
-//                             message.getStringArgument(1).toLongLong() );
-//    } else {
-//        // Listing of directory complete. Continue the listing.
-//        int maxIndexingDepth = 16;
-//        QMutableListIterator<QwcFileInfo> i(pRecursiveFileListing);
-//        while(i.hasNext()) {
-//            QwcFileInfo &file = i.next();
-//            if(file.type == Qw::FileTypeFolder &&
-//               !file.isIndexed && file.size && file.path.count("/") <= maxIndexingDepth ) {
-//                file.isIndexed = true;
-//                getFileList(file.path);
-//                return;
-//            }
-//        }
-//
-//        // Find a transfer socket
-//        QListIterator<QPointer<QwcTransferSocket> > j(pTransferSockets);
-//        while(j.hasNext()) {
-//            QwcTransferSocket *tmpT = j.next();
-//            if(!tmpT) continue;
-//            QwcTransferInfo &transfer = tmpT->pTransfer;
-//            if(transfer.pRemotePath==pRecursivePath
-//               && transfer.pTransferType==WiredTransfer::TypeFolderDownload
-//               && transfer.pStatus==WiredTransfer::StatusWaitingForStat) {
-//                qDebug() << this << "Waiting folder transfer socket found.";
-//                transfer.fileList = pRecursiveFileListing;
-//                transfer.pFilesCount = pRecursiveFileListing.count();
-//                transfer.pFilesDone = 0;
-//                transfer.pFolderDone = 0;
-//                transfer.pFolderSize = 0;
-//                QListIterator<QwcFileInfo> k(pRecursiveFileListing);
-//                while(k.hasNext()) { transfer.pFolderSize+=k.next().size; }
-//
-//                transfer.pRemoteFolder = pRecursivePath;
-//                transfer.pStatus = WiredTransfer::StatusActive;
-//                proceedFolderDownload(tmpT);
-//                return;
-//            }
-//        }
-//
-//        // Finished, if we are here.
-//        pIndexingFiles = false;
-//        pRecursivePath.clear();
-//
-//    }
 }
 
 
@@ -1423,6 +1327,7 @@ void QwcSocket::sendMessageINFO()
                 case QSysInfo::MV_10_3: tmpOsVersion="10.3"; break;
                 case QSysInfo::MV_10_4: tmpOsVersion="10.4"; break;
                 case QSysInfo::MV_10_5: tmpOsVersion="10.5"; break;
+                case QSysInfo::MV_10_6: tmpOsVersion="10.6"; break;
                 default: tmpOsVersion="Unknown"; break;
                 }
 #endif
@@ -1520,19 +1425,26 @@ void QwcSocket::checkTransferQueue()
 
     qDebug() << this << "Starting new waiting transfer from queue:" << transfer->file.path;
 
-    // Request the transfer on the server
-    if (transfer->type == Qw::TransferTypeFolderDownload) {
-        // For folder transfers, we first need to index the contents of the directory tree on the
-        // remote server.
-        transfer->state = Qw::TransferInfoStateWaiting; // waiting for recursive listing
-        indexingFiles = true;
-        getFileListRecusive(transfer->file.path);
-        qDebug() << this << "Sending LISTRECURSIVE command to get tree contents";
+    if (transfer->type == Qw::TransferTypeDownload || transfer->type == Qw::TransferTypeFolderDownload) {
+        if (transfer->type == Qw::TransferTypeDownload
+            || (transfer->indexingComplete && transfer->type == Qw::TransferTypeFolderDownload))
+        {
+            // We can directly request a STAT for normal transfers. This is when we are having a
+            // normal transfer, or a folder transfer which's indexing is complete.
+            transfer->state = Qw::TransferInfoStateWaiting; // waiting for STAT/hash
+            sendMessage(QwMessage("STAT").appendArg(transfer->file.path));
+            qDebug() << this << "Sending STAT command for download";
+        } else {
+            // If we have a folder transfer, and the indexing is not complete yet, we should do
+            // that by issuing a LISTRECURSIVE command.
+            transfer->state = Qw::TransferInfoStateIndexing; // waiting for recursive listing
+            // Copy the folder information to the designated member
+            transfer->folder = transfer->file;
+            indexingFiles = true;
+            getFileListRecusive(transfer->file.path);
+            qDebug() << this << "Sending LISTRECURSIVE command to get tree contents";
+        }
 
-    } else if (transfer->type == Qw::TransferTypeDownload) {
-        transfer->state = Qw::TransferInfoStateWaiting; // waiting for STAT/hash
-        sendMessage(QwMessage("STAT").appendArg(transfer->file.path));
-        qDebug() << this << "Sending STAT command for download";
 
     } else if (transfer->type == Qw::TransferTypeUpload) {
         transfer->state = Qw::TransferInfoStateWaiting; // waiting for STAT/hash

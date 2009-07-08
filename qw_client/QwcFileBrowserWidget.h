@@ -10,8 +10,6 @@
 #include <QPointer>
 #include <QSortFilterProxyModel>
 
-class QwcSession;
-
 /*! \class QwcFileBrowserWidget
     \author Bastian Bense <bastibense@gmail.com>
     \date 2009-03-06
@@ -40,8 +38,6 @@ public:
     void setFileInformation(QwcFileInfo file);
     void setUserInformation(QwcUserInfo info);
 
-//    void dragEnterEvent(QDragEnterEvent *event);
-//    void dropEvent(QDropEvent *event);
 
 signals:
     /*! This signal is emitted when the user wants to refresh the contents of the current directory. */
@@ -72,7 +68,6 @@ private slots:
     void on_findFilter_returnPressed();
     void on_fList_itemSelectionChanged();
     void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void fileTransferDone(QwcTransferInfo);
 
     // Info page
     void on_btnInfoCancel_clicked();
@@ -86,8 +81,6 @@ private:
     qlonglong freeRemoteSpace;
     /*! This contains the total amount of data for all listed items. */
     qlonglong totalUsedSpace;
-
-    void downloadFile(QString path);
 
 public slots:
     void handleFilesListItem(QwcFileInfo item);
