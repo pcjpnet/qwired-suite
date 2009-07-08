@@ -949,7 +949,22 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(QwMessage &message)
     // End of list
     QwMessage reply("411");
     reply.appendArg(targetDirectory.path);
-    reply.appendArg("0");
+
+#ifdef Q_OS_WIN32
+    ULARGE_INTEGER totalFreeSpace;
+    GetDiskFreeSpaceEx(NULL, &totalFreeSpace, NULL, NULL);
+    reply.appendArg(QString::number(totalFreeSpace.QuadPart));
+#endif
+
+#ifdef Q_OS_UNIX
+    struct statvfs diskInfo;
+    if (statvfs("/", &diskInfo) == 0) {
+        reply.appendArg(QString::number((qlonglong)diskInfo.f_bfree * (qlonglong)diskInfo.f_frsize));
+    } else {
+        reply.appendArg("0");
+    }
+#endif
+
     sendMessage(reply);
 }
 
