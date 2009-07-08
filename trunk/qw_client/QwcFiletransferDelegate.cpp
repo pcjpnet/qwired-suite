@@ -11,11 +11,13 @@ QwcFiletransferDelegate::QwcFiletransferDelegate(QObject *parent) : QAbstractIte
 {
 }
 
+
 QSize QwcFiletransferDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(index);
     return QSize(option.rect.width(), 50);
 }
+
 
 void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -40,6 +42,10 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     } else if (transfer.state == Qw::TransferInfoStateWaiting) {
         statusText = tr("Waiting for server");
+        icon = QPixmap(":/icons/32x32/network-server.png");
+
+    } else if (transfer.state == Qw::TransferInfoStateIndexing) {
+        statusText = tr("Indexing");
         icon = QPixmap(":/icons/32x32/network-server.png");
 
     } else if (transfer.state == Qw::TransferInfoStatePaused) {
@@ -81,7 +87,14 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     currentFont.setPixelSize(12);
     currentFont.setBold(true);
     painter->setFont(currentFont);
-    painter->drawText(0, painter->fontMetrics().ascent()+1, transfer.file.fileName());
+
+    if (transfer.type == Qw::TransferTypeFolderDownload) {
+        painter->drawText(0, painter->fontMetrics().ascent()+1, QString("%1 (%2)")
+                          .arg(transfer.folder.fileName())
+                          .arg(transfer.file.fileName()));
+    } else {
+        painter->drawText(0, painter->fontMetrics().ascent()+1, transfer.file.fileName());
+    }
 
     // Status Bar
     currentFont.setPixelSize(9);
@@ -97,8 +110,15 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         barOption.state = QStyle::State_Enabled;
         barOption.direction = QApplication::layoutDirection();
         barOption.minimum = 0;
-        barOption.maximum = 100;
-        barOption.progress = int(double(transfer.bytesTransferred)/double(transfer.file.size)*100);
+
+        if (transfer.type == Qw::TransferTypeFolderDownload) {
+            barOption.maximum = transfer.folder.folderCount;
+            barOption.progress = transfer.folder.folderCount - transfer.recursiveFiles.count();
+        } else {
+            barOption.maximum = 100;
+            barOption.progress = int(double(transfer.bytesTransferred)/double(transfer.file.size)*100);
+        }
+
         barOption.rect.setLeft(0);
         barOption.rect.setTop(0);
         barOption.rect.setHeight(16);

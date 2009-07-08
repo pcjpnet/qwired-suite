@@ -616,6 +616,7 @@ void QwcSocket::handleMessage411(const QwMessage &message)
                 item.indexingComplete = true;
                 item.recursiveFiles = indexingResults;
                 item.state = Qw::TransferInfoStateNone;
+                item.updateFolderTransferInfo();
                 item.applyNextFile();
 
             }
