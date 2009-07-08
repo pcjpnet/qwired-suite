@@ -15,7 +15,7 @@ namespace Qw {
                     };
 
     enum TransferInfoState {
-        /*! The transfer has no status or is in a local queue. */
+        /*! The transfer has no status or is in a local queue, waiting to be processed. */
         TransferInfoStateNone,
         /*! The transfer info is queued and listed on the client.
             On the client this indicates that the transfer is server-queued. */
