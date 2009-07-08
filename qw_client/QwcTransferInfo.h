@@ -45,16 +45,37 @@ public:
         currentTransferSpeed = 0;
     }
 
+
+    /*! Update information about the folder transfer. This will update the \a folder member of the
+        object to have the \a size property set.
+    */
+    void updateFolderTransferInfo()
+    {
+        // Calculate the total size of all files
+        folder.size = 0;
+        QListIterator<QwcFileInfo> i(recursiveFiles);
+        while (i.hasNext()) {
+            const QwcFileInfo &item = i.next();
+            folder.size += item.size;
+        }
+        // Also store the total number of files
+        folder.folderCount = recursiveFiles.count();
+    }
+
+
+
     /*! The position of the transfer in the server queue. */
     int queuePosition;
     /*! A list of files that need to be transferred in the context of a folder download/upload. */
     QList<QwcFileInfo> recursiveFiles;
     /*! A file information that contains information about the folder that is transferred. */
-    QwFile folder;
+    QwcFileInfo folder;
     /*! Contains the status of the indexing of a folder transfer. When true, the indexing was
         completed, and the process should be used like a normal transfer. This can be safely
         ignored in normal transfers and is just relevant for handling folder transfers. */
     bool indexingComplete;
+    /*! This overrides the file member to have the client-specific information, too. */
+    QwcFileInfo file;
 
 };
 

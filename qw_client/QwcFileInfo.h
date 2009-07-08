@@ -16,6 +16,9 @@ public:
     void setFromMessage410(const QwMessage &message);
 
     QIcon fileIcon() const;
+
+    /*! Contains the total number of all files to be transferred during a folder transfer. */
+    quint64 folderCount;
 };
 
 Q_DECLARE_METATYPE(QwcFileInfo);

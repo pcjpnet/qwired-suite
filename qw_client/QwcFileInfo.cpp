@@ -3,6 +3,7 @@
 
 QwcFileInfo::QwcFileInfo() : QwFile()
 {
+    folderCount = 0;
 }
 
 
