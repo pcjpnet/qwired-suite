@@ -60,10 +60,19 @@ void QwcSocket::handleTransferDone(const QwcTransferInfo &transfer)
         }
     }
 
+    if (transfer.type == Qw::TransferTypeFolderDownload) {
+        // If we are having a folder transfer, we should prepend the transfer info to the queue
+        // again in order to load up the next file.
 
-    transferPool.prepend(transfer);
-    if (!transferPool.first().recursiveFiles.isEmpty()) {
-        transferPool.first().applyNextFile();
+        if (transfer.recursiveFiles.isEmpty()) {
+            // No more files to transfer. We can safely delete the transfer now.
+            emit fileTransferDone(transfer);
+        } else {
+            // There are still files to be transferred. Load the next information into the transfer
+            // object and run the queue again.
+            transferPool.prepend(transfer);
+            transferPool.first().applyNextFile();
+        }
     }
 
     checkTransferQueue();
@@ -1320,7 +1329,9 @@ void QwcSocket::checkTransferQueue()
 
     qDebug() << this << "Starting new waiting transfer from queue:" << transfer->file.path;
 
-    if (transfer->type == Qw::TransferTypeDownload || transfer->type == Qw::TransferTypeFolderDownload) {
+    if (transfer->type == Qw::TransferTypeDownload
+        || transfer->type == Qw::TransferTypeFolderDownload)
+    {
         if (transfer->type == Qw::TransferTypeDownload
             || (transfer->indexingComplete && transfer->type == Qw::TransferTypeFolderDownload))
         {
