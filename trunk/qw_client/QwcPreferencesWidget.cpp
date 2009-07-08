@@ -275,21 +275,21 @@ void QwcPreferencesWidget::savePrefs()
 
 
 
-void QwcPreferencesWidget::on_btnGeneralSetIcon_clicked() {
+void QwcPreferencesWidget::on_btnGeneralSetIcon_clicked()
+{
     QSettings settings;
-    QString tmpFile = QFileDialog::getOpenFileName(this, tr("Select Icon"), QDir::homePath(), tr("Images (*.png *.xpm *.jpg)") );
-    if( !tmpFile.isEmpty() ) {
-        QPixmap tmpImg(tmpFile);
-        if( !tmpImg.isNull() ) {
-            //tmpImg = tmpImg.scaled(32, 32, Qt::KeepAspectRatio);
-            fIcon->setPixmap(tmpImg);
-            settings.setValue("general/icon", tmpImg);
-        } else {
-            // File open error
-            QMessageBox::warning(this, tr("Invalid File"), tr("Could not open the selected image."));
-        }
+    QString imageFile = QFileDialog::getOpenFileName(this, tr("Select Icon"),
+                                                   QDir::homePath(), tr("Images (*.png)") );
+
+    if (imageFile.isEmpty()) { return; }
+    QPixmap tmpImg(imageFile);
+
+    if (imageFile.isNull()) {
+         QMessageBox::warning(this, tr("Invalid File"), tr("Could not open the selected image."));
     }
 
+    fIcon->setPixmap(tmpImg);
+    settings.setValue("general/icon", tmpImg);
 }
 
 // Reset the icon
