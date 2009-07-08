@@ -1016,7 +1016,9 @@ void QwcSession::doActionTransfers()
 
         // Connect the signals
         connect(pTranfersWindow, SIGNAL(transferStopped(QwcTransferInfo)),
-                socket, SLOT(pauseTransfer(QwcTransferInfo)) );
+                socket, SLOT(pauseTransfer(QwcTransferInfo)));
+        connect(pTranfersWindow, SIGNAL(transferResumed(QwcTransferInfo)),
+                socket, SLOT(resumeTransfer(QwcTransferInfo)));
 
         // Ensure that the model can access data from the socket, like the current list of transfers.
         pTranfersWindow->transferModel()->setSocket(socket);
@@ -1032,64 +1034,6 @@ void QwcSession::doActionTransfers()
 }
 
 
-
-void QwcSession::downloadFolder(const QString &remotePath, const QString &localPath)
-{
-    Q_UNUSED(localPath);
-    Q_UNUSED(remotePath);
-//    QSettings s;
-//    socket->getFolder(remotePath, localPath, true);
-//    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderDownload);
-//    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
-//    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-//        socket->runTransferQueue(Qw::TransferTypeFolderDownload);
-}
-
-
-void QwcSession::uploadFolder(const QString &localPath, const QString &remotePath)
-{
-    Q_UNUSED(remotePath);
-    Q_UNUSED(localPath);
-//    QSettings s;
-//    socket->putFolder(localPath, remotePath, true);
-//    bool isTransferring = socket->isTransferringFileOfType(Qw::TransferTypeFolderUpload);
-//    bool prefQueueEnabled = s.value("files/queue_local", false).toBool();
-//    if(!prefQueueEnabled || (prefQueueEnabled && !isTransferring))
-//        socket->runTransferQueue(Qw::TransferTypeFolderUpload);
-}
-
-
-///*! Check the local transfer queue and initiate new transfers if there are free slots or local
-//    queueing is disabled.
-//*/
-//void QwcSession::checkTransferQueue()
-//{
-//    QwcTransferInfo transfer = transferPool.takeFirstFromQueue();
-//}
-
-
-//void QwcSession::fileListingRecursiveDone(const QList<QwcFileInfo> items)
-//{
-//    qlonglong totalSize = 0;
-//    int totalFolders = 0;
-//    int totalFiles = 0;
-//    QListIterator<QwcFileInfo> i(items);
-//    while(i.hasNext()) {
-//        QwcFileInfo file = i.next();
-//        totalSize += file.size;
-//        totalFolders += file.type==Qw::FileTypeFolder || file.type==Qw::FileTypeUploadsFolder
-//                        || Qw::FileTypeDropBox ? 1 : 0;
-//        totalFiles += file.type == Qw::FileTypeRegular ? 1 : 0;
-//    }
-//
-//    QMessageBox::StandardButton button = QMessageBox::question(0,
-//        tr("Folder Download"),
-//        tr("You are about to download %1 file(s) and %2 folder(s) which occupy a total of %3.\nDo you want to begin the transfer?")
-//            .arg(totalFiles).arg(totalFolders).arg(QwcFileInfo::humanReadableSize(totalSize)),
-//        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-//
-//    if(button == QMessageBox::No) { return; }
-//}
 
 
 /*! Show the private messenger and select the provided user, so that a message can be sent to the

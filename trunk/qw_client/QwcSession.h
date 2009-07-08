@@ -161,10 +161,6 @@ public slots:
 
     void setBannerView(const QPixmap banner);
 
-    void downloadFolder(const QString &remotePath, const QString &localPath);
-    void uploadFolder(const QString &localPath, const QString &remotePath);
-//    void checkTransferQueue();
-
 
 };
 

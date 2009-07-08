@@ -51,10 +51,11 @@ public:
     void setNickname(QString);
     void setUserAccount(QString, QString);
 
-    /*! Returns a const list of pointers to all active transfer sockets. */
-    const QList<QwcTransferSocket*> allTransferSockets() const { return transferSockets; }
-    /*! Returns a const reference to a list of all queued transfers. */
-    const QList<QwcTransferInfo>& allQueuedTransfers() const { return transferPool; }
+    /*! This member contains all active and locally queued transfer sockets. */
+    QList<QwcTransferSocket*> transferSockets;
+
+//    /*! Returns a const reference to a list of all queued transfers. */
+//    const QList<QwcTransferInfo>& allQueuedTransfers() const { return transferPool; }
 
 
 public slots:
@@ -103,6 +104,7 @@ public slots:
     void createFolder(const QString thePath);
     void deleteFile(const QString thePath);
     void pauseTransfer(const QwcTransferInfo &transfer);
+    void resumeTransfer(const QwcTransferInfo &transfer);
     void setFileComment(QString path, QString comment);
     void statFile(const QString thePath);
     void downloadFileOrFolder(QwcFileInfo fileInfo);
@@ -114,8 +116,10 @@ public slots:
 
 
 private slots:
-    void handleTransferDone(const QwcTransferInfo &transfer);
-    void handleTransferError(const QwcTransferInfo &transfer);
+    void handleTransferDone(QwcTransferSocket *transferSocket);
+    void handleTransferError(QwcTransferSocket *transferSocket);
+    void handleTransferStatus(QwcTransferSocket *transferSocket);
+    void handleTransferStarted(QwcTransferSocket *transferSocket);
 
     void handleMessageReceived(const QwMessage &message);
 
@@ -137,6 +141,9 @@ signals:
     void protocolError(Qw::ProtocolError error);
 
 
+    // Signals for file transfers
+    // These should be used by the main application (non Qwired-code).
+
     /*! Relay signal which origns from the transfer socket of any active transfer. */
     void fileTransferDone(const QwcTransferInfo &transfer);
     /*! Relay signal which origns from the transfer socket of any active transfer. */
@@ -146,7 +153,7 @@ signals:
     /*! Relay signal which origns from the transfer socket of any active transfer. */
     void fileTransferStatus(const QwcTransferInfo &transfer);
     /*! Signal which is emitted after the transfer queue has changed (added or removed a transfer). */
-    void fileTransferQueueChanged(const QwcTransferInfo &transfer);
+    void fileTransferQueueChanged();
 
 
     /*! A news item was received from the server and should be added to the list of news. A series
@@ -264,8 +271,8 @@ private:
 
     // Transfers
     void checkTransferQueue();
-    QList<QwcTransferInfo> transferPool;
-    QList<QwcTransferSocket*> transferSockets;
+//    QList<QwcTransferInfo> transferPool;
+
 
     // No further comment on those, and, no, you can not has cheezeburger.
     bool pIzCaturday;

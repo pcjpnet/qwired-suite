@@ -27,7 +27,8 @@ public:
     QwcTransferInfo transferInfo;
 
 public slots:
-    void abortTransfer();
+    void stopTransfer();
+    bool prepareNextFile();
 
 private slots:
     void handleSocketEncrypted();
@@ -50,17 +51,15 @@ private:
 
 signals:
     /*! The connection was established and the data transfer begins. */
-    void fileTransferStarted(const QwcTransferInfo &transfer);
+    void fileTransferStarted(QwcTransferSocket *transferSocket);
     /*! The transfer was not successfully completed and the socket can be deleted. */
-    void fileTransferError(const QwcTransferInfo &transfer);
+    void fileTransferError(QwcTransferSocket *transferSocket);
     /*! The transfer has made progress and this can be displayed to the user. */
-    void fileTransferStatus(const QwcTransferInfo &transfer);
+    void fileTransferStatus(QwcTransferSocket *transferSocket);
     /*! A connection-level error occoured. The socket can be deleted. */
     void fileTransferSocketError(QAbstractSocket::SocketError error);
     /*! The transfer was successfully completed and the socket can be deleted. */
-    void fileTransferDone(const QwcTransferInfo &transfer);
-
-    void fileTransferFileDone(const QwcTransferInfo &transfer);
+    void fileTransferDone(QwcTransferSocket *transferSocket);
 };
 
 #endif

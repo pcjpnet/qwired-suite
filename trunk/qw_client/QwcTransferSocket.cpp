@@ -25,7 +25,7 @@ QwcTransferSocket::~QwcTransferSocket()
 */
 void QwcTransferSocket::beginTransfer()
 {
-    emit fileTransferStarted(transferInfo);
+    emit fileTransferStarted(this);
 
     qDebug() << this << "Connecting to remote host at" << serverHost << "port" << serverPort;
     sslSocket->connectToHostEncrypted(serverHost, serverPort);
@@ -51,11 +51,12 @@ void QwcTransferSocket::handleSocketEncrypted()
     sslSocket->flush();
 
     // Start the transfer timer which is responsible for sending chunks of data
-    if (transferInfo.type == Qw::TransferTypeDownload ||transferInfo.type == Qw::TransferTypeFolderDownload) {
+    if (transferInfo.type == Qw::TransferTypeDownload || transferInfo.type == Qw::TransferTypeFolderDownload) {
         fileReader.setFileName(transferInfo.file.localAbsolutePath);
         if (!fileReader.open(QIODevice::WriteOnly)) {
             qDebug() << this << "Unable to open file for writing:" << fileReader.errorString();
-            abortTransfer();
+            stopTransfer();
+            emit fileTransferError(this);
             return;
         }
         transferTimer.start(transferTimerInterval);
@@ -64,7 +65,8 @@ void QwcTransferSocket::handleSocketEncrypted()
         fileReader.setFileName(transferInfo.file.localAbsolutePath);
         if (!fileReader.open(QIODevice::ReadOnly)) {
             qDebug() << this << "Unable to open file for reading:" << fileReader.errorString();
-            abortTransfer();
+            stopTransfer();
+            emit fileTransferError(this);
             return;
         }
 
@@ -79,7 +81,7 @@ void QwcTransferSocket::handleSocketEncrypted()
 
     transferInfo.state = Qw::TransferInfoStateActive;
 
-    emit fileTransferStatus(transferInfo);
+    emit fileTransferStatus(this);
 }
 
 
@@ -105,7 +107,7 @@ void QwcTransferSocket::transmitFileChunk()
         // Emit a update signal if we received data, or if 4 seconds have passed
         if (readBytes > 0 || currentSpeedTimer.elapsed() > 4000) {
             transferInfo.currentTransferSpeed = 1000.0/float(currentSpeedTimer.restart()) * readBytes;
-            emit fileTransferStatus(transferInfo);
+            emit fileTransferStatus(this);
             qDebug() << "Downloaded" << readBytes << "bytes." << transferInfo.bytesTransferred
                     << "of" << transferInfo.file.size << "at" << transferInfo.currentTransferSpeed;
         }
@@ -119,7 +121,7 @@ void QwcTransferSocket::transmitFileChunk()
             }
 
             qDebug() << this << "Transfer incomplete.";
-            abortTransfer();
+            stopTransfer();
         }
 
 
@@ -141,7 +143,8 @@ void QwcTransferSocket::transmitFileChunk()
         // Also return when the connection dropped or another TCP error has occurred
         if (sslSocket->state() == QAbstractSocket::UnconnectedState) {
             qDebug() << this << "Transfer socket lost connection";
-            abortTransfer();
+            stopTransfer();
+            emit fileTransferError(this);
             return;
         }
 
@@ -158,17 +161,37 @@ void QwcTransferSocket::transmitFileChunk()
 
 //        qDebug() << "Transferred" << transferInfo.bytesTransferred << "of" << fileReader.size();
 
-        emit fileTransferStatus(transferInfo);
+        emit fileTransferStatus(this);
     }
 }
 
 
-void QwcTransferSocket::abortTransfer()
+/*! Stop an active transfer and halt data transmission.
+*/
+void QwcTransferSocket::stopTransfer()
 {
-    qDebug() << this << "Aborting transfer.";
+    qDebug() << this << "Halting transfer.";
     transferTimer.stop();
     sslSocket->close();
-    emit fileTransferError(transferInfo);
+//    emit fileTransferError(this);
+}
+
+
+/*! Prepare (reset) the transfer socket for the transmission of the next file. This is only relevant
+    for folder transfers. It basically resets the socket state and does some clean-up work.
+    \returns true if there were more files to be transferred, or false if there are no further files
+    to be send or received.
+*/
+bool QwcTransferSocket::prepareNextFile()
+{
+    sslSocket->close();
+    fileReader.close();
+    if (transferInfo.recursiveFiles.isEmpty()) {
+        // No more files remaining
+        return false;
+    }
+    transferInfo.applyNextFile();
+    return true;
 }
 
 
@@ -194,7 +217,7 @@ void QwcTransferSocket::finishTransfer()
     sslSocket->flush();
     sslSocket->disconnectFromHost();
     transferTimer.stop();
-    emit fileTransferDone(transferInfo);
+    emit fileTransferDone(this);
 }
 
 
