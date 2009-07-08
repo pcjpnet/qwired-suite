@@ -194,13 +194,13 @@ void QwmMonitorController::handleCommandSTAT(QHash<QString,QString> parameters)
 {
     monitorWindow->fStatsUsers->setText(parameters["USERS"]);
     monitorWindow->fStatsTransfers->setText(parameters["TRANSFERS"]);
-    monitorWindow->fStatsDownloadTotal->setText(humanReadableSize(parameters["TOTAL_BYTES_SENT"].toLongLong()));
-    monitorWindow->fStatsUploadTotal->setText(humanReadableSize(parameters["TOTAL_BYTES_RECEIVED"].toLongLong()));
+    monitorWindow->fStatsDownloadTotal->setText(QwFile::humanReadableSize(parameters["TOTAL_BYTES_SENT"].toLongLong()));
+    monitorWindow->fStatsUploadTotal->setText(QwFile::humanReadableSize(parameters["TOTAL_BYTES_RECEIVED"].toLongLong()));
 
     monitorWindow->fTransfersStatus->setText(tr("Transfers: %1, Download: %2/s, Upload: %3/s")
                                  .arg(monitorWindow->fTransfersList->count())
-                                 .arg(humanReadableSize(parameters["SPEED_DOWNLOADS"].toLongLong()))
-                                 .arg(humanReadableSize(parameters["SPEED_UPLOADS"].toLongLong())));
+                                 .arg(QwFile::humanReadableSize(parameters["SPEED_DOWNLOADS"].toLongLong()))
+                                 .arg(QwFile::humanReadableSize(parameters["SPEED_UPLOADS"].toLongLong())));
 }
 
 
@@ -216,7 +216,7 @@ void QwmMonitorController::handleCommandTRANSFERS(QList<QwTransferInfo> transfer
         listItem->setText(tr("%1\nUser: %2, Speed: %3/s")
                           .arg(item.file.fileName())
                           .arg(item.targetUserId)
-                          .arg(humanReadableSize(item.currentTransferSpeed)));
+                          .arg(QwFile::humanReadableSize(item.currentTransferSpeed)));
         if (item.type == Qw::TransferTypeDownload) {
             listItem->setIcon(QIcon(":/icons/32x32/go-down.png"));
         } else {
@@ -316,29 +316,4 @@ void QwmMonitorController::handle_btnRebuildIndex_clicked()
 {
     monitorWindow->btnRebuildIndex->setEnabled(false);
     socket->sendCommand("REINDEX");
-}
-
-/*! Return a human readable presentation of a information size.
-*/
-QString QwmMonitorController::humanReadableSize(qlonglong theBytes)
-{
-    qlonglong a=1024;
-    float b=1024;
-
-    if(theBytes<0) {
-        return QString("-");
-    } else if(theBytes < a) {
-        return QString("%1").arg(theBytes);
-    } else if(theBytes < a*a) {
-        return QString("%1 KB").arg(float(theBytes/b), 0, 'f', 2);
-    } else if(theBytes < a*a*a) {
-        return QString("%1 MB").arg(float(theBytes/b/b), 0, 'f', 2);
-    } else if(theBytes < a*a*a*a) {
-        return QString("%1 GB").arg(float(theBytes/b/b/b), 0, 'f', 2);
-    } else if(theBytes < a*a*a*a*a) {
-        return QString("%1 TB").arg(float(theBytes/b/b/b/b), 0, 'f', 2);
-    } else if(theBytes < a*a*a*a*a*a) {
-        return QString("%1 PB").arg(float(theBytes/b/b/b/b/b), 0, 'f', 2);
-    }
-    return "?";
 }
