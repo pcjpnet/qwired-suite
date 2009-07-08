@@ -26,7 +26,8 @@ void QwsFileIndexerThread::run()
         return;
     }
 
-    QDirIterator i(filesRootPath, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+    QDirIterator i(filesRootPath, QDir::NoDotAndDotDot,
+                   QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
     while (i.hasNext()) {
         i.next();
         QString localAbsoluteFilePath = i.fileInfo().absoluteFilePath();

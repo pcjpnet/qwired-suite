@@ -61,8 +61,13 @@ int main(int argc, char *argv[])
             so << a.tr("Fatal: Root directory does not exist or is unreadable.") << endl;
             return 1;
         }
-        controller.serverRootDirectory = newRootPath;
+
+        QString newWorkingDir = QDir::current().absoluteFilePath(cliArgs.value(index+1));
+        bool ok = QDir::setCurrent(newWorkingDir);
+        qDebug() << "Setting current working directory to:" << newWorkingDir << "ok:" << ok;
+//        controller.serverRootDirectory = "";
     }
+
 
     // Don't print to std when in remote mode!
     controller.qwLog(a.tr("Switching to remote console mode..."));

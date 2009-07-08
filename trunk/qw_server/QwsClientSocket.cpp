@@ -852,14 +852,13 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
         return;
     }
 
-    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks);
+
+    qDebug() << this << "Trying to LIST" << targetDirectory.localAbsolutePath;
+    QDirIterator it(targetDirectory.localAbsolutePath,
+                    QDir::AllEntries | QDir::NoDotAndDotDot,
+                    QDirIterator::FollowSymlinks);
     while (it.hasNext()) {
         it.next();
-
-        if (it.fileName().startsWith(".")) {
-            // Skip files that start with "." (invisible files or special directories)
-            continue;
-        }
 
         QwsFile itemFile;
         itemFile.localFilesRoot = targetDirectory.localAbsolutePath;
@@ -927,7 +926,9 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(QwMessage &message)
         return;
     }
 
-    QDirIterator it(targetDirectory.localAbsolutePath, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
+    QDirIterator it(targetDirectory.localAbsolutePath,
+                    QDir::AllEntries | QDir::NoDotAndDotDot,
+                    QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
     while (it.hasNext()) {
         it.next();
 
@@ -1080,7 +1081,9 @@ void QwsClientSocket::handleMessageDELETE(QwMessage &message)
 */
 void QwsClientSocket::deleteDirRecursive(QString pathToDir)
 {    
-    QDirIterator it(pathToDir, QDirIterator::Subdirectories);
+    QDirIterator it(pathToDir,
+                    QDir::NoDotAndDotDot | QDir::AllEntries,
+                    QDirIterator::Subdirectories);
     while (it.hasNext()) {
         QString itemPath = it.next();
         QFileInfo itemInfo = it.fileInfo();
