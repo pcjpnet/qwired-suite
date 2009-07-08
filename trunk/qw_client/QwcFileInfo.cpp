@@ -3,7 +3,6 @@
 
 QwcFileInfo::QwcFileInfo() : QwFile()
 {
-    isIndexed = false;
 }
 
 

@@ -90,19 +90,6 @@ void QwcFileBrowserWidget::setUserInformation(QwcUserInfo info)
 
 
 
-
-/*! The user clicked on a file and the download of the said file should be started.
-*/
-void QwcFileBrowserWidget::downloadFile(QString path)
-{
-//    QSettings settings;
-//    QString fileName = path.section("/", -1, -1);
-//    QDir localTargetFolder(settings.value("files/download_dir", QDir::homePath()).toString());
-//    //QFile localTargetFile(localTargetFolder.absoluteFilePath(fileName));
-//    //pSession->downloadFile(path, localTargetFile.fileName());
-//    pSession->wiredSocket()->getFile(path, localTargetFolder.absoluteFilePath(fileName));
-}
-
 /*! Handle a new listing item from the server and add it to the file list.
 */
 void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
@@ -131,6 +118,7 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
 */
 void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace)
 {
+    Q_UNUSED(path);
     if (!waitingForListItems) { return; }
     waitingForListItems = false;
     freeRemoteSpace = freeSpace;
@@ -226,6 +214,7 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
 */
 void QwcFileBrowserWidget::on_btnDownload_clicked()
 {
+    QSettings settings;
     QList<QTreeWidgetItem*> items = fList->selectedItems();
 
     // Now delete the selected items
@@ -234,7 +223,7 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
         QTreeWidgetItem *item = i.next();
         QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
 
-        QDir downloadDirectory = QDir::home();
+        QDir downloadDirectory(settings.value("files/download_dir", QDir::homePath()).toString());
 
         // Check if the target file already exists
         if (QFile::exists(downloadDirectory.absoluteFilePath(itemInfo.fileName()))) {
@@ -249,7 +238,11 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
         }
 
         // Set the local path properly
-        itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
+        if (itemInfo.type == Qw::FileTypeRegular) {
+            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
+        } else {
+            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName());
+        }
 
         emit requestedDownload(itemInfo);
     }
@@ -334,17 +327,6 @@ void QwcFileBrowserWidget::on_findFilter_returnPressed()
 
 
 
-//
-// Drag And Drop
-//
-
-/// Check if they got something we can handle.
-//void QwcFileBrowserWidget::dragEnterEvent(QDragEnterEvent *event)
-//{
-//    if(event->mimeData()->hasUrls())
-//        event->acceptProposedAction();
-//}
-
 
 
 
@@ -413,6 +395,7 @@ void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
 */
 void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    Q_UNUSED(column);
     if (!item) { return; }
     QwcFileInfo fileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
     if (fileInfo.type == Qw::FileTypeDropBox
@@ -428,14 +411,6 @@ void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int
 }
 
 
-/// File transfer completed. Refresh the view.
-void QwcFileBrowserWidget::fileTransferDone(QwcTransferInfo transfer)
-{
-//    if(transfer.type != Qw::TransferTypeUpload) return;
-//    pModel->clearList();
-//    pModel->pWaitingForList = true;
-//    pSession->wiredSocket()->getFileList( pModel->pCurrentPath );
-}
 
 
 /*! The "Cancel" button of the info page has been clicked.

@@ -35,11 +35,11 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     QPixmap icon;
 
     if (transfer.state == Qw::TransferInfoStateNone) {
-        statusText = tr("Waiting");
+        statusText = tr("Locally queued");
         icon = QPixmap(":/icons/32x32/start-here.png");
 
     } else if (transfer.state == Qw::TransferInfoStateWaiting) {
-        statusText = tr("Preparing");
+        statusText = tr("Waiting for server");
         icon = QPixmap(":/icons/32x32/network-server.png");
 
     } else if (transfer.state == Qw::TransferInfoStatePaused) {
@@ -47,24 +47,30 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         icon = QPixmap(":/icons/32x32/media-playback-pause.png");
 
     } else if (transfer.state == Qw::TransferInfoStateQueued) {
-        statusText = tr("Queued (position %1)").arg(transfer.queuePosition);
+        statusText = tr("Remotely queued (position %1)").arg(transfer.queuePosition);
         icon = QPixmap(":icons/32x32/start-here.png");
 
     } else if (transfer.state == Qw::TransferInfoStateActive) {
-        statusText = tr("Running - %1 of %2 (%3%) - %4/s")
+        statusText = tr("Active - %1 of %2 (%3%) - %4/s")
                      .arg(QwFile::humanReadableSize(transfer.bytesTransferred))
                      .arg(QwFile::humanReadableSize(transfer.file.size))
                      .arg(double(double(transfer.bytesTransferred)/double(transfer.file.size)*100), 0, 'f', 2)
                      .arg(QwFile::humanReadableSize(transfer.currentTransferSpeed));
 
         // Icon
-        if (transfer.type == Qw::TransferTypeDownload) {
+        if (transfer.type == Qw::TransferTypeDownload || transfer.type == Qw::TransferTypeFolderDownload) {
             icon = QPixmap(":icons/32x32/go-down.png");
-        } else if (transfer.type == Qw::TransferTypeUpload) {
+        } else if (transfer.type == Qw::TransferTypeUpload || transfer.type == Qw::TransferTypeFolderUpload) {
             icon = QPixmap(":icons/32x32/go-up.png");
         }
     }
 
+    // Add a small folder icon when we are having a folder transfer
+    if (transfer.type == Qw::TransferTypeFolderDownload || transfer.type == Qw::TransferTypeFolderUpload) {
+        QPainter painter(&icon);
+        painter.drawPixmap(32-16, 32-16, QPixmap(":icons/files/files-folder.png"));
+        painter.end();
+    }
     painter->drawPixmap(9, 9, icon);
 
     QFont currentFont(painter->font());

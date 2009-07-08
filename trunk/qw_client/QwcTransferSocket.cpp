@@ -31,7 +31,8 @@ void QwcTransferSocket::beginTransfer()
     sslSocket->connectToHostEncrypted(serverHost, serverPort);
 
     // Set the read buffer size to limit download speed
-    if (transferInfo.type == Qw::TransferTypeDownload && transferInfo.transferSpeedLimit > 0) {
+    if ((transferInfo.type == Qw::TransferTypeDownload ||transferInfo.type == Qw::TransferTypeFolderDownload)
+        && transferInfo.transferSpeedLimit > 0) {
         sslSocket->setReadBufferSize(transferInfo.transferSpeedLimit * (float(transferTimerInterval)/1000));
     }
 
@@ -50,7 +51,7 @@ void QwcTransferSocket::handleSocketEncrypted()
     sslSocket->flush();
 
     // Start the transfer timer which is responsible for sending chunks of data
-    if (transferInfo.type == Qw::TransferTypeDownload) {
+    if (transferInfo.type == Qw::TransferTypeDownload ||transferInfo.type == Qw::TransferTypeFolderDownload) {
         fileReader.setFileName(transferInfo.file.localAbsolutePath);
         if (!fileReader.open(QIODevice::WriteOnly)) {
             qDebug() << this << "Unable to open file for writing:" << fileReader.errorString();
@@ -90,7 +91,8 @@ void QwcTransferSocket::transmitFileChunk()
     quint64 chunkSize = 32*1024;
 
 
-    if (transferInfo.type == Qw::TransferTypeDownload) {
+    if (transferInfo.type == Qw::TransferTypeDownload
+        || transferInfo.type == Qw::TransferTypeFolderDownload) {
 
 
         QByteArray dataBuffer;
@@ -180,7 +182,8 @@ void QwcTransferSocket::finishTransfer()
     fileReader.close();
 
     // Remove the suffix from the finished file
-    if (transferInfo.type == Qw::TransferTypeDownload) {
+    if (transferInfo.type == Qw::TransferTypeDownload
+        || transferInfo.type == Qw::TransferTypeFolderDownload) {
         if (fileReader.fileName().endsWith(".WiredTransfer")) {
             QString newFileName = fileReader.fileName();
             newFileName.chop(14);
