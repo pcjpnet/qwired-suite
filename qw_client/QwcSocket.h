@@ -57,18 +57,6 @@ public:
     const QList<QwcTransferInfo>& allQueuedTransfers() const { return transferPool; }
 
 
-
-
-
-
-//    QList<QwcFileInfo> pRecursiveFileListing;
-//    QString pRecursivePath;
-
-
-    void proceedFolderDownload(QwcTransferSocket *);
-    void proceedFolderUpload(QwcTransferSocket *);
-
-
 public slots:
     void pauseTransfer(const QwcTransferInfo &transfer);
     void disconnectSocketFromServer();
@@ -105,8 +93,6 @@ public slots:
     void leaveChat(int theChatID);
     void moveFile(const QString source, const QString destination);
     void postNews(QString thePost);
-//    void putFile(const QString localPath, const QString remotePath);
-//    void putFolder(const QString theLocalPath, const QString theRemotePath, const bool queueLocally);
     void readGroup(QString theName);
     void readUser(QString theName);
     void rejectChat(int theChatID);
