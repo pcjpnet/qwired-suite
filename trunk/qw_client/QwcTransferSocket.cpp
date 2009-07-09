@@ -53,12 +53,21 @@ void QwcTransferSocket::handleSocketEncrypted()
     // Start the transfer timer which is responsible for sending chunks of data
     if (transferInfo.type == Qw::TransferTypeDownload || transferInfo.type == Qw::TransferTypeFolderDownload) {
         fileReader.setFileName(transferInfo.file.localAbsolutePath);
-        if (!fileReader.open(QIODevice::WriteOnly)) {
+
+        bool ok;
+        if (transferInfo.bytesTransferred) {
+            ok = fileReader.open(QIODevice::WriteOnly | QIODevice::Append);
+        } else {
+            ok = fileReader.open(QIODevice::WriteOnly);
+        }
+
+        if (!ok) {
             qDebug() << this << "Unable to open file for writing:" << fileReader.errorString();
             stopTransfer();
             emit fileTransferError(this);
             return;
         }
+
         transferTimer.start(transferTimerInterval);
 
     } else if (transferInfo.type == Qw::TransferTypeUpload) {
