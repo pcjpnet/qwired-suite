@@ -591,6 +591,12 @@ void QwcSocket::handleMessage402(const QwMessage &message)
             if (localFile.exists()) {
                 item->transferInfo.bytesTransferred = localFile.size();
                 qDebug() << this << item << "Resuming partial file at" << localFile.size();
+
+                if (localFile.size() == item->transferInfo.file.size) {
+                    qDebug() << this << "Skipping complete file" << localFile.fileName();
+                    handleTransferDone(item);
+                }
+
             }
 
             // Request a download slot
