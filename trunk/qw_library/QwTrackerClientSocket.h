@@ -2,26 +2,25 @@
 #define QWSTRACKERCLIENTSOCKET_H
 
 #include <QDateTime>
-#include <QUdpSocket>
 #include <QTimer>
 
 #include "QwSocket.h"
 #include "QwServerInfo.h"
 
 namespace Qw {
-    enum TrackerClientSocketMode { TrackerClientSocketModeManual,
-                                   /*! Automatic mode enables the socket to automatically register
-                                       the server on the tracker and keep sending UDP packages. */
-                                   TrackerClientSocketModeAutomatic };
+    enum TrackerClientAutoCommands { TrackerClientAutoCommandNone,
+                                     TrackerClientAutoCommandSERVERS };
 };
 
-class QwTrackerClientSocket : QwSocket
+class QwTrackerClientSocket : public QwSocket
 {
     Q_OBJECT
 
 public:
     QwTrackerClientSocket(QObject *parent = 0);
-    Qw::TrackerClientSocketMode mode;
+
+    /*! The command specified in this member is automatically sent to the tracker after connecting. */
+    Qw::TrackerClientAutoCommands autoCommand;
 
     // Information fields when registering a server.
     QwServerInfo localServerInfo;
@@ -37,13 +36,9 @@ public:
     QTimer trackerUpdateTimer;
     quint16 trackerPort;
     QString trackerHost;
-    /*! This is for sending UDP datagrams, as QUdpSocket does not provide name lookups. */
-    QHostAddress trackerIp;
 
 
 private:
-    /*! The UDP socket for sending update datagrams to the tracker. */
-    QUdpSocket *udpSocket;
     /*! A temporary list to store the names of all categories during 710 and 711 messages. */
     QStringList categoryListingBuffer;
     /*! A temporary list to store information about servers during 720 and 721 messages. */

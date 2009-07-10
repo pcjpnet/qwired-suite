@@ -1,4 +1,5 @@
 #include "QwcConnectWidget.h"
+#include "QwFile.h"
 
 #include <QDebug>
 #include <QInputDialog>
@@ -14,11 +15,12 @@
 
 QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
 {
-    Q_UNUSED(parent);
     setupUi(this);
     fContainer->setCurrentIndex(0);
     loadBookmarks();
     pReconnectTimerId = -1;
+
+    updateTrackerMenu();
 
     connect(fAddress, SIGNAL(returnPressed()),
             this, SLOT(on_btnConnect_clicked()));
@@ -28,9 +30,87 @@ QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
             this, SLOT(on_btnConnect_clicked()));
 
     // Notification manager
-    QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect( tmpS, SIGNAL(prefsChanged()), this, SLOT(loadBookmarks()) );
+    QwcSingleton *singleton = &WSINGLETON::Instance();
+    connect(singleton, SIGNAL(prefsChanged()),
+            this, SLOT(loadBookmarks()) );
+    connect(singleton, SIGNAL(prefsChanged()),
+            this, SLOT(updateTrackerMenu()) );
+
+    // Tracker Socket
+    trackerSocket = new QwTrackerClientSocket(this);
+    trackerSocket->autoCommand = Qw::TrackerClientAutoCommandSERVERS;
+    connect(trackerSocket, SIGNAL(receivedServers(QList<QwServerInfo>&)),
+            this, SLOT(handleTrackerServers(QList<QwServerInfo>&)));
 }
+
+
+/*! The "Trackers..." button has been clicked.
+*/
+void QwcConnectWidget::on_btnConnectTrackers_clicked()
+{
+    fContainer->setCurrentWidget(pageTrackers);
+}
+
+
+void QwcConnectWidget::on_btnTrackerManual_clicked()
+{
+    fContainer->setCurrentWidget(pageConnect);
+}
+
+
+void QwcConnectWidget::on_btnTrackerRefresh_clicked()
+{
+    if (trackerList->currentIndex() == -1) { return; }
+    trackerSocket->connectToTracker(trackerList->itemData(trackerList->currentIndex()).toString());
+
+}
+
+
+/*! Handle the returned list of tracker server entries.
+*/
+void QwcConnectWidget::handleTrackerServers(QList<QwServerInfo> &servers)
+{
+    trackerServerList->clear();
+    QListIterator<QwServerInfo> i(servers);
+    while (i.hasNext()) {
+        QwServerInfo item = i.next();
+        QTreeWidgetItem *newItem = new QTreeWidgetItem(trackerServerList);
+        newItem->setIcon(0, QIcon(":icons/icon_favourite.png"));
+        newItem->setText(0, item.name);
+        newItem->setText(1, QString::number(item.userCount));
+        newItem->setText(4, tr("%1 (%2 files)")
+                         .arg(QwFile::humanReadableSize(item.filesSize))
+                         .arg(item.filesCount));
+        newItem->setText(2, item.canGuests ? tr("Yes") : tr("No"));
+        newItem->setText(3, item.canDownload ? tr("Yes") : tr("No"));
+        newItem->setText(6, tr("%1/s").arg(QwFile::humanReadableSize(item.bandwidth)));
+        newItem->setText(7, item.category);
+        newItem->setText(5, item.description);
+        newItem->setText(8, item.url);
+    }
+
+    for (int column = 0; column < 8; column++) {
+        trackerServerList->resizeColumnToContents(column);
+    }
+
+}
+
+
+/*! Update the list of trackers from the system settings.
+*/
+void QwcConnectWidget::updateTrackerMenu()
+{
+    trackerList->clear();
+    QSettings settings;
+    int arraySize = settings.beginReadArray("trackers");
+    for (int i = 0; i < arraySize; i++) {
+        settings.setArrayIndex(i);
+        trackerList->addItem(settings.value("name").toString(),
+                             settings.value("address"));
+    }
+    settings.endArray();
+}
+
 
 
 void QwcConnectWidget::on_btnConnect_clicked()

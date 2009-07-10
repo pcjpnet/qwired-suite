@@ -53,7 +53,6 @@ SOURCES += main.cpp \
     QwcFiletransferModel.cpp \
     QwcFiletransferDelegate.cpp \
     QwcAccountsWidget.cpp \
-    QwcTrackerlistWidget.cpp \
     QwcSingleton.cpp \
     QwcServerInfoWidget.cpp \
     QwcAboutWidget.cpp \
@@ -72,7 +71,6 @@ FORMS += QwcConnectionMainWindow.ui \
     QwcConnectWidget.ui \
     QwcFiletransferWidget.ui \
     QwcAccountsWidget.ui \
-    QwcTrackerlistWidget.ui \
     QwcAboutWidget.ui \
     QwcPrivateMessager.ui
 HEADERS += QwcSession.h \
@@ -100,7 +98,6 @@ HEADERS += QwcSession.h \
     singleton.h \
     QwcColorButton.h \
     QwcAccountsWidget.h \
-    QwcTrackerlistWidget.h \
     QwcTrackerServerInfo.h \
     QwcAboutWidget.h \
     QwcPrivateMessager.h

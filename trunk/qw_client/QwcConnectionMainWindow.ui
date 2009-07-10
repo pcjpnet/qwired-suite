@@ -42,7 +42,6 @@
     <addaction name="actionAccounts"/>
     <addaction name="actionBroadcast"/>
     <addaction name="separator"/>
-    <addaction name="actionTrackers"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionAbout"/>
    </widget>
