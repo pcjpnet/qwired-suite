@@ -991,19 +991,7 @@ void QwcSession::doActionPreferences()
 }
 
 
-/// Show the list of trackers and their servers.
-void QwcSession::doActionTrackers()
-{
-    if(!pWinTrackers) {
-        QwcSingleton *tmpS = &WSINGLETON::Instance();
-        pWinTrackers = new QwcTrackerlistWidget();
-        pWinTrackers->setParent(connectionWindow, Qt::Window);
-        connect(pWinTrackers, SIGNAL(newConnectionRequested(QString)), tmpS, SLOT(makeNewConnection(QString)));
-        pWinTrackers->show();
-    } else {
-        pWinTrackers->raise();
-    }
-}
+
 
 
 /*! Show the transfers list.

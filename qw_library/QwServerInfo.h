@@ -2,6 +2,7 @@
 #define QWSERVERINFO_H
 
 #include <QDateTime>
+#include <QMetaType>
 
 class QwServerInfo
 {
@@ -49,5 +50,7 @@ public:
     QString registrationHash;
 
 };
+
+Q_DECLARE_METATYPE(QwServerInfo);
 
 #endif // QWTRACKERSERVERINFO_H

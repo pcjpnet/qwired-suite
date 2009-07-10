@@ -13,7 +13,6 @@
 #include "QwcConnectWidget.h"
 #include "QwcFiletransferWidget.h"
 #include "QwcAccountsWidget.h"
-#include "QwcTrackerlistWidget.h"
 #include "QwcServerInfoWidget.h"
 #include "QwcPrivateMessager.h"
 
@@ -66,7 +65,6 @@ public:
     QPointer<QwcPreferencesWidget> pPrefsWindow;
     QPointer<QwcFiletransferWidget> pTranfersWindow;
     QPointer<QwcAccountsWidget> pWinAccounts;
-    QPointer<QwcTrackerlistWidget> pWinTrackers;
     QPointer<QwcFileBrowserWidget> mainFileWidget;
 
     QPointer<QMenu> pTrayMenuItem;
@@ -105,7 +103,6 @@ private slots:
     void connectionWindowDestroyed(QObject *obj);
     void reloadPreferences();
     void onSocketPrivileges(QwcUserInfo);
-    void doActionTrackers();
 
     void handleFileInformation(QwcFileInfo file);
 

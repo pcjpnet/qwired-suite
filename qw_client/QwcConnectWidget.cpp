@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QUrl>
 
 /*! \class QwcConnectWidget
     \author Bastian Bense <bastibense@gmail.com>
@@ -41,6 +42,8 @@ QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
     trackerSocket->autoCommand = Qw::TrackerClientAutoCommandSERVERS;
     connect(trackerSocket, SIGNAL(receivedServers(QList<QwServerInfo>&)),
             this, SLOT(handleTrackerServers(QList<QwServerInfo>&)));
+    connect(trackerSocket, SIGNAL(socketError(QAbstractSocket::SocketError)),
+            this, SLOT(handleTrackerSocketError(QAbstractSocket::SocketError)));
 }
 
 
@@ -49,6 +52,24 @@ QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
 void QwcConnectWidget::on_btnConnectTrackers_clicked()
 {
     fContainer->setCurrentWidget(pageTrackers);
+
+    if (trackerList->count() > 0 && trackerServerList->topLevelItemCount() == 0) {
+        btnTrackerRefresh->click();
+    }
+}
+
+
+void QwcConnectWidget::on_trackerServerList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+{
+    Q_UNUSED(previous);
+    btnTrackerConnect->setEnabled(current);
+}
+
+
+void QwcConnectWidget::on_trackerServerList_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    if (!item) { return; }
+    on_btnTrackerConnect_clicked();
 }
 
 
@@ -66,6 +87,32 @@ void QwcConnectWidget::on_btnTrackerRefresh_clicked()
 }
 
 
+void QwcConnectWidget::on_btnTrackerConnect_clicked()
+{
+    if (!trackerServerList->currentItem()) { return; }
+    QwServerInfo server = trackerServerList->currentItem()->data(0, Qt::UserRole).value<QwServerInfo>();
+
+    QUrl serverUrl(server.url);
+    if (serverUrl.port() == 0) {
+        fAddress->setText(serverUrl.host());
+    } else {
+        fAddress->setText(QString("%1:%2").arg(serverUrl.host()).arg(serverUrl.port()));
+    }
+
+    fLogin->clear();
+    fPassword->clear();
+    fContainer->setCurrentWidget(pageConnect);
+
+    if (qApp->keyboardModifiers() & Qt::ShiftModifier) {
+        fLogin->setFocus();
+    } else {
+        btnConnect->click();
+    }
+
+}
+
+
+
 /*! Handle the returned list of tracker server entries.
 */
 void QwcConnectWidget::handleTrackerServers(QList<QwServerInfo> &servers)
@@ -75,6 +122,7 @@ void QwcConnectWidget::handleTrackerServers(QList<QwServerInfo> &servers)
     while (i.hasNext()) {
         QwServerInfo item = i.next();
         QTreeWidgetItem *newItem = new QTreeWidgetItem(trackerServerList);
+        newItem->setData(0, Qt::UserRole, QVariant::fromValue(item));
         newItem->setIcon(0, QIcon(":icons/icon_favourite.png"));
         newItem->setText(0, item.name);
         newItem->setText(1, QString::number(item.userCount));
@@ -96,6 +144,16 @@ void QwcConnectWidget::handleTrackerServers(QList<QwServerInfo> &servers)
 }
 
 
+void QwcConnectWidget::handleTrackerSocketError(QAbstractSocket::SocketError error)
+{
+    QMessageBox::warning(this, tr("Tracker-related network error"),
+                         tr("It was not possible to receive the list of servers from the tracker "
+                            "server because a network error occurred. Please check the tracker "
+                            "settings and/or try again later."));
+}
+
+
+
 /*! Update the list of trackers from the system settings.
 */
 void QwcConnectWidget::updateTrackerMenu()
@@ -105,7 +163,8 @@ void QwcConnectWidget::updateTrackerMenu()
     int arraySize = settings.beginReadArray("trackers");
     for (int i = 0; i < arraySize; i++) {
         settings.setArrayIndex(i);
-        trackerList->addItem(settings.value("name").toString(),
+        trackerList->addItem(QIcon(":icons/icn_tracker.png"),
+                             settings.value("name").toString(),
                              settings.value("address"));
     }
     settings.endArray();
