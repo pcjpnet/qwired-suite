@@ -718,7 +718,7 @@ void QwcSession::initWiredSocket()
 
     QSettings settings;
     socket->setUserStatus(settings.value("general/status","Qwired Newbie").toString());
-    socket->setNickname(settings.value("general/nickname", "Unnamed").toString());
+    socket->setNickname(settings.value("general/nickname", tr("Unnamed")).toString());
 
     QImage tmpIcon = settings.value("general/icon", QImage(":/icons/qwired_logo_32.png")).value<QImage>();
     socket->setIconImage(tmpIcon);
@@ -733,7 +733,7 @@ void QwcSession::reloadPreferences()
 {
     QSettings settings;
 
-    if (socket->sessionUser.userNickname != settings.value("general/nickname", tr("Anonymous")).toString()) {
+    if (socket->sessionUser.userNickname != settings.value("general/nickname", tr("Unnamed")).toString()) {
         socket->setNickname(settings.value("general/nickname").toString());
     }
 

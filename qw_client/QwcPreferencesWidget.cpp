@@ -79,7 +79,7 @@ void QwcPreferencesWidget::initPrefs() {
 
     // GENERAL TAB
     //
-    fNickname->setText( conf.value("general/nickname", "Unnamed").toString() );
+    fNickname->setText( conf.value("general/nickname", tr("Unnamed")).toString() );
     fStatus->setText( conf.value("general/status", "Qwired Newbie").toString() );
 
     if(conf.contains("general/icon")) {
