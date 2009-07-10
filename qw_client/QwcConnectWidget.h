@@ -4,19 +4,37 @@
 #include "ui_QwcConnectWidget.h"
 #include "QwcGlobals.h"
 
+#include "QwTrackerClientSocket.h"
+
 class QwcConnectWidget : public QWidget, public Ui::QwcConnectWidget
 {
-
     Q_OBJECT
-
-private:
-    int pReconnectTimerId;
-
 
 public:
     QwcConnectWidget(QWidget *parent = 0);
 
+private:
+
+
+    QwTrackerClientSocket *trackerSocket;
+    int pReconnectTimerId;
+
+
+
+
 private slots:
+    void updateTrackerMenu();
+
+    // Connect Page
+    void on_btnConnectTrackers_clicked();
+
+    // Tracker Page
+    void on_btnTrackerManual_clicked();
+    void on_btnTrackerRefresh_clicked();
+
+    // Tracker Subsystem
+    void handleTrackerServers(QList<QwServerInfo> &servers);
+
     void on_btnConnect_clicked();
     void on_fBtnCancel_clicked();
     void bookmarkSelected(QAction *action);

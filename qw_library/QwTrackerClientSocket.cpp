@@ -2,8 +2,7 @@
 
 QwTrackerClientSocket::QwTrackerClientSocket(QObject *parent) : QwSocket(parent)
 {
-    udpSocket = new QUdpSocket(this);
-    mode = Qw::TrackerClientSocketModeManual;
+    autoCommand = Qw::TrackerClientAutoCommandNone;
 
     // Connect the tracker update timer
     trackerUpdateTimer.setInterval(10*1000); // 60 seconds
@@ -70,7 +69,6 @@ void QwTrackerClientSocket::sendCommandSERVERS()
 void QwTrackerClientSocket::handleSocketConnected()
 {
     qDebug() << this << "Connection established - sending handshake";
-    trackerIp = socket->peerAddress();
     sendMessage(QwMessage("HELLO"));
 }
 
@@ -100,6 +98,10 @@ void QwTrackerClientSocket::handleMessageReceived(const QwMessage &message)
     qDebug() << this << "Received message:" << message.commandName;
     if (message.commandName == "200") {         handleMessage200(message);
     } else if (message.commandName == "700") {  handleMessage700(message);
+    } else if (message.commandName == "710") {  handleMessage710(message);
+    } else if (message.commandName == "711") {  handleMessage711(message);
+    } else if (message.commandName == "720") {  handleMessage720(message);
+    } else if (message.commandName == "721") {  handleMessage721(message);
     }
 }
 
@@ -118,8 +120,12 @@ void QwTrackerClientSocket::handleMessage200(const QwMessage &message)
     qDebug() << this << "Handshake complete - connected to" << trackerName;
     sendCommandCLIENT();
 
-    if (mode == Qw::TrackerClientSocketModeAutomatic) {
-        sendCommandREGISTER();
+    switch (autoCommand) {
+    case Qw::TrackerClientAutoCommandSERVERS:
+        sendCommandSERVERS();
+        break;
+    default:
+        break;
     }
 
 }
@@ -137,11 +143,11 @@ void QwTrackerClientSocket::handleMessage700(const QwMessage &message)
 
     localServerInfo.userCount = 2581;
 
-    if (mode == Qw::TrackerClientSocketModeAutomatic) {
-        qDebug() << this << "Disconnecting from tracker server, beginning automatic update";
-        socket->disconnectFromHost();
-        trackerUpdateTimer.start();
-    }
+//    if (autoCommand == Qw::TrackerClientAutoCommandSERVERS) {
+//        qDebug() << this << "Disconnecting from tracker server, beginning automatic update";
+//        socket->disconnectFromHost();
+//        trackerUpdateTimer.start();
+//    }
 }
 
 /*! 710 Category Listing
@@ -167,17 +173,18 @@ void QwTrackerClientSocket::handleMessage711(const QwMessage &message)
 */
 void QwTrackerClientSocket::handleMessage720(const QwMessage &message)
 {
-    qDebug() << this << "Received server listing:" << message.getStringArgument(0);
+    qDebug() << this << "Received server listing item:" << message.getStringArgument(2);
     QwServerInfo newInfo;
-    newInfo.url = message.getStringArgument(0);
-    newInfo.name = message.getStringArgument(1);
-    newInfo.userCount = message.getStringArgument(2).toInt();
-    newInfo.bandwidth = message.getStringArgument(3).toLongLong();
-    newInfo.canGuests = message.getStringArgument(4).toInt();
-    newInfo.canDownload = message.getStringArgument(5).toInt();
-    newInfo.filesCount = message.getStringArgument(6).toLongLong();
-    newInfo.filesSize = message.getStringArgument(7).toLongLong();
-    newInfo.description = message.getStringArgument(8);
+    newInfo.category = message.getStringArgument(0);
+    newInfo.url = message.getStringArgument(1);
+    newInfo.name = message.getStringArgument(2);
+    newInfo.userCount = message.getStringArgument(3).toInt();
+    newInfo.bandwidth = message.getStringArgument(4).toLongLong();
+    newInfo.canGuests = message.getStringArgument(5).toInt();
+    newInfo.canDownload = message.getStringArgument(6).toInt();
+    newInfo.filesCount = message.getStringArgument(7).toLongLong();
+    newInfo.filesSize = message.getStringArgument(8).toLongLong();
+    newInfo.description = message.getStringArgument(9);
     serverListingBuffer.append(newInfo);
 }
 
@@ -190,6 +197,12 @@ void QwTrackerClientSocket::handleMessage721(const QwMessage &message)
     qDebug() << this << "Received end of server list";
     emit receivedServers(serverListingBuffer);
     serverListingBuffer.clear();
+
+    // Automatically disconnect in auto-mode
+    if (autoCommand == Qw::TrackerClientAutoCommandSERVERS) {
+        socket->disconnectFromHost();
+    }
+
 }
 
 
