@@ -17,15 +17,24 @@ int main (int argc, char *argv[])
     QCoreApplication::setApplicationName("Qwired");
 
 
+    QSettings settings;
 
-    QSettings tmpPrefs;
+    // Basic first-time initialization
+    if (settings.allKeys().isEmpty()) {
+        // The main bookmark
+        settings.beginWriteArray("bookmarks", 1);
+        settings.setArrayIndex(0);
+        settings.setValue("name", "Official Qwired Server");
+        settings.setValue("address", "hl.neo.de");
+        settings.endArray();
+    }
 
     // Translation loader
     QTranslator translator;
     QString tmpLocaleShort = QLocale::system().name().section ( "_",0,0 );
     QStringList tmpLocaleList;
-    if (tmpPrefs.contains("general/language") && tmpPrefs.value("general/language").toString()!="_auto_" ) {
-        tmpLocaleList.append(QString(":lang_%1.qm").arg(tmpPrefs.value("general/language").toString()));
+    if (settings.contains("general/language") && settings.value("general/language").toString()!="_auto_" ) {
+        tmpLocaleList.append(QString(":lang_%1.qm").arg(settings.value("general/language").toString()));
     } else {
         tmpLocaleList.append(QLocale::system().name()); // long locale, from file
         tmpLocaleList.append(tmpLocaleShort); // short locale, from file
@@ -45,12 +54,12 @@ int main (int argc, char *argv[])
 
 
     // Configure the proxying, if needed
-    if (tmpPrefs.value("proxy/type").toInt() != 0) {
-        QNetworkProxy proxy((QNetworkProxy::ProxyType)tmpPrefs.value("proxy/type").toInt());
-        proxy.setHostName(tmpPrefs.value("proxy/host").toString());
-        proxy.setPort(tmpPrefs.value("proxy/port").toInt());
-        proxy.setUser(tmpPrefs.value("proxy/username").toString());
-        proxy.setPassword(tmpPrefs.value("proxy/password").toString());
+    if (settings.value("proxy/type").toInt() != 0) {
+        QNetworkProxy proxy((QNetworkProxy::ProxyType)settings.value("proxy/type").toInt());
+        proxy.setHostName(settings.value("proxy/host").toString());
+        proxy.setPort(settings.value("proxy/port").toInt());
+        proxy.setUser(settings.value("proxy/username").toString());
+        proxy.setPassword(settings.value("proxy/password").toString());
         QNetworkProxy::setApplicationProxy(proxy);
         qDebug() << "Configured network proxy.";
     }
