@@ -78,6 +78,8 @@ void QwcSocket::handleTransferDone(QwcTransferSocket *transferSocket)
     }
 
     checkTransferQueue();
+
+    emit fileTransferDone(info);
 }
 
 

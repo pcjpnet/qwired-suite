@@ -239,6 +239,7 @@ void QwcTransferSocket::finishTransfer()
             QString newFileName = fileReader.fileName();
             newFileName.chop(14);
             fileReader.rename(newFileName);
+            transferInfo.file.localAbsolutePath.chop(14);
         }
     }
 
