@@ -268,6 +268,7 @@ void QwsClientTransferSocket::finishTransfer()
 
     socket->disconnectFromHost();
     transferTimer.stop();
+    transferInfo.state = Qw::TransferInfoStateNone;
     emit transferDone(transferInfo);
 }
 

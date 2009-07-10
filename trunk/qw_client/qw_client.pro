@@ -60,7 +60,8 @@ SOURCES += main.cpp \
     QwcColorButton.cpp \
     QwcConnectWidget.cpp \
     QwcConnectionMainWindow.cpp \
-    QwcPrivateMessager.cpp
+    QwcPrivateMessager.cpp \
+    QwcTransferInfo.cpp
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
