@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="fContainer">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pageConnect">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -325,9 +325,16 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QToolButton" name="fBtnCancel">
+          <widget class="QToolButton" name="btnConnectCancel">
            <property name="text">
             <string>Cancel</string>
+           </property>
+           <property name="icon">
+            <iconset resource="application.qrc">
+             <normaloff>:/icons/16x16/process-stop.png</normaloff>:/icons/16x16/process-stop.png</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
            </property>
           </widget>
          </item>
@@ -415,29 +422,40 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_6">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
+          <widget class="QToolButton" name="btnTrackerManual">
+           <property name="toolTip">
+            <string>Connect by entering a server address, login name and password manually.</string>
            </property>
            <property name="text">
-            <string/>
+            <string>Manual Connect...</string>
            </property>
-           <property name="pixmap">
-            <pixmap resource="application.qrc">:/icons/16x16/system-search.png</pixmap>
+           <property name="icon">
+            <iconset resource="application.qrc">
+             <normaloff>:/icons/icn_trackerserver.png</normaloff>:/icons/icn_trackerserver.png</iconset>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="trackerFilter">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
+          <widget class="QToolButton" name="btnTrackerConnect">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Connect to the selected server.
+Hold Shift to enter a login and password for this server.</string>
+           </property>
+           <property name="text">
+            <string>Connect</string>
+           </property>
+           <property name="icon">
+            <iconset resource="application.qrc">
+             <normaloff>:/icons/16x16/applications-internet.png</normaloff>:/icons/16x16/applications-internet.png</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
            </property>
           </widget>
          </item>
@@ -510,61 +528,6 @@
          </column>
         </widget>
        </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QToolButton" name="btnTrackerManual">
-           <property name="toolTip">
-            <string>Connect by entering a server address, login name and password manually.</string>
-           </property>
-           <property name="text">
-            <string>Manual Connect...</string>
-           </property>
-           <property name="icon">
-            <iconset resource="application.qrc">
-             <normaloff>:/icons/icn_trackerserver.png</normaloff>:/icons/icn_trackerserver.png</iconset>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonTextBesideIcon</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="btnTrackerConnect">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>Connect to the selected server.
-Hold Shift to enter a login and password for this server.</string>
-           </property>
-           <property name="text">
-            <string>Connect</string>
-           </property>
-           <property name="icon">
-            <iconset resource="application.qrc">
-             <normaloff>:/icons/16x16/applications-internet.png</normaloff>:/icons/16x16/applications-internet.png</iconset>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonTextBesideIcon</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
       </layout>
      </widget>
     </widget>
@@ -577,7 +540,7 @@ Hold Shift to enter a login and password for this server.</string>
   <tabstop>fPassword</tabstop>
   <tabstop>btnConnect</tabstop>
   <tabstop>fBtnFavourites</tabstop>
-  <tabstop>fBtnCancel</tabstop>
+  <tabstop>btnConnectCancel</tabstop>
  </tabstops>
  <resources>
   <include location="application.qrc"/>
