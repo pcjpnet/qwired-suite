@@ -18,30 +18,55 @@ QwTrackerClientSocket::QwTrackerClientSocket(QObject *parent) : QwSocket(parent)
             this, SLOT(handleSocketConnected()));
     connect(newSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
+    connect(newSocket, SIGNAL(disconnected()),
+            this, SIGNAL(disconnectedFromTracker()));
+
     connect(this, SIGNAL(messageReceived(const QwMessage)),
             this, SLOT(handleMessageReceived(const QwMessage)));
+
     setSslSocket(newSocket);
 }
 
 /*! Send the UPDATE command to the tracker. This command does not require a SSL connection, since
     the UPDATE command is sent via UDP.
+    \todo Implement this or work around using periodic re-registration.
 */
 void QwTrackerClientSocket::sendCommandUPDATE()
 {
-    qDebug() << this << "Sending UPDATE to" << trackerIp << "port" << trackerPort;
-    QwMessage reply("UPDATE");
-    reply.appendArg(localServerInfo.registrationHash);
-    reply.appendArg(QString::number(localServerInfo.userCount));
-    reply.appendArg(QString::number(localServerInfo.canGuests));
-    reply.appendArg(QString::number(localServerInfo.canDownload));
-    reply.appendArg(QString::number(localServerInfo.filesCount));
-    reply.appendArg(QString::number(localServerInfo.filesSize));
-    QByteArray datagram = reply.generateFrame().append('\x04');
-    qDebug() << datagram.toHex();
-    qDebug() << "Write Datagram:" << udpSocket->writeDatagram(datagram, trackerIp, trackerPort);
+//    qDebug() << this << "Sending UPDATE to" << trackerIp << "port" << trackerPort;
+//    QwMessage reply("UPDATE");
+//    reply.appendArg(localServerInfo.registrationHash);
+//    reply.appendArg(QString::number(localServerInfo.userCount));
+//    reply.appendArg(QString::number(localServerInfo.canGuests));
+//    reply.appendArg(QString::number(localServerInfo.canDownload));
+//    reply.appendArg(QString::number(localServerInfo.filesCount));
+//    reply.appendArg(QString::number(localServerInfo.filesSize));
+//    QByteArray datagram = reply.generateFrame().append('\x04');
+//    qDebug() << datagram.toHex();
+//    qDebug() << "Write Datagram:" << udpSocket->writeDatagram(datagram, trackerIp, trackerPort);
 }
 
 
+/*! Send the CATEGORIES command to the tracker server.
+*/
+void QwTrackerClientSocket::sendCommandCATEGORIES()
+{
+    qDebug() << this << "Requesting CATEGORIES";
+    sendMessage(QwMessage("CATEGORIES"));
+}
+
+
+/*! Send the SERVERS command to the tracker server.
+*/
+void QwTrackerClientSocket::sendCommandSERVERS()
+{
+    qDebug() << this << "Requesting SERVERS";
+    sendMessage(QwMessage("SERVERS"));
+}
+
+
+/*! Socket is connected, send the HELLO handshake.
+*/
 void QwTrackerClientSocket::handleSocketConnected()
 {
     qDebug() << this << "Connection established - sending handshake";
@@ -54,6 +79,7 @@ void QwTrackerClientSocket::handleSocketError(QAbstractSocket::SocketError error
 {
     Q_UNUSED(error);
     qDebug() << this << "Socket error:" << socket->errorString();
+    emit socketError(error);
 }
 
 
@@ -61,6 +87,8 @@ void QwTrackerClientSocket::connectToTracker(const QString host, const int port)
 {
     trackerHost = host;
     trackerPort = port;
+    categoryListingBuffer.clear();
+    serverListingBuffer.clear();
 
     qDebug() << this << "Connecting to remote tracker at:" << host << port;
     socket->connectToHostEncrypted(trackerHost, trackerPort);
@@ -114,6 +142,54 @@ void QwTrackerClientSocket::handleMessage700(const QwMessage &message)
         socket->disconnectFromHost();
         trackerUpdateTimer.start();
     }
+}
+
+/*! 710 Category Listing
+*/
+void QwTrackerClientSocket::handleMessage710(const QwMessage &message)
+{
+    qDebug() << this << "Received category:" << message.getStringArgument(0);
+    categoryListingBuffer.append(message.getStringArgument(0));
+}
+
+
+/*! 711 Category Listing Done
+*/
+void QwTrackerClientSocket::handleMessage711(const QwMessage &message)
+{
+    Q_UNUSED(message);
+    qDebug() << this << "Received end of category name list";
+    emit receivedCategories(categoryListingBuffer);
+    categoryListingBuffer.clear();
+}
+
+/*! 720 Server Listing
+*/
+void QwTrackerClientSocket::handleMessage720(const QwMessage &message)
+{
+    qDebug() << this << "Received server listing:" << message.getStringArgument(0);
+    QwServerInfo newInfo;
+    newInfo.url = message.getStringArgument(0);
+    newInfo.name = message.getStringArgument(1);
+    newInfo.userCount = message.getStringArgument(2).toInt();
+    newInfo.bandwidth = message.getStringArgument(3).toLongLong();
+    newInfo.canGuests = message.getStringArgument(4).toInt();
+    newInfo.canDownload = message.getStringArgument(5).toInt();
+    newInfo.filesCount = message.getStringArgument(6).toLongLong();
+    newInfo.filesSize = message.getStringArgument(7).toLongLong();
+    newInfo.description = message.getStringArgument(8);
+    serverListingBuffer.append(newInfo);
+}
+
+
+/*! 721 Server Listing Done
+*/
+void QwTrackerClientSocket::handleMessage721(const QwMessage &message)
+{
+    Q_UNUSED(message);
+    qDebug() << this << "Received end of server list";
+    emit receivedServers(serverListingBuffer);
+    serverListingBuffer.clear();
 }
 
 
