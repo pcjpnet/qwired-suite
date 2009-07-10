@@ -57,9 +57,13 @@ void QwcConnectWidget::bookmarkSelected(QAction *action)
                                                     tr("Create New Bookmark"),
                                                     tr("Please enter a name for the new bookmark:"),
                                                     QLineEdit::Normal,
-                                                    fAddress->text(),
+                                                    QString("%1 (%2)")
+                                                        .arg(fAddress->text())
+                                                        .arg(fLogin->text().isEmpty() ? tr("guest") : fLogin->text()),
                                                     &ok);
         if (!ok) { return; }
+
+        // Check if the name is empty
         if (bookmarkName.trimmed().isEmpty()) {
             QMessageBox::warning(this, tr("Please enter a name for the bookmark."),
                                  tr("You can not create a bookmark without a name. Entering a short "
@@ -67,11 +71,21 @@ void QwcConnectWidget::bookmarkSelected(QAction *action)
             return;
         }
 
-        // Actually add the new bookmark
+        // Check if the bookmark already exists
         QSettings settings;
-        // Read the count of existing entries
         int bookmarkCount = settings.beginReadArray("bookmarks");
+        for (int i = 0; i < bookmarkCount; i++) {
+            settings.setArrayIndex(i);
+            if (settings.value("name") == bookmarkName) {
+                QMessageBox::warning(this, tr("A bookmark with the same name already exists."),
+                                     tr("You can not create a bookmark with the name of an existing "
+                                        "bookmark. Please choose another name for this bookmark."));
+                settings.endArray();
+                return;
+            }
+        }
         settings.endArray();
+
         // Write the new entry
         settings.beginWriteArray("bookmarks");
         settings.setArrayIndex(bookmarkCount);
@@ -84,6 +98,8 @@ void QwcConnectWidget::bookmarkSelected(QAction *action)
         loadBookmarks();
         return;
     }
+
+    // Load the bookmark data and connect
     QStringList tmpList = action->data().value<QStringList>();
     fAddress->setText(tmpList.at(0));
     fLogin->setText(tmpList.at(1));
@@ -92,6 +108,8 @@ void QwcConnectWidget::bookmarkSelected(QAction *action)
 }
 
 
+/*! Update the bookmarks popup-menu.
+*/
 void QwcConnectWidget::loadBookmarks()
 {
     QSettings settings;
