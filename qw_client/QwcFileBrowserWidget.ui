@@ -107,8 +107,8 @@
             <bool>false</bool>
            </property>
            <property name="toolTip">
-            <string>Upload
-(hold Option/Alt to upload a folder)</string>
+            <string>Upload File/Folder
+(hold Shift and click to upload a folder)</string>
            </property>
            <property name="icon">
             <iconset resource="application.qrc">

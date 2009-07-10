@@ -3,15 +3,7 @@
 
 QwcTransferSocket::QwcTransferSocket(QObject *parent) : QObject(parent)
 {
-    sslSocket = new QSslSocket(this);
-    sslSocket->setProtocol(QSsl::TlsV1);
-    sslSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
-    connect(sslSocket, SIGNAL(encrypted()),
-            this, SLOT(handleSocketEncrypted()));
-
-    connect(&transferTimer, SIGNAL(timeout()),
-            this, SLOT(transmitFileChunk()));
-
+    sslSocket = NULL;
 }
 
 
@@ -21,17 +13,40 @@ QwcTransferSocket::~QwcTransferSocket()
 }
 
 
+/*! Delete an old socket, or create a new one.
+*/
+void QwcTransferSocket::createNewSocket()
+{
+    qDebug() << this << "Creating new SSL socket for transfer.";
+    if (sslSocket) {
+        sslSocket->deleteLater();
+    }
+
+    sslSocket = new QSslSocket(this);
+    sslSocket->setProtocol(QSsl::TlsV1);
+    sslSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
+    connect(sslSocket, SIGNAL(encrypted()),
+            this, SLOT(handleSocketEncrypted()));
+    connect(&transferTimer, SIGNAL(timeout()),
+            this, SLOT(transmitFileChunk()));
+}
+
+
+
 /*! Begin the transfer by connecting to the remote server and sending the provided hash.
 */
 void QwcTransferSocket::beginTransfer()
 {
+    createNewSocket();
+
     emit fileTransferStarted(this);
 
     qDebug() << this << "Connecting to remote host at" << serverHost << "port" << serverPort;
+    sslSocket->abort();
     sslSocket->connectToHostEncrypted(serverHost, serverPort);
 
     // Set the read buffer size to limit download speed
-    if ((transferInfo.type == Qw::TransferTypeDownload ||transferInfo.type == Qw::TransferTypeFolderDownload)
+    if ((transferInfo.type == Qw::TransferTypeDownload || transferInfo.type == Qw::TransferTypeFolderDownload)
         && transferInfo.transferSpeedLimit > 0) {
         sslSocket->setReadBufferSize(transferInfo.transferSpeedLimit * (float(transferTimerInterval)/1000));
     }
@@ -70,7 +85,9 @@ void QwcTransferSocket::handleSocketEncrypted()
 
         transferTimer.start(transferTimerInterval);
 
-    } else if (transferInfo.type == Qw::TransferTypeUpload) {
+    } else if (transferInfo.type == Qw::TransferTypeUpload
+               || transferInfo.type == Qw::TransferTypeFolderUpload)
+    {
         fileReader.setFileName(transferInfo.file.localAbsolutePath);
         if (!fileReader.open(QIODevice::ReadOnly)) {
             qDebug() << this << "Unable to open file for reading:" << fileReader.errorString();
@@ -134,7 +151,9 @@ void QwcTransferSocket::transmitFileChunk()
         }
 
 
-    } else if (transferInfo.type == Qw::TransferTypeUpload) {
+    } else if (transferInfo.type == Qw::TransferTypeUpload
+               || transferInfo.type == Qw::TransferTypeFolderUpload)
+    {
 
         // Return if not all data hase been written yet
         if (sslSocket->encryptedBytesToWrite() > 0) {
@@ -225,7 +244,9 @@ void QwcTransferSocket::finishTransfer()
 
     sslSocket->flush();
     sslSocket->disconnectFromHost();
+    sslSocket->waitForDisconnected();
     transferTimer.stop();
+    transferInfo.state = Qw::TransferInfoStateNone;
     emit fileTransferDone(this);
 }
 

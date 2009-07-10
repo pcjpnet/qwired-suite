@@ -88,7 +88,9 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     currentFont.setBold(true);
     painter->setFont(currentFont);
 
-    if (transfer.type == Qw::TransferTypeFolderDownload) {
+    if (transfer.type == Qw::TransferTypeFolderDownload
+        || transfer.type == Qw::TransferTypeFolderUpload)
+    {
         painter->drawText(0, painter->fontMetrics().ascent()+1, QString("%1 (%2)")
                           .arg(transfer.folder.fileName())
                           .arg(transfer.file.fileName()));

@@ -36,6 +36,9 @@ private slots:
     void finishTransfer();
     
 private:
+    void createNewSocket();
+
+
     /*! The real host name of the remote server. */
     QString serverHost;
     /*! The real port of the remote server. */

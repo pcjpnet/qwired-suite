@@ -253,9 +253,21 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
 */
 void QwcFileBrowserWidget::on_btnUpload_clicked()
 {
-    QStringList targetFiles = QFileDialog::getOpenFileNames(this, tr("Upload Files"),
-        QDir::homePath(), tr("Any File (*.*)"));
-    if (targetFiles.isEmpty()) { return; }
+    QStringList targetFiles;
+
+    if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+        // Select a directory when the alt-key is held
+        QString selectedFolder = QFileDialog::getExistingDirectory(this, tr("Upload folder"),
+                                                                   QDir::homePath());
+        if (selectedFolder.isEmpty()) { return; }
+        targetFiles << selectedFolder;
+    } else {
+        // By default we allow the user to select files
+        targetFiles = QFileDialog::getOpenFileNames(this, tr("Upload Files"),
+                                                    QDir::homePath(), tr("Any File (*.*)"));
+        if (targetFiles.isEmpty()) { return; }
+    }
+
 
     QStringListIterator i(targetFiles);
     while (i.hasNext()) {
@@ -263,10 +275,14 @@ void QwcFileBrowserWidget::on_btnUpload_clicked()
         QFileInfo itemInfo(itemFile);
         QwcFileInfo targetInfo;
         targetInfo.localAbsolutePath = itemFile;
-        // .path contains the remote path of the file to be uploaded
         targetInfo.path = QDir::cleanPath(currentFolderInfo.path + "/" + itemInfo.fileName());
-        targetInfo.size = itemInfo.size();
-        targetInfo.updateLocalChecksum();
+        if (itemInfo.isDir()) {
+            targetInfo.type = Qw::FileTypeFolder;
+        } else {
+            targetInfo.type = Qw::FileTypeRegular;
+            targetInfo.size = itemInfo.size();
+            targetInfo.updateLocalChecksum();
+        }
         emit requestedUpload(targetInfo);
     }
 }

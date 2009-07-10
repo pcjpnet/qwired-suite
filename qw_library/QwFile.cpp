@@ -37,7 +37,6 @@ void QwFile::updateLocalChecksum()
         this->checksum = "";
         return;
     }
-    qDebug() << "Position:" << targetFile.pos();
     targetFile.seek(0);
     QByteArray hashData = targetFile.read(1024*1024);
     QCryptographicHash hash(QCryptographicHash::Sha1);

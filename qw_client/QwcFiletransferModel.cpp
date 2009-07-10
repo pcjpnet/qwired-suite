@@ -29,20 +29,6 @@ QVariant QwcFiletransferModel::data(const QModelIndex &index, int role) const
     if (!transferSocket) { return QVariant(); }
 
     return QVariant::fromValue(transferSocket->transferInfo);
-
-//    if (index.row() < socket->allTransferSockets().count()) {
-//        // Active transfer
-//        QwcTransferSocket *transferSocket = socket->allTransferSockets().value(index.row());
-//        if (!transferSocket) { return QVariant(); }
-//        return QVariant::fromValue(transferSocket->transferInfo);
-//
-//    } else if (index.row() >= socket->allTransferSockets().count() && index.row() < rowCount()) {
-//        // Queued transfer
-//        return QVariant::fromValue(socket->allQueuedTransfers()
-//                                   .value(index.row()-socket->allTransferSockets().count()));
-//    }
-
-//    return QVariant();
 }
 
 
