@@ -725,6 +725,9 @@ void QwcSession::initWiredSocket()
 
     connect(socket->sslSocket(), SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
+
+    connect(socket, SIGNAL(fileTransferDone(const QwcTransferInfo &)),
+            this, SLOT(handleTransferComplete(const QwcTransferInfo &)));
 }
 
 
@@ -768,6 +771,18 @@ void QwcSession::handlePathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo)
         wiredSocket()->moveFile(oldInfo.path, newInfo.path);
     }
 }
+
+
+/*! A file transfer is complete.
+    We should check if we have a preview file transfer, then display the file.
+*/
+void QwcSession::handleTransferComplete(const QwcTransferInfo &transfer)
+{
+    if (transfer.file.previewFileAfterTransfer) {
+        qDebug() << this << "Previewing" << transfer.file.localAbsolutePath;
+    }
+}
+
 
 
 // === ACTIONS FROM THE MAIN WINDOW === //

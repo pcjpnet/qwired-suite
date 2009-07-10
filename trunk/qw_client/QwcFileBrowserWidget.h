@@ -64,6 +64,7 @@ private slots:
     void on_btnRefresh_clicked();
     void on_btnDelete_clicked();
     void on_btnDownload_clicked();
+    void on_btnPreview_clicked();
     void on_btnUpload_clicked();
     void on_findFilter_returnPressed();
     void on_fList_itemSelectionChanged();

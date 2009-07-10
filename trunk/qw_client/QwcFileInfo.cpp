@@ -4,6 +4,7 @@
 QwcFileInfo::QwcFileInfo() : QwFile()
 {
     folderCount = 0;
+    previewFileAfterTransfer = false;
 }
 
 

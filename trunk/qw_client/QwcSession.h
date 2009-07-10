@@ -96,6 +96,7 @@ private slots:
 
     // File browser
     void handlePathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo);
+    void handleTransferComplete(const QwcTransferInfo &transfer);
 
     // Chat Window
     void onUserlistComplete(int chatId);

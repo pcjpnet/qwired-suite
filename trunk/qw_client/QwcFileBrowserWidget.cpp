@@ -249,6 +249,26 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
 }
 
 
+/*! The "Preview" button has been clicked.
+*/
+void QwcFileBrowserWidget::on_btnPreview_clicked()
+{
+    QSettings settings;
+    QList<QTreeWidgetItem*> items = fList->selectedItems();
+
+    // Now delete the selected items
+    QListIterator<QTreeWidgetItem*> i(items);
+    while (i.hasNext()) {
+        QTreeWidgetItem *item = i.next();
+        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+        QDir downloadDirectory = QDir::temp();
+        itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
+        itemInfo.previewFileAfterTransfer = true;
+        emit requestedDownload(itemInfo);
+    }
+}
+
+
 /*! The "Upload" button has been clicked.
 */
 void QwcFileBrowserWidget::on_btnUpload_clicked()
@@ -404,6 +424,17 @@ void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
     btnDelete->setEnabled(fList->selectedItems().count());
 
     btnDownload->setEnabled(fList->selectedItems().count() && userInfo.privDownload);
+
+    if (fList->selectedItems().count()) {
+        QStringList supportedPreviewSuffixes = QStringList() << "jpg" << "png" << "gif" << "jpeg";
+        QwcFileInfo fileInfo = fList->selectedItems().first()->data(0, Qt::UserRole).value<QwcFileInfo>();
+        btnPreview->setEnabled(fList->selectedItems().count()
+                    && userInfo.privDownload
+                    && fileInfo.type == Qw::FileTypeRegular
+                    && supportedPreviewSuffixes.contains(fileInfo.fileName().section(".", -1, -1), Qt::CaseInsensitive));
+    } else {
+        btnPreview->setEnabled(false);
+    }
 }
 
 
