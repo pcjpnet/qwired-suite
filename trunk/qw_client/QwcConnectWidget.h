@@ -29,11 +29,15 @@ private slots:
     void on_btnConnectTrackers_clicked();
 
     // Tracker Page
+    void on_trackerServerList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_trackerServerList_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void on_btnTrackerManual_clicked();
     void on_btnTrackerRefresh_clicked();
+    void on_btnTrackerConnect_clicked();
 
     // Tracker Subsystem
     void handleTrackerServers(QList<QwServerInfo> &servers);
+    void handleTrackerSocketError(QAbstractSocket::SocketError error);
 
     void on_btnConnect_clicked();
     void on_fBtnCancel_clicked();
