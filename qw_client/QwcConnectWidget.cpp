@@ -93,7 +93,7 @@ void QwcConnectWidget::on_btnTrackerConnect_clicked()
     QwServerInfo server = trackerServerList->currentItem()->data(0, Qt::UserRole).value<QwServerInfo>();
 
     QUrl serverUrl(server.url);
-    if (serverUrl.port() == 0) {
+    if (serverUrl.port() > 0) {
         fAddress->setText(serverUrl.host());
     } else {
         fAddress->setText(QString("%1:%2").arg(serverUrl.host()).arg(serverUrl.port()));
@@ -180,9 +180,10 @@ void QwcConnectWidget::on_btnConnect_clicked()
 }
 
 
-void QwcConnectWidget::on_fBtnCancel_clicked()
+void QwcConnectWidget::on_btnConnectCancel_clicked()
 {
     emit onConnectAborted();
+    stopReconnecting();
     resetForm();
 }
 

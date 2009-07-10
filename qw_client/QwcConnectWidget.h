@@ -28,6 +28,8 @@ private slots:
     // Connect Page
     void on_btnConnectTrackers_clicked();
 
+    void on_btnConnectCancel_clicked();
+
     // Tracker Page
     void on_trackerServerList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void on_trackerServerList_itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -40,7 +42,7 @@ private slots:
     void handleTrackerSocketError(QAbstractSocket::SocketError error);
 
     void on_btnConnect_clicked();
-    void on_fBtnCancel_clicked();
+
     void bookmarkSelected(QAction *action);
     void loadBookmarks();
 
