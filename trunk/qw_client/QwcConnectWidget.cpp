@@ -68,6 +68,7 @@ void QwcConnectWidget::on_trackerServerList_currentItemChanged(QTreeWidgetItem *
 
 void QwcConnectWidget::on_trackerServerList_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    Q_UNUSED(column);
     if (!item) { return; }
     on_btnTrackerConnect_clicked();
 }
@@ -93,7 +94,7 @@ void QwcConnectWidget::on_btnTrackerConnect_clicked()
     QwServerInfo server = trackerServerList->currentItem()->data(0, Qt::UserRole).value<QwServerInfo>();
 
     QUrl serverUrl(server.url);
-    if (serverUrl.port() > 0) {
+    if (serverUrl.port() <= 0) {
         fAddress->setText(serverUrl.host());
     } else {
         fAddress->setText(QString("%1:%2").arg(serverUrl.host()).arg(serverUrl.port()));
@@ -146,6 +147,7 @@ void QwcConnectWidget::handleTrackerServers(QList<QwServerInfo> &servers)
 
 void QwcConnectWidget::handleTrackerSocketError(QAbstractSocket::SocketError error)
 {
+    Q_UNUSED(error);
     QMessageBox::warning(this, tr("Tracker-related network error"),
                          tr("It was not possible to receive the list of servers from the tracker "
                             "server because a network error occurred. Please check the tracker "
