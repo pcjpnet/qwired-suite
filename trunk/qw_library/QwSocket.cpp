@@ -33,6 +33,7 @@ void QwSocket::sendMessage(const QwMessage &message)
     //qDebug() << this << "Writing bytes:"<<buffer<<buffer.toHex();
     qDebug() << "Sending message:" <<message.commandName<< ":" << message.arguments.count();
     socket->write(buffer);
+    socket->flush();
 }
 
 
