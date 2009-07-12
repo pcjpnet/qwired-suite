@@ -279,8 +279,9 @@ void QwcSession::setupConnections()
             this, SLOT(onSocketPrivileges(QwcUserInfo)) );
 
     connect(socket, SIGNAL(receivedChatMessage(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
+
     connect(socket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
-            this,   SLOT(doHandleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
+            this,   SLOT(handleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
 
     connect(socket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onLoginSuccessful()) );
 
