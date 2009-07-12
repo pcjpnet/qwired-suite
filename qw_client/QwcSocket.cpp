@@ -34,6 +34,8 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
     indexingFiles = false;
     pInvitedUserID = 0;
 
+    pingTimerId = startTimer(60000); // 1 minute
+
     // Set the default download directory.
     defaultDownloadDirectory = QDir::homePath();
 #ifdef Q_WS_MAC
@@ -123,6 +125,7 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
     int commandId = message.commandName.toInt();
     if (commandId == 200) {           handleMessage200(message); // Login Successful
     } else if (commandId == 201) {    handleMessage201(message); // Server Information
+    } else if (commandId == 202) {    handleMessage202(message); // Ping Reply
     } else if (commandId == 203) {    handleMessage203(message); // Server Banner
     } else if (commandId == 300) {    handleMessage300(message); // Chat
     } else if (commandId == 301) {    handleMessage301(message); // Action Chat
@@ -199,6 +202,16 @@ void QwcSocket::handleMessage201(const QwMessage &message)
     sendMessage(QwMessage("BANNER"));
     sendMessage(QwMessage("PRIVILEGES"));
     emit onServerLoginSuccessful();
+}
+
+
+/*! 202 Ping Reply
+    Received in response to the sendPing() command.
+*/
+void QwcSocket::handleMessage202(const QwMessage &message)
+{
+    pingTimeLatency = pingLagTimer.elapsed();
+    qDebug() << this << "Measured server latency:" << pingTimeLatency << "ms";
 }
 
 
@@ -825,6 +838,17 @@ void QwcSocket::setCaturday(bool b) {
     }
     pIzCaturday = false;
 }
+
+
+/*! Send a PING command to the remote server.
+*/
+void QwcSocket::sendPing()
+{
+    qDebug() << this << "Sending PING";
+    sendMessage(QwMessage("PING"));
+    pingLagTimer.restart();
+}
+
 
 
 /*! Attempt to establish a connection to a remote server.
@@ -1518,7 +1542,14 @@ void QwcSocket::getFileListRecusive(const QString & path)
 }
 
 
-
+/*! The QObject's timer event, used to send periodic PING commands to the server.
+*/
+void QwcSocket::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == pingTimerId && socket->isEncrypted()) {
+        sendPing();
+    }
+}
 
 
 
