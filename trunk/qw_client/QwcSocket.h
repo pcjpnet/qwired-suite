@@ -11,6 +11,8 @@
 #include "QwcTrackerServerInfo.h"
 #include "QwcTransferSocket.h"
 
+#include <QTimerEvent>
+
 class QwcSocket : public QwSocket
 {
     Q_OBJECT
@@ -43,6 +45,10 @@ public:
     /*! The user entered server port. */
     int serverPort;
 
+    /*! Contains the number of milliseconds between PING and reply commands. sendPing() has to be
+        sent at least once before this value is valid.*/
+    int pingTimeLatency;
+
 
     /*! Contains the default directory where downloads should go to. (Default: ~) */
     QString defaultDownloadDirectory;
@@ -67,6 +73,7 @@ public slots:
     void setIconImage(QImage icon);
     void setUserStatus(QString theStatus);
     void setCaturday(bool);
+    void sendPing();
 
 
     // Chats and Communication
@@ -230,6 +237,7 @@ private:
     // Message Handlers
     void handleMessage200(const QwMessage &message);
     void handleMessage201(const QwMessage &message);
+    void handleMessage202(const QwMessage &message);
     void handleMessage203(const QwMessage &message);
     void handleMessage300(const QwMessage &message);
     void handleMessage301(const QwMessage &message);
@@ -301,6 +309,12 @@ private:
 
     /// This is our TCP buffer. Could possibly be optimized, but works for now.
     QByteArray pBuffer;
+
+
+protected:
+    QTime pingLagTimer;
+    int pingTimerId;
+    void timerEvent(QTimerEvent *event);
 };
 
 #endif
