@@ -43,7 +43,7 @@ bool QwcSession::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::Close) {
 
             // If the socket is still connected, confirm the disconnection first.
-            if (wiredSocket()->sslSocket()->isEncrypted()) {
+            if (wiredSocket()->sslSocket()->state() == QAbstractSocket::ConnectedState) {
                 QMessageBox::StandardButton result = QMessageBox::question(connectionWindow,
                     tr("Are you sure you want to disconnect?"),
                     tr("Closing this connection window will disconnect you from the remote server. "
