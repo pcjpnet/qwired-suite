@@ -1546,7 +1546,7 @@ void QwcSocket::getFileListRecusive(const QString & path)
 */
 void QwcSocket::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == pingTimerId && socket->isEncrypted()) {
+    if (event->timerId() == pingTimerId && socket->state() == QAbstractSocket::ConnectedState) {
         sendPing();
     }
 }
