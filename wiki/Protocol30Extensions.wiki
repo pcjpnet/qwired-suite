@@ -1,0 +1,8 @@
+#summary Qwired-specific extensions to the Wired 1.1 protocol
+#labels Phase-Implementation
+
+= Introduction =
+
+This page describes the protocol extensions to the latest Wired 1.1 protocol. Most of the protocol semantics are the same, some commands become obsolete and are replaced by more powerful commands.
+
+The protocol is internally identified by the version number 3.0. Because of the risk of having a 2.x protocol for the original Wired, the version 3.0 is used. Right now it is not likely that a "original" 3.0 protocol will exist, because Zanka Software is developing a completely new, XML-based protocol for the future.
