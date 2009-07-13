@@ -287,7 +287,9 @@ void QwcSession::setupConnections()
 
     connect(socket, SIGNAL(receivedUserlist(int)), this, SLOT(onUserlistComplete(int)) );
 
-    connect(socket, SIGNAL(userInformation(QwcUserInfo)), this, SLOT(doHandleUserInfo(QwcUserInfo)) );
+    connect(socket, SIGNAL(userInformation(QwcUserInfo)),
+            this, SLOT(handleUserInformation(QwcUserInfo)));
+
     connect(socket, SIGNAL(privateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
     connect(socket, SIGNAL(privateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
 
@@ -430,18 +432,22 @@ void QwcSession::handleChatTopic(int chatId, QString nickname, QString login, QH
 
 
 
-// Display received user info in a new window.
-void QwcSession::doHandleUserInfo(QwcUserInfo theUser)
+/*! Handle information about a user (INFO).
+*/
+void QwcSession::handleUserInformation(QwcUserInfo user)
 {
+    QwcUserInfoWidget *infoWidget = NULL;
+    if (userInfoWidgets.contains(user.pUserID)) {
+        infoWidget = userInfoWidgets.value(user.pUserID);
+    } else {
+        infoWidget = new QwcUserInfoWidget(connectionWindow);
+        userInfoWidgets[user.pUserID] = infoWidget;
+        connectionTabWidget->addTab(infoWidget, tr("Info: %1").arg(user.userNickname));
+        connectionTabWidget->setCurrentWidget(infoWidget);
+    }
 
-    for(int i=0; i<connectionTabWidget->count(); i++) {
-        QwcUserInfoWidget *info = dynamic_cast<QwcUserInfoWidget*>(connectionTabWidget->widget(i));
-        if(info && info->pUserID==theUser.pUserID) { // Found existing window
-            connectionTabWidget->setCurrentIndex(i);
-            info->setUser(theUser);
-            return;
-        } }
-
+    if (!infoWidget) { return; }
+    infoWidget->setUser(user);
 }
 
 

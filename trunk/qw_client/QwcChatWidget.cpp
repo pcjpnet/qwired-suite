@@ -358,14 +358,15 @@ void QwcChatWidget::setUserListModel(QwcUserlistModel *model)
 void QwcChatWidget::on_fBtnKick_clicked()
 {
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
-    int tmpID = tmpIdx.data(Qt::UserRole).toInt();
-    QString tmpNick = tmpIdx.data(Qt::DisplayRole).toString();
+    if (!tmpIdx.isValid()) { return; }
+    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
 
     bool ok;
-    QString tmpReason = QInputDialog::getText(this, tr("Kick"),
-                                              tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.").arg(tmpNick), QLineEdit::Normal, "", &ok);
+    QString reason = QInputDialog::getText(this, tr("Kick"),
+                        tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.")
+                        .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
     if (ok) {
-        pSession->wiredSocket()->kickClient(tmpID, tmpReason);
+        pSession->wiredSocket()->kickClient(userInfo.pUserID, reason);
     }
 }
 
@@ -373,15 +374,15 @@ void QwcChatWidget::on_fBtnKick_clicked()
 void QwcChatWidget::on_fBtnBan_clicked()
 {
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
-    int tmpID = tmpIdx.data(Qt::UserRole).toInt();
-    QString tmpNick = tmpIdx.data(Qt::DisplayRole).toString();
+    if (!tmpIdx.isValid()) { return; }
+    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
 
     bool ok;
-    QString tmpReason = QInputDialog::getText(this, tr("Kick"),
-                                              tr("You are about to ban '%1'.\nPlease enter a reason and press OK.").arg(tmpNick), QLineEdit::Normal, "", &ok);
-    if (ok) {
-        pSession->wiredSocket()->banClient(tmpID, tmpReason);
-    }
+    QString reason = QInputDialog::getText(this, tr("Kick"),
+                        tr("You are about to ban '%1'.\nPlease enter a reason and press OK.")
+                        .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
+    if (!ok) { return; }
+    pSession->wiredSocket()->banClient(userInfo.pUserID, reason);
 }
 
 
@@ -397,14 +398,15 @@ void QwcChatWidget::on_fBtnMsg_clicked()
 */
 void QwcChatWidget::on_fUsers_doubleClicked(const QModelIndex &index)
 {
-    if (!index.isValid()) { return; }
-    if (!index.data(Qt::UserRole).canConvert<QwcUserInfo>()) { return; }
-
-    QwcUserInfo targetUser = index.data(Qt::UserRole).value<QwcUserInfo>();
-    emit userDoubleClicked(targetUser);
+    const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
+    if (!tmpIdx.isValid()) { return; }
+    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
+    emit userDoubleClicked(userInfo);
 }
 
-// User list item has changed/selection changed.
+
+/*! The selection of the user list has changed.
+*/
 void QwcChatWidget::onUserlistSelectionChanged(const QItemSelection &, const QItemSelection &)
 {
     fBtnInfo->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privGetUserInfo );
@@ -415,23 +417,26 @@ void QwcChatWidget::onUserlistSelectionChanged(const QItemSelection &, const QIt
 }
 
 
+/*! The privat-chat button has been clicked.
+*/
 void QwcChatWidget::on_fBtnChat_clicked()
 {
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
-    if( tmpIdx.isValid() ) {
-        int tmpID = tmpIdx.data(Qt::UserRole).toInt();
-        pSession->wiredSocket()->createChatWithClient(tmpID);
-    }
+    if (!tmpIdx.isValid()) { return; }
+    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
+    pSession->wiredSocket()->createChatWithClient(userInfo.pUserID);
 }
 
 
+/*! The get-info button has been clicked.
+*/
 void QwcChatWidget::on_fBtnInfo_clicked()
 {
     const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
-    if (tmpIdx.isValid()) {
-        int tmpID = tmpIdx.data(Qt::UserRole).toInt();
-        pSession->wiredSocket()->getClientInfo(tmpID);
-    }
+    if (!tmpIdx.isValid()) { return; }
+    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
+    pSession->wiredSocket()->getClientInfo(userInfo.pUserID);
+
 }
 
 
