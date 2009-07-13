@@ -87,26 +87,40 @@ void QwcSession::handleProtocolError(Qw::ProtocolError error)
     // Display an error message
     QString errorText(tr("An unknown server error occoured. The error code is %1.").arg(error));
     switch (error) {
-        case Qw::ErrorCommandFailed: errorText=tr("Command Failed. An undefined internal server error has occoured."); break;
-        case Qw::ErrorCommandNotRecognized: errorText=tr("Command Not Recognized. Qwired sent a command that is unknown by the server."); break;
-        case Qw::ErrorCommandNotImplemented: errorText=tr("Command Not Implemented. The last command is not implemented by the server."); break;
-        case Qw::ErrorSyntaxError: errorText=tr("Syntax Error. The last command was not formatted correctly."); break;
-        case Qw::ErrorLoginFailed: errorText=tr("Login Failed. Username and password were not accepted by the server."); break;
-        case Qw::ErrorBanned: errorText=tr("Banned. You have been banned from the server. Please try connecting later."); break;
-        case Qw::ErrorClientNotFound: errorText=tr("Client Not Found. The server could not find the client referred to."); break;
-        case Qw::ErrorAccountNotFound: errorText=tr("Account Not Found. The server could not find the account referred to."); break;
-        case Qw::ErrorAccountExists: errorText=tr("Account Exists. Could not create the account you specified."); break;
-        case Qw::ErrorCannotBeDisconnected: errorText=tr("User can not be disconnected. The specified user can not be disconnected."); break;
-        case Qw::ErrorPermissionDenied: errorText=tr("Permission Denied. You don't have sufficient privileges to execute the last command."); break;
-        case Qw::ErrorFileOrDirectoryNotFound:
-            errorText = tr("File or Directory not found. The last command could not be completed because the file or directory could not be found.");
-            if (mainFileWidget != 0 && connectionTabWidget->currentWidget() == mainFileWidget) {
-                mainFileWidget->stackedWidget->setCurrentWidget(mainFileWidget->pageBrowser);
-            }
-            break;
-        case Qw::ErrorFileOrDirectoryExists: errorText=tr("The last command could not be completed because the file or directory already exists."); break;
-        case Qw::ErrorChecksumMismatch: errorText=tr("Checksum Mismatch.");
-        case Qw::ErrorQueueLimitExceeded: errorText=tr("Queue Limit Exceeded. Could not complete the last command because the server queue is full."); break;
+    case Qw::ErrorCommandFailed:
+        errorText = tr("Command Failed. An undefined internal server error has occoured."); break;
+    case Qw::ErrorCommandNotRecognized:
+        errorText = tr("Command Not Recognized. Qwired sent a command that is unknown by the server."); break;
+    case Qw::ErrorCommandNotImplemented:
+        errorText = tr("Command Not Implemented. The last command is not implemented by the server."); break;
+    case Qw::ErrorSyntaxError:
+        errorText = tr("Syntax Error. The last command was not formatted correctly."); break;
+    case Qw::ErrorLoginFailed:
+        errorText = tr("Login Failed. Username and password were not accepted by the server."); break;
+    case Qw::ErrorBanned:
+        errorText = tr("Banned. You have been banned from the server. Please try connecting later."); break;
+    case Qw::ErrorClientNotFound:
+        errorText = tr("Client Not Found. The server could not find the client referred to."); break;
+    case Qw::ErrorAccountNotFound:
+        errorText = tr("Account Not Found. The server could not find the account referred to."); break;
+    case Qw::ErrorAccountExists:
+        errorText = tr("Account Exists. Could not create the account you specified."); break;
+    case Qw::ErrorCannotBeDisconnected:
+        errorText = tr("User can not be disconnected. The specified user can not be disconnected."); break;
+    case Qw::ErrorPermissionDenied:
+        errorText = tr("Permission Denied. You don't have sufficient privileges to execute the last command."); break;
+    case Qw::ErrorFileOrDirectoryNotFound:
+        errorText = tr("File or Directory not found. The last command could not be completed because the file or directory could not be found.");
+        if (mainFileWidget != 0 && connectionTabWidget->currentWidget() == mainFileWidget) {
+            mainFileWidget->stackedWidget->setCurrentWidget(mainFileWidget->pageBrowser);
+        }
+        break;
+    case Qw::ErrorFileOrDirectoryExists:
+        errorText = tr("The last command could not be completed because the file or directory already exists."); break;
+    case Qw::ErrorChecksumMismatch:
+        errorText = tr("Checksum Mismatch.");
+    case Qw::ErrorQueueLimitExceeded:
+        errorText = tr("Queue Limit Exceeded. Could not complete the last command because the server queue is full."); break;
     }
 
     // Dispatch an event

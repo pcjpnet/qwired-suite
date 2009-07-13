@@ -192,9 +192,6 @@ void QwcChatWidget::writeToChat(QString theUser, QString theText, bool theEmote)
         tc.insertText(tmpData);
 
     } else if(pChatStyle==2) { // Qwired style
-        // 		QString nick = theUser;
-        // 		nick.replace("<", "&lt;");
-        // 		nick.replace(">", "&gt;");
 
         if(theEmote) {
             tc.insertHtml(QString("<b>&#9787; %1</b> %2<br>")
@@ -211,7 +208,7 @@ void QwcChatWidget::writeToChat(QString theUser, QString theText, bool theEmote)
 
     tc.setPosition(tmpStart);
 
-    if(pEmoticonsEnabled) {
+    if (pEmoticonsEnabled) {
         QHash<QString,QString> pEmotes;
         pEmotes[":):)"] = ":/icons/emotes/face-smile-big.png";
         pEmotes[":D"] = ":/icons/emotes/face-grin.png";
@@ -221,7 +218,7 @@ void QwcChatWidget::writeToChat(QString theUser, QString theText, bool theEmote)
         pEmotes[";-)"] = ":/icons/emotes/face-wink.png";
         pEmotes[":)"] = ":/icons/emotes/face-smile.png";
         pEmotes[":-)"] = ":/icons/emotes/face-smile.png";
-        pEmotes["^^"] = ":/icons/emotes/face-smile.png";
+        pEmotes["^^"] = ":/icons/emotes/face-cat.png";
         pEmotes["^.^"] = ":/icons/emotes/face-cat.png";
         pEmotes[":>"] = ":/icons/emotes/face-smile.png";
         pEmotes[":("] = ":/icons/emotes/face-sad.png";
