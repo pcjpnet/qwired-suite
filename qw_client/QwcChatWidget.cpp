@@ -259,7 +259,7 @@ void QwcChatWidget::writeToChat(QString theUser, QString theText, bool theEmote)
 
     // Hyperlinks
     QStringList tmpProtos;
-    tmpProtos << "http://" << "ftp://" << "wired://" << "skype:" << "callto:";
+    tmpProtos << "http://" << "https://" << "ftp://" << "wired://" << "skype:" << "callto:";
     QStringListIterator ia(tmpProtos);
     while(ia.hasNext()) {
         QString tmpProto = ia.next();
@@ -365,9 +365,8 @@ void QwcChatWidget::on_fBtnKick_clicked()
     QString reason = QInputDialog::getText(this, tr("Kick"),
                         tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.")
                         .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
-    if (ok) {
-        pSession->wiredSocket()->kickClient(userInfo.pUserID, reason);
-    }
+    if (!ok) { return; }
+    pSession->wiredSocket()->kickClient(userInfo.pUserID, reason);
 }
 
 
@@ -379,8 +378,8 @@ void QwcChatWidget::on_fBtnBan_clicked()
 
     bool ok;
     QString reason = QInputDialog::getText(this, tr("Kick"),
-                        tr("You are about to ban '%1'.\nPlease enter a reason and press OK.")
-                        .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
+                                           tr("You are about to ban '%1'.\nPlease enter a reason and press OK.")
+                                           .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
     if (!ok) { return; }
     pSession->wiredSocket()->banClient(userInfo.pUserID, reason);
 }

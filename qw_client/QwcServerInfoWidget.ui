@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>QwcServerInfoWidget</class>
  <widget class="QWidget" name="QwcServerInfoWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>419</width>
+    <height>378</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Server Information</string>
   </property>
@@ -326,6 +334,35 @@
         </item>
         <item row="7" column="1">
          <widget class="QLabel" name="fSslProtocol">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string notr="true">n/a</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Latency:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QLabel" name="fLatency">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>

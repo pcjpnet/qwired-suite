@@ -50,7 +50,7 @@ private:
 
 private slots:
     void postChatInputText();
-    void on_fUsers_doubleClicked ( const QModelIndex & index );
+    void on_fUsers_doubleClicked(const QModelIndex &index);
     void on_fBtnMsg_clicked();
     void on_fBtnKick_clicked();
     void on_fBtnBan_clicked();

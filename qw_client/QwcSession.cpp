@@ -309,13 +309,6 @@ void QwcSession::setupConnections()
     connect(socket, SIGNAL(newsPosted(QString,QDateTime,QString)),
             this, SLOT(newsPosted(QString,QDateTime,QString)) );
 
-    // File transfer signals
-//    connect(socket, SIGNAL(fileTransferDone(const QwcTransferInfo)), this, SLOT(transferDone(QwcTransferInfo)) );
-//    connect(socket, SIGNAL(fileTransferStarted(const QwcTransferInfo)), this, SLOT(transferStarted(QwcTransferInfo)) );
-//    connect(socket, SIGNAL(fileTransferSocketError(QAbstractSocket::SocketError)), this, SLOT(transferSocketError(QAbstractSocket::SocketError)));
-//    connect(socket, SIGNAL(fileTransferError(const QwcTransferInfo)), this, SLOT(transferError(QwcTransferInfo)) );
-//    connect(socket, SIGNAL(onFilesListRecursiveDone(const QList<QwcFileInfo>)), this, SLOT(fileListingRecursiveDone(const QList<QwcFileInfo>)));
-
     // Main Window actions
     //
     connect( connectionWindow->actionNewConnection, SIGNAL(triggered()),
@@ -404,8 +397,8 @@ void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theT
 
         // Find the index on the tab panel
         int tmpIdx = connectionTabWidget->indexOf(chat);
-        if( tmpIdx>-1 && connectionTabWidget->currentIndex()!=tmpIdx )
-            connectionTabWidget->setTabIcon( tmpIdx, QIcon(":/icons/tab-content.png") );
+        if( tmpIdx >- 1 && connectionTabWidget->currentIndex() != tmpIdx )
+            connectionTabWidget->setTabIcon(tmpIdx, QIcon(":/icons/tab-content.png"));
     }
 }
 
@@ -462,9 +455,9 @@ void QwcSession::doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUse
     QAbstractButton *rejectButton = messageBox.addButton(tr("Reject"), QMessageBox::RejectRole);
     QAbstractButton *joinButton = messageBox.addButton(tr("Join"), QMessageBox::AcceptRole);
 
-    Q_UNUSED(ignoreButton)
+    Q_UNUSED(ignoreButton);
 
-            messageBox.exec();
+    messageBox.exec();
     if (messageBox.clickedButton() == joinButton) {
         // Create a new chat
         doCreateNewChat(theChatID);

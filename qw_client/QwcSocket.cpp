@@ -330,9 +330,12 @@ void QwcSocket::handleMessage306(const QwMessage &message)
 {
     QwcUserInfo victim = users[message.getStringArgument(0).toInt()];
     QwcUserInfo killer = users[message.getStringArgument(1).toInt()];
+    QString reason = message.getStringArgument(2);
+
     // User message handler for 303 Client Left to remove the user
-    handleMessage303(QwMessage().appendArg("0").appendArg(QString::number(victim.pUserID)));
-    emit userKicked(victim, killer, message.getStringArgument(2));
+    emit userKicked(victim, killer, reason);
+    handleMessage303(QwMessage().appendArg("1")
+                     .appendArg(QString::number(victim.pUserID)));
 }
 
 
@@ -343,9 +346,12 @@ void QwcSocket::handleMessage307(const QwMessage &message)
 {
     QwcUserInfo victim = users[message.getStringArgument(0).toInt()];
     QwcUserInfo killer = users[message.getStringArgument(1).toInt()];
+    QString reason = message.getStringArgument(2);
+
     // User message handler for 303 Client Left to remove the user
-    handleMessage303(QwMessage().appendArg("0").appendArg(QString::number(victim.pUserID)));
-    emit userBanned(victim, killer, message.getStringArgument(2));
+    handleMessage303(QwMessage().appendArg("1")
+                     .appendArg(QString::number(victim.pUserID)));
+    emit userBanned(victim, killer, reason);
 }
 
 
