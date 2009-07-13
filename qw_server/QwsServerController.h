@@ -51,6 +51,9 @@ public:
         will be stored. By default this will be the current working directory. */
     QDir serverRootDirectory;
 
+    /*! The object containing the general server information. */
+    QwServerInfo serverInfo;
+
 private:
     int sessionIdCounter;
     int roomIdCounter;

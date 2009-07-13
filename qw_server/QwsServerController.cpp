@@ -157,6 +157,15 @@ QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int use
 bool QwsServerController::startServer()
 {
 
+    // Load the server information
+    serverInfo.serverVersion = "Qwired Server/1.0";
+    serverInfo.name = getConfigurationParam("server/name", "Qwired Server").toString();
+    serverInfo.description = getConfigurationParam("server/description", "A freshly installed Qwired server.").toString();
+    serverInfo.protocolVersion = "3.0";
+    serverInfo.startTime = QDateTime::currentDateTime();
+    serverInfo.filesCount = 0;
+    serverInfo.filesSize = 0;
+
     QString certificateData;
     int tmpPort = getConfigurationParam("server/port", 2000).toInt();
     QString tmpAddress = getConfigurationParam("server/address", "0.0.0.0").toString();
@@ -312,6 +321,7 @@ void QwsServerController::acceptSessionSslConnection()
     QSslSocket *newSocket = sessionTcpServer->nextPendingSslSocket();
 
     QwsClientSocket *clientSocket = new QwsClientSocket(this);
+    clientSocket->serverInfo = &serverInfo;
     clientSocket->user.pUserID = ++sessionIdCounter;
     clientSocket->setSslSocket(newSocket);
     clientSocket->user.userIpAddress = clientSocket->socket->peerAddress().toString();
