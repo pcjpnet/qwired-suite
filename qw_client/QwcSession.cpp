@@ -217,8 +217,10 @@ void QwcSession::handlePrivateMessage(QwcUserInfo sender, QString text)
 {
     privateMessager->handleNewMessage(sender, text);
     if (connectionTabWidget->indexOf(privateMessager) > -1) {
-        connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(privateMessager),
-                                        QIcon(":/icons/tab-content.png"));
+        if (connectionTabWidget->currentWidget() != privateMessager) {
+            connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(privateMessager),
+                                            QIcon(":/icons/tab-content.png"));
+        }
     } else {
         showMessagerForUser(sender);
         privateMessager->handleNewMessage(sender, text);
@@ -345,6 +347,8 @@ void QwcSession::setupConnections()
              this, SLOT(doActionAccounts()) );
     connect( connectionWindow->actionNews, SIGNAL(triggered()),
              this, SLOT(doActionNews()) );
+    connect(connectionWindow->actionMessages, SIGNAL(triggered()),
+            this, SLOT(doActionMessages()));
     connect( connectionWindow->actionServerInfo, SIGNAL(triggered(bool)),
              this, SLOT(doActionServerInfo()) );
     connect( connectionWindow->actionBroadcast, SIGNAL(triggered(bool)),
@@ -558,6 +562,7 @@ void QwcSession::setConnectionToolButtonsEnabled(bool theEnable)
     connectionWindow->actionServerInfo->setEnabled(theEnable);
     connectionWindow->actionChat->setEnabled(theEnable);
     connectionWindow->actionNews->setEnabled(theEnable);
+    connectionWindow->actionMessages->setEnabled(theEnable);
     connectionWindow->actionFiles->setEnabled(theEnable);
     connectionWindow->actionTransfers->setEnabled(theEnable);
     connectionWindow->actionAccounts->setEnabled(theEnable);
@@ -917,6 +922,24 @@ void QwcSession::doActionNews()
 }
 
 
+/*! Display the private messager.
+*/
+void QwcSession::doActionMessages()
+{
+    // Display the widget if it is not in the tab widget
+    if (connectionTabWidget->indexOf(privateMessager) == -1) {
+        connectionTabWidget->addTab(privateMessager,
+                                    QIcon(":/icons/tab-idle.png"),
+                                    tr("Messages"));
+    }
+
+    // Ensure it is the currently visible widget
+    connectionTabWidget->setCurrentWidget(privateMessager);
+}
+
+
+
+
 /*! Display the server information in a tab.
 */
 void QwcSession::doActionServerInfo()
@@ -1069,7 +1092,9 @@ void QwcSession::showMessagerForUser(const QwcUserInfo targetUser)
 {
     if (!privateMessager) { return; }
     if (connectionTabWidget->indexOf(privateMessager) == -1) {
-        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(privateMessager, tr("Messages")));
+        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(privateMessager,
+                                                                         QIcon(":/icons/tab-idle.png"),
+                                                                         tr("Messages")));
     } else {
         connectionTabWidget->setCurrentWidget(privateMessager);
     }

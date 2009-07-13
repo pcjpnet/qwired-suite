@@ -135,6 +135,7 @@ public slots:
     void doActionAccounts();
     void doActionDisconnect();
     void doActionNews();
+    void doActionMessages();
     void doActionServerInfo();
     void doActionNewConnection();
     void doActionBroadcast();
