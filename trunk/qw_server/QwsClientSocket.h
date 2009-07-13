@@ -5,6 +5,7 @@
 #include "QwsFile.h"
 #include "QwSocket.h"
 #include "QwRoom.h"
+#include "QwServerInfo.h"
 
 #include <QtCore>
 #include <QtNetwork>
@@ -33,12 +34,15 @@ Q_DECLARE_METATYPE(Qws::SessionState);
 class QwsClientSocket : public QwSocket
 {
     Q_OBJECT
+
     friend class QwsServerController;
 
 public:
     QwsClientSocket(QObject *parent=0);
     ~QwsClientSocket();
 
+    /*! A pointer to the information about this server. */
+    QwServerInfo *serverInfo;
 
     /*! This timer is responsible for automatically setting the user as "inactive" after a certain
         period of time. */

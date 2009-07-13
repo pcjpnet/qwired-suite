@@ -35,12 +35,16 @@ QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
     // A new socket is always in teh inactive state.
     sessionState = Qws::StateInactive;
 
+    serverInfo = NULL;
+
     // Set up the idle timer and connect it to the respective handlers
     pIdleTimer = new QTimer(this);
     pIdleTimer->setInterval(1000*60*10); // 10 minutes
     pIdleTimer->setSingleShot(true);
     connect(pIdleTimer, SIGNAL(timeout()),
             this, SLOT(idleTimerTriggered()));
+
+
 }
 
 
@@ -1343,13 +1347,14 @@ void QwsClientSocket::handleMessageTYPE(QwMessage &message)
 void QwsClientSocket::sendServerInfo()
 {
      QwMessage response("200");
-     response.appendArg("1.0"); // app-version
-     response.appendArg("3.0"); // proto-version
-     response.appendArg("Qwired Server");
-     response.appendArg("A very early Qwired Server build.");
-     response.appendArg(QDateTime::currentDateTime().toString(Qt::ISODate)+"+00:00"); // start time
-     response.appendArg("0"); // file count
-     response.appendArg("0"); // total size
+     Q_ASSERT(serverInfo != NULL);
+     response.appendArg(serverInfo->serverVersion); // app-version
+     response.appendArg(serverInfo->protocolVersion); // proto-version
+     response.appendArg(serverInfo->name); // name
+     response.appendArg(serverInfo->description); // description
+     response.appendArg(serverInfo->startTime.toUTC().toString(Qt::ISODate)+"+00:00"); // start time
+     response.appendArg(QString::number(serverInfo->filesCount)); // file count
+     response.appendArg(QString::number(serverInfo->filesSize)); // total size
      sendMessage(response);
 }
 
