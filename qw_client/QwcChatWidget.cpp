@@ -397,9 +397,8 @@ void QwcChatWidget::on_fBtnMsg_clicked()
 */
 void QwcChatWidget::on_fUsers_doubleClicked(const QModelIndex &index)
 {
-    const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
-    if (!tmpIdx.isValid()) { return; }
-    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
+    if (!index.isValid()) { return; }
+    QwcUserInfo userInfo = index.data(Qt::UserRole).value<QwcUserInfo>();
     emit userDoubleClicked(userInfo);
 }
 
