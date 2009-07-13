@@ -407,11 +407,11 @@ void QwcChatWidget::on_fUsers_doubleClicked(const QModelIndex &index)
 */
 void QwcChatWidget::onUserlistSelectionChanged(const QItemSelection &, const QItemSelection &)
 {
-    fBtnInfo->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privGetUserInfo );
-    fBtnBan->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privBanUsers );
-    fBtnMsg->setEnabled( fUsers->selectionModel()->hasSelection() );
-    fBtnKick->setEnabled( fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privKickUsers );
-    fBtnChat->setEnabled( fUsers->selectionModel()->hasSelection() );
+    fBtnInfo->setEnabled(fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privGetUserInfo);
+    fBtnBan->setEnabled(fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privBanUsers);
+    fBtnMsg->setEnabled(fUsers->selectionModel()->hasSelection());
+    fBtnKick->setEnabled(fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privKickUsers);
+    fBtnChat->setEnabled(fUsers->selectionModel()->hasSelection());
 }
 
 
