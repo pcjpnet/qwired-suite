@@ -523,7 +523,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
      query.prepare("INSERT INTO qws_news (news_username, news_date, news_text) "
                    "VALUES (:_login, :_date, :_text)");
      query.bindValue(":_login", QString("%1 [%2]").arg(user.userNickname).arg(user.name));
-     query.bindValue(":_date", QDateTime::currentDateTime().toTimeSpec(Qt::UTC).toString(Qt::ISODate));
+     query.bindValue(":_date", QDateTime::currentDateTime().toUTC().toString(Qt::ISODate));
      query.bindValue(":_text", message.getStringArgument(0));
 
      if (query.exec()) {
@@ -873,8 +873,8 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
             replyItem.appendArg(QDir::cleanPath(targetDirectory.path + "/" + itemFile.path));
             replyItem.appendArg(QString::number(itemFile.type));
             replyItem.appendArg(QString::number(itemFile.size));
-            replyItem.appendArg(itemFile.created.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-            replyItem.appendArg(itemFile.modified.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.created.toUTC().toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.modified.toUTC().toString(Qt::ISODate)+"+00:00");
             sendMessage(replyItem);
         }
     }
@@ -945,8 +945,8 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(QwMessage &message)
             replyItem.appendArg(QDir::cleanPath(targetDirectory.path + "/" + itemFile.path));
             replyItem.appendArg(QString::number(itemFile.type));
             replyItem.appendArg(QString::number(itemFile.size));
-            replyItem.appendArg(itemFile.created.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-            replyItem.appendArg(itemFile.modified.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.created.toUTC().toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.modified.toUTC().toString(Qt::ISODate)+"+00:00");
             sendMessage(replyItem);
         }
     }
@@ -995,8 +995,8 @@ void QwsClientSocket::handleMessageSTAT(QwMessage &message)
     reply.appendArg(targetFile.path);
     reply.appendArg(QString::number(targetFile.type));
     reply.appendArg(QString::number(targetFile.size));
-    reply.appendArg(targetFile.created.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-    reply.appendArg(targetFile.modified.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetFile.created.toUTC().toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetFile.modified.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(targetFile.checksum);
     reply.appendArg(targetFile.comment);
     sendMessage(reply);
@@ -1270,8 +1270,8 @@ void QwsClientSocket::handleMessageSEARCH(QwMessage &message)
                            .arg(query.value(1).toString()));
         response.appendArg(QString::number(Qw::FileTypeRegular));
         response.appendArg(query.value(2).toString());
-        response.appendArg(QDateTime::currentDateTime().toString(Qt::ISODate)+"+00:00");
-        response.appendArg(QDateTime::currentDateTime().toString(Qt::ISODate)+"+00:00");
+        response.appendArg(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)+"+00:00");
+        response.appendArg(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)+"+00:00");
         sendMessage(response);
     }
 

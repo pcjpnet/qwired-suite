@@ -746,7 +746,7 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
     reply.appendArg(room->pTopicSetter.userNickname);
     reply.appendArg(room->pTopicSetter.name);
     reply.appendArg(room->pTopicSetter.userIpAddress);
-    reply.appendArg(room->pTopicDate.toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
     broadcastMessage(reply, roomId, true);
 }
@@ -774,7 +774,7 @@ void QwsServerController::sendRoomTopic(const int roomId)
     reply.appendArg(room->pTopicSetter.userNickname);
     reply.appendArg(room->pTopicSetter.name);
     reply.appendArg(room->pTopicSetter.userIpAddress);
-    reply.appendArg(room->pTopicDate.toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
     user->sendMessage(reply);
 }
@@ -893,7 +893,7 @@ void QwsServerController::handleMessageJOIN(const int roomId)
     reply.appendArg(room->pTopicSetter.userNickname);
     reply.appendArg(room->pTopicSetter.name);
     reply.appendArg(room->pTopicSetter.userIpAddress);
-    reply.appendArg(room->pTopicDate.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
     user->sendMessage(reply);
 
