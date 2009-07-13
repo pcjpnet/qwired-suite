@@ -13,6 +13,7 @@
 */
 class QwcPrivateMessagerSession
 {
+
 public:
     QwcPrivateMessagerSession();
     int unreadCount;
@@ -20,7 +21,9 @@ public:
     bool inactive;
     QwcUserInfo userInfo;
     QTextDocument *document;
+
 };
+
 Q_DECLARE_METATYPE(QwcPrivateMessagerSession);
 
 
@@ -29,7 +32,8 @@ Q_DECLARE_METATYPE(QwcPrivateMessagerSession);
 */
 class QwcPrivateMessager : public QWidget, private Ui_QwcPrivateMessager
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
     QwcPrivateMessager(QWidget *parent=0);
     ~QwcPrivateMessager();

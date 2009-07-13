@@ -181,7 +181,6 @@ void QwcSession::initMainWindow()
 
     // Create the initial tab for the main chat
     mainChatWidget = new QwcChatWidget(connectionWindow);
-
     // Unser auto-delete so that we can use it with tab widgets
     mainChatWidget->setAttribute(Qt::WA_DeleteOnClose, false);
 
@@ -357,11 +356,9 @@ void QwcSession::setupConnections()
              this, SLOT(doActionFiles()) );
     connect( connectionWindow->actionPreferences, SIGNAL(triggered(bool)),
              this, SLOT(doActionPreferences()));
-    connect( connectionWindow->actionTrackers, SIGNAL(triggered(bool)),
-             this, SLOT(doActionTrackers()) );
+
     connect( connectionWindow->actionTransfers, SIGNAL(triggered(bool)),
              this, SLOT(doActionTransfers()) );
-    //connect( connectionWindow->actionConnect, SIGNAL(triggered(bool)), this, SLOT(do_show_connect()));
 
     // Notification manager
     //
