@@ -93,8 +93,8 @@ void QwsUser::userInfoEntry(QwMessage &message) const
     message.appendArg(pClientVersion);
     message.appendArg(pCipherName);
     message.appendArg(QString::number(pCipherBits));
-    message.appendArg(pLoginTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
-    message.appendArg(pIdleTime.toTimeSpec(Qt::UTC).toString(Qt::ISODate)+"+00:00");
+    message.appendArg(pLoginTime.toUTC().toString(Qt::ISODate)+"+00:00");
+    message.appendArg(pIdleTime.toUTC().toString(Qt::ISODate)+"+00:00");
     message.appendArg(""); // downloads - filled in later
     message.appendArg(""); // uploads - filled in later
     message.appendArg(userStatus);
