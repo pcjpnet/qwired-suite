@@ -15,30 +15,31 @@ QwcUserInfoWidget::~QwcUserInfoWidget()
 
 void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
 {
-        fStatus->setText( theUser.userStatus );
-        fNick->setText( theUser.userNickname );
-        fLogin->setText( theUser.name );
-	fID->setText( QString::number(theUser.pUserID) );
-        fAddress->setText( theUser.userIpAddress );
-        fHost->setText( theUser.userHostName );
-	fVersion->setText( theUser.pClientVersion );
-	fCipher->setText( theUser.pCipherName+QString(" (%1 bits)").arg(theUser.pCipherBits) );
-	fLoginTime->setText( theUser.pLoginTime.toString() );
-	fIdleTime->setText( theUser.pIdleTime.toString() );
-	
-        /*! \todo User icon in user info should be working! */
-//	QPixmap icon;
-//        icon.loadFromData(theUser.userImage);
-//	if( !icon.isNull() ) {
-//		if(icon.width()>128 || icon.height()>128)
-//			icon = icon.scaled(128, 128, Qt::KeepAspectRatio);
-//		fIcon->setPixmap(icon);
-//	}
-        setWindowTitle(tr("User Information: %1").arg(theUser.userNickname));
-	pUserID = theUser.pUserID;
-	setTransfers(0, theUser);
-	setTransfers(1, theUser);
-	
+    fStatus->setText( theUser.userStatus );
+    fNick->setText( theUser.userNickname );
+    fLogin->setText( theUser.name );
+    fID->setText( QString::number(theUser.pUserID) );
+    fAddress->setText( theUser.userIpAddress );
+    fHost->setText( theUser.userHostName );
+    fVersion->setText( theUser.pClientVersion );
+    fCipher->setText( theUser.pCipherName+QString(" (%1 bits)").arg(theUser.pCipherBits) );
+    fLoginTime->setText( theUser.pLoginTime.toString() );
+    fIdleTime->setText( theUser.pIdleTime.toString() );
+
+    fIcon->setPixmap(QPixmap::fromImage(theUser.userImage));
+
+    //	QPixmap icon;
+    //        icon.loadFromData(theUser.userImage);
+    //	if( !icon.isNull() ) {
+    //		if(icon.width()>128 || icon.height()>128)
+    //			icon = icon.scaled(128, 128, Qt::KeepAspectRatio);
+    //		fIcon->setPixmap(icon);
+    //	}
+    setWindowTitle(tr("User Information: %1").arg(theUser.userNickname));
+    pUserID = theUser.pUserID;
+    setTransfers(0, theUser);
+    setTransfers(1, theUser);
+
 }
 
 void QwcUserInfoWidget::setTransfers(int theType, const QwcUserInfo theUser)

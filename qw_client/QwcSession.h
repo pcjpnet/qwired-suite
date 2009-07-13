@@ -15,6 +15,7 @@
 #include "QwcAccountsWidget.h"
 #include "QwcServerInfoWidget.h"
 #include "QwcPrivateMessager.h"
+#include "QwcUserInfoWidget.h"
 
 
 namespace Qwired {
@@ -66,6 +67,9 @@ public:
     QPointer<QwcFiletransferWidget> pTranfersWindow;
     QPointer<QwcAccountsWidget> pWinAccounts;
     QPointer<QwcFileBrowserWidget> mainFileWidget;
+
+    /*! A list of QwcUserInfoWidgets, identified by the \a userId. */
+    QHash<int,QPointer<QwcUserInfoWidget> > userInfoWidgets;
 
     QPointer<QMenu> pTrayMenuItem;
 
@@ -150,7 +154,8 @@ public slots:
 
     // Socket handlers
     void handleChatTopic(int chatId, QString nickname, QString login, QHostAddress userIp, QDateTime date, QString topic);
-    void doHandleUserInfo(QwcUserInfo theUser);
+    void handleUserInformation(QwcUserInfo user);
+
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
     void doCreateNewChat(int theChatID);
 
