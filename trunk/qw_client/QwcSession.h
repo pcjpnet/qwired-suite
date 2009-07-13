@@ -105,6 +105,8 @@ private slots:
     // Chat Window
     void onUserlistComplete(int chatId);
 
+    void handlePrivateMessage(QwcUserInfo sender, QString text);
+
     void connectionWindowDestroyed(QObject *obj);
     void reloadPreferences();
     void onSocketPrivileges(QwcUserInfo);

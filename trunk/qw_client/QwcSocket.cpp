@@ -132,6 +132,7 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
     } else if (commandId == 302) {    handleMessage302(message); // Client Join
     } else if (commandId == 303) {    handleMessage303(message); // Client Leave
     } else if (commandId == 304) {    handleMessage304(message); // Status Change
+    } else if (commandId == 305) {    handleMessage305(message); // Private Message
     } else if (commandId == 306) {    handleMessage306(message); // Client Kicked
     } else if (commandId == 307) {    handleMessage307(message); // Client Banned
     } else if (commandId == 308) {    handleMessage308(message); // Client Information
@@ -210,6 +211,7 @@ void QwcSocket::handleMessage201(const QwMessage &message)
 */
 void QwcSocket::handleMessage202(const QwMessage &message)
 {
+    Q_UNUSED(message);
     pingTimeLatency = pingLagTimer.elapsed();
     qDebug() << this << "Measured server latency:" << pingTimeLatency << "ms";
 }
@@ -319,7 +321,8 @@ void QwcSocket::handleMessage304(const QwMessage &message)
 void QwcSocket::handleMessage305(const QwMessage &message)
 {
     QwcUserInfo senderUser = users[message.getStringArgument(0).toInt()];
-    emit onPrivateMessage(senderUser, message.getStringArgument(1) );
+    QString text = message.getStringArgument(1);
+    emit onPrivateMessage(senderUser, text);
 }
 
 
