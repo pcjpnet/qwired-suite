@@ -311,7 +311,7 @@ void QwcChatWidget::postChatInputText()
         pSession->wiredSocket()->setCaturday(true);
 
     } else {
-        pSession->wiredSocket()->sendChatToRoom(pChatID, msg, false);
+        pSession->wiredSocket()->sendChatToRoom(pChatID, msg, qApp->keyboardModifiers() & Qt::AltModifier);
     }
     fChatInput->clear();
 }
