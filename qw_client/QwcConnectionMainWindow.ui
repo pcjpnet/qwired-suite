@@ -44,6 +44,7 @@
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionAbout"/>
+    <addaction name="actionDonate"/>
    </widget>
    <addaction name="menuQwired"/>
   </widget>
@@ -302,6 +303,14 @@
    </property>
    <property name="toolTip">
     <string>Show private messages</string>
+   </property>
+  </action>
+  <action name="actionDonate">
+   <property name="text">
+    <string>Support &amp;&amp; Donate...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::ApplicationSpecificRole</enum>
    </property>
   </action>
  </widget>
