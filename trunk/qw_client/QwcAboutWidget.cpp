@@ -19,10 +19,10 @@ QwcAboutWidget::QwcAboutWidget(QWidget *parent) : QWidget(parent)
 
 void QwcAboutWidget::on_fBtnDonate_clicked()
 {
-    QDesktopServices::openUrl(QUrl("http://qwired.neo.de/donate/"));
+    QDesktopServices::openUrl(QUrl("http://code.google.com/p/qwired-suite/wiki/SupportTheProject"));
 }
 
 void QwcAboutWidget::on_fBtnGoToWebsite_clicked()
 {
-    QDesktopServices::openUrl(QUrl("http://qwired.neo.de/"));
+    QDesktopServices::openUrl(QUrl("http://code.google.com/p/qwired-suite/"));
 }
