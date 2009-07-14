@@ -139,6 +139,9 @@
          <verstretch>3</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Enter a message and press the Enter key on your keyboard to send the message.</string>
+       </property>
       </widget>
      </widget>
     </widget>

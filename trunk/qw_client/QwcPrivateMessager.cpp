@@ -61,7 +61,7 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
             if (!keyEvent) { return false; }
-            if (keyEvent->key() == Qt::Key_Return) {
+            if (keyEvent->key() == Qt::Key_Enter) {
 
                 // Check if the current item is a valid one
                 QwcPrivateMessagerSession session = fMessageList->currentItem()->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
