@@ -29,6 +29,7 @@ public slots:
 	
 private slots:
     void on_actionAbout_triggered(bool);
+    void on_actionDonate_triggered();
 };
 
 #endif

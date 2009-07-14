@@ -150,6 +150,7 @@
  </widget>
  <resources>
   <include location="application.qrc"/>
+  <include location="application.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -1,5 +1,7 @@
 #include "QwcConnectionMainWindow.h"
 
+#include <QUrl>
+#include <QDesktopServices>
 
 /*! \class QwcConnectionMainWindow
     \author Bastian Bense <bastibense@gmail.com>
@@ -42,4 +44,9 @@ void QwcConnectionMainWindow::on_actionAbout_triggered(bool)
         pQwcAboutWidget = new QwcAboutWidget();
     }
     pQwcAboutWidget->show();
+}
+
+void QwcConnectionMainWindow::on_actionDonate_triggered()
+{
+    QDesktopServices::openUrl(QUrl("http://code.google.com/p/qwired-suite/wiki/SupportTheProject"));
 }
