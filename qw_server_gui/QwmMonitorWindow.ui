@@ -462,7 +462,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>The default port is 2000, leave empty for default. File transfer connections are using this port +1. Remote console connections are made through the same port +2.</string>
+             <string>The default port is 2000, leave empty for default. File transfer connections are using this port +1. Tracker servers use this port +2. Remote console connections are made through this port +3.</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
