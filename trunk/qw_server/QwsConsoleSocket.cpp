@@ -169,16 +169,6 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
                     << QString::number(item->info().currentTransferSpeed);
             paramItems.replaceInStrings(";", ":");
             writeLine(paramItems.join(";").toUtf8());
-
-//            writeLine(QString("R;%1;%2;%3;%4;%5;%6;%7")
-//                      .arg(item->info().hash)
-//                      .arg(item->info().type == Qw::TransferTypeDownload ? "D" : "U")
-//                      .arg(item->info().targetUserId)
-//                      .arg(item->info().file.path)
-//                      .arg(item->info().bytesTransferred)
-//                      .arg(item->info().file.size)
-//                      .arg(item->info().currentTransferSpeed)
-//                      .toUtf8());
         }
 
         // Queued transfers
