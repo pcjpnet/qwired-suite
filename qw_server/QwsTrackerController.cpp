@@ -2,7 +2,7 @@
 
 QwsTrackerController::QwsTrackerController(QObject *parent) : QObject(parent)
 {
-    startTimer(10000);
+    startTimer(5 * 60000); // 5 minutes
 }
 
 
