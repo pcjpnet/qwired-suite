@@ -1017,7 +1017,7 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
     // Add it to the temporary banlist
     if (isBan) {
         banList.append(qMakePair(user->socket->peerAddress().toString(),
-                                 QDateTime::currentDateTime().addSecs(60)));
+                                 QDateTime::currentDateTime().addSecs(60 * 30))); // 30 minutes
         qDebug() << this << "Adding address to banlist:" << user->socket->peerAddress().toString() << "till" << QDateTime::currentDateTime().addSecs(60);
     }
 
