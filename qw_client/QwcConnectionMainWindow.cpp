@@ -14,7 +14,7 @@
 QwcConnectionMainWindow::QwcConnectionMainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setupUi(this);
-    setUnifiedTitleAndToolBarOnMac(true);
+//    setUnifiedTitleAndToolBarOnMac(true);
     setWindowIcon(QIcon(":/icons/qwired_logo_32.png"));
 }
 

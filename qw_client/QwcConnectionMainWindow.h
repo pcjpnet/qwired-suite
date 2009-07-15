@@ -22,7 +22,8 @@ public:
     QPointer<QLabel> bannerToolbarWidget;
     /*! This member holds a pointer to a QWidget which is responsible for spacing the banner, so
         that it appears at the right-hand side of the connection window toolbar. */
-    QPointer<QWidget> bannerToolbarWidgetSpacer;
+    QPointer<QWidget> bannerToolbarWidgetSpacerLeft;
+    QPointer<QWidget> bannerToolbarWidgetSpacerRight;
 	
 public slots:
     void toggleVisible();

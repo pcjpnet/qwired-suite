@@ -589,10 +589,17 @@ void QwcSession::setBannerView(const QPixmap banner)
 {
     if (!connectionWindow->bannerToolbarWidget) {
         connectionWindow->bannerToolbarWidget = new QLabel(connectionWindow->fToolBar);
-        connectionWindow->bannerToolbarWidgetSpacer = new QWidget(connectionWindow->fToolBar);
-        connectionWindow->bannerToolbarWidgetSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        connectionWindow->fToolBar->addWidget(connectionWindow->bannerToolbarWidgetSpacer);
+        connectionWindow->bannerToolbarWidgetSpacerLeft = new QWidget(connectionWindow->fToolBar);
+        connectionWindow->bannerToolbarWidgetSpacerRight = new QWidget(connectionWindow->fToolBar);
+
+        connectionWindow->bannerToolbarWidgetSpacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        connectionWindow->bannerToolbarWidgetSpacerRight->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        connectionWindow->bannerToolbarWidgetSpacerRight->setMinimumWidth(12);
+
+        connectionWindow->fToolBar->addWidget(connectionWindow->bannerToolbarWidgetSpacerLeft);
         connectionWindow->fToolBar->addWidget(connectionWindow->bannerToolbarWidget);
+        connectionWindow->fToolBar->addWidget(connectionWindow->bannerToolbarWidgetSpacerRight);
+
         connectionWindow->bannerToolbarWidget->installEventFilter(this);
     }
 
