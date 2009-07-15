@@ -390,7 +390,7 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::TabFocus</enum>
+            <enum>Qt::NoFocus</enum>
            </property>
           </widget>
          </item>
