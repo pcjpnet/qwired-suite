@@ -237,6 +237,7 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
     } else if (commandName == "RELOAD") {
         if (state != Qws::ConsoleSocketStateAuthenticated) { writeLine("+ERROR"); return; }
         controller->serverController->reloadTrackerConfiguration();
+        controller->serverController->reloadBanlistConfiguration();
         writeLine("+OK");
 
     } else if (commandName == "STATS") {

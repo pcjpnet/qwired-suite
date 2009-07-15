@@ -1,10 +1,3 @@
-
-/*! \todo Make tracker registration work
-    \todo Banlist feature is missing
-    \todo Enforce ban limits (possibly the same step as ban lists)
-*/
-
-
 #include "QwsServerController.h"
 #include "QwsConsoleSocket.h"
 

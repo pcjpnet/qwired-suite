@@ -25,8 +25,6 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
 
     logToStdout = true;
     delayedUserImagesEnabled = true;
-
-//    serverRootDirectory = QDir::current();
 }
 
 
@@ -146,6 +144,25 @@ void QwsServerController::reloadTrackerConfiguration()
     }
 }
 
+/*! Reload the permanent banlist configration from the database.
+*/
+void QwsServerController::reloadBanlistConfiguration()
+{
+    // Delete all old permament bans from the banlist first
+    QMutableListIterator<QPair<QString,QDateTime> > i(banList);
+    while (i.hasNext()) {
+        QPair<QString, QDateTime> banlistItem = i.next();
+        if (!banlistItem.second.isNull()) { continue; }
+        i.remove();
+    }
+
+    // Add new items to the banlist
+    QStringList configBanlist = getConfigurationParam("server/banlist", "").toString().split(";");
+    foreach (QString banlistItem, configBanlist) {
+        banList.append(qMakePair(banlistItem, QDateTime()));
+    }
+}
+
 
 /*! Returns the active transfers identified by \a userId.
 */
@@ -183,8 +200,6 @@ bool QwsServerController::startServer()
     QString certificateData;
     int tmpPort = getConfigurationParam("server/port", 2000).toInt();
     QString tmpAddress = getConfigurationParam("server/address", "0.0.0.0").toString();
-//    QString certificateFile = getConfigurationParam("server/certificate", "qwired_server.pem").toString();
-//    qwLog(tr("Loading certificate file (%1)...").arg(certificateFile));
 
     certificateData = getConfigurationParam("server/certificate_data", "").toString();
     if (certificateData.isEmpty()) {
@@ -221,12 +236,9 @@ bool QwsServerController::startServer()
 
     // File transfer socket
     this->transferTcpServer = new QwSslTcpServer(this);
-    //this->transferTcpServer->initReadBufferSize = 1024;
     connect(transferTcpServer, SIGNAL(newSslConnection()),
             this, SLOT(acceptTransferSslConnection()));
-//    if (!transferTcpServer->setCertificateFromFile(certificateFile)) {
-//        qwLog(tr("Warning: Unable to set certificate file on file transfer listener - file transfers won't work."));
-//    }
+
     transferTcpServer->setCertificateFromData(certificateData);
     if (!transferTcpServer->listen(QHostAddress(tmpAddress), tmpPort+1)) {
         qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. File transfers won't work.").arg(tmpPort+1).arg(sessionTcpServer->errorString()));
@@ -234,8 +246,9 @@ bool QwsServerController::startServer()
         qwLog(tr("Started transfer socket listener on  %2:%1...").arg(tmpPort+1).arg(tmpAddress));
     }
 
-
+    reloadBanlistConfiguration();
     reloadTrackerConfiguration();
+
 
     return true;
 }
@@ -326,6 +339,27 @@ void QwsServerController::acceptSessionSslConnection()
 {
     QSslSocket *newSocket = sessionTcpServer->nextPendingSslSocket();
 
+    // Check if the client was banned
+    QMutableListIterator<QPair<QString,QDateTime> > i(banList);
+    while (i.hasNext()) {
+        QPair<QString, QDateTime> banlistItem = i.next();
+        if (banlistItem.second.isNull() // permanent ban
+            || (!banlistItem.second.isNull() && banlistItem.second > QDateTime::currentDateTime()) ) {
+            // This is a perma-ban or a temporary ban that has not expired yet
+            QRegExp regexp(banlistItem.first, Qt::CaseInsensitive, QRegExp::Wildcard);
+            if (regexp.exactMatch(newSocket->peerAddress().toString())) {
+                qwLog(tr("Dropping new connection from %1 (banned)")
+                      .arg(newSocket->peerAddress().toString()));
+                newSocket->disconnectFromHost();
+                newSocket->deleteLater();
+                return;
+            }
+        } else {
+            qwLog(tr("Removing expired ban for %1").arg(banlistItem.first));
+            i.remove();
+        }
+    }
+
     QwsClientSocket *clientSocket = new QwsClientSocket(this);
     clientSocket->serverInfo = &serverInfo;
     clientSocket->user.pUserID = ++sessionIdCounter;
@@ -336,7 +370,6 @@ void QwsServerController::acceptSessionSslConnection()
     qwLog(tr("[%1] Accepted new session connection from %2")
           .arg(clientSocket->user.pUserID)
           .arg(newSocket->peerAddress().toString()));
-
 
     connect(clientSocket, SIGNAL(connectionLost()),
             this, SLOT(handleSocketDisconnected()));
@@ -981,7 +1014,14 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
     reply.appendArg(reason);
     broadcastMessage(reply, 1, true);
 
-    // Now kill him
+    // Add it to the temporary banlist
+    if (isBan) {
+        banList.append(qMakePair(user->socket->peerAddress().toString(),
+                                 QDateTime::currentDateTime().addSecs(60)));
+        qDebug() << this << "Adding address to banlist:" << user->socket->peerAddress().toString() << "till" << QDateTime::currentDateTime().addSecs(60);
+    }
+
+    // Now do the justice
     targetUser->disconnectClient();
 }
 

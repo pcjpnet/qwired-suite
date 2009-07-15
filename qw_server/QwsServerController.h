@@ -52,11 +52,17 @@ public:
         will be stored. By default this will be the current working directory. */
     QDir serverRootDirectory;
 
+    /*! This member contains all permanently and temporarily banned addresses. The \a QDateTime part
+        of the pair defines when the ban for the pattern in \a QString expires. Permanent bans have
+        a Null-QDateTime object. */
+    QList<QPair<QString,QDateTime> > banList;
+
     /*! The object containing the general server information. */
     QwServerInfo serverInfo;
 
 public slots:
     void reloadTrackerConfiguration();
+    void reloadBanlistConfiguration();
 
 private:
     int sessionIdCounter;
