@@ -58,6 +58,8 @@ void QwmMonitorController::startMonitor()
             socket, SLOT(sendCommandABORT(QString)));
     connect(monitorWindow, SIGNAL(requestedUserKick(int)),
             socket, SLOT(sendCommandKICK(int)));
+    connect(monitorWindow, SIGNAL(updatedTrackerList(QStringList)),
+            this, SLOT(handleUpdatedTrackerList(QStringList)));
 
     connect(monitorWindow, SIGNAL(selectedNewBanner(QImage)),
             this, SLOT(handleSelectedNewBanner(QImage)));
@@ -183,6 +185,7 @@ void QwmMonitorController::handleCommandCompleted(QString command)
     } else if (command == "AUTH") {
         qDebug() << "Requesting server banner...";
         socket->sendCommandCONFIG_READ("server/banner");
+        socket->sendCommandCONFIG_READ("server/trackers");
         socket->sendCommandVERSION();
     }
 }
@@ -272,10 +275,10 @@ void QwmMonitorController::handleCommandVERSION(QString version)
 
 void QwmMonitorController::handleCommandCONFIG_READ(QString configName, QByteArray configValue)
 {
-    qDebug() << this << "Received CONFIG param:" << configName << QByteArray::fromBase64(configValue);
+    qDebug() << this << "Received CONFIG param:" << configName << configValue.size();
     if (configName == "server/banner") {
         QPixmap serverBanner;
-        if (serverBanner.loadFromData(QByteArray::fromBase64(configValue))) {
+        if (serverBanner.loadFromData(configValue)) {
             monitorWindow->fConfigurationBanner->setPixmap(serverBanner);
         } else {
             QMessageBox::warning(monitorWindow, tr("Corrupted server banner image"),
@@ -283,6 +286,14 @@ void QwmMonitorController::handleCommandCONFIG_READ(QString configName, QByteArr
                                     "displayed. Please select a new banner image."));
         }
 
+    } else if (configName == "server/trackers") {
+        monitorWindow->configurationTrackersList->clear();
+        QStringList trackerLines = QString::fromUtf8(configValue).split(";");
+        foreach (QString trackerItem, trackerLines) {
+            QListWidgetItem *item = new QListWidgetItem(QIcon(":/icons/icn_tracker.png"),
+                                                        trackerItem,
+                                                        monitorWindow->configurationTrackersList);
+        }
     }
 }
 
@@ -317,3 +328,15 @@ void QwmMonitorController::handle_btnRebuildIndex_clicked()
     monitorWindow->btnRebuildIndex->setEnabled(false);
     socket->sendCommand("REINDEX");
 }
+
+
+/*! Handle the updated tracker list and send the new configuration the server.
+*/
+void QwmMonitorController::handleUpdatedTrackerList(QStringList trackerUrls)
+{
+    qDebug() << this << "Updated tracker configuration.";
+    QString configValue = trackerUrls.join(";");
+    socket->sendCommandCONFIG_WRITE("server/trackers", configValue.toUtf8());
+    socket->sendCommand("RELOAD");
+}
+

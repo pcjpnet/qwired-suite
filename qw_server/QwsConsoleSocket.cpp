@@ -92,6 +92,12 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
             writeLine("+OK");
             return;
 
+        } else if (commandArg == "RELOAD") {
+            writeLine("RELOAD  causes the server to reload its configuration from the database and\n"
+                      "re-register with any configured trackers.");
+            writeLine("+OK");
+            return;
+
         } else if (commandArg == "STATS") {
             writeLine("STATS  returns some basic information about the running server manager.\n"
                       "Values are one-per-line separated by '='. Possible values are:\n"
@@ -133,7 +139,7 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
         writeLine("KICK <id>      (admin) Kick a user off the server.");
         writeLine("QUIT           Close the connection.");
         writeLine("REINDEX        (admin) Re-index the file search database.");
-//        writeLine("RELOAD         (admin) Reload configuration from the database.");
+        writeLine("RELOAD         (admin) Reload configuration from the database.");
         writeLine("CONFIG         (admin) Read and write to the configuration database.");
         writeLine("SHUTDOWN       (admin) Shut down the server daemon.");
         writeLine("STATS          (admin) Print general statistics about the server.");
@@ -236,6 +242,11 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
     } else if (commandName == "LOG") {
         if (state != Qws::ConsoleSocketStateAuthenticated) { writeLine("+ERROR"); return; }
         receiveLogMessages = commandArg.toInt();
+        writeLine("+OK");
+
+    } else if (commandName == "RELOAD") {
+        if (state != Qws::ConsoleSocketStateAuthenticated) { writeLine("+ERROR"); return; }
+        controller->serverController->reloadTrackerConfiguration();
         writeLine("+OK");
 
     } else if (commandName == "STATS") {

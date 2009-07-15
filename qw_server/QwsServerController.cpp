@@ -1,6 +1,5 @@
 #include "QwsServerController.h"
 #include "QwsClientSocket.h"
-#include "QwsTrackerController.h"
 
 #include <QtSql>
 #include <QUuid>
@@ -134,6 +133,25 @@ bool QwsServerController::setConfigurationParam(const QString key, const QVarian
 }
 
 
+/*! Reload the tracker configuration and delete any previous tracker sockets.
+*/
+void QwsServerController::reloadTrackerConfiguration()
+{
+    // Add the trackers
+    if (!trackerController) {
+        trackerController = new QwsTrackerController(this);
+        trackerController->setServerInformation(&serverInfo);
+    }
+    QStringList configTrackers = getConfigurationParam("server/trackers", "").toString().split(";");
+    trackerController->resetController();
+    foreach (QString trackerLine, configTrackers) {
+        QUrl trackerUrl(trackerLine, QUrl::TolerantMode);
+        trackerController->addTrackerServer(trackerUrl.host(), trackerUrl.port(2002));
+        qDebug() << this << "Adding tracker:" << trackerUrl.host() << trackerUrl.port(2002);
+    }
+}
+
+
 /*! Returns the active transfers identified by \a userId.
 */
 QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int userId)
@@ -233,15 +251,7 @@ bool QwsServerController::startServer()
     }
 
 
-    // Add the trackers
-    QwsTrackerController *controller = new QwsTrackerController(this);
-    controller->setServerInformation(&serverInfo);
-    QStringList configTrackers = getConfigurationParam("server/trackers", "").toString().split(";");
-    foreach (QString trackerLine, configTrackers) {
-        QUrl trackerUrl(trackerLine, QUrl::TolerantMode);
-        controller->addTrackerServer(trackerUrl.host(), trackerUrl.port(2002));
-        qDebug() << this << "Adding tracker:" << trackerUrl.host() << trackerUrl.port(2002);
-    }
+    reloadTrackerConfiguration();
 
     return true;
 }

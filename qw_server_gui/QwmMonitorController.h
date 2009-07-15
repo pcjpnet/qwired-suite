@@ -37,6 +37,9 @@ private slots:
 
     // Status
     void handle_btnRebuildIndex_clicked();
+    void handleUpdatedTrackerList(QStringList trackers);
+
+
 
 public:
     QwmMonitorController(QObject *parent=0);

@@ -18,6 +18,7 @@
 #include "QwsTransferInfo.h"
 #include "QwsTransferPool.h"
 #include "QwsFileIndexerThread.h"
+#include "QwsTrackerController.h"
 
 namespace Qws {
     enum LogType { LogTypeInfo, LogTypeWarning, LogTypeFatal, LogTypeDebug };
@@ -54,6 +55,9 @@ public:
     /*! The object containing the general server information. */
     QwServerInfo serverInfo;
 
+public slots:
+    void reloadTrackerConfiguration();
+
 private:
     int sessionIdCounter;
     int roomIdCounter;
@@ -61,6 +65,8 @@ private:
 
     QPointer<QwSslTcpServer> sessionTcpServer;
     QPointer<QwSslTcpServer> transferTcpServer;
+
+    QPointer<QwsTrackerController> trackerController;
 
     QwsTransferPool *transferPool;
 
