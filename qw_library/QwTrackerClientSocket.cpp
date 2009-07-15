@@ -3,11 +3,10 @@
 QwTrackerClientSocket::QwTrackerClientSocket(QObject *parent) : QwSocket(parent)
 {
     autoCommand = Qw::TrackerClientAutoCommandNone;
+    localServerInfo = NULL;
 
-    // Connect the tracker update timer
-    trackerUpdateTimer.setInterval(10*1000); // 60 seconds
-    connect(&trackerUpdateTimer, SIGNAL(timeout()),
-            this, SLOT(sendCommandUPDATE()));
+    trackerPort = 2002;
+
 
     // Create a new SslSocket for this tracker client.
     QSslSocket *newSocket = new QSslSocket(this);
@@ -83,8 +82,8 @@ void QwTrackerClientSocket::handleSocketError(QAbstractSocket::SocketError error
 
 void QwTrackerClientSocket::connectToTracker(const QString host, const int port)
 {
-    trackerHost = host;
-    trackerPort = port;
+    if (!host.isEmpty()) { trackerHost = host; }
+    if (port != 2002) { trackerPort = port; }
     categoryListingBuffer.clear();
     serverListingBuffer.clear();
 
@@ -122,8 +121,9 @@ void QwTrackerClientSocket::handleMessage200(const QwMessage &message)
 
     switch (autoCommand) {
     case Qw::TrackerClientAutoCommandSERVERS:
-        sendCommandSERVERS();
-        break;
+        sendCommandSERVERS(); break;
+    case Qw::TrackerClientAutoCommandREGISTER:
+        sendCommandREGISTER(); break;
     default:
         break;
     }
@@ -137,17 +137,11 @@ void QwTrackerClientSocket::handleMessage200(const QwMessage &message)
 */
 void QwTrackerClientSocket::handleMessage700(const QwMessage &message)
 { 
-    localServerInfo.registrationHash = message.getStringArgument(0);
-    qDebug() << this << "Registration OK:" << localServerInfo.registrationHash;
-    emit receivedRegistrationHash(localServerInfo.registrationHash);
+    localServerInfo->registrationHash = message.getStringArgument(0);
+    qDebug() << this << "Registration OK:" << localServerInfo->registrationHash;
+    emit receivedRegistrationHash(localServerInfo->registrationHash);
 
-    localServerInfo.userCount = 2581;
-
-//    if (autoCommand == Qw::TrackerClientAutoCommandSERVERS) {
-//        qDebug() << this << "Disconnecting from tracker server, beginning automatic update";
-//        socket->disconnectFromHost();
-//        trackerUpdateTimer.start();
-//    }
+    socket->disconnectFromHost();
 }
 
 /*! 710 Category Listing
@@ -222,11 +216,12 @@ void QwTrackerClientSocket::sendCommandCLIENT()
 void QwTrackerClientSocket::sendCommandREGISTER()
 {
     qDebug() << this << "Sending REGISTER command";
+    Q_ASSERT(localServerInfo != NULL);
     QwMessage reply("REGISTER");
-    reply.appendArg(localServerInfo.category);
-    reply.appendArg(localServerInfo.url);
-    reply.appendArg(localServerInfo.name);
-    reply.appendArg(QString::number(localServerInfo.bandwidth));
-    reply.appendArg(localServerInfo.description);
+    reply.appendArg(localServerInfo->category);
+    reply.appendArg(localServerInfo->url);
+    reply.appendArg(localServerInfo->name);
+    reply.appendArg(QString::number(localServerInfo->bandwidth));
+    reply.appendArg(localServerInfo->description);
     sendMessage(reply);
 }

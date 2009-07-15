@@ -9,7 +9,9 @@
 
 namespace Qw {
     enum TrackerClientAutoCommands { TrackerClientAutoCommandNone,
-                                     TrackerClientAutoCommandSERVERS };
+                                     TrackerClientAutoCommandSERVERS,
+                                     TrackerClientAutoCommandREGISTER
+                                   };
 };
 
 class QwTrackerClientSocket : public QwSocket
@@ -22,8 +24,8 @@ public:
     /*! The command specified in this member is automatically sent to the tracker after connecting. */
     Qw::TrackerClientAutoCommands autoCommand;
 
-    // Information fields when registering a server.
-    QwServerInfo localServerInfo;
+    /*! A pointer to the server information object. */
+    QwServerInfo *localServerInfo;
 
     // Information about the tracker
     QString trackerVersion;
@@ -33,7 +35,6 @@ public:
     QDateTime trackerStartTime;
 
     // Connectivity
-    QTimer trackerUpdateTimer;
     quint16 trackerPort;
     QString trackerHost;
 
@@ -45,7 +46,7 @@ private:
     QList<QwServerInfo> serverListingBuffer;
 
 public slots:
-    void connectToTracker(const QString host, const int port=2002);
+    void connectToTracker(const QString host = "", const int port = 2002);
     void sendCommandCLIENT();
     void sendCommandREGISTER();
     void sendCommandUPDATE();

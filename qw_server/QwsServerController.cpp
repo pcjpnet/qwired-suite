@@ -1,5 +1,6 @@
 #include "QwsServerController.h"
 #include "QwsClientSocket.h"
+#include "QwsTrackerController.h"
 
 #include <QtSql>
 #include <QUuid>
@@ -229,6 +230,17 @@ bool QwsServerController::startServer()
         qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. File transfers won't work.").arg(tmpPort+1).arg(sessionTcpServer->errorString()));
     } else {
         qwLog(tr("Started transfer socket listener on  %2:%1...").arg(tmpPort+1).arg(tmpAddress));
+    }
+
+
+    // Add the trackers
+    QwsTrackerController *controller = new QwsTrackerController(this);
+    controller->setServerInformation(&serverInfo);
+    QStringList configTrackers = getConfigurationParam("server/trackers", "").toString().split(";");
+    foreach (QString trackerLine, configTrackers) {
+        QUrl trackerUrl(trackerLine, QUrl::TolerantMode);
+        controller->addTrackerServer(trackerUrl.host(), trackerUrl.port(2002));
+        qDebug() << this << "Adding tracker:" << trackerUrl.host() << trackerUrl.port(2002);
     }
 
     return true;
