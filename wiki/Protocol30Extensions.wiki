@@ -1,5 +1,5 @@
 #summary Qwired-specific extensions to the Wired 1.1 protocol
-#labels Phase-Implementation
+#labels Phase-Implementation,Draft
 
 = Introduction =
 
@@ -22,3 +22,9 @@ PREVIEW <path> EOT
 {{{
 460 <path> <data> EOT
 }}} 
+
+
+= Tracker Subprotocol =
+
+== In-Bound UPDATE ==
+The in-bound UPDATE command allows updating of server statistics using an in-bound TLS-TCP connection instead of the dirty UDP encryption approach.
