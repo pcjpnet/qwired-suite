@@ -132,15 +132,6 @@ int main(int argc, char *argv[])
                 .arg(listenPort).arg(consoleController.authSecret);
 
     }
-    //
-    //    QwTrackerClientSocket *trackerSocket = new QwTrackerClientSocket(0);
-    //    trackerSocket->mode = Qw::TrackerClientSocketModeAutomatic;
-    //    trackerSocket->localServerInfo.name = "Test Servar";
-    //    trackerSocket->localServerInfo.description = "No Comment";
-    //    trackerSocket->localServerInfo.url = "wired://qwired.neo.de/";
-    //    trackerSocket->connectToTracker("wired.zankasoftware.com");
-
-
 
     return a.exec();
 }

@@ -19,6 +19,10 @@ private slots:
 
     void on_btnConfigurationSetBanner_clicked();
 
+    void on_configurationTrackersList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void on_btnConfigurationTrackersAdd_clicked();
+    void on_btnConfigurationTrackersRemove_clicked();
+    void handleTrackersChanged();
 
 
 signals:
@@ -26,6 +30,8 @@ signals:
     void requestedUserKick(int userId);
     /*! A new banner file has been selected by the user. */
     void selectedNewBanner(QImage data);
+    /*! The user has modified the list of tracker servers. */
+    void updatedTrackerList(QStringList trackers);
 
 
 };

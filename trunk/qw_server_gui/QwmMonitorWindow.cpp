@@ -5,6 +5,7 @@
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QInputDialog>
 
 QwmMonitorWindow::QwmMonitorWindow(QWidget *parent) : QWidget(parent)
 {
@@ -55,6 +56,45 @@ void QwmMonitorWindow::on_btnConfigurationSetBanner_clicked()
 
     // Emit a signal for the controller
     emit selectedNewBanner(bannerImage);
+}
+
+
+void QwmMonitorWindow::on_configurationTrackersList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    btnConfigurationTrackersRemove->setEnabled(current != NULL);
+}
+
+
+void QwmMonitorWindow::on_btnConfigurationTrackersAdd_clicked()
+{
+    QString newUrl = QInputDialog::getText(this, tr("Enter Tracker URL"),
+                     tr("Enter the URL of a tracker. Tracker URLs take the form of \"tracker://some.domain.com\"."));
+    if (newUrl.isEmpty()) { return; }
+    QListWidgetItem *item = new QListWidgetItem(QIcon(":/icons/icn_tracker.png"),
+                                                newUrl, configurationTrackersList);
+    handleTrackersChanged();
+}
+
+
+void QwmMonitorWindow::on_btnConfigurationTrackersRemove_clicked()
+{
+    if (!configurationTrackersList->currentItem()) { return; }
+    configurationTrackersList->takeItem(configurationTrackersList->currentIndex().row());
+    handleTrackersChanged();
+}
+
+
+/*! Generate a new list of tracker URLs.
+*/
+void QwmMonitorWindow::handleTrackersChanged()
+{
+    QStringList trackerUrls;
+    for (int i = 0; i < configurationTrackersList->count(); i++) {
+        QListWidgetItem *item = configurationTrackersList->item(i);
+        if (!item) { continue; }
+        trackerUrls << item->text();
+    }
+    emit updatedTrackerList(trackerUrls);
 }
 
 

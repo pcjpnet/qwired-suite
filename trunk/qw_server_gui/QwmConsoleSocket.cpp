@@ -120,7 +120,8 @@ void QwmConsoleSocket::handleSocketReadyRead()
                 // previously issued a WRITE subcommand. Otherwise it contains the name of the
                 // requested configuration key.
                 if (!configReadKeyName.isEmpty()) {
-                    emit receivedResponseCONFIG_READ(configReadKeyName, inputBuffer.join("").toUtf8());
+                    emit receivedResponseCONFIG_READ(configReadKeyName,
+                                                     QByteArray::fromBase64(inputBuffer.join("").toAscii()));
                     configReadKeyName.clear();
                 }
 
@@ -189,7 +190,7 @@ void QwmConsoleSocket::sendCommandCONFIG_WRITE(QString configName, QByteArray co
 {
     sendCommand(QString("CONFIG WRITE %1:%2")
                 .arg(configName)
-                .arg(QString::fromUtf8(configValue.toBase64())));
+                .arg(QString::fromAscii(configValue.toBase64())));
 }
 
 
@@ -197,7 +198,6 @@ void QwmConsoleSocket::sendCommandCONFIG_WRITE(QString configName, QByteArray co
 */
 void QwmConsoleSocket::sendCommandCONFIG_READ(QString configName)
 {
-    configReadKeyName = configName;
     sendCommand(QString("CONFIG READ %1").arg(configName));
 }
 
@@ -230,6 +230,11 @@ void QwmConsoleSocket::checkCommandQueue()
         QString item = commandQueue.takeFirst();
         activeCommand = item.section(" ", 0, 0);
         socket->write(QString(item+"\n").toUtf8());
+
+        if (item.startsWith("CONFIG READ")) {
+            configReadKeyName = item.section(" ", 2, 2);;
+        }
+
         qDebug() << "Sending:" << item;
     }
 }
