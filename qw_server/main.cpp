@@ -1,11 +1,7 @@
 
 /*! \todo Make tracker registration work
-    \todo Support COMMENT and folder types, and check them in file operations
-    \todo Free disk space information is not reported in LIST requests
     \todo Banlist feature is missing
-    \todo Allow configuration of server name, description, etc.
     \todo Enforce ban limits (possibly the same step as ban lists)
-    \todo Support file search
 */
 
 
@@ -17,7 +13,7 @@
 #include <QSqlQuery>
 
 
-const QString QWSERVER_VERSION("0.1.0");
+const QString QWSERVER_VERSION("0.1.5");
 
 int main(int argc, char *argv[])
 {
@@ -30,7 +26,6 @@ int main(int argc, char *argv[])
         so << "Qwired Server Core " << QWSERVER_VERSION << endl;
         return 0;
     }
-
 
     /*! Print help if requested. */
     if (cliArgs.contains("-h") || cliArgs.contains("--help")) {

@@ -68,11 +68,6 @@ bool QwsServerController::loadConfiguration()
                 db.exec(sqlCmd);
             }
 
-//            QSqlQuery query;
-//            if (!query.exec(QString::fromUtf8(sqlData))) {
-//                qwLog(tr("Warning: Unable to create tables in empty database: %1")
-//                      .arg(query.lastError().text()));
-//            }
         }
     }
 
@@ -210,17 +205,6 @@ bool QwsServerController::startServer()
         // We use "." to create the directory itself
         filesDirectory.mkpath(".");
     }
-
-    //QFileInfo certificateFileInfo(certificateFile);
-    //if (!certificateFileInfo.exists()) {
-//        qwLog(tr("Certificate file does not exist. Attempting to create one..."));
-//        if (!generateNewCertificate(certificateFile)) {
-//            qwLog(tr("Unable to create new certificate file. Please see the documentation on more information about how to create a certificate."));
-//            return false;
-//        } else {
-//            qwLog(tr("Successfully created new certificate file."));
-//        }
-//    }
 
     sessionTcpServer = new QwSslTcpServer(this);
     connect(sessionTcpServer, SIGNAL(newSslConnection()),
