@@ -28,3 +28,11 @@ PREVIEW <path> EOT
 
 == In-Bound UPDATE ==
 The in-bound UPDATE command allows updating of server statistics using an in-bound TLS-TCP connection instead of the dirty UDP encryption approach.
+
+  * *UPDATE*
+    * hash = STRING
+    * users = 1*DIGIT
+    * guest-ok = BOOLEAN
+    * guest-download-ok = BOOLEAN
+    * files-count = 1*DIGIT
+    * files-size = 1*DIGIT
