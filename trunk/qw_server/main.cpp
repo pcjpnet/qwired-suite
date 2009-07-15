@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
         consoleController.setServerController(&controller);
 
         QHostAddress listenInterface(controller.getConfigurationParam("console/address", "127.0.0.1").toString());
-        quint16 listenPort = controller.getConfigurationParam("server/port", 2000).toInt()+2;
+        quint16 listenPort = controller.getConfigurationParam("server/port", 2000).toInt()+3;
 
         controller.qwLog(a.tr("Starting remote console listener on %1:%2...")
                          .arg(listenInterface.toString()).arg(listenPort));
