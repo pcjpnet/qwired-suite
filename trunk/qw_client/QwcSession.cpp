@@ -155,6 +155,8 @@ void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
 }
 
 
+/*! Initialize the main connection window.
+*/
 void QwcSession::initMainWindow()
 {
     connectionWindow = new QwcConnectionMainWindow();
@@ -195,11 +197,13 @@ void QwcSession::initMainWindow()
 
     // Create the initial tab for the main chat
     mainChatWidget = new QwcChatWidget(connectionWindow);
+
     // Unser auto-delete so that we can use it with tab widgets
     mainChatWidget->setAttribute(Qt::WA_DeleteOnClose, false);
 
     /*: Text of the main connection tab in the connection window. */
     connectionTabWidget->addTab(mainChatWidget, tr("Chat"));
+
     // Connection window/Forum
     pUserListModel = new QwcUserlistModel(mainChatWidget);
     pUserListModel->setWiredSocket(socket);
@@ -209,6 +213,13 @@ void QwcSession::initMainWindow()
     // Messenger
     privateMessager = new QwcPrivateMessager(connectionWindow);
     privateMessager->setWindowFlags(Qt::Window);
+
+//    // Custom toolbar actions
+//    QwcSingleton *singleton = &WSINGLETON::Instance();
+//    foreach (QwcPluginInterface *plugin, singleton->pluginInterfaces) {
+//        connectionWindow->fToolBar->addActions(plugin->getSessionWidgetToolbarActions());
+//    }
+
 
     setupConnections();
     connectionWindow->show();
@@ -377,8 +388,8 @@ void QwcSession::setupConnections()
     // Notification manager
     //
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect( tmpS, SIGNAL(prefsChanged()),
-             this, SLOT(reloadPreferences()) );
+    connect(tmpS, SIGNAL(applicationSettingsChanged()),
+            this, SLOT(reloadPreferences()));
 
 }
 

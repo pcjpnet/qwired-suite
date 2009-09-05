@@ -32,9 +32,9 @@ QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
 
     // Notification manager
     QwcSingleton *singleton = &WSINGLETON::Instance();
-    connect(singleton, SIGNAL(prefsChanged()),
+    connect(singleton, SIGNAL(applicationSettingsChanged()),
             this, SLOT(loadBookmarks()) );
-    connect(singleton, SIGNAL(prefsChanged()),
+    connect(singleton, SIGNAL(applicationSettingsChanged()),
             this, SLOT(updateTrackerMenu()) );
 
     // Tracker Socket

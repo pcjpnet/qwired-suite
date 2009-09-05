@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>resources/nerve_toolbar_icon.png</file>
+    </qresource>
+</RCC>

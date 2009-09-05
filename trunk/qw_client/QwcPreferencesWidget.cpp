@@ -269,7 +269,7 @@ void QwcPreferencesWidget::savePrefs()
 
     // Notify everyone
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    tmpS->notifyPrefsChanged();
+    tmpS->emitApplicationSettingsChanged();
     this->close();
 }
 

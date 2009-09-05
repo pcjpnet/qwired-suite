@@ -1,9 +1,13 @@
-#include <QApplication>
-#include <QTranslator>
+
 
 #include "QwcSession.h"
 #include "QwcGlobals.h"
-#include <QNetworkProxy>
+
+#include <QtCore/QTranslator>
+#include <QtCore/QPluginLoader>
+#include <QtNetwork/QNetworkProxy>
+#include <QtGui/QApplication>
+
 
 
 
@@ -67,10 +71,26 @@ int main (int argc, char *argv[])
 
 
     // Singleton
+    QwcSingleton *singleton = &WSINGLETON::Instance();
     QObject::connect(&app, SIGNAL(aboutToQuit()),
-                     &WSINGLETON::Instance(), SLOT(cleanUp()));
-    WSINGLETON::Instance().createTrayIcon();
-    WSINGLETON::Instance().createInitialSessions();
+                     singleton, SLOT(cleanUp()));
+    singleton->createTrayIcon();
+
+
+    // Load all available plugins
+    QDir pluginsDir("/Users/bbense/Desktop/_Builds/qwired/bin/plugins");
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+        QObject *plugin = pluginLoader.instance();
+        if (!plugin) { continue; }
+        QwcPluginInterface *pluginInterface = qobject_cast<QwcPluginInterface*>(plugin);
+        if (!pluginInterface) { continue; }
+        singleton->pluginInterfaces << pluginInterface;
+        pluginInterface->initializePlugin();
+        qDebug() << "Loaded plugin:" << pluginInterface->pluginInformation()["PLUGIN_NAME"];
+    }
+
+    singleton->createInitialSessions();
 
     return app.exec();
 }
