@@ -35,7 +35,7 @@ QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 
     // Notification manager
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect(tmpS, SIGNAL(prefsChanged()),
+    connect(tmpS, SIGNAL(applicationSettingsChanged()),
             this, SLOT(reloadPreferences()));
 
     reloadPreferences();

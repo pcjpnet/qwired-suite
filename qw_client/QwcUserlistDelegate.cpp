@@ -10,7 +10,8 @@ QwcUserlistDelegate::QwcUserlistDelegate(QObject *parent) : QItemDelegate (paren
 {
     // Notification manager
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect(tmpS, SIGNAL(prefsChanged()), this, SLOT(reloadPreferences()));
+    connect(tmpS, SIGNAL(applicationSettingsChanged()),
+            this, SLOT(reloadPreferences()));
     reloadPreferences();
 }
 

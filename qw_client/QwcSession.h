@@ -5,6 +5,7 @@
 #include <QStackedLayout>
 
 #include "QwcChatWidget.h"
+#include "QwcConnectWidget.h"
 #include "QwcConnectionMainWindow.h"
 #include "QwcSocket.h"
 #include "QwcNewsWidget.h"
@@ -16,6 +17,8 @@
 #include "QwcServerInfoWidget.h"
 #include "QwcPrivateMessager.h"
 #include "QwcUserInfoWidget.h"
+
+#include "QwcPluginInterface.h"
 
 
 namespace Qwired {

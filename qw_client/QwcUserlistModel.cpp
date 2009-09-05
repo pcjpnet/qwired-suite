@@ -11,7 +11,7 @@ QwcUserlistModel::QwcUserlistModel(QObject *parent) : QAbstractListModel(parent)
 
     // Notification manager
     QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect(tmpS, SIGNAL(prefsChanged()),
+    connect(tmpS, SIGNAL(applicationSettingsChanged()),
             this, SLOT(reloadPreferences()));
 
 

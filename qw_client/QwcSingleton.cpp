@@ -1,7 +1,8 @@
 #include "QwcSession.h"
 #include "QwcSingleton.h"
 
-#include <QNetworkProxy>
+#include <QtNetwork/QNetworkProxy>
+#include <QtGui/QApplication>
 
 /*! \class QwcSingleton
     \author Bastian Bense <bastibense@gmail.com>
@@ -14,7 +15,7 @@
 void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
-QwcSingleton::QwcSingleton()
+QwcSingleton::QwcSingleton(QObject *parent) : QObject(parent)
 {
     pTrayMenu = new QMenu();
 }
@@ -86,8 +87,11 @@ void QwcSingleton::createInitialSessions()
     settings.endArray();
 }
 
-/// Notify all connected objects about the changed prefs, so they can reload.
-void QwcSingleton::notifyPrefsChanged()
+
+/*! Prepare the application and emit the applicationSettingsChanged() signal, so that other parts
+    of the application can re-load their settings, in case they just changed.
+*/
+void QwcSingleton::emitApplicationSettingsChanged()
 {
     // Configure the proxying, if needed
     QSettings settings;
@@ -100,15 +104,16 @@ void QwcSingleton::notifyPrefsChanged()
         QNetworkProxy::setApplicationProxy(proxy);
     }
 
-    emit prefsChanged();
+    emit applicationSettingsChanged();
 }
 
 
-/// Add a session object to the list of sessions and connect the destroyed() signal
-/// if it gets removed.
+/*! Add a session object to the list of sessions and connect the destroyed() signal if it gets
+    removed.
+*/
 void QwcSingleton::addSession(QwcSession *session)
 {
-    pSessions.append(session);
+    sessions.append(session);
     connect(session, SIGNAL(destroyed(QObject*)), this, SLOT(sessionDestroyed(QObject*)));
 
     // Tray menu
@@ -118,18 +123,19 @@ void QwcSingleton::addSession(QwcSession *session)
 }
 
 
-/// Called automatically when a session object is destroyed. Used to do some clean up work.
+/*! Called automatically when a session object is destroyed. Used to do some clean up work.
+*/
 void QwcSingleton::sessionDestroyed(QObject *obj)
 {
     QwcSession *session = static_cast<QwcSession*>(obj);
     if (!session) { return; }
-    if (pSessions.contains(session)) {
-        pSessions.removeAll(session);
-    }
-
+    if (!sessions.contains(session)) { return; }
+    sessions.removeAll(session);
 }
 
 
+/*! Create the system tray icon for Qwired.
+*/
 void QwcSingleton::createTrayIcon()
 {
 #ifdef Q_WS_MAC
@@ -148,6 +154,9 @@ void QwcSingleton::createTrayIcon()
 }
 
 
+
+
+
 void QwcSingleton::showTrayMenu(QSystemTrayIcon::ActivationReason reason)
 {
     if (pTrayMenu && reason == QSystemTrayIcon::Trigger) {
@@ -162,13 +171,5 @@ void QwcSingleton::cleanUp()
     // 	this->deleteLater();
 }
 
-void QwcSingleton::makeNewConnection(QString address)     // <-- Very basic functionality
-{
-    QwcSession *tmpConn = new QwcSession();
-    addSession(tmpConn);
-    tmpConn->onDoConnect(address, QString(""), QString(""));
-//    tmpConn->pConnectWindow->fContainer->setCurrentIndex(1);
-//    tmpConn->pConnectWindow->fStatus->setText(tr("Connecting..."));
-}
 
 
