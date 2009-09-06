@@ -6,6 +6,65 @@ Qwired provides a number of additional features, and therefore requires a number
 
 This specification effectively extends the [QwiredProtocolVersion11 Qwired Protocol 1.1].
 
+= Protocol Parameters =
+== Privilege Specifications ==
+Privilege specifications are sent in the following format:
+
+  * privileges
+    # get-user-info FS 
+    # broadcast FS 
+    # post-news FS 
+    # clear-news FS
+    # download FS
+    # upload FS
+    # upload-anywhere FS
+    # create-folders FS 
+    # alter-files FS
+    # delete-files FS 
+    # view-dropboxes FS
+    # create-accounts FS 
+    # edit-accounts FS
+    # delete-accounts FS 
+    # elevate-privileges FS
+    # kick-users FS 
+    # ban-users FS
+    # cannot-be-kicked FS 
+    # download-speed FS
+    # upload-speed FS
+    # download-limit FS
+    # upload-limit FS
+    # change-topic FS
+    # *server-console*
+
+  * get-user-info         = BOOLEAN
+  * broadcast             = BOOLEAN
+  * post-news             = BOOLEAN
+  * clear-news            = BOOLEAN
+  * download              = BOOLEAN
+  * upload                = BOOLEAN
+  * upload-anywhere       = BOOLEAN
+  * create-folders        = BOOLEAN
+  * alter-files           = BOOLEAN
+  * delete-files          = BOOLEAN
+  * view-dropboxes        = BOOLEAN
+  * create-accounts       = BOOLEAN
+  * edit-accounts         = BOOLEAN
+  * delete-accounts       = BOOLEAN
+  * elevate-privileges    = BOOLEAN
+  * kick-users            = BOOLEAN
+  * ban-users             = BOOLEAN
+  * cannot-be-kicked      = BOOLEAN
+  * download-speed        = 1*DIGIT
+  * upload-speed          = 1*DIGIT
+  * download-limit        = 1*DIGIT   ; Protocol 1.1
+  * upload-limit          = 1*DIGIT   ; Protocol 1.1
+  * change-topic          = BOOLEAN   ; Protocol 1.1
+  * *server-console        = BOOLEAN   ; Protocol 3.0*
+
+This is a series of boolean values, indicating whether a user can or cannot perform certain commands.
+
+See section 5 for more information on accounts. See section 4 for more information on the file related privileges.
+
 = Commands =
 == Command Listing ==
 === LOG ===
