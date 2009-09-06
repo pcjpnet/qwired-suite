@@ -23,5 +23,4 @@ Every account or group entry contains a mask field which defines the user's priv
 || ban-users || B ||
 || cannot-be-kicked || P ||
 || change-topic || t ||
-
-
+|| server-console || x ||
