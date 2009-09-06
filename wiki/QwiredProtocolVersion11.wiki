@@ -15,6 +15,9 @@ The Qwired protocol is an application-level protocol for file transfers and user
 This specification defines the protocol referred to as "Protocol 1.1".
 This protocol includes additional commands and server responses, to convey more information to the client.
 
+= Extensions =
+Qwired implementes a number of additional features, thus extends the original protocol with additional commands. Please see [QwiredProtocolVersion30] for more information.
+
 = Terminology =
   * *client* - A program that establishes connections for the purpose of sending commands and interpreting messages.
   * *command* - A command sent from a client to a server.
