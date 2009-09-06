@@ -8,6 +8,8 @@ Qwired provides a number of additional features, and therefore requires a number
 
 This specification effectively extends the [QwiredProtocolVersion11 Qwired Protocol 1.1].
 
+Older clients should log in and request an older protocol version, so that basic connectivity is guranteed.
+
 = Protocol Parameters =
 == Privilege Specifications ==
 Privilege specifications are sent in the following format:
