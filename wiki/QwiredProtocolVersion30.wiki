@@ -124,6 +124,15 @@ On failure, may return the error 516.
 
 Subject to _server-console_ privilege.
 
+=== SHUTDOWN ===
+`"SHUTDOWN" EOT`
+ 
+Shut down the server daemon.
+
+On failure, may return the error 516.
+
+Subject to _server-console_ privilege.
+
 === STATISTICS ===
 `"STATISTICS" EOT`
  
