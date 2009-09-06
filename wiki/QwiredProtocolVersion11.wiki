@@ -4,7 +4,7 @@
 <wiki:toc max_depth="3" />
 
 = Introduction =
-Most of the protocol is based on the Qwired protocol version 1.1 by Axel Andersson.
+Most of the protocol is based on the Qwired protocol version 1.1 by Axel Andersson. This copy of the protocol specification aims to be a more accurate version of the original specification, and describes the extensions and changes that Qwired utilizes.
 
 = Abstract =
 The Qwired protocol is an application-level protocol for real time chat, messaging and file transfers. It is based on the client-server model, with many clients connected to one and the same server, allowing both public and private messaging. The main design principles are standardization and the unification of messaging and file transfer systems.
