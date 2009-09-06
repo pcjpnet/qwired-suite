@@ -33,7 +33,7 @@ Some messages are sent asynchronously, meaning they are sent without having firs
 
 A single connection ("control connection") is used to send these commands and messages back and forth. A separate connection is used for transfers, in order to maintain the control connection while a transfer is running.
 
-Qwired communication takes place over a TCP/IP connection using TLS [1]. The default port is TCP 2000, but other ports can be used. The transfer port is the default port incremented by one, or 2001 by default.
+Qwired communication takes place over a TCP/IP connection using TLS. The default port is TCP 2000, but other ports can be used. The transfer port is the default port incremented by one, or 2001 by default.
 
 
 = Protocol Compatibility =
@@ -63,7 +63,7 @@ Commands and messages that have gained additional fields are marked where they a
 
 Qwired requires all clients to provide authentication in order to log in to a server. This authentication consists of a login name and an optional password. Servers wishing to provide anonymous logins should provide a "guest" user with no password. Clients should use this login pair as the default.
 
-Passwords are SHA-1 [2] checksums of the actual passwords. No cleartext should be sent over the connection.
+Passwords are SHA-1 checksums of the actual passwords. No cleartext should be sent over the connection.
 
 See section 5 for more information on accounts.
 
@@ -86,7 +86,7 @@ The public chat is the chat available to everyone and the chat that is automatic
 
 
 == Control Characters ==
-The following control characters from the US-ASCII [7] table are used:
+The following control characters from the US-ASCII table are used:
 
   * EOT    = <US-ASCII EOT, end of transmission (4)>
   * FS     = <US-ASCII FS, file separator (28)>
@@ -95,12 +95,12 @@ The following control characters from the US-ASCII [7] table are used:
   * SP     = <US-ASCII SP, space (32)>
 
 == Strings ==
-All string contents are sent in Unicode [3], UTF-8 encoding [4]. There is no way to select a character set. Clients must be UTF-8 aware if they wish to participate in communications:
+All string contents are sent in Unicode, UTF-8 encoding. There is no way to select a character set. Clients must be UTF-8 aware if they wish to participate in communications:
 
   * STRING    = <any 8-bit sequence of data in UTF-8 encoding>
 
 == Base64 Data ==
-In cases where binary data needs to be transmitted on the control connection, it is Base64 encoded [11].
+In cases where binary data needs to be transmitted on the control connection, it is Base64 encoded.
 
   * BASE64    = <base64 encoded binary data>
 
@@ -134,12 +134,12 @@ That is, the application version must always be followed by the operating system
 Note that there is no particular format defined for the operation system version strings.
 
 == Addresses ==
-IP addresses are sent in textual representation, in the formats described in RFC 790 [8] and RFC 1884 [9]:
+IP addresses are sent in textual representation, in the formats described in RFC 790 and RFC 1884:
 
   * IP    = STRING
 
 == Date & Time Format ==
-Date are sent in the ISO 8601 [5] full "date-time" format, as per RFC 3339 [6]:
+Date are sent in the ISO 8601 full "date-time" format, as per RFC 3339:
 
   * date-fullyear     = 4DIGIT
   * date-month        = 2DIGIT  ; 01-12
@@ -277,7 +277,7 @@ Drop box directories can only be viewed by accounts with the "view-dropboxes" pr
 
 Because servers should supporting queueing and resuming transfers, these sequences are a bit more complicated than usual.
 
-Of note is the so-called Qwired checksum. These should be SHA-1 [2] checksums of the first megabyte (1048576 octets) of the file. This
+Of note is the so-called Qwired checksum. These should be SHA-1 checksums of the first megabyte (1048576 octets) of the file. This
 is defined to allow checksumming of very large files in real time, and to allow checksums of partially transferred files to match,
 provided that they exceed 1 MB in size.
 
