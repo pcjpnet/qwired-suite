@@ -55,9 +55,9 @@ The following commands were added in version 1.1:
   * [#TYPE]
 
 The following messages were added in version 1.1:
-  * [#203 Server Banner]
-  * [#340 Client Image Change]
-  * [#341 Chat Topic]
+  * [#203_Server_Banner]
+  * [#340_Client_Image_Change]
+  * [#341_Chat_Topic]
 
 Commands and messages that have gained additional fields are marked where they are documented.
 
@@ -206,17 +206,17 @@ See [#Accouts] for more information on accounts. See section 4 for more informat
 The login sequence takes place directly after the client has established a connection with the server.
 
   # The client initiates the sequence by sending the "[#HELLO]" command.
-  # The server responds with the [#200 Server Information] or [#511 Banned] message.
+  # The server responds with the [#200_Server_Information] or [#511_Banned] message.
   # The client sends the "[#NICK]", "[#ICON]", "[#STATUS]" and "[#CLIENT]" commands to set values before becoming visible to other clients. Of these, "[#NICK]" is required, "[#CLIENT]" is optional but highly recommended, and "[#ICON]" and "[#STATUS]" are optional.
   # The clients sends the "[#USER]" command with the login name. `"guest"` should be used as the default login name.
   # The client sends the "[#PASS]" command with the checksum of the actual password. If the password is empty, no check-summing should be performed.
-  # The server responds with the [#201 Login Succeeded] or [#510 Login Failed] messages. If the login was successful, the client has now been added to the public user list and is available to other clients. The server will also reply a [#341 Chat Topic] message for the public chat, if a topic has been set.
+  # The server responds with the [#201_Login_Succeeded] or [#510_Login_Failed] messages. If the login was successful, the client has now been added to the public user list and is available to other clients. The server will also reply a [#341_Chat_Topic] message for the public chat, if a topic has been set.
   # The client requests the user list using "[#WHO]", with a value of `"1"` for the public user list.
-  # The server responds with the [#310 User List] and [#311 User List Done] messages.
+  # The server responds with the [#310_User_List] and [#311_User_List_Done] messages.
   # Optionally, the client requests the active privileges mask using "[#PRIVILEGES]".
-  # The server responds with the [#602 Privileges] message.
+  # The server responds with the [#602_Privileges] message.
   # Optionally, the client requests the news using "[#NEWS]".
-  # The server responds with the [#320 News] and [#321 News Done] messages.
+  # The server responds with the [#320_News] and [#321_News_Done] messages.
 
 
 == Private Chat Sequence ==
