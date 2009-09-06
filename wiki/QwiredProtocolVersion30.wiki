@@ -15,8 +15,9 @@ This specification effectively extends the [QwiredProtocolVersion11 Qwired Proto
  
 Enable real-time transmission of log messages to the client.
 
-On failure, may return the error 516.
+On failure, may return the error 516, or begins transmission of 800 Log Message messages.
 
+Subject to _server-console_ privilege.
 
 = Messages =
 
