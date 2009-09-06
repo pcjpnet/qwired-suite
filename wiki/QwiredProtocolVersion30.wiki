@@ -1,6 +1,8 @@
 #summary Qwired protocol extensions (Version 3)
 #labels Phase-Implementation
 
+<wiki:toc max_depth="3" />
+
 = Introduction =
 Qwired provides a number of additional features, and therefore requires a number of additional commands.
 
