@@ -2,4 +2,6 @@
 #labels Phase-Implementation
 
 = Introduction =
-Qwired provides a number of additional features, and therefore requires a number of additional commands. This specification effectively extends the [QwiredProtocolVersion11 Qwired Protocol 1.1].
+Qwired provides a number of additional features, and therefore requires a number of additional commands.
+
+This specification effectively extends the [QwiredProtocolVersion11 Qwired Protocol 1.1].
