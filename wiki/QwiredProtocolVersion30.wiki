@@ -5,3 +5,31 @@
 Qwired provides a number of additional features, and therefore requires a number of additional commands.
 
 This specification effectively extends the [QwiredProtocolVersion11 Qwired Protocol 1.1].
+
+= Commands =
+== Command Listing ==
+=== LOG ===
+`"LOG" SP enable EOT`
+
+  * enable = BOOL
+ 
+Enable real-time transmission of log messages to the client.
+
+On failure, may return the error 516.
+
+
+= Messages =
+
+== 800 Class Messages ==
+
+=== 800 Log Message ===
+`"800" SP timestamp FS type FS origin FS text EOT`
+
+  * timestamp = date-time
+  * type = STRING
+  * origin = STRING
+  * text = STRING
+
+A server log message has been emitted by _origin_, a string that identifies the source of the information (server core, user, etc.). _text_ contains the information about the event. _type_ defines the type of the message, which can be "INFO", "WARN", "FATAL" or "DEBUG".
+
+This message is subject to the _LOG_ command.
