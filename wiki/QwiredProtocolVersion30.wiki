@@ -80,6 +80,15 @@ On failure, may return the error 516, or begins transmission of 800 Log Message 
 
 Subject to _server-console_ privilege.
 
+=== STATISTICS ===
+`"STATISTICS" EOT`
+ 
+Request server statistics.
+
+On failure, may return the error 516; on success a 814 Server Statistics message.
+
+Subject to _server-console_ privilege.
+
 === TRANSFERS ===
 `"TRANSFERS" EOT`
  
@@ -127,3 +136,16 @@ In response to `TRANSFERS`.
 End of the transfer list.
 
 In response to `TRANSFERS`.
+
+
+=== 814 Server Statistics ===
+`"814" SP users FS transfers FS uploads-speed FS downloads-speed FS total-sent FS total-received EOT`
+
+  * users = 1*DIGIT
+  * transfers = 1*DIGIT
+  * uploads-speed = 1*DIGIT
+  * downloads-speed = 1*DIGIT
+  * total-sent = 1*DIGIT
+  * total-received = 1*DIGIT
+
+In response to `STATISTICS`.
