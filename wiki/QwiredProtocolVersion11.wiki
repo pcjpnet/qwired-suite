@@ -48,42 +48,37 @@ To be compatible, a client should accept messages with more fields than the prot
 The number of fields will, however, never go down. Fields will always retain their ordering. Should a field be obsoleted, it will remain and go unused.
 
 The following commands were added in version 1.1:
-  * BANNER
-  * COMMENT
-  * STATUS
-  * TOPIC
-  * TYPE
+  * [#BANNER]
+  * [#COMMENT]
+  * [#STATUS]
+  * [#TOPIC]
+  * [#TYPE]
 
 The following messages were added in version 1.1:
-  * 203 Server Banner
-  * 340 Client Image Change
-  * 341 Chat Topic
+  * [#203 Server Banner]
+  * [#340 Client Image Change]
+  * [#341 Chat Topic]
 
 Commands and messages that have gained additional fields are marked where they are documented.
 
 
 = Access Authentication =
-
 Qwired requires all clients to provide authentication in order to log in to a server. This authentication consists of a login name and an optional password. Servers wishing to provide anonymous logins should provide a "guest" user with no password. Clients should use this login pair as the default.
 
-Passwords are SHA-1 checksums of the actual passwords. No cleartext should be sent over the connection.
+Passwords are SHA-1 checksums of the actual passwords. No cleartext must be sent over the connection.
 
-See section 5 for more information on accounts.
+See [#Accounts] for more information on accounts.
 
 
 = Protocol Parameters =
-
 == Identification Numbers ==
-The protocol uses identification numbers for a number of object 
-types. These are unsigned integers.
+The protocol uses identification numbers for a number of object types. These are unsigned integers.
 
   * ID = 1*DIGIT
   
-An identification number is assigned to each connected user, starting with 1 and incremented for each new user. In certain situations, the server software itself may participate in
-communications. When thus, the server assumes the user id 0.
+An identification number is assigned to each connected user, starting with 1 and incremented for each new user. In certain situations, the server software itself may participate in communications. When thus, the server assumes the user id 0.
 
-An id number is also assigned to each new chat created. Unlike user ids however, these should be assigned randomly from the integer range used. The server should also take care to verify
-that each client communicating with a certain chat, is actually present on that chat, to prevent unauthorized eavesdropping.
+An id number is also assigned to each new chat created. Unlike user ids however, these should be assigned randomly from the integer range used. The server should also take care to verify that each client communicating with a certain chat, is actually present on that chat, to prevent unauthorized eavesdropping.
 
 The public chat is the chat available to everyone and the chat that is automatically joined upon logging in. The public chat is assigned the chat id 1.
 
@@ -91,39 +86,42 @@ The public chat is the chat available to everyone and the chat that is automatic
 == Control Characters ==
 The following control characters from the US-ASCII table are used:
 
-  * EOT    = <US-ASCII EOT, end of transmission (4)>
-  * FS     = <US-ASCII FS, file separator (28)>
-  * GS     = <US-ASCII GS, group separator (29)>
-  * RS     = <US-ASCII US, record separator (30)>
-  * SP     = <US-ASCII SP, space (32)>
+  * EOT    = `<US-ASCII EOT, end of transmission (4)>`
+  * FS     = `<US-ASCII FS, file separator (28)>`
+  * GS     = `<US-ASCII GS, group separator (29)>`
+  * RS     = `<US-ASCII US, record separator (30)>`
+  * SP     = `<US-ASCII SP, space (32)>`
+
 
 == Strings ==
 All string contents are sent in Unicode, UTF-8 encoding. There is no way to select a character set. Clients must be UTF-8 aware if they wish to participate in communications:
 
-  * STRING    = <any 8-bit sequence of data in UTF-8 encoding>
+  * STRING    = `<any 8-bit sequence of data in UTF-8 encoding>`
+
 
 == Base64 Data ==
 In cases where binary data needs to be transmitted on the control connection, it is Base64 encoded.
 
-  * BASE64    = <base64 encoded binary data>
+  * BASE64    = `<base64 encoded binary data>`
+
 
 == Booleans ==
 When a value can be considered as an on/off switch, a boolean value  is used:
 
-  * BOOLEAN    = "0" | "1"
+  * BOOLEAN    = `"0" | "1"`
 
 
 == Version Strings ==
 Version strings are used to convey the version of either the protocol or the applications involved. The protocol version string uses a fixed format:
 
-  * protocol-version    = 1*DIGIT "." 1*DIGIT
+  * protocol-version    = `1*DIGIT "." 1*DIGIT`
 
 The application version string has a different format:
 
   * app-version    = `name "/" 1*DIGIT "." 1*DIGIT ["." 1*DIGIT] SP "(" os ")" [ SP "(" lib-version [";" SP lib-version] ")" ]`
   * name           = STRING
 
-  * os             = os-release ";" SP os-version ";" SP arch
+  * os             = `os-release ";" SP os-version ";" SP arch`
   * os-release     = STRING
   * os-version     = STRING
   * arch           = STRING
@@ -136,10 +134,12 @@ That is, the application version must always be followed by the operating system
 
 Note that there is no particular format defined for the operation system version strings.
 
+
 == Addresses ==
 IP addresses are sent in textual representation, in the formats described in RFC 790 and RFC 1884:
 
   * IP    = STRING
+
 
 == Date & Time Format ==
 Date are sent in the ISO 8601 full "date-time" format, as per RFC 3339:
@@ -169,30 +169,7 @@ This represents 39 minutes and 57 seconds after the 16th hour of December 19th, 
 == Privilege Specifications == 
 Privilege specifications are sent in the following format:
 
-  * privileges
-    # get-user-info FS 
-    # broadcast FS 
-    # post-news FS 
-    # clear-news FS
-    # download FS
-    # upload FS
-    # upload-anywhere FS
-    # create-folders FS 
-    # alter-files FS
-    # delete-files FS 
-    # view-dropboxes FS
-    # create-accounts FS 
-    # edit-accounts FS
-    # delete-accounts FS 
-    # elevate-privileges FS
-    # kick-users FS 
-    # ban-users FS
-    # cannot-be-kicked FS 
-    # download-speed FS
-    # upload-speed FS
-    # download-limit FS
-    # upload-limit FS
-    # change-topic
+  * privileges = `get-user-info FS broadcast FS post-news FS clear-news FS download FS upload FS upload-anywhere FS create-folders FS alter-files FS delete-files FS view-dropboxes FS create-accounts FS edit-accounts FS delete-accounts FS elevate-privileges FS kick-users FS ban-users FS cannot-be-kicked FS download-speed FS upload-speed FS download-limit FS upload-limit FS change-topic`
 
   * get-user-info         = BOOLEAN
   * broadcast             = BOOLEAN
@@ -220,7 +197,8 @@ Privilege specifications are sent in the following format:
 
 This is a series of boolean values, indicating whether a user can or cannot perform certain commands.
 
-See section 5 for more information on accounts. See section 4 for more information on the file related privileges.
+See [#Accouts] for more information on accounts. See section 4 for more information on the file related privileges.
+
 
 = Sequences =
 
@@ -228,20 +206,20 @@ See section 5 for more information on accounts. See section 4 for more informati
 The login sequence takes place directly after the client has established a connection with the server.
 
   # The client initiates the sequence by sending the "[#HELLO]" command.
-  # The server responds with the 200 Server Information or 511 Banned message.
-  # The client sends the "NICK", "ICON", "STATUS" and "CLIENT" commands to set values before becoming visible to other clients. Of these, "NICK" is required, "CLIENT" is optional but highly recommended, and "ICON" and "STATUS" are optional.
-  # The clients sends the "USER" command with the login name. "guest" should be used as the default login name.
-  # The client sends the "PASS" command with the checksum of the actual password. If the password is empty, no check-summing should be performed.
-  # The server responds with the 201 Login Succeeded or 510 Login Failed messages. If the login was successful, the client has now been added to the public user list and is available to other clients. The server will also reply a 341 Chat Topic message for the public chat, if a topic has been set.
-  # The client requests the user list using "WHO", with a value of "1" for the public user list.
-  # The server responds with the 310 User List and 311 User List Done messages.
-  # Optionally, the client requests the active privileges mask using "PRIVILEGES".
-  # The server responds with the 602 Privileges message.
-  # Optionally, the client requests the news using "NEWS".
-  # The server responds with the 320 News and 321 News Done messages.
+  # The server responds with the [#200 Server Information] or [#511 Banned] message.
+  # The client sends the "[#NICK]", "[#ICON]", "[#STATUS]" and "[#CLIENT]" commands to set values before becoming visible to other clients. Of these, "[#NICK]" is required, "[#CLIENT]" is optional but highly recommended, and "[#ICON]" and "[#STATUS]" are optional.
+  # The clients sends the "[#USER]" command with the login name. `"guest"` should be used as the default login name.
+  # The client sends the "[#PASS]" command with the checksum of the actual password. If the password is empty, no check-summing should be performed.
+  # The server responds with the [#201 Login Succeeded] or [#510 Login Failed] messages. If the login was successful, the client has now been added to the public user list and is available to other clients. The server will also reply a [#341 Chat Topic] message for the public chat, if a topic has been set.
+  # The client requests the user list using "[#WHO]", with a value of `"1"` for the public user list.
+  # The server responds with the [#310 User List] and [#311 User List Done] messages.
+  # Optionally, the client requests the active privileges mask using "[#PRIVILEGES]".
+  # The server responds with the [#602 Privileges] message.
+  # Optionally, the client requests the news using "[#NEWS]".
+  # The server responds with the [#320 News] and [#321 News Done] messages.
+
 
 == Private Chat Sequence ==
-
 The private chat sequence takes place when a user requests a private chat audience with another user.
 
   # Client A initiates the sequence by sending the "PRIVCHAT" command.
