@@ -197,7 +197,7 @@ Privilege specifications are sent in the following format:
 
 This is a series of boolean values, indicating whether a user can or cannot perform certain commands.
 
-See [#Accouts] for more information on accounts. See section 4 for more information on the file related privileges.
+See [#Accounts] for more information on accounts. See [#Privilege_Specifications] for more information on the file related privileges.
 
 
 = Sequences =
