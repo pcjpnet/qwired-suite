@@ -120,7 +120,7 @@ Version strings are used to convey the version of either the protocol or the app
 
 The application version string has a different format:
 
-  * app-version    = name "/" 1*DIGIT "." 1*DIGIT ["." 1*DIGIT] SP "(" os ")" [ SP "(" lib-version [";" SP lib-version] ")" ]
+  * app-version    = `name "/" 1*DIGIT "." 1*DIGIT ["." 1*DIGIT] SP "(" os ")" [ SP "(" lib-version [";" SP lib-version] ")" ]`
   * name           = STRING
 
   * os             = os-release ";" SP os-version ";" SP arch
@@ -166,7 +166,7 @@ An example of such a date is:
 
 This represents 39 minutes and 57 seconds after the 16th hour of December 19th, 1996 with an offset of -08:00 from UTC.
 
-== Privilege Specifications ==
+== Privilege Specifications == 
 Privilege specifications are sent in the following format:
 
   * privileges
@@ -227,7 +227,7 @@ See section 5 for more information on accounts. See section 4 for more informati
 == Login Sequence ==
 The login sequence takes place directly after the client has established a connection with the server.
 
-  # The client initiates the sequence by sending the "HELLO" command.
+  # The client initiates the sequence by sending the "[#HELLO]" command.
   # The server responds with the 200 Server Information or 511 Banned message.
   # The client sends the "NICK", "ICON", "STATUS" and "CLIENT" commands to set values before becoming visible to other clients. Of these, "NICK" is required, "CLIENT" is optional but highly recommended, and "ICON" and "STATUS" are optional.
   # The clients sends the "USER" command with the login name. "guest" should be used as the default login name.
