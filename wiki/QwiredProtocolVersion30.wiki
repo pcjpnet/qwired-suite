@@ -69,6 +69,41 @@ See section 5 for more information on accounts. See section 4 for more informati
 
 = Commands =
 == Command Listing ==
+
+=== ABORT ===
+`"ABORT" SP tid EOT`
+
+  * tid = STRING
+ 
+Abort a running or server-queued file transfer.
+
+On failure, may return the error 516.
+
+Subject to _server-console_ privilege.
+
+=== CONFIGSET ===
+`"CONFIGSET" SP key FS value EOT`
+
+  * key = STRING
+  * value = BASE64
+ 
+Set a configuration parameter in the database.
+
+On failure, may return the error 516.
+
+Subject to _server-console_ privilege.
+
+=== CONFIGGET ===
+`"CONFIGGET" SP key EOT`
+
+  * key = STRING
+ 
+Read a configuration parameter in the database.
+
+On failure, may return the error 516, on success returns a 815 Configuration Value message.
+
+Subject to _server-console_ privilege.
+
 === LOG ===
 `"LOG" SP enable EOT`
 
@@ -77,6 +112,15 @@ See section 5 for more information on accounts. See section 4 for more informati
 Enable real-time transmission of log messages to the client.
 
 On failure, may return the error 516, or begins transmission of 800 Log Message messages.
+
+Subject to _server-console_ privilege.
+
+=== REINDEX ===
+`"REINDEX" EOT`
+ 
+Re-Index the files database.
+
+On failure, may return the error 516.
 
 Subject to _server-console_ privilege.
 
@@ -149,3 +193,12 @@ In response to `TRANSFERS`.
   * total-received = 1*DIGIT
 
 In response to `STATISTICS`.
+
+
+=== 815 Configuration Value ===
+`"815" SP key FS value EOT`
+
+  * key = STRING
+  * value = BASE64
+
+In response to `CONFIGGET`.
