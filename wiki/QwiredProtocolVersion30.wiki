@@ -80,6 +80,15 @@ On failure, may return the error 516, or begins transmission of 800 Log Message 
 
 Subject to _server-console_ privilege.
 
+=== TRANSFERS ===
+`"TRANSFERS" EOT`
+ 
+Get a list of active file transfers on the server.
+
+On failure, may return the error 516; on success a list of 810 Transfer List and a final 811 Transfer List Done message.
+
+Subject to _server-console_ privilege.
+
 = Messages =
 
 == 800 Class Messages ==
