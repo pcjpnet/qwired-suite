@@ -93,3 +93,26 @@ Subject to _server-console_ privilege.
 A server log message has been emitted by _origin_, a string that identifies the source of the information (server core, user, etc.). _text_ contains the information about the event. _type_ defines the type of the message, which can be "INFO", "WARN", "FATAL" or "DEBUG".
 
 This message is subject to the _LOG_ command.
+
+=== 810 Transfer List ===
+`"810" SP status FS tid FS type FS user FS path FS done FS total FS speed EOT`
+
+  * status = 1*DIGIT
+  * tid = STRING
+  * type = 1*DIGIT
+  * user = ID
+  * path = STRING
+  * done = 1*DIGIT
+  * total = 1*DIGIT
+  * speed = 1*DIGIT
+
+Specifies a single active or queued transfer on the server. _status_ indicates the status of the transfer where 0 indicates a server-queued transfer, and 1 indicates a running transfer. _tid_ is a unique UUID for the specific transfer. __type__ is the type of transfer, where 0 indicates a download (to the client), and 1 indicates an upload (to the server). _path_ is the file (on the server file system) being transferred. _done_, _total_ and _speed_ define the amount of bytes already transferred, to be transferred and being transferred per second.
+
+In response to `TRANSFERS`.
+
+=== 811 Transfer List Done ===
+`"811" SP "Done" EOT`
+
+End of the transfer list.
+
+In response to `TRANSFERS`.
