@@ -1,12 +1,19 @@
 = Qwired Server: Database Structure =
 
-== Database Structure ==
+= Database Structure =
 
 The initial database structure is created when Qwired Server launches for the first time and there is no database file. You can find the SQL schema here:
 
 http://code.google.com/p/qwired-suite/source/browse/trunk/qw_server/resources/server_db.sql
 
-== Database Keys ==
+== Tables ==
+  * *qws_config* - Contains all configuration key/value pairs. See table below for more information.
+  * *qws_news* - Contains all news post entries.
+  * *qws_files* - Contains temporary indexing information about files that are available in the server files-root. This is used to speed up remote searching of files.
+  * *qws_groups* - Contains all user account groups.
+  * *qws_accounts* - Contains all user account information, might reference to entries in _qws_groups_ if a user account is part of a group.
+
+= Database Keys =
 
 || *Configuration Key* || *Description* || *Example* ||
 ||`server/banlist` ||A list of semicolon (;) separated wildcards of IP-addresses that are permanently banned from the server. ||`10.0.0.*;192.168.*.*` ||
@@ -41,4 +48,4 @@ Every account or group entry contains a mask field which defines the user's priv
 || ban-users || B ||
 || cannot-be-kicked || P ||
 || change-topic || t ||
-|| server-console || x ||
+|| server-console _(new in protocol 3.0)_ || x ||
