@@ -14,7 +14,8 @@ macx {
 
 RESOURCES = application.qrc
 QT += gui \
-    network
+    network \
+    webkit
 DESTDIR = ../bin/
 ICON = qwired.icns
 RC_FILE = qwired.rc
