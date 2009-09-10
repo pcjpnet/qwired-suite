@@ -7,6 +7,9 @@
 #include <QTextCursor>
 #include <QTextBlock>
 
+#include <QtWebKit>
+#include <QDesktopServices>
+
 /*! \class QwcNewsWidget
     \author Bastian Bense <bastibense@gmail.com>
     \date 2009-03-06
@@ -29,6 +32,12 @@ QwcNewsWidget::QwcNewsWidget(QWidget *parent) : QWidget(parent)
 
 
     pageWidget->setCurrentIndex(1); // jump to the waiting panel
+
+
+    newsView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+    resetNewsView();
+
+
 }
 
 
@@ -41,10 +50,8 @@ QwcNewsWidget::~QwcNewsWidget()
 */
 void QwcNewsWidget::reloadPreferences()
 {
-//    fNews->setPlainText("");
     initPrefs();
-
-    fNews->clear();
+    resetNewsView();
     newsCounter = 0;
     updateNewsStats();
     pageWidget->setCurrentIndex(1);
@@ -54,11 +61,6 @@ void QwcNewsWidget::reloadPreferences()
 
 void QwcNewsWidget::initPrefs()
 {
-    QPalette inputPalette = fNews->palette();
-    inputPalette.setColor(QPalette::Base, QwcSingleton::colorFromPrefs("interface/news/back/color", Qt::white));
-    fNews->setPalette(inputPalette);
-    composeMessage->setPalette(inputPalette);
-
     pColorText =  QwcSingleton::colorFromPrefs("interface/news/text/color", Qt::black);
     pColorTitle = QwcSingleton::colorFromPrefs("interface/news/titles/color", Qt::gray);
 
@@ -68,7 +70,6 @@ void QwcNewsWidget::initPrefs()
                    settings.value("interface/news/font", QwcSingleton::systemMonospaceFont()).toString().section(",",1,1).toInt());
 
     composeMessage->document()->setDefaultFont(newsFont);
-//    fNews->document()->setDefaultFont(newsFont);
 }
 
 
@@ -84,30 +85,34 @@ void QwcNewsWidget::updateNewsStats()
 
 void QwcNewsWidget::addNewsItem(QString theNick, QDateTime time, QString thePost, bool insertAtTop)
 {
-    QListWidgetItem *itemHeader = new QListWidgetItem;
-    QFont headerFont(newsFont);
-    headerFont.setBold(true);
-    itemHeader->setFont(headerFont);
-    itemHeader->setBackground(Qt::lightGray);
-    itemHeader->setTextColor(pColorTitle);
-    itemHeader->setText(tr("From %1 (%2)").arg(theNick).arg(time.toString()));
 
-    QListWidgetItem *item = new QListWidgetItem;
-    item->setFont(newsFont);
-    item->setText(thePost);
-    item->setTextColor(pColorText);
+    
+    QRegExp urlRegex("([a-z0-9]+://[a-zA-Z0-9._-]+(:[0-9]*)?([a-z0-9/\\?&=_\\.\\-%]*))",
+                     Qt::CaseInsensitive);
+    QString messageText = thePost.trimmed();
+    messageText = Qt::convertFromPlainText(messageText, Qt::WhiteSpaceNormal);
+    messageText.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
+
+
+    QString newItem = QString("<span class=\"news_item\">"
+                              "<span class=\"news_header\">From %1 (%2):</span>"
+                              "<span class=\"news_body\">%3</span>"
+                              "</span>")
+                      .arg(Qt::escape(theNick))
+                      .arg(Qt::escape(time.toString()))
+                      .arg(messageText);
+
+
+    QWebElement mainElement = newsView->page()->mainFrame()->documentElement().findFirst("body");
 
     if (insertAtTop) {
-        fNews->insertItem(0, itemHeader);
-        fNews->insertItem(1, item);
+        mainElement.prependInside(newItem);
     } else {
-        fNews->addItem(itemHeader);
-        fNews->addItem(item);
+        mainElement.appendInside(newItem);
     }
 
     newsCounter++;
     updateNewsStats();
-
 }
 
 
@@ -116,7 +121,7 @@ void QwcNewsWidget::addNewsItem(QString theNick, QDateTime time, QString thePost
 void QwcNewsWidget::on_fBtnRefresh_clicked(bool checked)
 {
     Q_UNUSED(checked);
-    fNews->clear();
+    resetNewsView();
     newsCounter = 0;
     emit requestedRefresh();
     pageWidget->setCurrentIndex(1);
@@ -171,6 +176,11 @@ void QwcNewsWidget::on_btnComposePost_clicked()
     composeMessage->setPlainText("");
 }
 
+void QwcNewsWidget::on_newsView_linkClicked(const QUrl &url)
+{
+    QDesktopServices::openUrl(url);
+}
+
 
 /*! All news items have been received.
 */
@@ -186,4 +196,25 @@ void QwcNewsWidget::setupFromUser(const QwcUserInfo user)
 {
     fBtnPost->setVisible(user.privPostNews);
     fBtnDelete->setVisible(user.privClearNews);
+}
+
+
+/*! Clear the contents of the news view and set an empty HTML page with styles.
+*/
+void QwcNewsWidget::resetNewsView()
+{
+    newsView->page()->mainFrame()->
+            setHtml(QString("<html><head>"
+                    "<style rel=stylesheet ref=stylesheet>"
+                    "body { font-size: %1px; background-color: %5; }"
+                    ".news_item { display: block; font-family: \"%2\"; padding-bottom: 12px; }"
+                    ".news_header { color: %3; display: block; }"
+                    ".news_body { color: %4; }"
+                    "</style>"
+                    "</head><body></body></html>")
+                    .arg(newsFont.pointSize())
+                    .arg(newsFont.family())
+                    .arg(pColorTitle.name())
+                    .arg(pColorText.name())
+                    .arg(QwcSingleton::colorFromPrefs("interface/news/back/color", Qt::white).name()));
 }

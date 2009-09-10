@@ -18,6 +18,8 @@ public:
 
     void setupFromUser(const QwcUserInfo user);
 
+    void resetNewsView();
+
 private:
     QColor pColorTitle;
     QColor pColorText;
@@ -47,6 +49,8 @@ private slots:
     void on_fBtnDelete_clicked(bool checked);
     void on_btnComposeCancel_clicked();
     void on_btnComposePost_clicked();
+
+    void on_newsView_linkClicked(const QUrl &url);
 
     void reloadPreferences();
     void initPrefs();
