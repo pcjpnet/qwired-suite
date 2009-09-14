@@ -19,4 +19,5 @@ You can find the latest nightly builds here: [http://qwired.neo.de/nightlies/]
 Qwired Server is still in heavy development and requires more internal testing. It is included in the nightly builds and can be tested by any user. Please note that Qwired Server might be unstable and crash - so please do NOT use it in production environments, or where stability and security are a critical factor. 
 
 == Is Qwired Client/Server compatible with Mac OS X 10.3? ==
-No. We kept compatibility as long as possible. Starting with Qt 4.6 it is not support by our development tools anymore, so we are not going to put any effort in supporting a 6 year old, deprecated operating system. If you have an old machine standing around that you'd like to use as a Qwired-server, please upgrade that machine to at least Mac OS X 10.4 or 10.5.
+No. We kept compatibility as long as possible. Starting with Qt 4.6 it is not supported by our development tools anymore - and we are not going to put any extra effort in supporting a 6 year old, deprecated operating system.
+If you have an old machine standing around that you'd like to use as a Qwired-server, please upgrade that machine to at least Mac OS X 10.4 or 10.5.
