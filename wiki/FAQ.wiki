@@ -1,5 +1,5 @@
 #summary Frequently Asked Questions
 #labels Featured
 
-= Is Qwired Client/Server compatible with Mac OS X 10.3? =
+== Is Qwired Client/Server compatible with Mac OS X 10.3? ==
 No. We kept compatibility as long as possible. Starting with Qt 4.6 it is not support by our development tools anymore, so we are not going to put any effort in supporting a 6 year old, deprecated operating system.
