@@ -1,0 +1,10 @@
+#summary Frequently Asked Questions
+#labels Featured
+
+= Frequently Asked Questions =
+
+<wiki:toc max_depth="1" />
+
+== Is there a version for Mac OS X 10.3? ==
+No. As of the availability of Mac OS X 10.6 there won't be any builds for Mac OS X 10.3.
+Qwired Server might be an exception, since old machines are likely to be used as servers.
