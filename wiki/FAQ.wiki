@@ -1,6 +1,8 @@
 #summary Frequently Asked Questions
 #labels Featured
 
+<wiki:toc maxdepth="1" />
+
 == What platforms does Qwired Client/Server run on? ==
 Qwired Client and Server are targeted towards the following operating systems. Since Qwired's source code does not depend on other libraries than Qt 4.6, all Qt-supported platforms should be working.
 
