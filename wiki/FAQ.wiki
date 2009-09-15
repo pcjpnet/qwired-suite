@@ -16,7 +16,7 @@ If you manage to compile Qwired Client/Server on any other platforms, please let
 You can find the latest nightly builds here: [http://qwired.neo.de/nightlies/]
 
 == Can I compile Qwired Client/Server myself? ==
-Yes. Please see BuildingFromSVN for instructions.
+Yes. Please see [BuildingFromSVN] for instructions.
 Please note that you *don't have* to compile Qwired yourself - instead you can use the nightly builds.
 
 == Where can I find a stable version of Qwired Server? ==
