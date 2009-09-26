@@ -26,7 +26,7 @@ public:
     QString getStringArgument(int index) const;
 
     QStringList arguments;
-    QByteArray commandName;
+    QString commandName;
     QByteArray generateFrame() const;
     void generateFrame(QDataStream stream) const;
 

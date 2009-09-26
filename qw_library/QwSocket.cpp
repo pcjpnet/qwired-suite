@@ -30,7 +30,6 @@ void QwSocket::sendMessage(const QwMessage &message)
     QDataStream stream(&buffer, QIODevice::WriteOnly);
     buffer += message.generateFrame();
     buffer.append('\x04');
-    //qDebug() << this << "Writing bytes:"<<buffer<<buffer.toHex();
     qDebug() << "Sending message:" <<message.commandName<< ":" << message.arguments.count();
     socket->write(buffer);
     socket->flush();
@@ -54,8 +53,10 @@ void QwSocket::setSslSocket(QSslSocket *socket)
     if(!socket) return;
     this->socket = socket;
     socket->setParent(this);
-    connect( socket, SIGNAL(readyRead()), this, SLOT(socketDataReceived()), Qt::QueuedConnection );
-    connect( socket, SIGNAL(disconnected()), this, SIGNAL(connectionLost()), Qt::QueuedConnection );
+    connect( socket, SIGNAL(readyRead()),
+             this, SLOT(socketDataReceived()), Qt::QueuedConnection );
+    connect( socket, SIGNAL(disconnected()),
+             this, SIGNAL(connectionLost()), Qt::QueuedConnection );
 }
 
 
@@ -66,12 +67,13 @@ void QwSocket::socketDataReceived()
 {
     tcpBuffer += socket->readAll();
 
-    if(tcpBuffer.size()>1024*1024) {
+    if ( tcpBuffer.size() > (1024 * 1024) )  {
         // Limit frame size to 1 MB
         socket->close();
     }
 
     int eotIndex = tcpBuffer.indexOf('\x04');
+
     QByteArray frameData;
     while (eotIndex > -1) {
         QByteArray frameData(tcpBuffer.left(eotIndex));

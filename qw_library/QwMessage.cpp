@@ -12,11 +12,11 @@ QwMessage::QwMessage(const QByteArray frameData)
     int spacePosition = frameData.indexOf('\x20');
     if (spacePosition > -1) {
         // Frame contains a space - separate command form rest.
-        commandName = frameData.left(spacePosition);
-        frameArguments = QString::fromUtf8(frameData.mid(spacePosition+1));
+        commandName = QString::fromUtf8(frameData.left(spacePosition));
+        frameArguments = QString::fromUtf8(frameData.mid(spacePosition + 1));
     } else {
         // Frame contains command only.
-        commandName = frameData;
+        commandName = QString::fromUtf8(frameData);
     }
 
     if (!frameArguments.isEmpty()) {
@@ -54,7 +54,7 @@ QString QwMessage::getStringArgument(int index) const
 QByteArray QwMessage::generateFrame() const
 {
     QByteArray buffer;
-    buffer += commandName;
+    buffer += commandName.toUtf8();
     buffer += '\x20'; // space
 
     // append the arguments
@@ -66,7 +66,6 @@ QByteArray QwMessage::generateFrame() const
             buffer += '\x1C'; // FS
         }
     }
-
     return buffer;
 }
 
