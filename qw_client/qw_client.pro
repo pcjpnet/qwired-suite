@@ -3,15 +3,8 @@ CONFIG += warn_on \
     thread \
     qt
 CONFIG -= warnings
-
-macx { 
-    TARGET = "Qwired Client"
-}
-
-!macx {
-    TARGET = qwired
-}
-
+macx:TARGET = "Qwired Client"
+!macx:TARGET = qwired
 RESOURCES = application.qrc
 QT += gui \
     network \
@@ -21,7 +14,6 @@ ICON = qwired.icns
 RC_FILE = qwired.rc
 LIBS += ../bin/libqwlibrary.a
 INCLUDEPATH += ../qw_library
-
 TRANSLATIONS += lang/lang_de.ts \
     lang/lang_pt.ts \
     lang/lang_it.ts \
@@ -55,7 +47,8 @@ SOURCES += main.cpp \
     QwcConnectionMainWindow.cpp \
     QwcPrivateMessager.cpp \
     QwcTransferInfo.cpp \
-    ../qw_server/QwsTrackerController.cpp
+    ../qw_server/QwsTrackerController.cpp \
+    QwcMessageStyle.cpp
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
@@ -96,5 +89,5 @@ HEADERS += QwcSession.h \
     QwcTrackerServerInfo.h \
     QwcAboutWidget.h \
     QwcPrivateMessager.h \
-    ../qw_server/QwsTrackerController.h
-
+    ../qw_server/QwsTrackerController.h \
+    QwcMessageStyle.h
