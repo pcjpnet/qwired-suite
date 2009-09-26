@@ -31,7 +31,8 @@ namespace Qws {
 Q_DECLARE_METATYPE(Qws::SessionState);
 
 
-class QwsClientSocket : public QwSocket
+class QwsClientSocket
+        : public QwSocket
 {
     Q_OBJECT
 

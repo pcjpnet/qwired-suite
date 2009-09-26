@@ -686,7 +686,7 @@ void QwsServerController::relayChatToRoom(const int roomId, const QString text, 
     QwMessage reply(isEmote ? "301 " : "300 ");
     reply.appendArg(QByteArray::number(roomId));
     reply.appendArg(QByteArray::number(user->user.pUserID));
-    reply.appendArg(text.toUtf8());
+    reply.appendArg(text);
 
     while (i.hasNext()) {
         int itemId = i.next();
@@ -697,12 +697,8 @@ void QwsServerController::relayChatToRoom(const int roomId, const QString text, 
             }
         }
     }
-
-    // Send end of list
-//    QwMessage reply("311");
-//    reply.appendArg(QByteArray::number(roomId));
-//    user->sendMessage(reply);
 }
+
 
 /*! This method relays a private message to another user.
 */
@@ -718,7 +714,7 @@ void QwsServerController::relayMessageToUser(const int userId, const QString tex
         QwsClientSocket *targetUser = sockets[userId];
         QwMessage reply("305");
         reply.appendArg(QByteArray::number(userId));
-        reply.appendArg(text.toUtf8());
+        reply.appendArg(text);
         targetUser->sendMessage(reply);
     } else {
         user->sendError(Qw::ErrorClientNotFound);
