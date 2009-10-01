@@ -19,8 +19,6 @@ private:
     bool pStatusChanged;
     bool pIconChanged;
 
-    void updateChatStyleList();
-
     
 private slots:
     void savePrefs();
