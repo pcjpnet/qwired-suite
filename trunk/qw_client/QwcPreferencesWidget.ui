@@ -261,7 +261,7 @@ max size 32x32 pixels</string>
            </item>
            <item>
             <layout class="QGridLayout">
-             <item row="1" column="0">
+             <item row="0" column="0">
               <widget class="QLabel" name="label_6">
                <property name="text">
                 <string>Text:</string>
@@ -271,7 +271,7 @@ max size 32x32 pixels</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="1" column="0">
               <widget class="QLabel" name="label_12">
                <property name="text">
                 <string>URLs:</string>
@@ -281,7 +281,7 @@ max size 32x32 pixels</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="2" column="0">
               <widget class="QLabel" name="label_15">
                <property name="text">
                 <string>Chat Font:</string>
@@ -291,7 +291,7 @@ max size 32x32 pixels</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item row="3" column="0">
               <widget class="QLabel" name="label_16">
                <property name="text">
                 <string>User List Font:</string>
@@ -301,7 +301,7 @@ max size 32x32 pixels</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="0">
+             <item row="4" column="0">
               <widget class="QLabel" name="label_17">
                <property name="text">
                 <string>Icon Size:</string>
@@ -311,7 +311,7 @@ max size 32x32 pixels</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="0" column="1">
               <layout class="QHBoxLayout">
                <item>
                 <widget class="QwcColorButton" name="fBtnIfChatText"/>
@@ -350,7 +350,7 @@ max size 32x32 pixels</string>
                </item>
               </layout>
              </item>
-             <item row="2" column="1">
+             <item row="1" column="1">
               <layout class="QHBoxLayout">
                <item>
                 <widget class="QwcColorButton" name="fBtnIfChatURLs">
@@ -393,7 +393,7 @@ max size 32x32 pixels</string>
                </item>
               </layout>
              </item>
-             <item row="5" column="1">
+             <item row="4" column="1">
               <layout class="QHBoxLayout">
                <item>
                 <widget class="QRadioButton" name="fBtnIfUserlistCompactLarge">
@@ -424,42 +424,42 @@ max size 32x32 pixels</string>
                </item>
               </layout>
              </item>
-             <item row="3" column="1">
+             <item row="2" column="1">
               <widget class="QLineEdit" name="fIfChatFont">
                <property name="readOnly">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item row="4" column="1">
+             <item row="3" column="1">
               <widget class="QLineEdit" name="fIfUserlistFont">
                <property name="readOnly">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item row="3" column="2">
+             <item row="2" column="2">
               <widget class="QToolButton" name="fBtnIfChatFont">
                <property name="text">
                 <string>Set...</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="2">
+             <item row="3" column="2">
               <widget class="QToolButton" name="fBtnIfUserlistFont">
                <property name="text">
                 <string>Set...</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="0">
+             <item row="5" column="0">
               <widget class="QLabel" name="label_36">
                <property name="text">
                 <string>Userlist Background Opacity:</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
+             <item row="5" column="1">
               <widget class="QSlider" name="sliderUserlistBackgroundOpacity">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -480,19 +480,6 @@ max size 32x32 pixels</string>
                 <enum>QSlider::TicksBelow</enum>
                </property>
               </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_43">
-               <property name="text">
-                <string>Chat Message Style:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QComboBox" name="fIfChatStyle"/>
              </item>
             </layout>
            </item>

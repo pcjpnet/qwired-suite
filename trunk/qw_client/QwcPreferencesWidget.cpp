@@ -31,21 +31,11 @@ QwcPreferencesWidget::QwcPreferencesWidget(QWidget *parent) : QWidget(parent)
     initEventsMenu();
     initPrefs();
 
-    updateChatStyleList();
-
 }
 
 
 QwcPreferencesWidget::~QwcPreferencesWidget() {
     savePrefs();
-}
-
-
-/*! Update the list of available chat styles and display their names in the popup menu.
-*/
-void QwcPreferencesWidget::updateChatStyleList()
-{
-
 }
 
 
