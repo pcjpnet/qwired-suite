@@ -1,0 +1,6 @@
+#summary A list of available chat styles.
+#labels Featured
+
+= Chat Styles =
+
+  * Default Chat Style (built-in)
