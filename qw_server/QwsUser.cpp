@@ -1,6 +1,9 @@
-#include <QtSql>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlError>
 
 #include "QwsUser.h"
+
+#include "QwMessage.h"
 
 /*! \class QwsUser
     \date 2009-03-08
@@ -19,29 +22,29 @@ QwsUser::QwsUser()
 */
 void QwsUser::privilegesFlags(QwMessage &message) const
 {
-    message.appendArg(QString::number(privGetUserInfo));
-    message.appendArg(QString::number(privBroadcast));
-    message.appendArg(QString::number(privPostNews));
-    message.appendArg(QString::number(privClearNews));
-    message.appendArg(QString::number(privDownload));
-    message.appendArg(QString::number(privUpload));
-    message.appendArg(QString::number(privUploadAnywhere));
-    message.appendArg(QString::number(privCreateFolders));
-    message.appendArg(QString::number(privAlterFiles));
-    message.appendArg(QString::number(privDeleteFiles));
-    message.appendArg(QString::number(privViewDropboxes));
-    message.appendArg(QString::number(privCreateAccounts));
-    message.appendArg(QString::number(privEditAccounts));
-    message.appendArg(QString::number(privDeleteAccounts));
-    message.appendArg(QString::number(privElevatePrivileges));
-    message.appendArg(QString::number(privKickUsers));
-    message.appendArg(QString::number(privBanUsers));
-    message.appendArg(QString::number(privCannotBeKicked));
-    message.appendArg(QString::number(privDownloadSpeed));
-    message.appendArg(QString::number(privUploadSpeed));
-    message.appendArg(QString::number(privDownloadLimit));
-    message.appendArg(QString::number(privUploadLimit));
-    message.appendArg(QString::number(privChangeTopic));
+    message.appendArg(m_privileges & Qws::PrivilegeGetUserInfo ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeSendBroadcast ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegePostNews ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeClearNews ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeDownload ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeUpload ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeUploadAnywhere ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeCreateFolders ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeAlterFiles ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeDeleteFiles ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeViewDropboxes ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeCreateAccounts ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeEditAccounts ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeDeleteAccounts ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeElevatePrivileges ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeKickUsers ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeBanUsers ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeCanNotBeKicked ? 1 : 0);
+    message.appendArg(privDownloadSpeed);
+    message.appendArg(privUploadSpeed);
+    message.appendArg(privDownloadLimit);
+    message.appendArg(privUploadLimit);
+    message.appendArg(m_privileges & Qws::PrivilegeChangeChatTopic ? 1 : 0);
 }
 
 
@@ -53,7 +56,12 @@ void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
 {
     message.appendArg(QString::number(pUserID));
     message.appendArg(QString::number(pIdle));
-    message.appendArg(QString::number(privKickUsers | privBanUsers));
+    if (m_privileges.testFlag(Qws::PrivilegeKickUsers)
+        || m_privileges.testFlag(Qws::PrivilegeBanUsers)) {
+        message.appendArg(1);
+    } else {
+        message.appendArg(0);
+    }
     message.appendArg(QString::number(pIcon));
     message.appendArg(userNickname);
     message.appendArg(name);
@@ -70,7 +78,12 @@ void QwsUser::userStatusEntry(QwMessage &message) const
 {
     message.appendArg(QString::number(pUserID));
     message.appendArg(QString::number(pIdle));
-    message.appendArg(QString::number(privKickUsers | privBanUsers));
+    if (m_privileges.testFlag(Qws::PrivilegeKickUsers)
+        || m_privileges.testFlag(Qws::PrivilegeBanUsers)) {
+        message.appendArg(1);
+    } else {
+        message.appendArg(0);
+    }
     message.appendArg(QString::number(pIcon)); // icon, unused since 1.1
     message.appendArg(userNickname);
     message.appendArg(userStatus);
@@ -82,8 +95,13 @@ void QwsUser::userStatusEntry(QwMessage &message) const
 void QwsUser::userInfoEntry(QwMessage &message) const
 {
     message.appendArg(QString::number(pUserID));
-    message.appendArg(pIdle ? "1" : "0");
-    message.appendArg(privBanUsers || privKickUsers ? "1" : "0");
+    message.appendArg(pIdle ? 1 : 0);
+    if (m_privileges.testFlag(Qws::PrivilegeBanUsers)
+        || m_privileges.testFlag(Qws::PrivilegeBanUsers)) {
+        message.appendArg(1);
+    } else {
+        message.appendArg(0);
+    }
     message.appendArg(QString::number(pIcon));
     message.appendArg(userNickname);
     message.appendArg(name);
@@ -95,8 +113,8 @@ void QwsUser::userInfoEntry(QwMessage &message) const
     message.appendArg(QString::number(pCipherBits));
     message.appendArg(pLoginTime.toUTC().toString(Qt::ISODate)+"+00:00");
     message.appendArg(pIdleTime.toUTC().toString(Qt::ISODate)+"+00:00");
-    message.appendArg(""); // downloads - filled in later
-    message.appendArg(""); // uploads - filled in later
+    message.appendArg(QString()); // downloads - filled in later
+    message.appendArg(QString()); // uploads - filled in later
     message.appendArg(userStatus);
     message.appendArg(pImage);
 
@@ -270,29 +288,29 @@ bool QwsUser::deleteFromDatabase()
 */
 void QwsUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
 {
-    message.appendArg(QString::number(privGetUserInfo));
-    message.appendArg(QString::number(privBroadcast));
-    message.appendArg(QString::number(privPostNews));
-    message.appendArg(QString::number(privClearNews));
-    message.appendArg(QString::number(privDownload));
-    message.appendArg(QString::number(privUpload));
-    message.appendArg(QString::number(privUploadAnywhere));
-    message.appendArg(QString::number(privCreateFolders));
-    message.appendArg(QString::number(privAlterFiles));
-    message.appendArg(QString::number(privDeleteFiles));
-    message.appendArg(QString::number(privViewDropboxes));
-    message.appendArg(QString::number(privCreateAccounts));
-    message.appendArg(QString::number(privEditAccounts));
-    message.appendArg(QString::number(privDeleteAccounts));
-    message.appendArg(QString::number(privElevatePrivileges));
-    message.appendArg(QString::number(privKickUsers));
-    message.appendArg(QString::number(privBanUsers));
-    message.appendArg(QString::number(privCannotBeKicked));
-    message.appendArg(QString::number(privDownloadSpeed));
-    message.appendArg(QString::number(privUploadSpeed));
-    message.appendArg(QString::number(privDownloadLimit)); // wired 1.1
-    message.appendArg(QString::number(privUploadLimit)); // wired 1.1
-    message.appendArg(QString::number(privChangeTopic)); // wired 1.1
+    message.appendArg(m_privileges & Qws::PrivilegeGetUserInfo ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeSendBroadcast ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegePostNews ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeClearNews ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeDownload ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeUpload ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeUploadAnywhere ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeCreateFolders ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeAlterFiles ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeDeleteFiles ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeViewDropboxes ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeCreateAccounts ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeEditAccounts ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeDeleteAccounts ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeElevatePrivileges ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeKickUsers ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeBanUsers ? 1 : 0);
+    message.appendArg(m_privileges & Qws::PrivilegeCanNotBeKicked ? 1 : 0);
+    message.appendArg(privDownloadSpeed);
+    message.appendArg(privUploadSpeed);
+    message.appendArg(privDownloadLimit); // wired 1.1
+    message.appendArg(privUploadLimit); // wired 1.1
+    message.appendArg(m_privileges & Qws::PrivilegeChangeChatTopic ? 1 : 0); // wired 1.1
 }
 
 
@@ -300,31 +318,34 @@ void QwsUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
 */
 void QwsUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset)
 {
-    // For EDITUSER we should skip 3 fields
-    // For EDITGROUP we should skip 1 field
-    this->privGetUserInfo = message.getStringArgument(fieldOffset++).toInt();
-    this->privBroadcast = message.getStringArgument(fieldOffset++).toInt();
-    this->privPostNews = message.getStringArgument(fieldOffset++).toInt();
-    this->privClearNews = message.getStringArgument(fieldOffset++).toInt();
-    this->privDownload = message.getStringArgument(fieldOffset++).toInt();
-    this->privUpload = message.getStringArgument(fieldOffset++).toInt();
-    this->privUploadAnywhere = message.getStringArgument(fieldOffset++).toInt();
-    this->privCreateFolders = message.getStringArgument(fieldOffset++).toInt();
-    this->privAlterFiles = message.getStringArgument(fieldOffset++).toInt();
-    this->privDeleteFiles = message.getStringArgument(fieldOffset++).toInt();
-    this->privViewDropboxes = message.getStringArgument(fieldOffset++).toInt();
-    this->privCreateAccounts = message.getStringArgument(fieldOffset++).toInt();
-    this->privEditAccounts = message.getStringArgument(fieldOffset++).toInt();
-    this->privDeleteAccounts = message.getStringArgument(fieldOffset++).toInt();
-    this->privElevatePrivileges = message.getStringArgument(fieldOffset++).toInt();
-    this->privKickUsers = message.getStringArgument(fieldOffset++).toInt();
-    this->privBanUsers = message.getStringArgument(fieldOffset++).toInt();
-    this->privCannotBeKicked = message.getStringArgument(fieldOffset++).toInt();
-    this->privDownloadSpeed = message.getStringArgument(fieldOffset++).toInt();
-    this->privUploadSpeed = message.getStringArgument(fieldOffset++).toInt();
-    this->privDownloadLimit = message.getStringArgument(fieldOffset++).toInt(); // wired 1.1
-    this->privUploadLimit = message.getStringArgument(fieldOffset++).toInt(); // wired 1.1
-    this->privChangeTopic = message.getStringArgument(fieldOffset++).toInt(); // wired 1.1
+    // About fieldOffset:
+    //    For EDITUSER we should skip 3 fields
+    //    For EDITGROUP we should skip 1 field
 
+    Qws::Privileges newPrivs;
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeGetUserInfo; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeSendBroadcast; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegePostNews; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeClearNews; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeDownload; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeUpload; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeUploadAnywhere; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeCreateFolders; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeAlterFiles; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeDeleteFiles; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeViewDropboxes; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeCreateAccounts; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeEditAccounts; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeDeleteAccounts; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeElevatePrivileges; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeKickUsers; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeBanUsers; }
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeCanNotBeKicked; }
+    this->privDownloadSpeed = message.stringArg(fieldOffset++).toInt();
+    this->privUploadSpeed = message.stringArg(fieldOffset++).toInt();
+    this->privDownloadLimit = message.stringArg(fieldOffset++).toInt(); // wired 1.1
+    this->privUploadLimit = message.stringArg(fieldOffset++).toInt(); // wired 1.1
+    if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeChangeChatTopic; }
+    m_privileges = newPrivs;
 }
 

@@ -12,13 +12,13 @@ QwcFileInfo::QwcFileInfo() : QwFile()
 */
 void QwcFileInfo::setFromMessage402(const QwMessage &message)
 {
-    path = message.getStringArgument(0);
-    type = (Qw::FileType)message.getStringArgument(1).toInt();
-    size = message.getStringArgument(2).toInt();
-    created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
-    modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
-    checksum = message.getStringArgument(5);
-    comment = message.getStringArgument(6);
+    path = message.stringArg(0);
+    type = (Qw::FileType)message.stringArg(1).toInt();
+    size = message.stringArg(2).toInt();
+    created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
+    modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
+    checksum = message.stringArg(5);
+    comment = message.stringArg(6);
 }
 
 
@@ -26,11 +26,11 @@ void QwcFileInfo::setFromMessage402(const QwMessage &message)
 */
 void QwcFileInfo::setFromMessage410(const QwMessage &message)
 {
-    path = message.getStringArgument(0);
-    type = (Qw::FileType)message.getStringArgument(1).toInt();
-    size = message.getStringArgument(2).toInt();
-    created = QDateTime::fromString(message.getStringArgument(3), Qt::ISODate );
-    modified = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate );
+    path = message.stringArg(0);
+    type = (Qw::FileType)message.stringArg(1).toInt();
+    size = message.stringArg(2).toInt();
+    created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
+    modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
 }
 
 

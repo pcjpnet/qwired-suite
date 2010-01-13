@@ -1,5 +1,6 @@
 #include "QwcGlobals.h"
 #include "QwcNewsWidget.h"
+#include "QwcMessageStyle.h"
 #include "QwFile.h"
 
 #include <QMessageBox>
@@ -21,23 +22,28 @@ QwcNewsWidget::QwcNewsWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
-    initPrefs();
-
     newsCounter = 0;
 
     // Notification manager
-    QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect(tmpS, SIGNAL(applicationSettingsChanged()),
+    QwcSingleton *settings = &WSINGLETON::Instance();
+    connect(settings, SIGNAL(applicationSettingsChanged()),
             this, SLOT(reloadPreferences()));
-
 
     pageWidget->setCurrentIndex(1); // jump to the waiting panel
 
-
+    newsView->installEventFilter(this);
+    newsView->page()->mainFrame()->
+            setHtml(QString("<html><body>"
+                            "<style type=\"text/css\">"
+                            ".news_item { } "
+                            ".news_header { font-weight: bold; display: block; padding-bottom: 8px; } "
+                            ".news_body { display: block; padding-bottom: 12px; } "
+                            "</style>"
+                            "<style id=\"css_block\" type=\"text/css\"></style>"
+                            "<span id=\"news_items\"></span>"
+                            "</body></html>"));
     newsView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    resetNewsView();
-
-
+    reloadPreferences();
 }
 
 
@@ -50,8 +56,11 @@ QwcNewsWidget::~QwcNewsWidget()
 */
 void QwcNewsWidget::reloadPreferences()
 {
-    initPrefs();
-    resetNewsView();
+    QSettings settings;
+
+    m_emoticonsEnabled = settings.value("interface/chat/emoticons", true).toBool();
+
+    updateNewsCss();
     newsCounter = 0;
     updateNewsStats();
     pageWidget->setCurrentIndex(1);
@@ -59,26 +68,12 @@ void QwcNewsWidget::reloadPreferences()
 }
 
 
-void QwcNewsWidget::initPrefs()
-{
-    pColorText =  QwcSingleton::colorFromPrefs("interface/news/text/color", Qt::black);
-    pColorTitle = QwcSingleton::colorFromPrefs("interface/news/titles/color", Qt::gray);
-
-    // Set the default font for the news reader
-    QSettings settings;
-    newsFont = QFont(settings.value("interface/news/font", QwcSingleton::systemMonospaceFont()).toString().section(",",0,0),
-                   settings.value("interface/news/font", QwcSingleton::systemMonospaceFont()).toString().section(",",1,1).toInt());
-
-    composeMessage->document()->setDefaultFont(newsFont);
-}
-
 
 /*! Update the news statistics bar in the bottom of the widget.
 */
 void QwcNewsWidget::updateNewsStats()
 {
-    fNewsStatus->setText(tr("%1 news article(s)")
-                         .arg(newsCounter));
+    fNewsStatus->setText(tr("%1 news article(s)").arg(newsCounter));
     fBtnDelete->setEnabled(newsCounter > 0);
 }
 
@@ -86,25 +81,20 @@ void QwcNewsWidget::updateNewsStats()
 void QwcNewsWidget::addNewsItem(QString theNick, QDateTime time, QString thePost, bool insertAtTop)
 {
 
-    
-    QRegExp urlRegex("([a-z0-9]+://[a-zA-Z0-9._-]+(:[0-9]*)?([a-z0-9/\\?&=_\\.\\-%]*))",
-                     Qt::CaseInsensitive);
     QString messageText = thePost.trimmed();
-    messageText = Qt::convertFromPlainText(messageText, Qt::WhiteSpaceNormal);
-    messageText.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
+    messageText = Qt::escape(messageText);
+    QwcMessageStyle::replaceEmoticons(messageText, m_emoticonsEnabled);
+    messageText.replace("\n", "<br>");
 
-
-    QString newItem = QString("<span class=\"news_item\">"
+    QString newItem = QString("<div class=\"news_item\">"
                               "<span class=\"news_header\">From %1 (%2):</span>"
-                              "<span class=\"news_body\">%3</span>"
-                              "</span>")
+                              "<span class=\"news_body\">%3</span></div>")
                       .arg(Qt::escape(theNick))
                       .arg(Qt::escape(time.toString()))
                       .arg(messageText);
 
 
-    QWebElement mainElement = newsView->page()->mainFrame()->documentElement().findFirst("body");
-
+    QWebElement mainElement = newsView->page()->mainFrame()->findFirstElement("#news_items");
     if (insertAtTop) {
         mainElement.prependInside(newItem);
     } else {
@@ -121,7 +111,10 @@ void QwcNewsWidget::addNewsItem(QString theNick, QDateTime time, QString thePost
 void QwcNewsWidget::on_fBtnRefresh_clicked(bool checked)
 {
     Q_UNUSED(checked);
-    resetNewsView();
+
+    QWebElement newsItemsElement = newsView->page()->mainFrame()->findFirstElement("#news_items");
+    newsItemsElement.setPlainText(QString());
+
     newsCounter = 0;
     emit requestedRefresh();
     pageWidget->setCurrentIndex(1);
@@ -169,12 +162,11 @@ void QwcNewsWidget::on_btnComposePost_clicked()
 {
     if (!composeMessage->toPlainText().isEmpty()) {
         emit doPostNews(composeMessage->toPlainText());
-//        QDateTime currentDate = QDateTime::currentDateTime();
-//        addNewsItem(tr("[sent to server]"), currentDate, composeMessage->toPlainText(), true);
     }
     pageWidget->setCurrentIndex(0);
     composeMessage->setPlainText("");
 }
+
 
 void QwcNewsWidget::on_newsView_linkClicked(const QUrl &url)
 {
@@ -194,27 +186,34 @@ void QwcNewsWidget::newsDone()
 */
 void QwcNewsWidget::setupFromUser(const QwcUserInfo user)
 {
-    fBtnPost->setVisible(user.privPostNews);
-    fBtnDelete->setVisible(user.privClearNews);
+    fBtnPost->setVisible(user.privileges().testFlag(Qws::PrivilegePostNews));
+    fBtnDelete->setVisible(user.privileges().testFlag(Qws::PrivilegeClearNews));
 }
 
 
 /*! Clear the contents of the news view and set an empty HTML page with styles.
 */
-void QwcNewsWidget::resetNewsView()
+void QwcNewsWidget::updateNewsCss()
 {
-    newsView->page()->mainFrame()->
-            setHtml(QString("<html><head>"
-                    "<style rel=stylesheet ref=stylesheet>"
-                    "body { font-size: %1px; background-color: %5; }"
-                    ".news_item { display: block; font-family: \"%2\"; padding-bottom: 12px; }"
-                    ".news_header { color: %3; display: block; }"
-                    ".news_body { color: %4; }"
-                    "</style>"
-                    "</head><body></body></html>")
-                    .arg(newsFont.pointSize())
-                    .arg(newsFont.family())
-                    .arg(pColorTitle.name())
-                    .arg(pColorText.name())
-                    .arg(QwcSingleton::colorFromPrefs("interface/news/back/color", Qt::white).name()));
+    QSettings settings;
+    QFont newsFont;
+    newsFont.fromString(settings.value("interface/news/font", QFont().toString()).toString());
+
+    composeMessage->setFont(newsFont);
+
+    QWebElement styleElement = newsView->page()->mainFrame()->findFirstElement("#css_block");
+    styleElement.setPlainText(QString("body { %1 }").arg(QwcMessageStyle::cssFromFont(newsFont)));
+}
+
+
+bool QwcNewsWidget::eventFilter(QObject *what, QEvent *event)
+{
+    // Filter out the context menu events so that we don't have to worry about the user messing up
+    // QWebView.
+    if (what == newsView) {
+        if (event->type() == QEvent::ContextMenu) {
+            return true;
+        }
+    }
+    return QWidget::eventFilter(what, event);
 }

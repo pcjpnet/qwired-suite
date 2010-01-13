@@ -1,11 +1,11 @@
 #ifndef QWMESSAGE_H
 #define QWMESSAGE_H
 
-#include <QByteArray>
-#include <QVariant>
-#include <QStringList>
-#include <QStringListIterator>
-#include <QDataStream>
+#include <QtCore/QByteArray>
+#include <QtCore/QVariant>
+#include <QtCore/QStringList>
+#include <QtCore/QStringListIterator>
+#include <QtCore/QDataStream>
 
 /*! \class QwMessage
 
@@ -22,8 +22,11 @@ public:
     QwMessage();
     QwMessage(const QByteArray frameData);
 
-    QwMessage& appendArg(const QString data);
-    QString getStringArgument(int index) const;
+    QwMessage & appendArg(const QString data);
+    QwMessage & appendArg(qlonglong number);
+    QwMessage & appendArg(const QByteArray &ba);
+
+    QString stringArg(int index) const;
 
     QStringList arguments;
     QString commandName;

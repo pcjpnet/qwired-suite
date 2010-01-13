@@ -25,7 +25,7 @@ void QwcServerInfoWidget::setInformationFromSocket(const QwcSocket *socket)
     fProtocol->setText(serverInfo.protocolVersion);
 
     /*: The milliseconds ping-time info for the server. */
-    fLatency->setText(tr("%1 ms").arg(socket->pingTimeLatency));
+    fLatency->setText(tr("%1 ms").arg(socket->pingLatency()));
 
     // SSL Protocol
     QSsl::SslProtocol sslProtocol = socket->sslSocket()->protocol();

@@ -1,16 +1,43 @@
 #ifndef QWUSER_H
 #define QWUSER_H
 
-#include "QwMessage.h"
 
-#include <QHostAddress>
-#include <QDateTime>
+#include <QtNetwork/QHostAddress>
+#include <QtCore/QDateTime>
+#include <QtCore/QString>
+#include <QtCore/QMetaType>
 
 
 namespace Qws {
     enum UserType { UserTypeAccount,
                     UserTypeGroup };
+
+    enum Privilege {
+        PrivilegeNoPrivileges = 0,
+        PrivilegeGetUserInfo = 1,
+        PrivilegeSendBroadcast = 2,
+        PrivilegePostNews = 4,
+        PrivilegeClearNews = 8,
+        PrivilegeDownload = 16,
+        PrivilegeUpload = 32,
+        PrivilegeUploadAnywhere = 64,
+        PrivilegeCreateFolders = 128,
+        PrivilegeAlterFiles = 256,
+        PrivilegeDeleteFiles = 512,
+        PrivilegeViewDropboxes = 1024,
+        PrivilegeCreateAccounts = 2048,
+        PrivilegeEditAccounts = 4096,
+        PrivilegeDeleteAccounts = 8192,
+        PrivilegeElevatePrivileges = 16384,
+        PrivilegeKickUsers = 32768,
+        PrivilegeBanUsers = 65536,
+        PrivilegeCanNotBeKicked = 131072,
+        PrivilegeChangeChatTopic = 262144
+    };
+    Q_DECLARE_FLAGS(Privileges, Privilege);
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qws::Privileges);
 
 
 class QwUser
@@ -46,34 +73,20 @@ public:
     int pCipherBits;
     QDateTime pLoginTime;
     QDateTime pIdleTime;
-    QByteArray pDownloads;
-    QByteArray pUploads;
 
     // Privilege flags
     Qws::UserType userType;
-    bool privGetUserInfo;
-    bool privBroadcast;
-    bool privPostNews;
-    bool privClearNews;
-    bool privDownload;
-    bool privUpload;
-    bool privUploadAnywhere;
-    bool privCreateFolders;
-    bool privAlterFiles;
-    bool privDeleteFiles;
-    bool privViewDropboxes;
-    bool privCreateAccounts;
-    bool privEditAccounts;
-    bool privDeleteAccounts;
-    bool privElevatePrivileges;
-    bool privKickUsers;
-    bool privBanUsers;
-    bool privCannotBeKicked;
     int privDownloadSpeed;
     int privUploadSpeed;
     int privDownloadLimit;
     int privUploadLimit;
-    bool privChangeTopic;
+
+
+    Qws::Privileges privileges() const;
+    void setPrivileges(Qws::Privileges privs);
+
+protected:
+    Qws::Privileges m_privileges;
 
 };
 

@@ -4,6 +4,7 @@ DESTDIR = ../bin/
 TARGET = qwired_server
 TEMPLATE = app
 QT -= gui
+CONFIG += silent
 CONFIG -= app_bundle
 win32:CONFIG += console
 QT += network \

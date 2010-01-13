@@ -9,7 +9,6 @@
 #include "QwcConnectionMainWindow.h"
 #include "QwcSocket.h"
 #include "QwcNewsWidget.h"
-#include "QwcUserlistModel.h"
 #include "QwcPreferencesWidget.h"
 #include "QwcConnectWidget.h"
 #include "QwcFiletransferWidget.h"
@@ -17,9 +16,6 @@
 #include "QwcServerInfoWidget.h"
 #include "QwcPrivateMessager.h"
 #include "QwcUserInfoWidget.h"
-
-#include "QwcPluginInterface.h"
-
 
 namespace Qwired {
     enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick,
@@ -42,7 +38,7 @@ public:
 
 
     /*! Returns a pointer to the underlying protocol socket. */
-    QwcSocket* wiredSocket() { return socket; }
+    QwcSocket* socket();
 
     // Main window widgets
     void initMainWindow();
@@ -59,10 +55,7 @@ public:
     QPointer<QwcChatWidget> mainChatWidget;
     QPointer<QStackedWidget> connectionStackedWidget;
 
-
-
     QPointer<QwcNewsWidget> pWinNews;
-    QPointer<QwcUserlistModel> pUserListModel;
     QHash<int, QPointer<QwcChatWidget> > pChats;
 
     QPointer<QwcServerInfoWidget> mainServerInfoWidget;
@@ -80,7 +73,7 @@ public:
     bool confirmDisconnection();
 
 private:
-    QPointer<QwcSocket> socket;
+    QPointer<QwcSocket> m_socket;
     void setupConnections();
     void setConnectionToolButtonsEnabled(bool);
 
@@ -121,9 +114,7 @@ private slots:
     void userChanged(QwcUserInfo theOld, QwcUserInfo theNew);
     void newsPosted(QString nickname, QDateTime time, QString post);
 
-//    void fileListingRecursiveDone(const QList<QwcFileInfo>);
-
-
+    void handleBroadcastMessage(QwcUserInfo theUser, QString theMessage);
 
 public slots:
 

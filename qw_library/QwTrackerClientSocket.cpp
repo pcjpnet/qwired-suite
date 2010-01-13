@@ -110,11 +110,11 @@ void QwTrackerClientSocket::handleMessageReceived(const QwMessage &message)
 */
 void QwTrackerClientSocket::handleMessage200(const QwMessage &message)
 {
-    trackerVersion = message.getStringArgument(0);
-    trackerProtocolVersion = message.getStringArgument(1);
-    trackerName = message.getStringArgument(2);
-    trackerDescription = message.getStringArgument(3);
-    trackerStartTime = QDateTime::fromString(message.getStringArgument(4), Qt::ISODate);
+    trackerVersion = message.stringArg(0);
+    trackerProtocolVersion = message.stringArg(1);
+    trackerName = message.stringArg(2);
+    trackerDescription = message.stringArg(3);
+    trackerStartTime = QDateTime::fromString(message.stringArg(4), Qt::ISODate);
 
     qDebug() << this << "Handshake complete - connected to" << trackerName;
     sendCommandCLIENT();
@@ -137,7 +137,7 @@ void QwTrackerClientSocket::handleMessage200(const QwMessage &message)
 */
 void QwTrackerClientSocket::handleMessage700(const QwMessage &message)
 { 
-    localServerInfo->registrationHash = message.getStringArgument(0);
+    localServerInfo->registrationHash = message.stringArg(0);
     qDebug() << this << "Registration OK:" << localServerInfo->registrationHash;
     emit receivedRegistrationHash(localServerInfo->registrationHash);
 
@@ -148,8 +148,8 @@ void QwTrackerClientSocket::handleMessage700(const QwMessage &message)
 */
 void QwTrackerClientSocket::handleMessage710(const QwMessage &message)
 {
-    qDebug() << this << "Received category:" << message.getStringArgument(0);
-    categoryListingBuffer.append(message.getStringArgument(0));
+    qDebug() << this << "Received category:" << message.stringArg(0);
+    categoryListingBuffer.append(message.stringArg(0));
 }
 
 
@@ -167,18 +167,18 @@ void QwTrackerClientSocket::handleMessage711(const QwMessage &message)
 */
 void QwTrackerClientSocket::handleMessage720(const QwMessage &message)
 {
-    qDebug() << this << "Received server listing item:" << message.getStringArgument(2);
+    qDebug() << this << "Received server listing item:" << message.stringArg(2);
     QwServerInfo newInfo;
-    newInfo.category = message.getStringArgument(0);
-    newInfo.url = message.getStringArgument(1);
-    newInfo.name = message.getStringArgument(2);
-    newInfo.userCount = message.getStringArgument(3).toInt();
-    newInfo.bandwidth = message.getStringArgument(4).toLongLong();
-    newInfo.canGuests = message.getStringArgument(5).toInt();
-    newInfo.canDownload = message.getStringArgument(6).toInt();
-    newInfo.filesCount = message.getStringArgument(7).toLongLong();
-    newInfo.filesSize = message.getStringArgument(8).toLongLong();
-    newInfo.description = message.getStringArgument(9);
+    newInfo.category = message.stringArg(0);
+    newInfo.url = message.stringArg(1);
+    newInfo.name = message.stringArg(2);
+    newInfo.userCount = message.stringArg(3).toInt();
+    newInfo.bandwidth = message.stringArg(4).toLongLong();
+    newInfo.canGuests = message.stringArg(5).toInt();
+    newInfo.canDownload = message.stringArg(6).toInt();
+    newInfo.filesCount = message.stringArg(7).toLongLong();
+    newInfo.filesSize = message.stringArg(8).toLongLong();
+    newInfo.description = message.stringArg(9);
     serverListingBuffer.append(newInfo);
 }
 

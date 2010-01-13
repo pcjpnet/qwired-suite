@@ -79,13 +79,13 @@ void QwcFileBrowserWidget::setUserInformation(QwcUserInfo info)
     userInfo = info;
 
     // Browser page
-    btnDelete->setVisible(info.privDeleteFiles);
-    btnNewFolder->setVisible(info.privCreateFolders);
+    btnDelete->setVisible(info.privileges().testFlag(Qws::PrivilegeDeleteFiles));
+    btnNewFolder->setVisible(info.privileges().testFlag(Qws::PrivilegeCreateFolders));
 
     // Info page
-    btnInfoApply->setEnabled(info.privAlterFiles);
-    infoName->setEnabled(info.privAlterFiles);
-    infoComment->setReadOnly(!info.privAlterFiles);
+    btnInfoApply->setEnabled(info.privileges().testFlag(Qws::PrivilegeAlterFiles));
+    infoName->setEnabled(info.privileges().testFlag(Qws::PrivilegeAlterFiles));
+    infoComment->setReadOnly(!info.privileges().testFlag(Qws::PrivilegeAlterFiles));
 }
 
 
@@ -139,9 +139,13 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
 
     // Enable/disable upload/download as needed
     btnUpload->setEnabled(
-            (userInfo.privUploadAnywhere) ||
-            (currentFolderInfo.type == Qw::FileTypeUploadsFolder && userInfo.privUpload) ||
-            (currentFolderInfo.type == Qw::FileTypeDropBox && userInfo.privUpload) );
+            (userInfo.privileges().testFlag(Qws::PrivilegeUploadAnywhere)) ||
+
+            (currentFolderInfo.type == Qw::FileTypeUploadsFolder
+             && userInfo.privileges().testFlag(Qws::PrivilegeUpload)) ||
+
+            (currentFolderInfo.type == Qw::FileTypeDropBox
+             && userInfo.privileges().testFlag(Qws::PrivilegeUpload)) );
 
 
     // Disable some controls if we are in "search mode"
@@ -423,13 +427,14 @@ void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
     btnInfo->setEnabled(fList->selectedItems().count());
     btnDelete->setEnabled(fList->selectedItems().count());
 
-    btnDownload->setEnabled(fList->selectedItems().count() && userInfo.privDownload);
+    btnDownload->setEnabled(fList->selectedItems().count()
+                            && userInfo.privileges().testFlag(Qws::PrivilegeDownload));
 
     if (fList->selectedItems().count()) {
         QStringList supportedPreviewSuffixes = QStringList() << "jpg" << "png" << "gif" << "jpeg";
         QwcFileInfo fileInfo = fList->selectedItems().first()->data(0, Qt::UserRole).value<QwcFileInfo>();
         btnPreview->setEnabled(fList->selectedItems().count()
-                    && userInfo.privDownload
+                    && userInfo.privileges().testFlag(Qws::PrivilegeDownload)
                     && fileInfo.type == Qw::FileTypeRegular
                     && supportedPreviewSuffixes.contains(fileInfo.fileName().section(".", -1, -1), Qt::CaseInsensitive));
     } else {

@@ -96,25 +96,27 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
     newAccount.name = fName->text();
     newAccount.userType = (Qws::UserType)fAccountType->currentIndex(); // 0=user, 1=group
 
-    newAccount.privGetUserInfo = fBasicGetUserInfo->isChecked();
-    newAccount.privPostNews = fBasicPostNews->isChecked();
-    newAccount.privBroadcast = fBasicBroadcast->isChecked();
-    newAccount.privClearNews = fBasicClearNews->isChecked();
-    newAccount.privChangeTopic = fBasicSetTopic->isChecked();
-    newAccount.privDownload = fFilesDownload->isChecked();
-    newAccount.privUpload = fFilesUpload->isChecked();
-    newAccount.privUploadAnywhere = fFilesUploadAnywhere->isChecked();
-    newAccount.privViewDropboxes = fFilesViewDropBoxes->isChecked();
-    newAccount.privCreateFolders = fFilesCreateFolders->isChecked();
-    newAccount.privAlterFiles = fFilesMoveChange->isChecked();
-    newAccount.privDeleteFiles = fFilesDelete->isChecked();
-    newAccount.privCreateAccounts = fUsersCreate->isChecked();
-    newAccount.privEditAccounts = fUsersEdit->isChecked();
-    newAccount.privDeleteAccounts = fUsersDelete->isChecked();
-    newAccount.privElevatePrivileges = fUsersElevate->isChecked();
-    newAccount.privKickUsers = fUsersKick->isChecked();
-    newAccount.privBanUsers = fUsersBan->isChecked();
-    newAccount.privCannotBeKicked = fUsersNoKick->isChecked();
+    Qws::Privileges newPrivs = newAccount.privileges();
+    if (fBasicGetUserInfo->isChecked()) { newPrivs |= Qws::PrivilegeGetUserInfo; }
+    if (fBasicPostNews->isChecked()) { newPrivs |= Qws::PrivilegePostNews; }
+    if (fBasicBroadcast->isChecked()) { newPrivs |= Qws::PrivilegeSendBroadcast; }
+    if (fBasicClearNews->isChecked()) { newPrivs |= Qws::PrivilegeClearNews; }
+    if (fBasicSetTopic->isChecked()) { newPrivs |= Qws::PrivilegeChangeChatTopic; }
+    if (fFilesDownload->isChecked()) { newPrivs |= Qws::PrivilegeDownload; }
+    if (fFilesUpload->isChecked()) { newPrivs |= Qws::PrivilegeUpload; }
+    if (fFilesUploadAnywhere->isChecked()) { newPrivs |= Qws::PrivilegeUploadAnywhere; }
+    if (fFilesViewDropBoxes->isChecked()) { newPrivs |= Qws::PrivilegeViewDropboxes; }
+    if (fFilesCreateFolders->isChecked()) { newPrivs |= Qws::PrivilegeCreateFolders; }
+    if (fFilesMoveChange->isChecked()) { newPrivs |= Qws::PrivilegeAlterFiles; }
+    if (fFilesDelete->isChecked()) { newPrivs |= Qws::PrivilegeDeleteFiles; }
+    if (fUsersCreate->isChecked()) { newPrivs |= Qws::PrivilegeCreateAccounts; }
+    if (fUsersEdit->isChecked()) { newPrivs |= Qws::PrivilegeEditAccounts; }
+    if (fUsersDelete->isChecked()) { newPrivs |= Qws::PrivilegeDeleteAccounts; }
+    if (fUsersElevate->isChecked()) { newPrivs |= Qws::PrivilegeElevatePrivileges; }
+    if (fUsersKick->isChecked()) { newPrivs |= Qws::PrivilegeKickUsers; }
+    if (fUsersBan->isChecked()) { newPrivs |= Qws::PrivilegeBanUsers; }
+    if (fUsersNoKick->isChecked()) { newPrivs |= Qws::PrivilegeCanNotBeKicked; }
+
     newAccount.privDownloadLimit = fLimitDown->text().toInt();
     newAccount.privUploadLimit = fLimitUp->text().toInt();
 
@@ -312,29 +314,29 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     fGroupAdmin->setEnabled(currentAccount.pGroupName.isEmpty());
 
     // Basic Privileges
-    fBasicGetUserInfo->setChecked(currentAccount.privGetUserInfo);
-    fBasicPostNews->setChecked(currentAccount.privPostNews);
-    fBasicBroadcast->setChecked(currentAccount.privBroadcast);
-    fBasicSetTopic->setChecked(currentAccount.privChangeTopic);
-    fBasicClearNews->setChecked(currentAccount.privClearNews);
+    fBasicGetUserInfo->setChecked(currentAccount.privileges() & Qws::PrivilegeGetUserInfo);
+    fBasicPostNews->setChecked(currentAccount.privileges() & Qws::PrivilegePostNews);
+    fBasicBroadcast->setChecked(currentAccount.privileges() & Qws::PrivilegeSendBroadcast);
+    fBasicSetTopic->setChecked(currentAccount.privileges() & Qws::PrivilegeChangeChatTopic);
+    fBasicClearNews->setChecked(currentAccount.privileges() & Qws::PrivilegeClearNews);
 
     // Transfer/Files Privileges
-    fFilesDownload->setChecked(currentAccount.privDownload);
-    fFilesUpload->setChecked(currentAccount.privUpload);
-    fFilesUploadAnywhere->setChecked(currentAccount.privUploadAnywhere);
-    fFilesViewDropBoxes->setChecked(currentAccount.privViewDropboxes);
-    fFilesCreateFolders->setChecked(currentAccount.privCreateFolders);
-    fFilesMoveChange->setChecked(currentAccount.privAlterFiles);
-    fFilesDelete->setChecked(currentAccount.privDeleteFiles);
+    fFilesDownload->setChecked(currentAccount.privileges() & Qws::PrivilegeDownload);
+    fFilesUpload->setChecked(currentAccount.privileges() & Qws::PrivilegeUpload);
+    fFilesUploadAnywhere->setChecked(currentAccount.privileges() & Qws::PrivilegeUploadAnywhere);
+    fFilesViewDropBoxes->setChecked(currentAccount.privileges() & Qws::PrivilegeViewDropboxes);
+    fFilesCreateFolders->setChecked(currentAccount.privileges() & Qws::PrivilegeCreateFolders);
+    fFilesMoveChange->setChecked(currentAccount.privileges() & Qws::PrivilegeAlterFiles);
+    fFilesDelete->setChecked(currentAccount.privileges() & Qws::PrivilegeDeleteFiles);
 
     // Administration Privileges
-    fUsersCreate->setChecked(currentAccount.privCreateAccounts);
-    fUsersEdit->setChecked(currentAccount.privEditAccounts);
-    fUsersDelete->setChecked(currentAccount.privDeleteAccounts);
-    fUsersElevate->setChecked(currentAccount.privElevatePrivileges);
-    fUsersKick->setChecked(currentAccount.privKickUsers);
-    fUsersBan->setChecked(currentAccount.privBanUsers);
-    fUsersNoKick->setChecked(currentAccount.privCannotBeKicked);
+    fUsersCreate->setChecked(currentAccount.privileges() & Qws::PrivilegeCreateAccounts);
+    fUsersEdit->setChecked(currentAccount.privileges() & Qws::PrivilegeEditAccounts);
+    fUsersDelete->setChecked(currentAccount.privileges() & Qws::PrivilegeDeleteAccounts);
+    fUsersElevate->setChecked(currentAccount.privileges() & Qws::PrivilegeElevatePrivileges);
+    fUsersKick->setChecked(currentAccount.privileges() & Qws::PrivilegeKickUsers);
+    fUsersBan->setChecked(currentAccount.privileges() & Qws::PrivilegeBanUsers);
+    fUsersNoKick->setChecked(currentAccount.privileges() & Qws::PrivilegeCanNotBeKicked);
 
     // Transfer limits
     fLimitDown->setText(QString::number(currentAccount.privDownloadLimit));

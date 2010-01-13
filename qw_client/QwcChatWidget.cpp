@@ -5,11 +5,14 @@
 #include <QInputDialog>
 #include <QProcess>
 
+#include <QtGui/QFileDialog>
+#include <QtGui/QDesktopServices>
+
 #include <QtWebKit>
 
 QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 {
-    pSession = NULL;
+    m_session = NULL;
     pChatID = 1;
 
     m_lastUserChatId = -1;
@@ -18,24 +21,28 @@ QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
     setupUi(this);
     fBtnInvite->setVisible(false);
 
-
-    // We can filter the return key with this
     fChatInput->installEventFilter(this);
 
-    // Set vertical splitter
     fVSplitter->setStretchFactor(0,20);
     fVSplitter->setStretchFactor(1,1);
-
-    // Set horizontal splitter
     fHSplitter->setStretchFactor(0,20);
     fHSplitter->setStretchFactor(1,1);
 
-    // Restore splitters from prefs
     QSettings settings;
     if(settings.contains("gui/chat_splitter_h"))
         fHSplitter->restoreState(settings.value("gui/chat_splitter_h").toByteArray());
     if(settings.contains("gui/chat_splitter_v"))
         fVSplitter->restoreState(settings.value("gui/chat_splitter_v").toByteArray());
+
+    // Set up the chat view
+    m_currentMessageStyle.loadStyle(":/styles/Default.QwiredMessageStyle");
+    chatView->setHtml(m_currentMessageStyle.chatTemplate());
+    chatView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+    chatView->installEventFilter(this);
+    connect(chatView->page(), SIGNAL(linkClicked(QUrl)),
+            this, SLOT(handleExternalLinkClicked(QUrl)));
+    connect(chatView->page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)),
+            this, SLOT(handleChatViewFrameSizeChanged(QSize)));
 
     // Notification manager
     QwcSingleton *tmpS = &WSINGLETON::Instance();
@@ -43,18 +50,15 @@ QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
             this, SLOT(reloadPreferences()));
 
     reloadPreferences();
-
-    loadChatStyle();
-
 }
 
 
 QwcChatWidget::~QwcChatWidget()
 {
     // Leave the chat, if it is private
-    if( pChatID!=1 ) {
-        pSession->pChats.remove(pChatID);
-        pSession->wiredSocket()->leaveChat(pChatID);
+    if( pChatID != 1 ) {
+        m_session->pChats.remove(pChatID);
+        m_session->socket()->leaveChat(pChatID);
     }
 
     // Save the splitters
@@ -64,38 +68,16 @@ QwcChatWidget::~QwcChatWidget()
 }
 
 
+/*! Returns the session pointer for this chat widget.
+*/
 QwcSession* QwcChatWidget::session()
-{
-    return pSession;
-}
-
-
-void QwcChatWidget::loadChatStyle(const QString &path)
-{
-    QString stylePath("/home/bbense/.config/NeoSoftware/ChatStyles/Sticker_Style.AdiumMessageStyle");
-
-    currentChatStyle.loadStyle(stylePath);
-
-
-    qDebug() << "setting root:" << QUrl::fromLocalFile(stylePath);
-    if (currentChatStyle.styleTemplate.isEmpty()) {
-        chatView->page()->mainFrame()->setHtml("<html><head><link rel=stylesheet href=\"main.css\"></head><body></body></html>",
-                                               QUrl::fromLocalFile(stylePath + "/Contents/Resources/"));
-    } else {
-        chatView->page()->mainFrame()->setHtml(currentChatStyle.styleTemplate,
-                                               QUrl::fromLocalFile(stylePath + "/Contents/Resources/"));
-    }
-
-    chatView->page()->mainFrame()->findFirstElement("body").appendInside(currentChatStyle.styleHeader);
-    chatView->page()->mainFrame()->findFirstElement("body").appendInside(currentChatStyle.styleFooter);
-
-    qDebug() << this << "HTML:" << chatView->page()->mainFrame()->toHtml();
-}
-
+{ return m_session; }
 
 void QwcChatWidget::setSession(QwcSession *session)
 {
-    pSession = session;
+    Q_ASSERT(session);
+    m_session = session;
+    userListWidget->setSocket(session->socket());
 }
 
 
@@ -103,6 +85,12 @@ void QwcChatWidget::setSession(QwcSession *session)
 */
 bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
 {
+    if (watched == chatView) {
+        if (event->type() == QEvent::ContextMenu) {
+            return true;
+        }
+    }
+
     // Check for tab-auto completition.
     if (watched == fChatInput) {
         if (event->type() == QEvent::KeyPress) {
@@ -118,13 +106,13 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
                 }
 
                 // Get information about the current room from the socket
-                QwRoom currentRoom = pSession->wiredSocket()->rooms[pChatID];
+                QwRoom currentRoom = m_session->socket()->rooms[pChatID];
                 QListIterator<int> i(currentRoom.pUsers);
                 while (i.hasNext()) {
                     // Now run through all user IDs registered in this room and get the proper
                     // QwcUserInfo from the socket.
                     int itemUserId = i.next();
-                    QwcUserInfo targetUser = pSession->wiredSocket()->users[itemUserId];
+                    QwcUserInfo targetUser = m_session->socket()->users[itemUserId];
                     // Check if the nickname starts with the entered seach terms and auto-complete.
                     if (targetUser.userNickname.startsWith(searchTerm, Qt::CaseInsensitive)) {
                         if (textCursor.selectionStart() == 0) {
@@ -140,265 +128,127 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
                 }
                 return true;
 
-            } else if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
-                // Check if the pressed key was return or enter in order to send the chat text.
-                postChatInputText();
+            } else if (keyEvent->key() == Qt::Key_Return
+                       || keyEvent->key() == Qt::Key_Enter) {
+                // Return/Enter was pressed - send chat
+                processChatInput();
                 return true;
             }
         }
     }
 
-    return false;
+    return QWidget::eventFilter(watched, event);
 }
 
 
-/// Write an event to the chat
-void QwcChatWidget::writeEventToChat(QString theMsg)
+/*! Write a status message/event to the chat.
+*/
+void QwcChatWidget::writeEventToChat(QString eventText, QString eventType)
 {
-//    QTextCursor tc = fChatLog->textCursor();
-//    tc.movePosition(QTextCursor::End);
-//
-//    QTextCharFormat f;
-//    f.setFont(pChatFont);
-//    f.setForeground(pChatTimeColor);
-//    tc.setCharFormat(f);
-//
-//    QString tmpTimestamp;
-//    if (pChatShowTime) {
-//        f.setForeground(pChatTimeColor);
-//        tc.setCharFormat(f);
-//        tmpTimestamp = QTime::currentTime().toString().append(" ");
-//        tc.insertText(tmpTimestamp);
-//    }
-//
-//    f.setForeground(pChatEventColor);
-//    tc.setCharFormat(f);
-//
-//    tc.insertText(QString("<<< %1 >>>\n").arg(theMsg));
-//
-//    tc.movePosition(QTextCursor::End);
-//    fChatLog->ensureCursorVisible();
+    m_currentMessageStyle.addStatusMessage(chatView->page()->currentFrame(), eventText);
+}
+
+
+void QwcChatWidget::writeBroadcastToChat(QwcUserInfo sender, QString text)
+{
+    m_currentMessageStyle.addBroadcastMessage(chatView->page()->currentFrame(), sender, text);
+}
+
+
+void QwcChatWidget::setTopic(const QString &text, const QString &user, const QDateTime &dateTime)
+{
+    QwcMessageStyle::setTopicContents(chatView->page()->currentFrame(), text, user, dateTime);
 }
 
 
 /// Write some chat text to the chat log view.
-void QwcChatWidget::writeToChat(QwUser &sender, QString theText, bool theEmote)
+void QwcChatWidget::writeTextToChat(QwUser sender, QString text, bool emote)
 {
-    QString dataBlock;
-    if (m_lastUserChatId == sender.pUserID) {
-        dataBlock = currentChatStyle.incomingNextMessageHtml;
-    } else {
-        dataBlock = currentChatStyle.incomingMessageHtml;
-    }
-
-    dataBlock.replace("%service%", "");
-    dataBlock.replace("%sender%", Qt::escape(sender.userNickname));
-    dataBlock.replace("%message%", Qt::escape(theText));
-    dataBlock.replace("%time%", Qt::escape(QDateTime::currentDateTime().toString()));
-    dataBlock.replace("%userIconPath%", "incoming_icon.png");
-    chatView->page()->mainFrame()->findFirstElement("body").appendInside(dataBlock);
-
-    m_lastUserChatId = sender.pUserID;
-
-//    QTextCursor tc = fChatLog->textCursor();
-//    tc.movePosition(QTextCursor::End);
-//
-//    QTextCharFormat f;
-//    f.setFont(pChatFont);
-//    f.setForeground(pChatTextColor);
-//    tc.setCharFormat(f);
-//
-//    int tmpStart = tc.position();
-//    QString tmpData;
-//
-//    QString tmpTimestamp;
-//    if(pChatShowTime) {
-//        f.setForeground(pChatTimeColor);
-//        tc.setCharFormat(f);
-//        tmpTimestamp = QTime::currentTime().toString().append(" ");
-//        tc.insertText(tmpTimestamp);
-//    }
-//
-//    f.setForeground(pChatTextColor);
-//    tc.setCharFormat(f);
-//
-//    const int tmpNameLength = 20;
-//    if(pChatStyle==0) { // Wired style
-//        if(theEmote)
-//            tmpData = QString("%1 %2\n").arg(QString("*** %1").arg(theUser), tmpNameLength-tmpTimestamp.size()).arg(theText);
-//        else tmpData = QString("%1: %2\n").arg(theUser.left(tmpNameLength-tmpTimestamp.count() ), tmpNameLength-tmpTimestamp.size()).arg(theText);
-//        tc.insertText(tmpData);
-//
-//    } else if(pChatStyle==1) { // IRC style
-//        if(theEmote)
-//            tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
-//        else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
-//        tc.insertText(tmpData);
-//
-//    } else if(pChatStyle==2) { // Qwired style
-//
-//        if(theEmote) {
-//            tc.insertHtml(QString("<b>&#9787; %1</b> %2<br>")
-//                          .arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
-//                          .arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
-//        } else {
-//            tc.insertHtml(QString("<b>%1:</b> %2<br>")
-//                          .arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
-//                          .arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
-//        }
-//        // 			tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
-//        // 		else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
-//    }
-//
-//    tc.setPosition(tmpStart);
-//
-//    if (pEmoticonsEnabled) {
-//        QHash<QString,QString> pEmotes;
-//        pEmotes[":):)"] = ":/icons/emotes/face-smile-big.png";
-//        pEmotes[":D"] = ":/icons/emotes/face-grin.png";
-//        pEmotes[":-D"] = ":/icons/emotes/face-grin.png";
-//        pEmotes[":O"] = ":/icons/emotes/face-surprise.png";
-//        pEmotes[";)"] = ":/icons/emotes/face-wink.png";
-//        pEmotes[";-)"] = ":/icons/emotes/face-wink.png";
-//        pEmotes[":)"] = ":/icons/emotes/face-smile.png";
-//        pEmotes[":-)"] = ":/icons/emotes/face-smile.png";
-//        pEmotes["^^"] = ":/icons/emotes/face-cat.png";
-//        pEmotes["^.^"] = ":/icons/emotes/face-cat.png";
-//        pEmotes[":>"] = ":/icons/emotes/face-smile.png";
-//        pEmotes[":("] = ":/icons/emotes/face-sad.png";
-//        pEmotes[":-("] = ":/icons/emotes/face-sad.png";
-//        pEmotes[";("] = ":/icons/emotes/face-crying.png";
-//        pEmotes[";-("] = ":/icons/emotes/face-crying.png";
-//        pEmotes[":*"] = ":/icons/emotes/face-kiss.png";
-//        pEmotes[":-*"] = ":/icons/emotes/face-kiss.png";
-//        pEmotes["(angel)"] = ":/icons/emotes/face-angel.png";
-//        pEmotes["(devil)"] = ":/icons/emotes/face-devilish.png";
-//        pEmotes["(nerd)"] = ":/icons/emotes/face-glasses.png";
-//        pEmotes["(monkey)"] = ":/icons/emotes/face-monkey.png";
-//        pEmotes[":|"] = ":/icons/emotes/face-plain.png";
-//        pEmotes[":-|"] = ":/icons/emotes/face-plain.png";
-//        pEmotes[":/"] = ":/icons/emotes/face-plain.png";
-//        pEmotes[":-/"] = ":/icons/emotes/face-plain.png";
-//        pEmotes[":-\\"] = ":/icons/emotes/face-plain.png";
-//        pEmotes[":\\"] = ":/icons/emotes/face-plain.png";
-//        pEmotes["(meow)"] = ":/icons/emotes/face-cat.png";
-//
-//
-//        // Smileys
-//        QHashIterator<QString,QString> i(pEmotes);
-//        while(i.hasNext()) {
-//            i.next();
-//            while(true) {
-//                QString tmpSearch = QString(" ").append(i.key());
-//                QTextCursor tmpTC = fChatLog->document()->find(tmpSearch, tc);
-//                if(tmpTC.isNull()) break;
-//                tmpTC.insertText(" ");
-//                tmpTC.insertImage( i.value() );
-//            }
-//        }
-//    }
-//
-//    // Hyperlinks
-//    QStringList tmpProtos;
-//    tmpProtos << "http://" << "https://" << "ftp://" << "wired://" << "skype:" << "callto:";
-//    QStringListIterator ia(tmpProtos);
-//    while(ia.hasNext()) {
-//        QString tmpProto = ia.next();
-//        while(true) {
-//            QTextCursor tmpTC = fChatLog->document()->find(tmpProto, tc);
-//            if(tmpTC.isNull()) break;
-//            QTextCursor tmpSpace = fChatLog->document()->find(" ", tmpTC);
-//            if(!tmpSpace.isNull()) {
-//                tmpTC.setPosition(tmpSpace.position()-1, QTextCursor::KeepAnchor);
-//            } else {
-//                tmpTC.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-//            }
-//            QString tmpUrl = tmpTC.selectedText();
-//            tmpTC.insertHtml(QString("<a href=\"%1\"><font style=\"font-family: %2; font-size: %3pt\">%1</font></a>").arg(tmpUrl).arg(fChatLog->currentFont().family()).arg(QString::number(fChatLog->currentFont().pointSize())));
-//            tc = tmpTC;
-//        }
-//    }
-//
-//    QTextCursor tc2 = fChatLog->textCursor();
-//    tc2.movePosition(QTextCursor::End);
-//    fChatLog->setTextCursor(tc2);
-//    fChatLog->ensureCursorVisible();
+    QSettings settings;
+    QString fixedString = m_currentMessageStyle.replaceEmoticons(text,
+                            settings.value("interface/chat/emoticons", true).toBool());
+    m_currentMessageStyle.addChatMessage(chatView->page()->currentFrame(),
+                                         sender, fixedString, emote);
+}
 
 
+
+/*! Open any clicked URLs externally using the system's URL handler.
+*/
+void QwcChatWidget::handleExternalLinkClicked(const QUrl &url)
+{
+    QDesktopServices::openUrl(url);
 }
 
 
 /// Send the chat message to the server.
-void QwcChatWidget::postChatInputText()
+void QwcChatWidget::processChatInput()
 {
-    QString msg = fChatInput->toPlainText();
-    if(msg.startsWith("/me ")) {
-        pSession->wiredSocket()->sendChatToRoom(pChatID, msg.mid(4), true);
-    } else if(msg.startsWith("/topic ")) {
-        pSession->wiredSocket()->setChatTopic(pChatID, msg.mid(7));
-    } else if(msg.startsWith("/status ")) {
-        pSession->wiredSocket()->setUserStatus(msg.mid(8));
-    } else if(msg.startsWith("/nick ")) {
-        pSession->wiredSocket()->setNickname(msg.mid(6));
-    } else if(msg.startsWith("/clear")) {
-//        fChatLog->clear();
-    } else if(msg.startsWith("/exec ")) {
-        QString tmpCmd = msg.mid(6);
-        if(!tmpCmd.isEmpty()) {
-            QProcess tmpProc;
-            tmpProc.start(tmpCmd);
-            if(tmpProc.waitForFinished())
-                pSession->wiredSocket()->sendChatToRoom(pChatID, tmpProc.readAllStandardOutput(), false);
+    QString inputText = fChatInput->toPlainText();
+    if(inputText.startsWith("/me ")) {
+        // Write an emote to the current chat room
+        m_session->socket()->writeToChat(pChatID, inputText.mid(4), true);
+
+    } else if(inputText.startsWith("/topic ")) {
+        // Change the chat room topic
+        m_session->socket()->setChatTopic(pChatID, inputText.mid(7));
+
+    } else if (inputText.startsWith("/status ")) {
+        // Change the current user status
+        m_session->socket()->setUserStatus(inputText.mid(8));
+
+    } else if(inputText.startsWith("/nick ")) {
+        m_session->socket()->setNickname(inputText.mid(6));
+
+    } else if(inputText.startsWith("/clear")) {
+        m_currentMessageStyle.clearChat(chatView->page()->mainFrame());
+
+    } else if(inputText.startsWith("/exec ")) {
+        // Execute a system command
+        QString command = inputText.mid(6);
+        if (!command.isEmpty()) {
+            QProcess process;
+            process.start(command);
+            if(process.waitForFinished())
+                m_session->socket()->writeToChat(pChatID, process.readAllStandardOutput(), false);
         }
-    } else if(msg.startsWith("/caturday")) {
-        //   Caturday mode   :3
-        pSession->wiredSocket()->setCaturday(true);
+
+    } else if (inputText.startsWith("/save ")) {
+        QString targetFile = QFileDialog::getSaveFileName(this,
+                                                          tr("Save chat to file"),
+                                                          QDir::home().filePath(inputText.mid(6)));
+        if (targetFile.isEmpty()) { return; }
+        QFile outFile(targetFile);
+        if (!outFile.open(QIODevice::WriteOnly)) {
+            //: The message that is displayed in the chat if saving the chat transcript failed (/save)
+            writeEventToChat(tr("Error: Failed to write log to file."), "");
+            return;
+        }
+
+        outFile.write(chatView->page()->mainFrame()->toHtml().toUtf8());
+        //: The message that is displayed in the chat if the log was saved successfully (/save)
+        writeEventToChat(tr("Chat transcript was saved to %1").arg(targetFile), "");
+
+
+    } else if (inputText.startsWith("/caturday")) {
+        // Surprise, surprise!
+        m_session->socket()->setCaturdayMode(true);
 
     } else {
-        pSession->wiredSocket()->sendChatToRoom(pChatID, msg, qApp->keyboardModifiers() & Qt::AltModifier);
+        // No explicit command - send to chat
+        if (inputText.trimmed().isEmpty()) { return; }
+
+        bool isEmote = qApp->keyboardModifiers() & Qt::AltModifier;
+        m_session->socket()->writeToChat(pChatID, inputText, isEmote);
     }
+
     fChatInput->clear();
-}
-
-
-/*! Set the current model for the ListView.
-*/
-void QwcChatWidget::setUserListModel(QwcUserlistModel *model)
-{ 
-    if (!model) { return; }
-
-    // Set the model of the user list.
-    fUsers->setModel(model);
-    fUsers->setItemDelegate(new QwcUserlistDelegate(this));
-
-    model->setChatID(pChatID);
-    model->setWiredSocket(pSession->wiredSocket());
-
-    // Connect the change event to this window
-    connect(fUsers->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-             this, SLOT(onUserlistSelectionChanged(const QItemSelection &, const QItemSelection &)) );
-
-    // Allow Drag+Drop only in private chats
-
-    fUsers->setSelectionMode(QAbstractItemView::ExtendedSelection);
-//    fUsers->setDragEnabled(true);
-//    fUsers->setDropIndicatorShown(true);
-
-    if (pChatID != 1) {
-        fUsers->setAcceptDrops(true);
-    }
-
-    // Allow the user to use the "Invite" button if this is a private chat
-    if(pChatID != 1) {
-        fBtnInvite->setVisible(true);
-        updateInviteMenu();
-    }
 }
 
 
 void QwcChatWidget::on_fBtnKick_clicked()
 {
-    const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
+    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
     if (!tmpIdx.isValid()) { return; }
     QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
 
@@ -407,13 +257,13 @@ void QwcChatWidget::on_fBtnKick_clicked()
                         tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.")
                         .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
     if (!ok) { return; }
-    pSession->wiredSocket()->kickClient(userInfo.pUserID, reason);
+    m_session->socket()->kickClient(userInfo.pUserID, reason);
 }
 
 
 void QwcChatWidget::on_fBtnBan_clicked()
 {
-    const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
+    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
     if (!tmpIdx.isValid()) { return; }
     QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
 
@@ -422,13 +272,13 @@ void QwcChatWidget::on_fBtnBan_clicked()
                                            tr("You are about to ban '%1'.\nPlease enter a reason and press OK.")
                                            .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
     if (!ok) { return; }
-    pSession->wiredSocket()->banClient(userInfo.pUserID, reason);
+    m_session->socket()->banClient(userInfo.pUserID, reason);
 }
 
 
 void QwcChatWidget::on_fBtnMsg_clicked()
 {
-    const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
+    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
     on_fUsers_doubleClicked(tmpIdx);
 }
 
@@ -448,11 +298,15 @@ void QwcChatWidget::on_fUsers_doubleClicked(const QModelIndex &index)
 */
 void QwcChatWidget::onUserlistSelectionChanged(const QItemSelection &, const QItemSelection &)
 {
-    fBtnInfo->setEnabled(fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privGetUserInfo);
-    fBtnBan->setEnabled(fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privBanUsers);
-    fBtnMsg->setEnabled(fUsers->selectionModel()->hasSelection());
-    fBtnKick->setEnabled(fUsers->selectionModel()->hasSelection() && pSession->wiredSocket()->sessionUser.privKickUsers);
-    fBtnChat->setEnabled(fUsers->selectionModel()->hasSelection());
+    fBtnInfo->setEnabled(userListWidget->selectionModel()->hasSelection()
+                         && m_session->socket()->sessionUser.privileges().testFlag(Qws::PrivilegeGetUserInfo));
+
+    fBtnBan->setEnabled(userListWidget->selectionModel()->hasSelection()
+                        && m_session->socket()->sessionUser.privileges().testFlag(Qws::PrivilegeBanUsers));
+    fBtnMsg->setEnabled(userListWidget->selectionModel()->hasSelection());
+    fBtnKick->setEnabled(userListWidget->selectionModel()->hasSelection()
+                         && m_session->socket()->sessionUser.privileges().testFlag(Qws::PrivilegeKickUsers));
+    fBtnChat->setEnabled(userListWidget->selectionModel()->hasSelection());
 }
 
 
@@ -460,10 +314,10 @@ void QwcChatWidget::onUserlistSelectionChanged(const QItemSelection &, const QIt
 */
 void QwcChatWidget::on_fBtnChat_clicked()
 {
-    const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
+    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
     if (!tmpIdx.isValid()) { return; }
     QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
-    pSession->wiredSocket()->createChatWithClient(userInfo.pUserID);
+    m_session->socket()->createChatWithClient(userInfo.pUserID);
 }
 
 
@@ -471,10 +325,10 @@ void QwcChatWidget::on_fBtnChat_clicked()
 */
 void QwcChatWidget::on_fBtnInfo_clicked()
 {
-    const QModelIndex tmpIdx = fUsers->selectionModel()->currentIndex();
+    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
     if (!tmpIdx.isValid()) { return; }
     QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
-    pSession->wiredSocket()->getClientInfo(userInfo.pUserID);
+    m_session->socket()->getClientInformation(userInfo.pUserID);
 
 }
 
@@ -492,13 +346,13 @@ void QwcChatWidget::updateInviteMenu()
     }
 
     pInviteMenu->clear();
-    QHashIterator<int, QwcUserInfo> i(pSession->wiredSocket()->users);
+    QHashIterator<int, QwcUserInfo> i(m_session->socket()->users);
     while (i.hasNext()) {
         i.next();
         const QwcUserInfo &item = i.value();
-        if (item.pUserID == pSession->wiredSocket()->sessionUser.pUserID) { continue; }
+        if (item.pUserID == m_session->socket()->sessionUser.pUserID) { continue; }
         QAction *tmpAct = pInviteMenu->addAction(item.userNickname);
-        tmpAct->setIcon(QPixmap::fromImage(item.userImage));
+        tmpAct->setIcon(QPixmap::fromImage(item.userImage()));
         tmpAct->setData(item.pUserID);
     }
 }
@@ -506,59 +360,38 @@ void QwcChatWidget::updateInviteMenu()
 
 void QwcChatWidget::inviteMenuTriggered(QAction *action)
 {
-    pSession->wiredSocket()->inviteClientToChat(pChatID, action->data().toInt());
+    m_session->socket()->inviteClientToChat(pChatID, action->data().toInt());
 }
 
 
 void QwcChatWidget::reloadPreferences()
 {
-    QPalette p;
-    QSettings conf;
-
-    pEmoticonsEnabled = conf.value("interface/chat/emoticons",true).toBool();
-    pChatFont.fromString( conf.value("interface/chat/font", QwcSingleton::systemMonospaceFont().append(",11")).toString() );
-
-    // Chat log
-//    p = fChatLog->palette();
-//    p.setColor(QPalette::Base, QwcSingleton::colorFromPrefs( "interface/chat/back/color", Qt::white) );
-//    fChatLog->setTextColor( QwcSingleton::colorFromPrefs( "interface/chat/text/color", Qt::black) );
-//    fChatLog->setPalette(p);
-
-    // Fix existing text
-    pChatTextColor = QwcSingleton::colorFromPrefs( "interface/chat/text/color", Qt::black);
-
-//    QTextCursor tc(fChatLog->textCursor());
-//    tc.movePosition(QTextCursor::Start);
-//    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-
-//    QTextCharFormat cf = fChatLog->currentCharFormat();
-//    cf.setFont(pChatFont);
-//    tc.mergeCharFormat(cf);
-
-    // Input box
-    p = fChatInput->palette();
-    p.setColor(QPalette::Base, QwcSingleton::colorFromPrefs( "interface/chat/back/color", Qt::white) );
-    p.setColor(QPalette::Text, QwcSingleton::colorFromPrefs( "interface/chat/text/color", Qt::black) );
-    fChatInput->setPalette(p);
-    fChatInput->setFont(pChatFont);
-
-    pChatStyle = conf.value("interface/chat/style",0).toInt();
-    pChatShowTime = conf.value("interface/chat/show_time",false).toBool();
-    pChatTimeColor =  QwcSingleton::colorFromPrefs( "interface/chat/time/color", Qt::darkGray);
-    pChatEventColor = QwcSingleton::colorFromPrefs("interface/chat/events/color", Qt::red);
+    QSettings settings;
 
 
+    // Chat font
+    // userCss settings property can be used to override the style alltogether, but must be edited
+    // manually in the settings file.
+    QFont chatFont;
+    chatFont.fromString(settings.value("interface/chat/font", QFont().toString()).toString());
+    m_currentMessageStyle.setStyleOverride(chatView->page()->mainFrame(),
+                                           QString("body { %1 } \n%2")
+                                           .arg(QwcMessageStyle::cssFromFont(chatFont))
+                                           .arg(settings.value("interface/chat/userCss").toString()));
+    fChatInput->setFont(chatFont);
 }
 
-/// Reset the form.
+
 void QwcChatWidget::resetForm()
 {
-//    fChatLog->clear();
     fChatInput->clear();
-    fTopic->clear();
 }
 
 
+void QwcChatWidget::handleChatViewFrameSizeChanged(QSize size)
+{
+    chatView->page()->mainFrame()->setScrollPosition(QPoint(0, size.height()));
+}
 
 
 

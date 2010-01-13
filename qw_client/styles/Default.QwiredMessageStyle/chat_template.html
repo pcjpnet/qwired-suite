@@ -1,0 +1,254 @@
+<html>
+  <head>
+      <meta name="Qwired_Template_Type" content="chat">
+      <meta name="Qwired_Template_Version" content="1">
+      <meta name="Qwired_Author_Name" content="Bastian Bense">
+      <meta name="Qwired_Author_Email" content="bastibense@gmail.com">
+      <meta name="Qwired_Author_Web" content="http://qwired.neo.de/">
+      <meta name="Qwired_Preview_Image" content="chat_preview.png">
+      
+      <style type="text/css">
+          body {
+            background-color: white;
+            font-family: sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+          }
+          
+          #topic_box {
+            display: block;
+            padding: 6px;
+            padding-left: 8px;
+            background-color: #CCC;
+            border-bottom: solid 1px #444;
+            margin-bottom: 10px;
+            vertical-align: middle;
+            position: fixed;
+            width: 100%;
+            font-family: sans-serif;
+          }
+          
+          .topic_info {
+            font-size: 75%;
+            display: block;
+          }
+          
+          .chat_items {
+            display: table;
+            border-spacing: 5px;
+            
+          }
+          
+          .chat_item, .emote_item {
+            display: table-row;
+          }
+          
+          #chat_item_template {
+            display: none;
+          }
+          
+          .chat_date, .emote_date {
+            font-size: 70%;
+            color: #888;
+            display: table-cell;
+            padding: 2px;
+
+            white-space: nowrap;
+            width: 0;
+          }
+          
+          .chat_sender, .emote_sender {
+            /* You should not ovveride the font here, users won't be able to change it
+               in their preferences anymore. */
+            font-weight: bold;
+            
+            display: table-cell;
+            padding: 2px;
+            text-align: right;
+            width: 100px;
+
+          }
+
+
+          .chat_sender:after {
+            content: ":";
+          }
+          
+          .chat_text, .emote_text {
+            /* You should not ovveride the font here, users won't be able to change it
+               in their preferences anymore. */
+            display: table-cell;
+            padding: 2px;
+            vertical-align: bottom;
+
+          }
+
+          .broadcast_message {
+            border: solid 1px #A2A034;
+            background-color: #FFD;
+            padding: 10px;
+            margin: 12px;
+
+          }
+
+          .broadcast_sender, .broadcast_date, .broadcast_time {
+            font-weight: bold;
+            font-size: 100%;
+          }
+
+          .broadcast_text {
+            font-size: 120%;
+          }
+          
+          .chat_event {
+            display: block;
+            text-align: center;
+            font-size: 90%;
+            color: blue;
+            padding-top: 4px;
+            padding-bottom: 4px;
+
+          }
+          
+          
+          .chat_event:before {
+            content: "<<< ";
+          }
+          
+          .chat_event:after {
+            content: " >>>";
+          }
+          
+          #chat_event_template {
+            display: none;
+          }
+
+          #chat_broadcast_template {
+            display: none;
+          }
+          
+          .chat_event_date {
+            font-weight: bold;
+          }
+          
+          .topic_title {
+            font-weight: bold;
+          }
+
+          .demo {
+            display: none;
+          }
+
+      </style>
+  </head>
+ 
+  <body>
+  
+      <style type="text/css" id="style_override"></style>
+  
+      <!-- The #topic_box element contains all the things required to display the current topic
+           in the chat view. Qwired's engine is looking up #topic_box, then tries to find the IDs
+           #qw_topic_text and #topic_info within there to replace those elements' contents with the
+           new text. -->
+      <div id="topic_box">
+        <span class="topic_title">Topic:</span>
+        <span class="topic_contents">
+            <span id="qw_topic_text">(no topic)</span>
+            <span class="topic_info">by <span id="qw_topic_setter"></span> on <span id="qw_topic_date"></span></span>
+        </span>
+      </div>
+      
+        <!-- The template object is hidden from the view, but is cloned and the class attribute
+             is changed before it is appended to the end of the #chat_items element. The element
+             contents are replaced respectively.
+             Normally there is not much formatting here except for the order of the elements. Most
+             design related things should be done in the CSS markup - this saves memory and keeps
+             the overall display fast and easy to handle. -->
+        <div id="chat_item_template" class="chat_item">
+          <span class="chat_date"></span>
+          <span class="chat_sender"></span>
+          <span class="chat_text"></span>
+        </div>
+
+        <div id="emote_item_template" class="emote_item">
+          <span class="emote_date"></span>
+          <span class="emote_sender"></span>
+          <span class="emote_text"></span>
+        </div>
+
+
+
+        <!-- This is a template for chat events, like users leaving, joining and so on. -->
+        <div id="chat_event_template" class="chat_event">
+            <span class="chat_event_date"></span>
+            <span class="chat_event_text"></span>
+        </div>
+
+        <!-- The template for broadcast messages in the chat. -->
+        <div id="chat_broadcast_template" class="broadcast_message">
+           <span class="broadcast_sender"></span> @ 
+           <span class="broadcast_date"></span> <br>
+           <span class="broadcast_text"></span>
+        </div>
+
+
+        <!-- A simple placeholder since we have a fixed position element for the topic. -->
+        <div style="display: block; height: 50px;"></div>
+
+      <div id="chat_items">
+      <!-- This is the element where all chat and event messages are added.
+           It may contain a ".demo" Element, which should be invisble by default, but can
+           be enabled in order to show a preview of the style. -->
+        
+
+  <div class="demo">
+        
+        <div class="broadcast_message">
+           <span class="broadcast_sender">Bastian</span> @ 
+           <span class="broadcast_date">12:50</span> <br>
+           <span class="broadcast_text">All uploads will be temporarily stopped due to a hard drive failure. Please stay tuned!!</span>
+        </div>
+        
+
+        <div class="chat_item">
+          <span class="chat_date">12:50</span>
+          <span class="chat_sender">Basti</span>
+          <span class="chat_text">Hey all!</span>
+        </div>
+        <div class="chat_item">
+          <span class="chat_date">12:52</span>
+          <span class="chat_sender">Robin Hood</span>
+          <span class="chat_text">Hey, how are you doing?</span>
+        </div>     
+        <div class="chat_item">
+          <span class="chat_date">12:51</span>
+          <span class="chat_sender">Basti with a long long name</span>
+          <span class="chat_text">Just writing some random stuff into the chat...</span>
+        </div>
+        
+        <div class="chat_event">
+        <span class="chat_event_column">
+          <span class="chat_event_date">12:53</span>
+          <span class="chat_event_text">Robin Hood is now known as Da Rob'.</span>
+          </span>
+        </div>
+        <div class="chat_item">
+          <span class="chat_date">12:55</span>
+          <span class="chat_sender">Robin Hood</span>
+          <span class="chat_text">Normally there is not much formatting here except for the order of the elements. Most
+             design related things should be done in the CSS markup - this saves memory and keeps
+             the overall display fast and easy to handle</span>
+        </div>  
+        <div class="chat_event">
+          <span class="chat_event_date">12:57</span>
+          <span class="chat_event_text">Basti has left.</span>
+        </div>
+           
+</div>
+
+      </div>
+  
+  </body>
+
+</html>

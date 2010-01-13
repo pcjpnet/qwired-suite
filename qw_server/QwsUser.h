@@ -3,6 +3,8 @@
 
 #include "QwUser.h"
 
+class QwMessage;
+
 class QwsUser : public QwUser
 {
 

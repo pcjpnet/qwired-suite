@@ -58,4 +58,25 @@ signals:
     void enteredNewMessage(const int targetUserId, const QString message);
 };
 
+//In our darkest hour,
+//In my deepest despair,
+//Will you still care?
+//Will you be there?
+//
+//In my trials
+//And my tribulations
+//Through our doubts
+//And frustrations
+//
+//In my violence
+//In my turbulence
+//Through my fear
+//And my connfesssions
+//
+//In my anguish and my pain
+//Through my joy and my sorrow
+//In the promise of another tomorrow
+//I’ll never let you apart
+//For you’re always in my heart
+
 #endif // QWCPRIVATEMESSAGER_H

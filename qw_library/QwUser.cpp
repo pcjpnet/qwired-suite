@@ -11,29 +11,13 @@ QwUser::QwUser()
         userType = Qws::UserTypeAccount;
 
 	// Default privs
-	privGetUserInfo = true;
-	privBroadcast = false;
-	privPostNews = true;
-	privClearNews = false;
-        privDownload = true;
-        privUpload = true;
-	privUploadAnywhere = false;
-	privCreateFolders = false;
-	privAlterFiles = false;
-	privDeleteFiles = false;
-	privViewDropboxes = false;;
-	privCreateAccounts = false;
-	privEditAccounts = false;
-	privDeleteAccounts = false;
-	privElevatePrivileges = false;
-        privKickUsers = false;
-        privBanUsers = false;
-	privCannotBeKicked = false;
+        m_privileges = Qws::PrivilegeGetUserInfo | Qws::PrivilegePostNews
+                       | Qws::PrivilegeDownload | Qws::PrivilegeUpload;
+
 	privDownloadSpeed = 0;
 	privUploadSpeed = 0;
 	privDownloadLimit = 0;
 	privUploadLimit = 0;
-	privChangeTopic = false;
 }
 
 
@@ -43,25 +27,27 @@ QwUser::QwUser()
 */
 void QwUser::setPrivilegesFromQwiredSpec(const QString privileges)
 {
-    this->privAlterFiles = privileges.contains("a", Qt::CaseSensitive);
-    this->privBanUsers = privileges.contains("B", Qt::CaseSensitive);
-    this->privBroadcast = privileges.contains("b", Qt::CaseSensitive);
-    this->privCannotBeKicked = privileges.contains("P", Qt::CaseSensitive);
-    this->privChangeTopic = privileges.contains("t", Qt::CaseSensitive);
-    this->privClearNews = privileges.contains("C", Qt::CaseSensitive);
-    this->privCreateAccounts = privileges.contains("A", Qt::CaseSensitive);
-    this->privCreateFolders = privileges.contains("f", Qt::CaseSensitive);
-    this->privDeleteAccounts = privileges.contains("R", Qt::CaseSensitive);
-    this->privDeleteFiles = privileges.contains("r", Qt::CaseSensitive);
-    this->privDownload = privileges.contains("d", Qt::CaseSensitive);
-    this->privEditAccounts = privileges.contains("M", Qt::CaseSensitive);
-    this->privElevatePrivileges = privileges.contains("E", Qt::CaseSensitive);
-    this->privGetUserInfo = privileges.contains("i", Qt::CaseSensitive);
-    this->privKickUsers = privileges.contains("K", Qt::CaseSensitive);
-    this->privPostNews = privileges.contains("p", Qt::CaseSensitive);
-    this->privUpload = privileges.contains("u", Qt::CaseSensitive);
-    this->privUploadAnywhere = privileges.contains("U", Qt::CaseSensitive);
-    this->privViewDropboxes = privileges.contains("D", Qt::CaseSensitive);
+    Qws::Privileges newPrivs = Qws::PrivilegeNoPrivileges;
+    if (privileges.contains("a", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeAlterFiles; }
+    if (privileges.contains("B", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeBanUsers; }
+    if (privileges.contains("b", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeSendBroadcast; }
+    if (privileges.contains("P", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeCanNotBeKicked; }
+    if (privileges.contains("t", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeChangeChatTopic; }
+    if (privileges.contains("C", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeClearNews; }
+    if (privileges.contains("A", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeCreateAccounts; }
+    if (privileges.contains("f", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeCreateFolders; }
+    if (privileges.contains("R", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeDeleteAccounts; }
+    if (privileges.contains("r", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeDeleteFiles; }
+    if (privileges.contains("d", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeDownload; }
+    if (privileges.contains("M", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeEditAccounts; }
+    if (privileges.contains("E", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeElevatePrivileges; }
+    if (privileges.contains("i", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeGetUserInfo; }
+    if (privileges.contains("K", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeKickUsers; }
+    if (privileges.contains("p", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegePostNews; }
+    if (privileges.contains("u", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeUpload; }
+    if (privileges.contains("U", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeUploadAnywhere; }
+    if (privileges.contains("D", Qt::CaseSensitive)) { m_privileges = m_privileges | Qws::PrivilegeViewDropboxes; }
+    m_privileges = newPrivs;
 }
 
 
@@ -74,25 +60,25 @@ void QwUser::setPrivilegesFromQwiredSpec(const QString privileges)
 QString QwUser::privilegesFlagsAsQwiredSpec()
 {
     QString privList;
-    if (this->privAlterFiles) privList.append("a");
-    if (this->privBanUsers) privList.append("B");
-    if (this->privBroadcast) privList.append("b");
-    if (this->privCannotBeKicked) privList.append("P");
-    if (this->privChangeTopic) privList.append("t");
-    if (this->privClearNews) privList.append("C");
-    if (this->privCreateAccounts) privList.append("A");
-    if (this->privCreateFolders) privList.append("f");
-    if (this->privDeleteAccounts) privList.append("R");
-    if (this->privDeleteFiles) privList.append("r");
-    if (this->privDownload) privList.append("d");
-    if (this->privEditAccounts) privList.append("M");
-    if (this->privElevatePrivileges) privList.append("E");
-    if (this->privGetUserInfo) privList.append("i");
-    if (this->privKickUsers) privList.append("K");
-    if (this->privPostNews) privList.append("p");
-    if (this->privUpload) privList.append("u");
-    if (this->privUploadAnywhere) privList.append("U");
-    if (this->privViewDropboxes) privList.append("D");
+    if (m_privileges.testFlag(Qws::PrivilegeAlterFiles)) { privList.append("a"); }
+    if (m_privileges.testFlag(Qws::PrivilegeBanUsers)) { privList.append("B"); }
+    if (m_privileges.testFlag(Qws::PrivilegeSendBroadcast)) { privList.append("b"); }
+    if (m_privileges.testFlag(Qws::PrivilegeCanNotBeKicked)) { privList.append("P"); }
+    if (m_privileges.testFlag(Qws::PrivilegeChangeChatTopic)) { privList.append("t"); }
+    if (m_privileges.testFlag(Qws::PrivilegeClearNews)) { privList.append("C"); }
+    if (m_privileges.testFlag(Qws::PrivilegeCreateAccounts)) { privList.append("A"); }
+    if (m_privileges.testFlag(Qws::PrivilegeCreateFolders)) { privList.append("f"); }
+    if (m_privileges.testFlag(Qws::PrivilegeDeleteAccounts)) { privList.append("R"); }
+    if (m_privileges.testFlag(Qws::PrivilegeDeleteFiles)) { privList.append("r"); }
+    if (m_privileges.testFlag(Qws::PrivilegeDownload)) { privList.append("d"); }
+    if (m_privileges.testFlag(Qws::PrivilegeEditAccounts)) {  privList.append("M"); }
+    if (m_privileges.testFlag(Qws::PrivilegeElevatePrivileges)) { privList.append("E"); }
+    if (m_privileges.testFlag(Qws::PrivilegeGetUserInfo)) { privList.append("i"); }
+    if (m_privileges.testFlag(Qws::PrivilegeKickUsers)) { privList.append("K"); }
+    if (m_privileges.testFlag(Qws::PrivilegePostNews)) { privList.append("p"); }
+    if (m_privileges.testFlag(Qws::PrivilegeUpload)) { privList.append("u"); }
+    if (m_privileges.testFlag(Qws::PrivilegeUploadAnywhere)) { privList.append("U"); }
+    if (m_privileges.testFlag(Qws::PrivilegeViewDropboxes)) { privList.append("D"); }
     return privList;
 }
 
@@ -108,5 +94,13 @@ QString QwUser::cryptedPassword()
     return QString::fromUtf8(hashedBinaryData.toHex());
 }
 
+
+
+Qws::Privileges QwUser::privileges() const
+{ return m_privileges; }
+
+
+void QwUser::setPrivileges(Qws::Privileges privs)
+{ m_privileges = privs; }
 
 

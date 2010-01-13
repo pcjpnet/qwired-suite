@@ -57,6 +57,9 @@
            <property name="shortcut">
             <string>Ctrl+Up</string>
            </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
+           </property>
            <property name="autoRaise">
             <bool>true</bool>
            </property>
@@ -86,6 +89,9 @@
            <property name="toolTip">
             <string>Download</string>
            </property>
+           <property name="text">
+            <string>Download</string>
+           </property>
            <property name="icon">
             <iconset resource="application.qrc">
              <normaloff>:/icons/16x16/go-down.png</normaloff>:/icons/16x16/go-down.png</iconset>
@@ -95,6 +101,9 @@
              <width>20</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="autoRaise">
             <bool>true</bool>
@@ -110,6 +119,9 @@
             <string>Upload File/Folder
 (hold Shift and click to upload a folder)</string>
            </property>
+           <property name="text">
+            <string>Upload...</string>
+           </property>
            <property name="icon">
             <iconset resource="application.qrc">
              <normaloff>:/icons/16x16/go-up.png</normaloff>:/icons/16x16/go-up.png</iconset>
@@ -119,6 +131,9 @@
              <width>20</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="autoRaise">
             <bool>true</bool>
@@ -134,7 +149,7 @@
             <string>Preview</string>
            </property>
            <property name="text">
-            <string/>
+            <string>Preview</string>
            </property>
            <property name="icon">
             <iconset resource="application.qrc">
@@ -145,6 +160,9 @@
              <width>20</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="autoRaise">
             <bool>true</bool>
@@ -176,7 +194,7 @@
             <string>Get Info</string>
            </property>
            <property name="text">
-            <string/>
+            <string>Get Info...</string>
            </property>
            <property name="icon">
             <iconset resource="application.qrc">
@@ -187,6 +205,9 @@
              <width>20</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="autoRaise">
             <bool>true</bool>
@@ -201,6 +222,9 @@
            <property name="toolTip">
             <string>New Folder...</string>
            </property>
+           <property name="text">
+            <string>New Folder...</string>
+           </property>
            <property name="icon">
             <iconset resource="application.qrc">
              <normaloff>:/icons/16x16/folder-new.png</normaloff>:/icons/16x16/folder-new.png</iconset>
@@ -210,6 +234,9 @@
              <width>20</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="autoRaise">
             <bool>true</bool>
@@ -225,7 +252,7 @@
             <string>Refresh</string>
            </property>
            <property name="text">
-            <string/>
+            <string>Reload</string>
            </property>
            <property name="icon">
             <iconset resource="application.qrc">
@@ -239,6 +266,9 @@
            </property>
            <property name="shortcut">
             <string>F5</string>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="autoRaise">
             <bool>true</bool>
@@ -270,7 +300,7 @@
             <string>Delete...</string>
            </property>
            <property name="text">
-            <string/>
+            <string>Delete</string>
            </property>
            <property name="icon">
             <iconset resource="application.qrc">
@@ -281,6 +311,9 @@
              <width>20</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="autoRaise">
             <bool>true</bool>

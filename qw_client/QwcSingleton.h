@@ -27,13 +27,13 @@ public:
     QPointer<QMenu> pTrayMenu;
     QPointer<QSystemTrayIcon> pTrayIcon;
 
-    /*! A list of all successfully loaded plugins in the application. */
-    QList<QwcPluginInterface*> pluginInterfaces;
+    QStringList messageStyles() const;
 
 
     // Global functions
     static QString systemMonospaceFont();
     static QColor colorFromPrefs(QString theKey, QColor theDefault);
+    static QString systemSettingsDirectory();
 
 private slots:
     void sessionDestroyed(QObject *obj);
