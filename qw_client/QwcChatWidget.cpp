@@ -5,10 +5,14 @@
 #include <QInputDialog>
 #include <QProcess>
 
+#include <QtWebKit>
+
 QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 {
     pSession = NULL;
     pChatID = 1;
+
+    m_lastUserChatId = -1;
 
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
@@ -40,6 +44,7 @@ QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 
     reloadPreferences();
 
+    loadChatStyle();
 
 }
 
@@ -63,6 +68,30 @@ QwcSession* QwcChatWidget::session()
 {
     return pSession;
 }
+
+
+void QwcChatWidget::loadChatStyle(const QString &path)
+{
+    QString stylePath("/home/bbense/.config/NeoSoftware/ChatStyles/Sticker_Style.AdiumMessageStyle");
+
+    currentChatStyle.loadStyle(stylePath);
+
+
+    qDebug() << "setting root:" << QUrl::fromLocalFile(stylePath);
+    if (currentChatStyle.styleTemplate.isEmpty()) {
+        chatView->page()->mainFrame()->setHtml("<html><head><link rel=stylesheet href=\"main.css\"></head><body></body></html>",
+                                               QUrl::fromLocalFile(stylePath + "/Contents/Resources/"));
+    } else {
+        chatView->page()->mainFrame()->setHtml(currentChatStyle.styleTemplate,
+                                               QUrl::fromLocalFile(stylePath + "/Contents/Resources/"));
+    }
+
+    chatView->page()->mainFrame()->findFirstElement("body").appendInside(currentChatStyle.styleHeader);
+    chatView->page()->mainFrame()->findFirstElement("body").appendInside(currentChatStyle.styleFooter);
+
+    qDebug() << this << "HTML:" << chatView->page()->mainFrame()->toHtml();
+}
+
 
 void QwcChatWidget::setSession(QwcSession *session)
 {
@@ -126,159 +155,174 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
 /// Write an event to the chat
 void QwcChatWidget::writeEventToChat(QString theMsg)
 {
-    QTextCursor tc = fChatLog->textCursor();
-    tc.movePosition(QTextCursor::End);
-
-    QTextCharFormat f;
-    f.setFont(pChatFont);
-    f.setForeground(pChatTimeColor);
-    tc.setCharFormat(f);
-
-    QString tmpTimestamp;
-    if (pChatShowTime) {
-        f.setForeground(pChatTimeColor);
-        tc.setCharFormat(f);
-        tmpTimestamp = QTime::currentTime().toString().append(" ");
-        tc.insertText(tmpTimestamp);
-    }
-
-    f.setForeground(pChatEventColor);
-    tc.setCharFormat(f);
-
-    tc.insertText(QString("<<< %1 >>>\n").arg(theMsg));
-
-    tc.movePosition(QTextCursor::End);
-    fChatLog->ensureCursorVisible();
+//    QTextCursor tc = fChatLog->textCursor();
+//    tc.movePosition(QTextCursor::End);
+//
+//    QTextCharFormat f;
+//    f.setFont(pChatFont);
+//    f.setForeground(pChatTimeColor);
+//    tc.setCharFormat(f);
+//
+//    QString tmpTimestamp;
+//    if (pChatShowTime) {
+//        f.setForeground(pChatTimeColor);
+//        tc.setCharFormat(f);
+//        tmpTimestamp = QTime::currentTime().toString().append(" ");
+//        tc.insertText(tmpTimestamp);
+//    }
+//
+//    f.setForeground(pChatEventColor);
+//    tc.setCharFormat(f);
+//
+//    tc.insertText(QString("<<< %1 >>>\n").arg(theMsg));
+//
+//    tc.movePosition(QTextCursor::End);
+//    fChatLog->ensureCursorVisible();
 }
 
 
 /// Write some chat text to the chat log view.
-void QwcChatWidget::writeToChat(QString theUser, QString theText, bool theEmote)
+void QwcChatWidget::writeToChat(QwUser &sender, QString theText, bool theEmote)
 {
-
-    QTextCursor tc = fChatLog->textCursor();
-    tc.movePosition(QTextCursor::End);
-
-    QTextCharFormat f;
-    f.setFont(pChatFont);
-    f.setForeground(pChatTextColor);
-    tc.setCharFormat(f);
-
-    int tmpStart = tc.position();
-    QString tmpData;
-
-    QString tmpTimestamp;
-    if(pChatShowTime) {
-        f.setForeground(pChatTimeColor);
-        tc.setCharFormat(f);
-        tmpTimestamp = QTime::currentTime().toString().append(" ");
-        tc.insertText(tmpTimestamp);
+    QString dataBlock;
+    if (m_lastUserChatId == sender.pUserID) {
+        dataBlock = currentChatStyle.incomingNextMessageHtml;
+    } else {
+        dataBlock = currentChatStyle.incomingMessageHtml;
     }
 
-    f.setForeground(pChatTextColor);
-    tc.setCharFormat(f);
+    dataBlock.replace("%service%", "");
+    dataBlock.replace("%sender%", Qt::escape(sender.userNickname));
+    dataBlock.replace("%message%", Qt::escape(theText));
+    dataBlock.replace("%time%", Qt::escape(QDateTime::currentDateTime().toString()));
+    dataBlock.replace("%userIconPath%", "incoming_icon.png");
+    chatView->page()->mainFrame()->findFirstElement("body").appendInside(dataBlock);
 
-    const int tmpNameLength = 20;
-    if(pChatStyle==0) { // Wired style
-        if(theEmote)
-            tmpData = QString("%1 %2\n").arg(QString("*** %1").arg(theUser), tmpNameLength-tmpTimestamp.size()).arg(theText);
-        else tmpData = QString("%1: %2\n").arg(theUser.left(tmpNameLength-tmpTimestamp.count() ), tmpNameLength-tmpTimestamp.size()).arg(theText);
-        tc.insertText(tmpData);
+    m_lastUserChatId = sender.pUserID;
 
-    } else if(pChatStyle==1) { // IRC style
-        if(theEmote)
-            tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
-        else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
-        tc.insertText(tmpData);
-
-    } else if(pChatStyle==2) { // Qwired style
-
-        if(theEmote) {
-            tc.insertHtml(QString("<b>&#9787; %1</b> %2<br>")
-                          .arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
-                          .arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
-        } else {
-            tc.insertHtml(QString("<b>%1:</b> %2<br>")
-                          .arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
-                          .arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
-        }
-        // 			tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
-        // 		else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
-    }
-
-    tc.setPosition(tmpStart);
-
-    if (pEmoticonsEnabled) {
-        QHash<QString,QString> pEmotes;
-        pEmotes[":):)"] = ":/icons/emotes/face-smile-big.png";
-        pEmotes[":D"] = ":/icons/emotes/face-grin.png";
-        pEmotes[":-D"] = ":/icons/emotes/face-grin.png";
-        pEmotes[":O"] = ":/icons/emotes/face-surprise.png";
-        pEmotes[";)"] = ":/icons/emotes/face-wink.png";
-        pEmotes[";-)"] = ":/icons/emotes/face-wink.png";
-        pEmotes[":)"] = ":/icons/emotes/face-smile.png";
-        pEmotes[":-)"] = ":/icons/emotes/face-smile.png";
-        pEmotes["^^"] = ":/icons/emotes/face-cat.png";
-        pEmotes["^.^"] = ":/icons/emotes/face-cat.png";
-        pEmotes[":>"] = ":/icons/emotes/face-smile.png";
-        pEmotes[":("] = ":/icons/emotes/face-sad.png";
-        pEmotes[":-("] = ":/icons/emotes/face-sad.png";
-        pEmotes[";("] = ":/icons/emotes/face-crying.png";
-        pEmotes[";-("] = ":/icons/emotes/face-crying.png";
-        pEmotes[":*"] = ":/icons/emotes/face-kiss.png";
-        pEmotes[":-*"] = ":/icons/emotes/face-kiss.png";
-        pEmotes["(angel)"] = ":/icons/emotes/face-angel.png";
-        pEmotes["(devil)"] = ":/icons/emotes/face-devilish.png";
-        pEmotes["(nerd)"] = ":/icons/emotes/face-glasses.png";
-        pEmotes["(monkey)"] = ":/icons/emotes/face-monkey.png";
-        pEmotes[":|"] = ":/icons/emotes/face-plain.png";
-        pEmotes[":-|"] = ":/icons/emotes/face-plain.png";
-        pEmotes[":/"] = ":/icons/emotes/face-plain.png";
-        pEmotes[":-/"] = ":/icons/emotes/face-plain.png";
-        pEmotes[":-\\"] = ":/icons/emotes/face-plain.png";
-        pEmotes[":\\"] = ":/icons/emotes/face-plain.png";
-        pEmotes["(meow)"] = ":/icons/emotes/face-cat.png";
-
-
-        // Smileys
-        QHashIterator<QString,QString> i(pEmotes);
-        while(i.hasNext()) {
-            i.next();
-            while(true) {
-                QString tmpSearch = QString(" ").append(i.key());
-                QTextCursor tmpTC = fChatLog->document()->find(tmpSearch, tc);
-                if(tmpTC.isNull()) break;
-                tmpTC.insertText(" ");
-                tmpTC.insertImage( i.value() );
-            }
-        }
-    }
-
-    // Hyperlinks
-    QStringList tmpProtos;
-    tmpProtos << "http://" << "https://" << "ftp://" << "wired://" << "skype:" << "callto:";
-    QStringListIterator ia(tmpProtos);
-    while(ia.hasNext()) {
-        QString tmpProto = ia.next();
-        while(true) {
-            QTextCursor tmpTC = fChatLog->document()->find(tmpProto, tc);
-            if(tmpTC.isNull()) break;
-            QTextCursor tmpSpace = fChatLog->document()->find(" ", tmpTC);
-            if(!tmpSpace.isNull()) {
-                tmpTC.setPosition(tmpSpace.position()-1, QTextCursor::KeepAnchor);
-            } else {
-                tmpTC.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-            }
-            QString tmpUrl = tmpTC.selectedText();
-            tmpTC.insertHtml(QString("<a href=\"%1\"><font style=\"font-family: %2; font-size: %3pt\">%1</font></a>").arg(tmpUrl).arg(fChatLog->currentFont().family()).arg(QString::number(fChatLog->currentFont().pointSize())));
-            tc = tmpTC;
-        }
-    }
-
-    QTextCursor tc2 = fChatLog->textCursor();
-    tc2.movePosition(QTextCursor::End);
-    fChatLog->setTextCursor(tc2);
-    fChatLog->ensureCursorVisible();
+//    QTextCursor tc = fChatLog->textCursor();
+//    tc.movePosition(QTextCursor::End);
+//
+//    QTextCharFormat f;
+//    f.setFont(pChatFont);
+//    f.setForeground(pChatTextColor);
+//    tc.setCharFormat(f);
+//
+//    int tmpStart = tc.position();
+//    QString tmpData;
+//
+//    QString tmpTimestamp;
+//    if(pChatShowTime) {
+//        f.setForeground(pChatTimeColor);
+//        tc.setCharFormat(f);
+//        tmpTimestamp = QTime::currentTime().toString().append(" ");
+//        tc.insertText(tmpTimestamp);
+//    }
+//
+//    f.setForeground(pChatTextColor);
+//    tc.setCharFormat(f);
+//
+//    const int tmpNameLength = 20;
+//    if(pChatStyle==0) { // Wired style
+//        if(theEmote)
+//            tmpData = QString("%1 %2\n").arg(QString("*** %1").arg(theUser), tmpNameLength-tmpTimestamp.size()).arg(theText);
+//        else tmpData = QString("%1: %2\n").arg(theUser.left(tmpNameLength-tmpTimestamp.count() ), tmpNameLength-tmpTimestamp.size()).arg(theText);
+//        tc.insertText(tmpData);
+//
+//    } else if(pChatStyle==1) { // IRC style
+//        if(theEmote)
+//            tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
+//        else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
+//        tc.insertText(tmpData);
+//
+//    } else if(pChatStyle==2) { // Qwired style
+//
+//        if(theEmote) {
+//            tc.insertHtml(QString("<b>&#9787; %1</b> %2<br>")
+//                          .arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
+//                          .arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
+//        } else {
+//            tc.insertHtml(QString("<b>%1:</b> %2<br>")
+//                          .arg(QString(theUser).replace("<", "&lt;").replace(">", "&gt;"))
+//                          .arg(QString(theText).replace("<", "&lt;").replace(">", "&gt;")));
+//        }
+//        // 			tmpData = QString("*** %1 %2\n").arg(theUser).arg(theText);
+//        // 		else tmpData = QString("<%1> %2\n").arg(theUser).arg(theText);
+//    }
+//
+//    tc.setPosition(tmpStart);
+//
+//    if (pEmoticonsEnabled) {
+//        QHash<QString,QString> pEmotes;
+//        pEmotes[":):)"] = ":/icons/emotes/face-smile-big.png";
+//        pEmotes[":D"] = ":/icons/emotes/face-grin.png";
+//        pEmotes[":-D"] = ":/icons/emotes/face-grin.png";
+//        pEmotes[":O"] = ":/icons/emotes/face-surprise.png";
+//        pEmotes[";)"] = ":/icons/emotes/face-wink.png";
+//        pEmotes[";-)"] = ":/icons/emotes/face-wink.png";
+//        pEmotes[":)"] = ":/icons/emotes/face-smile.png";
+//        pEmotes[":-)"] = ":/icons/emotes/face-smile.png";
+//        pEmotes["^^"] = ":/icons/emotes/face-cat.png";
+//        pEmotes["^.^"] = ":/icons/emotes/face-cat.png";
+//        pEmotes[":>"] = ":/icons/emotes/face-smile.png";
+//        pEmotes[":("] = ":/icons/emotes/face-sad.png";
+//        pEmotes[":-("] = ":/icons/emotes/face-sad.png";
+//        pEmotes[";("] = ":/icons/emotes/face-crying.png";
+//        pEmotes[";-("] = ":/icons/emotes/face-crying.png";
+//        pEmotes[":*"] = ":/icons/emotes/face-kiss.png";
+//        pEmotes[":-*"] = ":/icons/emotes/face-kiss.png";
+//        pEmotes["(angel)"] = ":/icons/emotes/face-angel.png";
+//        pEmotes["(devil)"] = ":/icons/emotes/face-devilish.png";
+//        pEmotes["(nerd)"] = ":/icons/emotes/face-glasses.png";
+//        pEmotes["(monkey)"] = ":/icons/emotes/face-monkey.png";
+//        pEmotes[":|"] = ":/icons/emotes/face-plain.png";
+//        pEmotes[":-|"] = ":/icons/emotes/face-plain.png";
+//        pEmotes[":/"] = ":/icons/emotes/face-plain.png";
+//        pEmotes[":-/"] = ":/icons/emotes/face-plain.png";
+//        pEmotes[":-\\"] = ":/icons/emotes/face-plain.png";
+//        pEmotes[":\\"] = ":/icons/emotes/face-plain.png";
+//        pEmotes["(meow)"] = ":/icons/emotes/face-cat.png";
+//
+//
+//        // Smileys
+//        QHashIterator<QString,QString> i(pEmotes);
+//        while(i.hasNext()) {
+//            i.next();
+//            while(true) {
+//                QString tmpSearch = QString(" ").append(i.key());
+//                QTextCursor tmpTC = fChatLog->document()->find(tmpSearch, tc);
+//                if(tmpTC.isNull()) break;
+//                tmpTC.insertText(" ");
+//                tmpTC.insertImage( i.value() );
+//            }
+//        }
+//    }
+//
+//    // Hyperlinks
+//    QStringList tmpProtos;
+//    tmpProtos << "http://" << "https://" << "ftp://" << "wired://" << "skype:" << "callto:";
+//    QStringListIterator ia(tmpProtos);
+//    while(ia.hasNext()) {
+//        QString tmpProto = ia.next();
+//        while(true) {
+//            QTextCursor tmpTC = fChatLog->document()->find(tmpProto, tc);
+//            if(tmpTC.isNull()) break;
+//            QTextCursor tmpSpace = fChatLog->document()->find(" ", tmpTC);
+//            if(!tmpSpace.isNull()) {
+//                tmpTC.setPosition(tmpSpace.position()-1, QTextCursor::KeepAnchor);
+//            } else {
+//                tmpTC.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+//            }
+//            QString tmpUrl = tmpTC.selectedText();
+//            tmpTC.insertHtml(QString("<a href=\"%1\"><font style=\"font-family: %2; font-size: %3pt\">%1</font></a>").arg(tmpUrl).arg(fChatLog->currentFont().family()).arg(QString::number(fChatLog->currentFont().pointSize())));
+//            tc = tmpTC;
+//        }
+//    }
+//
+//    QTextCursor tc2 = fChatLog->textCursor();
+//    tc2.movePosition(QTextCursor::End);
+//    fChatLog->setTextCursor(tc2);
+//    fChatLog->ensureCursorVisible();
 
 
 }
@@ -297,7 +341,7 @@ void QwcChatWidget::postChatInputText()
     } else if(msg.startsWith("/nick ")) {
         pSession->wiredSocket()->setNickname(msg.mid(6));
     } else if(msg.startsWith("/clear")) {
-        fChatLog->clear();
+//        fChatLog->clear();
     } else if(msg.startsWith("/exec ")) {
         QString tmpCmd = msg.mid(6);
         if(!tmpCmd.isEmpty()) {
@@ -475,21 +519,21 @@ void QwcChatWidget::reloadPreferences()
     pChatFont.fromString( conf.value("interface/chat/font", QwcSingleton::systemMonospaceFont().append(",11")).toString() );
 
     // Chat log
-    p = fChatLog->palette();
-    p.setColor(QPalette::Base, QwcSingleton::colorFromPrefs( "interface/chat/back/color", Qt::white) );
-    fChatLog->setTextColor( QwcSingleton::colorFromPrefs( "interface/chat/text/color", Qt::black) );
-    fChatLog->setPalette(p);
+//    p = fChatLog->palette();
+//    p.setColor(QPalette::Base, QwcSingleton::colorFromPrefs( "interface/chat/back/color", Qt::white) );
+//    fChatLog->setTextColor( QwcSingleton::colorFromPrefs( "interface/chat/text/color", Qt::black) );
+//    fChatLog->setPalette(p);
 
     // Fix existing text
     pChatTextColor = QwcSingleton::colorFromPrefs( "interface/chat/text/color", Qt::black);
 
-    QTextCursor tc(fChatLog->textCursor());
-    tc.movePosition(QTextCursor::Start);
-    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+//    QTextCursor tc(fChatLog->textCursor());
+//    tc.movePosition(QTextCursor::Start);
+//    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
 
-    QTextCharFormat cf = fChatLog->currentCharFormat();
-    cf.setFont(pChatFont);
-    tc.mergeCharFormat(cf);
+//    QTextCharFormat cf = fChatLog->currentCharFormat();
+//    cf.setFont(pChatFont);
+//    tc.mergeCharFormat(cf);
 
     // Input box
     p = fChatInput->palette();
@@ -509,7 +553,7 @@ void QwcChatWidget::reloadPreferences()
 /// Reset the form.
 void QwcChatWidget::resetForm()
 {
-    fChatLog->clear();
+//    fChatLog->clear();
     fChatInput->clear();
     fTopic->clear();
 }

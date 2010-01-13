@@ -6,6 +6,7 @@
 #include "QwcUserlistModel.h"
 #include "QwcUserlistDelegate.h"
 
+#include "QwcMessageStyle.h"
 
 class QwcSession;
 
@@ -26,6 +27,10 @@ public:
     int pChatID;
     bool pEmoticonsEnabled;
 
+    void loadChatStyle(const QString &path = QString());
+
+
+
 signals:
     /*! This signal is emitted if a entry has been double-clicked in the user list. */
     void userDoubleClicked(const QwcUserInfo user);
@@ -33,7 +38,7 @@ signals:
 
 public slots:
     void resetForm();
-    void writeToChat(QString theUser, QString theText, bool theEmote);
+    void writeToChat(QwUser &sender, QString theText, bool theEmote);
     void writeEventToChat(QString theMsg);
 
 
@@ -47,6 +52,12 @@ private:
     QFont pChatFont;
     QPointer<QMenu> pInviteMenu;
     void updateInviteMenu();
+
+    /*! The ID of the user who posted chat as the last person. */
+    int m_lastUserChatId;
+
+    /*! The data of the chat style that is currently used. */
+    QwcMessageStyle currentChatStyle;
 
 private slots:
     void postChatInputText();
