@@ -15,8 +15,6 @@ QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
     m_session = NULL;
     pChatID = 1;
 
-    m_lastUserChatId = -1;
-
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
     fBtnInvite->setVisible(false);
