@@ -327,7 +327,8 @@ void QwcSession::setupConnections()
     connect(socket, SIGNAL(receivedUserPrivileges(QwcUserInfo)),
             this, SLOT(onSocketPrivileges(QwcUserInfo)) );
 
-    connect(socket, SIGNAL(receivedChatMessage(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
+    connect(socket, SIGNAL(receivedChatMessage(int,int,QString,bool)),
+            this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
 
     connect(socket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
             this,   SLOT(handleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
@@ -424,9 +425,9 @@ void QwcSession::onSocketPrivileges(QwcUserInfo s)
 void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theText, bool theIsAction)
 {
     QwcUserInfo tmpUsr = socket->users[theUserID]; //socket->getUserByID(theUserID); // Find the user
-    if(theChat==1) {
+    if (theChat == 1) {
         // Public chat
-        mainChatWidget->writeToChat(tmpUsr.userNickname, theText, theIsAction);
+        mainChatWidget->writeToChat(tmpUsr, theText, theIsAction);
 
         // Trigger the event
         QStringList tmpParams;
@@ -442,7 +443,7 @@ void QwcSession::do_handle_chat_message(int theChat, int theUserID, QString theT
             return;
         }
         QwcChatWidget *chat = pChats[theChat];
-        chat->writeToChat(tmpUsr.userNickname, theText, theIsAction);
+        chat->writeToChat(tmpUsr, theText, theIsAction);
 
         // Find the index on the tab panel
         int tmpIdx = connectionTabWidget->indexOf(chat);
