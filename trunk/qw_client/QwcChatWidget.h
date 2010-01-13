@@ -2,15 +2,16 @@
 #define QWCCHATWIDGET_H
 
 #include "ui_QwcChatWidget.h"
-
-#include "QwcUserlistModel.h"
 #include "QwcUserlistDelegate.h"
-
 #include "QwcMessageStyle.h"
+
+#include <QtCore/QPointer>
 
 class QwcSession;
 
-class QwcChatWidget : public QWidget, public Ui_QwcChatWidget
+class QwcChatWidget :
+        public QWidget,
+        public Ui_QwcChatWidget
 {
     Q_OBJECT
 
@@ -18,14 +19,11 @@ public:
     QwcChatWidget(QWidget *parent = 0);
     ~QwcChatWidget();
 
-    void setUserListModel(QwcUserlistModel *model);
     void setSession(QwcSession *session);
-
     bool eventFilter(QObject *watched, QEvent *event);
 
     QwcSession* session();
     int pChatID;
-    bool pEmoticonsEnabled;
 
     void loadChatStyle(const QString &path = QString());
 
@@ -38,29 +36,25 @@ signals:
 
 public slots:
     void resetForm();
-    void writeToChat(QwUser &sender, QString theText, bool theEmote);
-    void writeEventToChat(QString theMsg);
+    void writeTextToChat(QwUser sender, QString text, bool emote);
+    void writeEventToChat(QString eventText, QString eventType);
+    void writeBroadcastToChat(QwcUserInfo sender, QString text);
+    void setTopic(const QString &text, const QString &user, const QDateTime &dateTime);
 
 
 private:
-    QwcSession *pSession;
-    QColor pChatTextColor;
-    QColor pChatTimeColor;
-    QColor pChatEventColor;
-    int pChatStyle;
-    bool pChatShowTime;
-    QFont pChatFont;
+    QwcSession *m_session;
+
     QPointer<QMenu> pInviteMenu;
     void updateInviteMenu();
 
-    /*! The ID of the user who posted chat as the last person. */
-    int m_lastUserChatId;
-
-    /*! The data of the chat style that is currently used. */
-    QwcMessageStyle currentChatStyle;
+    /*! The currently used message style for this chat. */
+    QwcMessageStyle m_currentMessageStyle;
 
 private slots:
-    void postChatInputText();
+    void handleExternalLinkClicked(const QUrl &url);
+
+    void processChatInput();
     void on_fUsers_doubleClicked(const QModelIndex &index);
     void on_fBtnMsg_clicked();
     void on_fBtnKick_clicked();
@@ -70,6 +64,8 @@ private slots:
     void onUserlistSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
     void inviteMenuTriggered(QAction *action);
     void reloadPreferences();
+
+    void handleChatViewFrameSizeChanged(QSize size);
 
 };
 

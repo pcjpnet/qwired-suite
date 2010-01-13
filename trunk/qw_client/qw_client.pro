@@ -1,17 +1,11 @@
 TEMPLATE = app
 CONFIG += warn_on \
     thread \
-    qt
+    qt \
+    silent
 CONFIG -= warnings
-
-macx { 
-    TARGET = "Qwired Client"
-}
-
-!macx {
-    TARGET = qwired
-}
-
+macx:TARGET = "Qwired Client"
+!macx:TARGET = qwired
 RESOURCES = application.qrc
 QT += gui \
     network \
@@ -21,7 +15,6 @@ ICON = qwired.icns
 RC_FILE = qwired.rc
 LIBS += ../bin/libqwlibrary.a
 INCLUDEPATH += ../qw_library
-
 TRANSLATIONS += lang/lang_de.ts \
     lang/lang_pt.ts \
     lang/lang_it.ts \
@@ -35,10 +28,8 @@ SOURCES += main.cpp \
     QwcSession.cpp \
     QwcChatWidget.cpp \
     QwcNewsWidget.cpp \
-    QwcUserlistModel.cpp \
     QwcUserlistDelegate.cpp \
     QwcUserInfoWidget.cpp \
-    QwcUserlistWidget.cpp \
     QwcFileBrowserWidget.cpp \
     QwcFileInfo.cpp \
     QwcPreferencesWidget.cpp \
@@ -55,7 +46,10 @@ SOURCES += main.cpp \
     QwcConnectionMainWindow.cpp \
     QwcPrivateMessager.cpp \
     QwcTransferInfo.cpp \
-    ../qw_server/QwsTrackerController.cpp
+    ../qw_server/QwsTrackerController.cpp \
+    QwcMessageStyle.cpp \
+    QwcUserInfo.cpp \
+    QwcUsersWidget.cpp
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
@@ -74,10 +68,8 @@ HEADERS += QwcSession.h \
     QwcChatWidget.h \
     QwcSocket.h \
     QwcNewsWidget.h \
-    QwcUserlistModel.h \
     QwcUserlistDelegate.h \
     QwcUserInfoWidget.h \
-    QwcUserlistWidget.h \
     QwcServerInfoWidget.h \
     QwcFileBrowserWidget.h \
     QwcFileInfo.h \
@@ -96,5 +88,6 @@ HEADERS += QwcSession.h \
     QwcTrackerServerInfo.h \
     QwcAboutWidget.h \
     QwcPrivateMessager.h \
-    ../qw_server/QwsTrackerController.h
-
+    ../qw_server/QwsTrackerController.h \
+    QwcMessageStyle.h \
+    QwcUsersWidget.h

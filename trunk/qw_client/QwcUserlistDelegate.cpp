@@ -2,17 +2,20 @@
 #include "QwcUserlistDelegate.h"
 #include "QwcPrivateMessager.h"
 #include "QwcUserInfo.h"
+#include "QwcSocket.h"
 
-#include <QApplication>
-#include <QPainter>
+#include <QtGui/QPainter>
 
-QwcUserlistDelegate::QwcUserlistDelegate(QObject *parent) : QItemDelegate (parent)
+QwcUserlistDelegate::QwcUserlistDelegate(QObject *parent) :
+        QItemDelegate (parent)
 {
     // Notification manager
-    QwcSingleton *tmpS = &WSINGLETON::Instance();
-    connect(tmpS, SIGNAL(applicationSettingsChanged()),
+    QwcSingleton *singleton = &WSINGLETON::Instance();
+    connect(singleton, SIGNAL(applicationSettingsChanged()),
             this, SLOT(reloadPreferences()));
     reloadPreferences();
+
+    m_socket = NULL;
 }
 
 
@@ -20,27 +23,34 @@ QwcUserlistDelegate::~QwcUserlistDelegate()
 {
 }
 
+void QwcUserlistDelegate::setSocket(QwcSocket *socket)
+{
+    m_socket = socket;
+}
+
 
 void QwcUserlistDelegate::reloadPreferences()
 {
-    QSettings s;
-    pListFont.fromString(s.value("interface/userlist/font", QApplication::font().toString()).toString());
-    pCompactMode = s.value("interface/userlist/compact",false).toBool();
-    pAlternateRowBg = s.value("interface/userlist/alternate_bg",false).toBool();
-    backgroundOpacity = s.value("interface/userlist/background_opacity", 30).toInt()/100.0;
+    QSettings settings;
+    m_listFont.fromString(settings.value("interface/userlist/font",
+                                         QApplication::font().toString()).toString());
+    m_compactMode = settings.value("interface/userlist/compact",false).toBool();
+    m_opacity = settings.value("interface/userlist/background_opacity", 30).toInt()/100.0;
 }
 
 
 QSize QwcUserlistDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &index) const
 {
     if (!index.isValid()) { return QSize(); }
-    return QSize(160, pCompactMode ? 24 : 34);
+    return QSize(160, m_compactMode ? 24 : 34);
 }
 
 
-void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                                const QModelIndex &index) const
 {
     if (!index.isValid()) { return; }
+    QwcUserInfo user = m_socket->users[index.data(Qt::UserRole).toInt()];
 
     /// Display mode: 0 = normal chat user icons, 1 = private messenger user icons with unread count
     int displayMode = 0;
@@ -51,10 +61,12 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     QRect itemRect(QPoint(0,0), option.rect.size());
 
-    if (index.data(Qt::UserRole).canConvert<QwcUserInfo>()) {
+    if (index.data(Qt::UserRole).canConvert<int>()) {
+        // Chat mode
         displayMode = 0;
-        session.userInfo = index.data(Qt::UserRole).value<QwcUserInfo>();
+        session.userInfo = user;
     } else if (index.data(Qt::UserRole).canConvert<QwcPrivateMessagerSession>()) {
+        // Messenger mode
         displayMode = 1;
         session = index.data(Qt::UserRole).value<QwcPrivateMessagerSession>();
     } else {
@@ -65,11 +77,11 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setRenderHint(QPainter::Antialiasing);
 
     QSize iconSize(itemRect.height()-4, itemRect.height()-4);
-    QImage userIconFullres = session.userInfo.userImage;
+    QImage userIconFullres = session.userInfo.userImage();
     QImage userIcon = userIconFullres.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     // Nice Background
-    if (backgroundOpacity > 0.0) {
+    if (m_opacity > 0.0) {
         painter->save();
         QImage userIconBackground;
         if (userIconFullres.height() == option.rect.height()) {
@@ -78,21 +90,15 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
             userIconBackground = userIconFullres.scaledToWidth(350, Qt::SmoothTransformation);
         }
         painter->setClipRect(itemRect);
-        painter->setOpacity(backgroundOpacity);
+        painter->setOpacity(m_opacity);
         painter->drawImage(0, option.rect.height()/2-userIconBackground.height()/2, userIconBackground);
         painter->restore();
 
-    } else if (pAlternateRowBg && (index.row() % 2)>0) {
-        painter->save();
-        painter->setBrush(option.palette.color(QPalette::Highlight).lighter(140));
-        painter->setPen(Qt::NoPen);
-        painter->drawRect(0, 0, option.rect.width(), option.rect.height());
-        painter->restore();
     }
 
     // Draw the icon
     bool isConformingIcon = userIconFullres.height() == 34 && userIconFullres.width() >= 34;
-    if (backgroundOpacity == 0 || !isConformingIcon) {
+    if (m_opacity == 0 || !isConformingIcon) {
         painter->drawImage(2, option.rect.height()/2-userIcon.height()/2, userIcon);
     }
 
@@ -106,7 +112,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     // Status
     bool statusTextAvailable = !session.userInfo.userStatus.isEmpty();
-    if (!pCompactMode && statusTextAvailable) {
+    if (!m_compactMode && statusTextAvailable) {
         font.setBold(false);
         font.setPixelSize(10);
         painter->setFont(font);
@@ -120,7 +126,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setFont(font);
 
     // Move the nickname to the middle if there is no status
-    if (pCompactMode || !statusTextAvailable) {
+    if (m_compactMode || !statusTextAvailable) {
         painter->translate(0, painter->fontMetrics().ascent()/2);
     }
 

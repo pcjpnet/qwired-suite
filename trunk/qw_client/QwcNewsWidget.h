@@ -1,14 +1,16 @@
 #ifndef QWCNEWSWIDGET_H
 #define QWCNEWSWIDGET_H
 
-#include "ui_QwcNewsWidget.h"
 #include "QwcUserInfo.h"
+#include "ui_QwcNewsWidget.h"
 
-#include <QWidget>
-#include <QPointer>
+#include <QtGui/QWidget>
+#include <QtCore/QPointer>
 
 
-class QwcNewsWidget : public QWidget, private Ui_QwcNewsWidget
+class QwcNewsWidget :
+        public QWidget,
+        private Ui_QwcNewsWidget
 {
     Q_OBJECT
 
@@ -18,16 +20,15 @@ public:
 
     void setupFromUser(const QwcUserInfo user);
 
-    void resetNewsView();
-
 private:
-    QColor pColorTitle;
-    QColor pColorText;
-    QFont newsFont;
     /*! Stores the current number of news articles. */
+    bool m_emoticonsEnabled;
     int newsCounter;
     void updateNewsStats();
+    void updateNewsCss();
 
+protected:
+    bool eventFilter(QObject *what, QEvent *event);
 
 signals:
     void requestedRefresh();
@@ -35,6 +36,7 @@ signals:
     /*! This signal is emitted when the user clicked the 'purge news' button and all news should
         be purged from the server database. */
     void userPurgedNews();
+
 
 public slots:
     void addNewsItem(QString theNick, QDateTime time, QString thePost, bool insertAtTop = false);
@@ -49,11 +51,8 @@ private slots:
     void on_fBtnDelete_clicked(bool checked);
     void on_btnComposeCancel_clicked();
     void on_btnComposePost_clicked();
-
     void on_newsView_linkClicked(const QUrl &url);
-
     void reloadPreferences();
-    void initPrefs();
 
 };
 

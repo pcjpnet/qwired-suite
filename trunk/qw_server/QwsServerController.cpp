@@ -997,7 +997,7 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
         return;
     }
     QwsClientSocket *targetUser = sockets[userId];
-    if (targetUser->user.privCannotBeKicked) {
+    if (user->user.privileges().testFlag(Qws::PrivilegeCanNotBeKicked)) {
         qDebug() << this << "Unable to kick user - protected!";
         user->sendError(Qw::ErrorCannotBeDisconnected);
         return;

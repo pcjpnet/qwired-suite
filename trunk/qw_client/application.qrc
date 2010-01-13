@@ -1,13 +1,13 @@
 <RCC>
-    <qresource prefix="/" >
-        <file alias="lang_de.qm" >lang/lang_de.qm</file>
-        <file alias="lang_it.qm" >lang/lang_it.qm</file>
-        <file alias="lang_pt.qm" >lang/lang_pt.qm</file>
-        <file alias="lang_es.qm" >lang/lang_es.qm</file>
-        <file alias="lang_fr.qm" >lang/lang_fr.qm</file>
-        <file alias="lang_jp.qm" >lang/lang_jp.qm</file>
-        <file alias="lang_nl.qm" >lang/lang_nl.qm</file>
-        <file alias="lang_se.qm" >lang/lang_se.qm</file>
+    <qresource prefix="/">
+        <file alias="lang_de.qm">lang/lang_de.qm</file>
+        <file alias="lang_it.qm">lang/lang_it.qm</file>
+        <file alias="lang_pt.qm">lang/lang_pt.qm</file>
+        <file alias="lang_es.qm">lang/lang_es.qm</file>
+        <file alias="lang_fr.qm">lang/lang_fr.qm</file>
+        <file alias="lang_jp.qm">lang/lang_jp.qm</file>
+        <file alias="lang_nl.qm">lang/lang_nl.qm</file>
+        <file alias="lang_se.qm">lang/lang_se.qm</file>
         <file>icons/32x32/network-server.png</file>
         <file>icons/32x32/start-here.png</file>
         <file>icons/32x32/go-down.png</file>
@@ -112,5 +112,10 @@
         <file>icons/16x16/stock-edit-16.png</file>
         <file>icons/16x16/applications-internet.png</file>
         <file>icons/banner-missing.png</file>
+        <file>styles/Default.QwiredMessageStyle/template_bg.png</file>
+        <file>styles/Default.QwiredMessageStyle/template_topic_bg.png</file>
+        <file>styles/Default.QwiredMessageStyle/help-browser.png</file>
+        <file>styles/Default.QwiredMessageStyle/template_topic_shadow.png</file>
+        <file>styles/Default.QwiredMessageStyle/chat_template.html</file>
     </qresource>
 </RCC>

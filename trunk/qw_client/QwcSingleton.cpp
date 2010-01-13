@@ -4,6 +4,8 @@
 #include <QtNetwork/QNetworkProxy>
 #include <QtGui/QApplication>
 
+#include <QtCore/QDirIterator>
+
 /*! \class QwcSingleton
     \author Bastian Bense <bastibense@gmail.com>
     \date 2009-03-06
@@ -40,6 +42,23 @@ QString QwcSingleton::systemMonospaceFont()
 #endif
 };
 
+QStringList QwcSingleton::messageStyles() const
+{
+    QDir stylesDirectory(QwcSingleton::systemSettingsDirectory());
+    stylesDirectory.cd("Styles");
+
+    QStringList foundStyles;
+    QDirIterator it(stylesDirectory.absolutePath(), QDir::Dirs);
+    while (it.hasNext()) {
+        it.next();
+        if (it.fileName().endsWith(".QwiredChatStyle")) {
+            foundStyles << it.fileInfo().absoluteFilePath();
+        }
+    }
+
+    return foundStyles;
+}
+
 
 /// Return a color key from the preferences.
 /// @param theKey The name of the key.
@@ -54,6 +73,19 @@ QColor QwcSingleton::colorFromPrefs(QString theKey, QColor theDefault)
     }
 }
 
+
+/*! Returns the directory for storing application settings and files on all platforms.
+*/
+QString QwcSingleton::systemSettingsDirectory()
+{
+#ifdef Q_WS_MAC
+    // Follow Apple's conventions
+    return QDir::home().absoluteFilePath("Library/Application Support/Qwired");
+#endif
+
+    // Fallback
+    return QDir::home().absoluteFilePath("Qwired");
+}
 
 /*! Check the bookmarks for auto-connect enabled servers and create a session for each. Otherwise
     create a new, blank session and leave it unconnected.

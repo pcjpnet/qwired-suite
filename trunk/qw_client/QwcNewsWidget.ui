@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="pageWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -64,6 +64,9 @@
            <property name="icon">
             <iconset resource="application.qrc">
              <normaloff>:/icons/16x16/view-refresh.png</normaloff>:/icons/16x16/view-refresh.png</iconset>
+           </property>
+           <property name="shortcut">
+            <string>Ctrl+R</string>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -139,6 +142,9 @@
            <property name="icon">
             <iconset resource="application.qrc">
              <normaloff>:/icons/16x16/mail-message-new.png</normaloff>:/icons/16x16/mail-message-new.png</iconset>
+           </property>
+           <property name="shortcut">
+            <string>Ctrl+P</string>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonTextBesideIcon</enum>

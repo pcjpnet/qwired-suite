@@ -17,7 +17,7 @@ public:
     QwcUserInfoWidget(QWidget *parent = 0);
     ~QwcUserInfoWidget();
     void setUser(QwcUserInfo theUser);
-    void setTransfers(int theType, const QwcUserInfo theUser);
+    void loadTransfers(const QwcUserInfo &theUser);
     int pUserID;
 
 };

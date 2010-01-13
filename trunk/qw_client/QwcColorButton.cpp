@@ -11,7 +11,8 @@
 
 QwcColorButton::QwcColorButton(QWidget *parent) : QToolButton(parent)
 {
-    connect(this, SIGNAL(clicked(bool)), this, SLOT(requestColor()) );
+    connect(this, SIGNAL(clicked(bool)),
+            this, SLOT(requestColor()) );
     updateIcon();
 }
 
@@ -21,7 +22,8 @@ QwcColorButton::QwcColorButton(QWidget *parent) : QToolButton(parent)
 QwcColorButton::QwcColorButton(QColor color, QWidget *parent) : QToolButton(parent)
 {
     Q_UNUSED(parent);
-    connect(this, SIGNAL(clicked(bool)), this, SLOT(requestColor()) );
+    connect(this, SIGNAL(clicked(bool)),
+            this, SLOT(requestColor()) );
     this->pColor = color;
     updateIcon();
 }
@@ -39,12 +41,23 @@ QColor QwcColorButton::selectedColor()
 */
 void QwcColorButton::updateIcon()
 {
-    QPainter p;
-    QPixmap pm(18,18);
-    p.begin(&pm);
-    p.fillRect(0,0,18,18,pColor);
-    p.end();
-    this->setIcon(pm);
+    QPainter painter;
+    QImage image(18, 18, QImage::Format_ARGB32);
+    painter.begin(&image);
+
+    if (!pColor.isValid()) {
+        QPen pen = painter.pen();
+        pen.setStyle(Qt::DotLine);
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(image.rect());
+    } else {
+        painter.setBrush(pColor);
+    }
+
+    painter.drawRect(image.rect());
+    painter.end();
+    this->setIcon(QPixmap::fromImage(image));
 }
 
 

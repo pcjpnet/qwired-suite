@@ -35,10 +35,21 @@ QwMessage& QwMessage::appendArg(const QString data)
     return *this;
 }
 
+QwMessage & QwMessage::appendArg(qlonglong number)
+{
+    arguments.append(QString::number(number));
+    return *this;
+}
+
+QwMessage & QwMessage::appendArg(const QByteArray &ba)
+{
+    arguments.append(QString::fromUtf8(ba));
+    return *this;
+}
 
 /*! Return the argument at position \a index or an empty value. The first item is 0.
 */
-QString QwMessage::getStringArgument(int index) const
+QString QwMessage::stringArg(int index) const
 {
     QString result = arguments.value(index);
     if (result.isNull()) {

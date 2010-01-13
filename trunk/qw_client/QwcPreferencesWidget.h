@@ -4,7 +4,9 @@
 #include <QWidget>
 #include "ui_QwcPreferencesWidget.h"
 
-class QwcPreferencesWidget : public QWidget, private Ui::QwcPreferencesWidget
+class QwcPreferencesWidget :
+        public QWidget,
+        private Ui::QwcPreferencesWidget
 {
     Q_OBJECT
 
@@ -12,32 +14,27 @@ public:
     QwcPreferencesWidget(QWidget *parent = 0);
     ~QwcPreferencesWidget();
 
+    void savePreferences();
+    void loadPreferences();
+
+
 private:
-    void initPrefs();
     void initEventsMenu();
-    bool pNickChanged;
-    bool pStatusChanged;
-    bool pIconChanged;
+    void initChatStyleMenu();
 
     
 private slots:
-    void savePrefs();
+    void on_buttonBox_clicked(QAbstractButton *button);
 
     // General
     void on_btnGeneralSetIcon_clicked();
     void on_btnGeneralDefaultIcon_clicked();
-    void on_fNickname_editingFinished();
-    void on_fStatus_editingFinished();
 
-    // Interface, Chat
-    void on_fBtnIfChatFont_clicked();
-    void on_fBtnIfUserlistFont_clicked();
-    void on_fBtnIfUserlistCompactLarge_toggled(bool checked);
-    void on_fBtnIfUserlistCompactSmall_toggled(bool checked);
-    void on_fBtnIfUserlistAlternateRow_stateChanged(int state);
 
-    // Interface, News
-    void on_fBtnIfNewsFont_clicked();
+    // Interface
+    void on_btnChatFont_clicked();
+    void on_btnUserlistFont_clicked();
+    void on_btnNewsFont_clicked();
 
     // Files
     void on_btnFilesFolderSet_clicked();
@@ -60,10 +57,9 @@ private slots:
     void on_fBMAutoConnect_stateChanged(int);
 
     // Events
-    void on_fEventsList_currentRowChanged(int);
+    void on_fEventsList_currentIndexChanged(int index);
     void on_fEventsSysCmd_editingFinished();
     void on_fEventsSound_clicked();
-    void on_fBtnOk_clicked();
     void on_fEventsPostChat_stateChanged(int state);
     void on_fEventsDisplayTrayMsg_stateChanged(int state);
     void on_fEventsSysCmdEnabled_stateChanged(int state);

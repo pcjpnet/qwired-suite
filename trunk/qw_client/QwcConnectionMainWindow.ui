@@ -93,7 +93,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/disconnect.png</normaloff>:/icons/disconnect.png</iconset>
    </property>
    <property name="text">
@@ -125,7 +125,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/help-browser.png</normaloff>:/icons/32x32/help-browser.png</iconset>
    </property>
    <property name="text">
@@ -143,7 +143,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/face-smile.png</normaloff>:/icons/32x32/face-smile.png</iconset>
    </property>
    <property name="text">
@@ -161,7 +161,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/internet-news-reader.png</normaloff>:/icons/32x32/internet-news-reader.png</iconset>
    </property>
    <property name="text">
@@ -179,7 +179,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/files.png</normaloff>:/icons/files.png</iconset>
    </property>
    <property name="text">
@@ -197,7 +197,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/transfers.png</normaloff>:/icons/transfers.png</iconset>
    </property>
    <property name="text">
@@ -215,7 +215,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/accounts.png</normaloff>:/icons/accounts.png</iconset>
    </property>
    <property name="text">
@@ -295,7 +295,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="application.qrc">
+    <iconset>
      <normaloff>:/icons/32x32/mail-message-new.png</normaloff>:/icons/32x32/mail-message-new.png</iconset>
    </property>
    <property name="text">
@@ -314,9 +314,6 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="application.qrc"/>
-  <include location="application.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

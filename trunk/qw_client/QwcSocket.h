@@ -13,16 +13,18 @@
 
 #include <QTimerEvent>
 
-class QwcSocket : public QwSocket
+namespace Qwc {
+    const int PUBLIC_CHAT = 1;
+}
+
+class QwcSocket
+    : public QwSocket
 {
     Q_OBJECT
 
 public:
     QwcSocket(QObject *parent = 0);
     ~QwcSocket();
-
-    /*! Attempt to establish a connection to the specified server. */
-    void connectToWiredServer(QString hostName, int port=2000);
 
     /*! Information about the server, as provided during handshake. */
     QwServerInfo serverInfo;
@@ -45,9 +47,8 @@ public:
     /*! The user entered server port. */
     int serverPort;
 
-    /*! Contains the number of milliseconds between PING and reply commands. sendPing() has to be
-        sent at least once before this value is valid.*/
-    int pingTimeLatency;
+    int pingLatency() const;
+
 
 
     /*! Contains the default directory where downloads should go to. (Default: ~) */
@@ -58,21 +59,19 @@ public:
     void setUserAccount(QString, QString);
 
     /*! This member contains all active and locally queued transfer sockets. */
-    QList<QwcTransferSocket*> transferSockets;
+    QList<QwcTransferSocket*> m_transfers;
 
-//    /*! Returns a const reference to a list of all queued transfers. */
-//    const QList<QwcTransferInfo>& allQueuedTransfers() const { return transferPool; }
 
 
 public slots:
 
     // Session
     //
-    void disconnectSocketFromServer();
+    void connectToServer(const QString &address, int port = 2000);
     void disconnectFromServer();
-    void setIconImage(QImage icon);
+    void setUserIcon(QImage icon);
     void setUserStatus(QString theStatus);
-    void setCaturday(bool);
+    void setCaturdayMode(bool);
     void sendPing();
 
 
@@ -80,19 +79,19 @@ public slots:
     //
     void clearNews();
     void getNews();
-    void postNews(QString thePost);
+    void postNews(const QString &text);
     void leaveChat(int theChatID);
     void rejectChat(int theChatID);
     void createChatWithClient(int firstInvitedUser = 0);
     void setChatTopic(int chatId, QString topic);
     void sendPrivateMessage(int userId, QString message);
-    void sendChatToRoom(int theChatID, QString theText, bool theIsAction);
+    void writeToChat(int chat, QString text, bool emote);
     void inviteClientToChat(int chatId, int userId);
     void joinChat(int theChatID);
 
     // Administration
     //
-    void getClientInfo(int userId);
+    void getClientInformation(int userId);
     void readGroup(QString theName);
     void createGroup(QwcUserInfo user);
     void editGroup(QwcUserInfo user);
@@ -103,23 +102,23 @@ public slots:
     void deleteUser(QString theLogin);
     void getGroups();
     void getUsers();
-    void kickClient(int userId, QString reason);
-    void banClient(int userId, QString reason);
+    void kickClient(int userId, const QString &reason);
+    void banClient(int userId, const QString &reason);
 
     // Files and Transfers
     //
-    void createFolder(const QString thePath);
-    void deleteFile(const QString thePath);
+    void createFolder(const QString &path);
+    void deleteFile(const QString &path);
     void pauseTransfer(const QwcTransferInfo &transfer);
     void resumeTransfer(const QwcTransferInfo &transfer);
     void setFileComment(QString path, QString comment);
-    void statFile(const QString thePath);
+    void getFileInformation(const QString &path);
     void downloadFileOrFolder(QwcFileInfo fileInfo);
     void uploadFileOrFolder(QwcFileInfo fileInfo);
     void searchFiles(const QString theSearch);
     void getFileList(QString thePath);
     void getFileListRecusive(const QString &path);
-    void moveFile(const QString source, const QString destination);
+    void moveFile(const QString &source, const QString &destination);
 
 
 private slots:
@@ -134,7 +133,7 @@ private slots:
     void handleSocketConnected();
     void handleSocketConnectionLost();
 
-    void do_request_user_list(int roomId);
+    void getUserlist(int roomId);
 
 
     void cleanTransfers();
@@ -147,6 +146,9 @@ signals:
         the signal is emitted. */
     void protocolError(Qw::ProtocolError error);
 
+    /*! This signal is emitted after a PING response has been received. \e latency defines how much
+        time has passed since the PING message was sent in milliseconds. */
+    void pingLatency(int latency);
 
     // Signals for file transfers
     // These should be used by the main application (non Qwired-code).
@@ -192,7 +194,7 @@ signals:
 
     void receivedChatMessage(int theChatID, int theUserID, QString theText, bool theIsAction);
     void onChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
-    void onPrivateMessage(QwcUserInfo theUser, QString theMessage);
+    void privateMessage(QwcUserInfo theUser, QString theMessage);
     void broadcastMessage(QwcUserInfo theUser, QString theMessage);
 
     void privateChatCreated(int theChatID);
@@ -279,11 +281,9 @@ private:
 
     // Transfers
     void checkTransferQueue();
-//    QList<QwcTransferInfo> transferPool;
 
-
-    // No further comment on those, and, no, you can not has cheezeburger.
-    bool pIzCaturday;
+    // No further comment on those, and, no, you can not has cheezburger.
+    bool m_caturdayFlag;
     QString tranzlate(QString);
 
     /*! If this member is set to true, a LISTRECURSIVE command likely has been issued and results
@@ -293,26 +293,20 @@ private:
     QList<QwcFileInfo> indexingResults;
 
     // Buffers while receiving the list of groups and users (admin mode)
-    QStringList pAdminGroups;
-    QStringList pAdminUsers;
-    QHash<QString,QString> pTranzlator;
+    QStringList m_groupListingCache;
+    QStringList m_accountListingCache;
+    QHash<QString,QString> m_tranzlator;
 
-    /// Buffer for the user id we have invited before. Unfortunately Wired has no
-    /// transactions, so we have to hope that this works well enough for now.
-    int pInvitedUserID;
+    /*! The ID of the last invited user. We have to cache this due to the lack of transactions. */
+    int m_invitedUserId;
 
-    /*! Contains a temporary list of file search results. */
-    QList<QwcFileInfo> fileSearchResults;
-    QList<QwcTrackerServerInfo> pTrackerServers;
+    /*! Contains the number of milliseconds between PING and reply commands. sendPing() has to be
+        sent at least once before this value is valid.*/
+    int m_pingLatency;
 
-
-
-    /// This is our TCP buffer. Could possibly be optimized, but works for now.
-    QByteArray pBuffer;
-
-
-protected:
+    /*! Timer used to measure the PING response time. */
     QTime pingLagTimer;
+    /*! The PING timer used to send keep-alive PING messages. */
     int pingTimerId;
     void timerEvent(QTimerEvent *event);
 };

@@ -22,6 +22,8 @@ int main (int argc, char *argv[])
 
     QSettings settings;
 
+
+
     // Basic first-time initialization
     if (settings.allKeys().isEmpty()) {
         // The main bookmark
@@ -64,7 +66,6 @@ int main (int argc, char *argv[])
         proxy.setUser(settings.value("proxy/username").toString());
         proxy.setPassword(settings.value("proxy/password").toString());
         QNetworkProxy::setApplicationProxy(proxy);
-        qDebug() << "Configured network proxy.";
     }
 
 
@@ -75,19 +76,11 @@ int main (int argc, char *argv[])
                      singleton, SLOT(cleanUp()));
     singleton->createTrayIcon();
 
+    // Create the settings directory
+    QDir settingDir(QwcSingleton::systemSettingsDirectory());
+    qDebug() << settingDir;
+    if (!settingDir.exists()) { settingDir.mkpath("."); }
 
-    // Load all available plugins
-    QDir pluginsDir("/Users/bbense/Desktop/_Builds/qwired/bin/plugins");
-    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
-        QObject *plugin = pluginLoader.instance();
-        if (!plugin) { continue; }
-        QwcPluginInterface *pluginInterface = qobject_cast<QwcPluginInterface*>(plugin);
-        if (!pluginInterface) { continue; }
-        singleton->pluginInterfaces << pluginInterface;
-        pluginInterface->initializePlugin();
-        qDebug() << "Loaded plugin:" << pluginInterface->pluginInformation()["PLUGIN_NAME"];
-    }
 
     singleton->createInitialSessions();
 

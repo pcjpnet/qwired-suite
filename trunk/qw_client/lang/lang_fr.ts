@@ -9,7 +9,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAboutWidget.ui" line="54"/>
+        <location filename="../QwcAboutWidget.ui" line="43"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -21,12 +21,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAboutWidget.ui" line="108"/>
+        <location filename="../QwcAboutWidget.ui" line="97"/>
         <source>Donate...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcAboutWidget.ui" line="115"/>
+        <location filename="../QwcAboutWidget.ui" line="104"/>
         <source>Go to Website...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -40,7 +40,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Aucun groupe</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="257"/>
+        <location filename="../QwcAccountsWidget.cpp" line="259"/>
         <source>Are you sure you want to delete the account/group &quot;%1&quot;?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -59,7 +59,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Effacer</translation>
     </message>
     <message>
-        <location filename="../QwcAccountsWidget.cpp" line="256"/>
+        <location filename="../QwcAccountsWidget.cpp" line="258"/>
         <source>Delete Account or Group</source>
         <translation type="unfinished">Effacer le compte ou le goupe</translation>
     </message>
@@ -256,20 +256,37 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QwcChatWidget</name>
     <message>
-        <location filename="../QwcChatWidget.cpp" line="365"/>
-        <location filename="../QwcChatWidget.cpp" line="380"/>
+        <location filename="../QwcChatWidget.cpp" line="214"/>
+        <source>Save chat to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcChatWidget.cpp" line="220"/>
+        <source>Error: Failed to write log to file.</source>
+        <extracomment>The message that is displayed in the chat if saving the chat transcript failed (/save)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcChatWidget.cpp" line="226"/>
+        <source>Chat transcript was saved to %1</source>
+        <extracomment>The message that is displayed in the chat if the log was saved successfully (/save)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcChatWidget.cpp" line="287"/>
+        <location filename="../QwcChatWidget.cpp" line="302"/>
         <source>Kick</source>
         <translation type="unfinished">Déconnecter</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.cpp" line="366"/>
+        <location filename="../QwcChatWidget.cpp" line="288"/>
         <source>You are about to disconnect &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation type="unfinished">Vous vous apprêtez à déconnecter &apos;%1&apos;.
 Merci d&apos;indiquer ici le motif et appuyer sur OK.</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.cpp" line="381"/>
+        <location filename="../QwcChatWidget.cpp" line="303"/>
         <source>You are about to ban &apos;%1&apos;.
 Please enter a reason and press OK.</source>
         <translation type="unfinished">Vous vous apprêtez à déconnecter &apos;%1&apos;.
@@ -285,42 +302,41 @@ Merci d&apos;indiquer ici le motif et appuyer sur OK.</translation>
         <translation type="obsolete">Définir le sujet : (aucun)</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.ui" line="41"/>
-        <source>Topic:</source>
+        <source>(none)</source>
+        <translation type="obsolete">(aucun)</translation>
+    </message>
+    <message>
+        <location filename="../QwcChatWidget.ui" line="44"/>
+        <source>about:blank</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.ui" line="56"/>
-        <source>(none)</source>
-        <translation type="unfinished">(aucun)</translation>
-    </message>
-    <message>
-        <location filename="../QwcChatWidget.ui" line="115"/>
+        <location filename="../QwcChatWidget.ui" line="79"/>
         <source>Send a private message</source>
         <translation type="unfinished">Envoyer un message privé</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.ui" line="144"/>
+        <location filename="../QwcChatWidget.ui" line="108"/>
         <source>Start a private chat</source>
         <translation type="unfinished">Démarrer une discussion privée</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.ui" line="173"/>
+        <location filename="../QwcChatWidget.ui" line="137"/>
         <source>Show information about user</source>
         <translation type="unfinished">Voir les informations à propos de cet utilisateur</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.ui" line="215"/>
+        <location filename="../QwcChatWidget.ui" line="179"/>
         <source>Ban from server</source>
         <translation type="unfinished">Bannir du serveur</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.ui" line="244"/>
+        <location filename="../QwcChatWidget.ui" line="208"/>
         <source>Kick from server</source>
         <translation type="unfinished">Déconnecter du serveur</translation>
     </message>
     <message>
-        <location filename="../QwcChatWidget.ui" line="273"/>
+        <location filename="../QwcChatWidget.ui" line="237"/>
         <source>Invite to chat...</source>
         <translation type="unfinished">Inviter à une discussion privée...</translation>
     </message>
@@ -541,206 +557,211 @@ Hold Shift to enter a login and password for this server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="53"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="54"/>
         <source>Toolbar</source>
         <translation type="unfinished">Barre d&apos;outil</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="81"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="82"/>
         <source>New Connection...</source>
         <translation type="unfinished">Nouvelle connexion...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="84"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="85"/>
         <source>Create a new connection window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="87"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="88"/>
         <source>Ctrl+K</source>
         <translation type="unfinished">Ctrl+K</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="99"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="100"/>
         <source>Disconnect...</source>
         <translation type="unfinished">Déconnexion...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="102"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="103"/>
         <source>Disconnect from the server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="105"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="106"/>
         <source>Ctrl+D</source>
         <translation type="unfinished">Ctrl+D</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="113"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="114"/>
         <source>Reconnect</source>
         <translation type="unfinished">Reconnecter</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="116"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="117"/>
         <source>Reconnect to the server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="119"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="120"/>
         <source>Ctrl+Shift+K</source>
         <translation type="unfinished">Ctrl+Shift+K</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="131"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="132"/>
         <source>Server Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="134"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="135"/>
         <source>Show server information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="137"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="138"/>
         <source>Ctrl+Shift+I</source>
         <translation type="unfinished">Ctrl+Shift+I</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="149"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="150"/>
         <source>Chat</source>
         <translation type="unfinished">Discussion</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="152"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="153"/>
         <source>Show public chat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="155"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="156"/>
         <source>Ctrl+T</source>
         <translation type="unfinished">Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="167"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="168"/>
         <source>News</source>
         <translation type="unfinished">Nouvelles</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="170"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="171"/>
         <source>Show server news</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="173"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="174"/>
         <source>Ctrl+N</source>
         <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="185"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="186"/>
         <source>Files</source>
         <translation type="unfinished">Fichiers</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="188"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="189"/>
         <source>Show server files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="191"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="192"/>
         <source>Ctrl+F</source>
         <translation type="unfinished">Ctrl+F</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="203"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="204"/>
         <source>Transfers</source>
         <translation type="unfinished">Transferts</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="206"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="207"/>
         <source>Show active and queued transfers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="209"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="210"/>
         <source>Ctrl+S</source>
         <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="221"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="222"/>
         <source>Accounts</source>
         <translation type="unfinished">Comptes</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="224"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="225"/>
         <source>Show user accounts and groups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="227"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="228"/>
         <source>Ctrl+U</source>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="235"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="236"/>
         <source>Get Information</source>
         <translation type="unfinished">Obtenir des informations</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="243"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="244"/>
         <source>Set Topic...</source>
         <translation type="unfinished">Définir le sujet...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="251"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="252"/>
         <source>Post News...</source>
         <translation type="unfinished">Poster Nouvelles...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="259"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="260"/>
         <source>Broadcast Message...</source>
         <translation type="unfinished">Annoncer à tous...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="262"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="263"/>
         <source>Ctrl+Shift+B</source>
         <translation type="unfinished">Ctrl+Shift+B</translation>
+    </message>
+    <message>
+        <location filename="../QwcConnectionMainWindow.ui" line="310"/>
+        <source>Support &amp;&amp; Donate...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search</source>
         <translation type="obsolete">Rechercher</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="267"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="268"/>
         <source>Preferences...</source>
         <translation type="unfinished">Préférences...</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="275"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="276"/>
         <source>About Qwired...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="304"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="305"/>
         <source>Show private messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="283"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="284"/>
         <source>Trackers</source>
         <translation type="unfinished">Annuaires</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="286"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="287"/>
         <source>Show a list of configured trackers and servers registered with them.</source>
         <translation type="unfinished">Voire la liste des annuaires configurés et les serveurs enregistrés sur chacun.</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="289"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="290"/>
         <source>Ctrl+R</source>
         <translation type="unfinished">Ctrl+R</translation>
     </message>
     <message>
-        <location filename="../QwcConnectionMainWindow.ui" line="301"/>
+        <location filename="../QwcConnectionMainWindow.ui" line="302"/>
         <source>Messages</source>
         <translation type="unfinished">Messages</translation>
     </message>
@@ -791,27 +812,27 @@ Hold Shift to enter a login and password for this server.</source>
     </message>
     <message>
         <location filename="../QwcFileBrowserWidget.cpp" line="67"/>
-        <location filename="../QwcFileBrowserWidget.ui" line="466"/>
-        <location filename="../QwcFileBrowserWidget.ui" line="507"/>
-        <location filename="../QwcFileBrowserWidget.ui" line="548"/>
-        <location filename="../QwcFileBrowserWidget.ui" line="589"/>
-        <location filename="../QwcFileBrowserWidget.ui" line="630"/>
-        <location filename="../QwcFileBrowserWidget.ui" line="671"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="499"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="540"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="581"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="622"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="663"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="704"/>
         <source>n/a</source>
         <translation type="unfinished">n/a</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="164"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="168"/>
         <source>%1 results for &quot;%2&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="193"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="197"/>
         <source>Delete Files and Folders</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../QwcFileBrowserWidget.cpp" line="194"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="198"/>
         <source>Are you sure you want to delete the selected %n item(s)?
 This can not be undone!</source>
         <translation type="unfinished">
@@ -819,47 +840,47 @@ This can not be undone!</source>
         </translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="231"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="235"/>
         <source>File exists</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="232"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="236"/>
         <source>The file or directory &quot;%1&quot; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="280"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="284"/>
         <source>Upload folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="286"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="290"/>
         <source>Upload Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="287"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="291"/>
         <source>Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="402"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="406"/>
         <source>Create Folder</source>
         <translation type="unfinished">Créer dossier</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="402"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="406"/>
         <source>Enter a name for the new folder:</source>
         <translation type="unfinished">Entrer un nom pour le nouveau dossier :</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="407"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="411"/>
         <source>No name defined</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.cpp" line="408"/>
+        <location filename="../QwcFileBrowserWidget.cpp" line="412"/>
         <source>Can not create a folder without a name. Please enter a name for the new folder.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -880,123 +901,146 @@ This can not be undone!</source>
         <translation type="unfinished">Ctrl+flèche haut</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="87"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="90"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="93"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="110"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="119"/>
         <source>Upload File/Folder
 (hold Shift and click to upload a folder)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="134"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="123"/>
+        <source>Upload...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFileBrowserWidget.ui" line="149"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="152"/>
         <source>Preview</source>
         <translation type="unfinished">Prévisualisation</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="176"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="194"/>
         <source>Get Info</source>
         <translation type="unfinished">Obtenir des informations</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="202"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="197"/>
+        <source>Get Info...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFileBrowserWidget.ui" line="223"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="226"/>
         <source>New Folder...</source>
         <translation type="unfinished">Nouveau dossier...</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="225"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="252"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="241"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="255"/>
+        <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcFileBrowserWidget.ui" line="268"/>
         <source>F5</source>
         <translation type="unfinished">F5</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="270"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="300"/>
         <source>Delete...</source>
         <translation type="unfinished">Effacer...</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="316"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="303"/>
+        <source>Delete</source>
+        <translation type="unfinished">Effacer</translation>
+    </message>
+    <message>
+        <location filename="../QwcFileBrowserWidget.ui" line="349"/>
         <source>Enter search terms to find files on the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="353"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="386"/>
         <source>Name</source>
         <translation type="unfinished">Nom</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="358"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="391"/>
         <source>Size</source>
         <translation type="unfinished">Taille</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="363"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="396"/>
         <source>Modified</source>
         <translation type="unfinished">Dates de modification</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="387"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="420"/>
         <source>0 items, 0 bytes total, 0 GB available</source>
         <translation type="unfinished">0 objet, 0 octets au total, 0 GB disponible</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="430"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="463"/>
         <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="450"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="483"/>
         <source>Kind:</source>
         <translation type="unfinished">Genre:</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="491"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="524"/>
         <source>Size:</source>
         <translation type="unfinished">Taille :</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="532"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="565"/>
         <source>Path:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="573"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="606"/>
         <source>Created:</source>
         <translation type="unfinished">Créé le :</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="614"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="647"/>
         <source>Modified:</source>
         <translation type="unfinished">Modifié le :</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="655"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="688"/>
         <source>Checksum:</source>
         <translation type="unfinished">Somme de contôle :</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="689"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="722"/>
         <source>Comments</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="716"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="749"/>
         <source>Cancel</source>
         <translation type="unfinished">Annuler</translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="730"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="763"/>
         <source>Apply changes to file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcFileBrowserWidget.ui" line="733"/>
+        <location filename="../QwcFileBrowserWidget.ui" line="766"/>
         <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1141,29 +1185,24 @@ This can not be undone!</source>
 <context>
     <name>QwcNewsWidget</name>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="79"/>
+        <location filename="../QwcNewsWidget.cpp" line="72"/>
         <source>%1 news article(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="93"/>
-        <source>From %1 (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcNewsWidget.cpp" line="137"/>
+        <location filename="../QwcNewsWidget.cpp" line="131"/>
         <source>Clear news</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="138"/>
+        <location filename="../QwcNewsWidget.cpp" line="132"/>
         <source>Are you sure you want to clear all news items?
 
 This cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.cpp" line="150"/>
+        <location filename="../QwcNewsWidget.cpp" line="144"/>
         <source>Are you sure you want to lose all changes to the current news article?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1173,52 +1212,67 @@ This cannot be undone.</source>
         <translation type="unfinished">Nouvelles</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="45"/>
+        <location filename="../QwcNewsWidget.ui" line="49"/>
+        <source>about:blank</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="62"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="100"/>
+        <location filename="../QwcNewsWidget.ui" line="69"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished">Ctrl+R</translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="120"/>
         <source>Delete all news articles.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="103"/>
+        <location filename="../QwcNewsWidget.ui" line="123"/>
         <source>Purge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="117"/>
+        <location filename="../QwcNewsWidget.ui" line="137"/>
         <source>Post a new article.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="166"/>
+        <location filename="../QwcNewsWidget.ui" line="147"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcNewsWidget.ui" line="189"/>
         <source>Loading news...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="190"/>
+        <location filename="../QwcNewsWidget.ui" line="216"/>
         <source>Compose a new article and press &quot;Post&quot; to send it to the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="224"/>
+        <location filename="../QwcNewsWidget.ui" line="250"/>
         <source>Cancel</source>
         <translation type="unfinished">Annuler</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="238"/>
+        <location filename="../QwcNewsWidget.ui" line="264"/>
         <source>Post</source>
         <translation type="unfinished">Poster</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="245"/>
+        <location filename="../QwcNewsWidget.ui" line="271"/>
         <source>Enter</source>
         <translation type="unfinished">Entrer</translation>
     </message>
     <message>
-        <location filename="../QwcNewsWidget.ui" line="120"/>
+        <location filename="../QwcNewsWidget.ui" line="140"/>
         <source>Post...</source>
         <translation type="unfinished">Poster...</translation>
     </message>
@@ -1226,87 +1280,76 @@ This cannot be undone.</source>
 <context>
     <name>QwcPreferencesWidget</name>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="20"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="18"/>
         <source>Automatic (default)</source>
         <translation type="unfinished">Automatique (Par défaut)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="46"/>
         <source>Server Connected</source>
-        <translation type="unfinished">Serveur connecté </translation>
+        <translation type="obsolete">Serveur connecté </translation>
+    </message>
+    <message>
+        <source>Server Disconnected</source>
+        <translation type="obsolete">Serveur déconnecté </translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.cpp" line="49"/>
-        <source>Server Disconnected</source>
-        <translation type="unfinished">Serveur déconnecté </translation>
-    </message>
-    <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="51"/>
         <source>Server Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="53"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="51"/>
         <source>User Joined</source>
         <translation type="unfinished">L&apos;utilisateur vient d&apos;arriver</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="55"/>
         <source>User Changed Nick</source>
-        <translation type="unfinished">L&apos;utilisateur à changé de pseudo</translation>
+        <translation type="obsolete">L&apos;utilisateur à changé de pseudo</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="57"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="54"/>
         <source>User Changed Status</source>
         <translation type="unfinished">L&apos;utilisateur à changé d&apos;état</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="59"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="52"/>
         <source>User Left</source>
         <translation type="unfinished">L&apos;utilisateur vient de partir</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="61"/>
         <source>Chat Received</source>
-        <translation type="unfinished">Message en temps réel reçu</translation>
+        <translation type="obsolete">Message en temps réel reçu</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="63"/>
         <source>Message Received</source>
-        <translation type="unfinished">Message reçu</translation>
+        <translation type="obsolete">Message reçu</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="65"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="58"/>
         <source>News Posted</source>
         <translation type="unfinished">Nouvelle envoyée</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="67"/>
         <source>Broadcast Received</source>
-        <translation type="unfinished">Annonce globale reçue</translation>
+        <translation type="obsolete">Annonce globale reçue</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="69"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="61"/>
         <source>Transfer Started</source>
         <translation type="unfinished">Transter démarré</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="71"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="62"/>
         <source>Transfer Finished</source>
         <translation type="unfinished">Transfert terminé</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="82"/>
-        <source>Unnamed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="281"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="268"/>
         <source>Select Icon</source>
         <translation type="unfinished">Séléctionner icône</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="282"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="268"/>
         <source>Images (*.png)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1315,45 +1358,107 @@ This cannot be undone.</source>
         <translation type="obsolete">Image (*.png *.xpm *.jpg)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="288"/>
         <source>Invalid File</source>
-        <translation type="unfinished">Fichier invalide</translation>
+        <translation type="obsolete">Fichier invalide</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="288"/>
         <source>Could not open the selected image.</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir l&apos;image séléctionée.</translation>
+        <translation type="obsolete">Impossible d&apos;ouvrir l&apos;image séléctionée.</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="309"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="47"/>
+        <source>Connected</source>
+        <translation type="unfinished">Connecté</translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="48"/>
+        <source>Disconnected</source>
+        <translation type="unfinished">Déconnécté </translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="53"/>
+        <source>User Changed Nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="56"/>
+        <source>Chat Message Received</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="57"/>
+        <source>Private Message Received</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="59"/>
+        <source>Broadcast Message Received</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="63"/>
+        <source>Transfer Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="72"/>
+        <source>Default Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="176"/>
+        <source>Qwired Freshling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="177"/>
+        <source>Just getting wired.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="273"/>
+        <source>Invalid Image File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="274"/>
+        <source>Could not open the selected image because it could be read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.cpp" line="293"/>
         <source>Select Download Directory</source>
         <translation type="unfinished">Séléctionner un dossier de récéption</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="415"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="362"/>
         <source>New Tracker</source>
         <translation type="unfinished">Nouvel annuaire</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="417"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="364"/>
         <source>my.tracker.com</source>
         <translation type="unfinished">my.tracker.com</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="449"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="400"/>
         <source>New Bookmark</source>
         <translation type="unfinished">Nouveau signet</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="524"/>
-        <location filename="../QwcPreferencesWidget.cpp" line="572"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="465"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="512"/>
         <source>(none)</source>
         <translation type="unfinished">(aucun)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.cpp" line="567"/>
+        <location filename="../QwcPreferencesWidget.cpp" line="507"/>
+        <source>Select Sound File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select WAV Sound File</source>
-        <translation type="unfinished">Sélectionner un fichier son WAV</translation>
+        <translation type="obsolete">Sélectionner un fichier son WAV</translation>
     </message>
     <message>
         <location filename="../QwcPreferencesWidget.ui" line="14"/>
@@ -1361,399 +1466,462 @@ This cannot be undone.</source>
         <translation type="unfinished">Préférences</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="27"/>
+        <location filename="../QwcPreferencesWidget.ui" line="31"/>
         <source>General</source>
         <translation type="unfinished">Général</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="50"/>
         <source>Nickname:</source>
-        <translation type="unfinished">Pseudo:</translation>
+        <translation type="obsolete">Pseudo:</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="79"/>
-        <source>Status:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcPreferencesWidget.ui" line="108"/>
         <source>Icon:</source>
-        <translation type="unfinished">Icône :</translation>
+        <translation type="obsolete">Icône :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="157"/>
+        <location filename="../QwcPreferencesWidget.ui" line="182"/>
         <source>Drag&amp;Drop any Image
 max size 32x32 pixels</source>
         <translation type="unfinished">Glissez &amp; déposez une image
 Taille maximum 32x32 pixels</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="172"/>
+        <location filename="../QwcPreferencesWidget.ui" line="197"/>
         <source>Default</source>
         <translation type="unfinished">Par défaut</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="184"/>
-        <location filename="../QwcPreferencesWidget.ui" line="444"/>
-        <location filename="../QwcPreferencesWidget.ui" line="451"/>
-        <location filename="../QwcPreferencesWidget.ui" line="622"/>
-        <location filename="../QwcPreferencesWidget.ui" line="688"/>
-        <location filename="../QwcPreferencesWidget.ui" line="796"/>
-        <location filename="../QwcPreferencesWidget.ui" line="1477"/>
+        <location filename="../QwcPreferencesWidget.ui" line="209"/>
+        <location filename="../QwcPreferencesWidget.ui" line="314"/>
+        <location filename="../QwcPreferencesWidget.ui" line="399"/>
+        <location filename="../QwcPreferencesWidget.ui" line="552"/>
+        <location filename="../QwcPreferencesWidget.ui" line="605"/>
         <source>Set...</source>
         <translation type="unfinished">Définir...</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="209"/>
         <source>Application Language:
 (requires restart)</source>
-        <translation type="unfinished">Langue de l&apos;application:
+        <translation type="obsolete">Langue de l&apos;application:
 (Actif après redémarrage)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="236"/>
+        <location filename="../QwcPreferencesWidget.ui" line="336"/>
         <source>Interface</source>
         <translation type="unfinished">Interface</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="246"/>
-        <location filename="../QwcPreferencesWidget.ui" line="1035"/>
+        <location filename="../QwcPreferencesWidget.ui" line="491"/>
         <source>Chat</source>
         <translation type="unfinished">Discussion</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="267"/>
-        <location filename="../QwcPreferencesWidget.ui" line="524"/>
-        <location filename="../QwcPreferencesWidget.ui" line="732"/>
         <source>Text:</source>
-        <translation type="unfinished">Texte :</translation>
+        <translation type="obsolete">Texte :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="277"/>
         <source>URLs:</source>
-        <translation type="unfinished">URLs:</translation>
+        <translation type="obsolete">URLs:</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="287"/>
+        <location filename="../QwcPreferencesWidget.ui" line="535"/>
         <source>Chat Font:</source>
         <translation type="unfinished">Police de la discussion :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="297"/>
+        <location filename="../QwcPreferencesWidget.ui" line="382"/>
         <source>User List Font:</source>
         <translation type="unfinished">Police de la liste d&apos;utilisateur :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="307"/>
+        <location filename="../QwcPreferencesWidget.ui" line="63"/>
+        <source>Personal Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="75"/>
+        <source>Default Nickname:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="104"/>
+        <source>Default Status:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="133"/>
+        <source>Default Icon:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="231"/>
+        <source>Language:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="273"/>
+        <source>Transfers</source>
+        <translation type="unfinished">Transferts</translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="279"/>
+        <source>Download location:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="302"/>
+        <source>Queue transfers locally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="370"/>
+        <source>User List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="412"/>
+        <source>Userlist Opacity:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="447"/>
         <source>Icon Size:</source>
         <translation type="unfinished">Taille des icones :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="328"/>
-        <location filename="../QwcPreferencesWidget.ui" line="563"/>
-        <location filename="../QwcPreferencesWidget.ui" line="761"/>
+        <location filename="../QwcPreferencesWidget.ui" line="503"/>
+        <source>Chat Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="717"/>
+        <source>Choose...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="724"/>
+        <source>Show notification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="731"/>
+        <source>Show in public chat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="738"/>
+        <source>Run command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="815"/>
+        <source>Add new bookmark...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="826"/>
+        <source>Delete selected bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="847"/>
+        <source>Bookmark Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="855"/>
+        <source>Bookmark Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="868"/>
+        <source>Server Address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="881"/>
+        <source>Login Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="894"/>
+        <source>Login Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="911"/>
+        <source>Connect automatically on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="971"/>
+        <source>Add new tracker...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="985"/>
+        <source>Remove selected tracker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="1006"/>
+        <source>Tracker Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Background:</source>
-        <translation type="unfinished">Arrière plan :</translation>
+        <translation type="obsolete">Arrière plan :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="371"/>
         <source>Events:</source>
-        <translation type="unfinished">Évènements :</translation>
+        <translation type="obsolete">Évènements :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="401"/>
+        <location filename="../QwcPreferencesWidget.ui" line="459"/>
         <source>Large</source>
         <translation type="unfinished">Grand</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="408"/>
+        <location filename="../QwcPreferencesWidget.ui" line="466"/>
         <source>Small</source>
         <translation type="unfinished">Petit</translation>
-    </message>
-    <message>
-        <location filename="../QwcPreferencesWidget.ui" line="458"/>
-        <source>Userlist Background Opacity:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alternating Row Background</source>
         <translation type="obsolete">Alterner la couleur des lignes</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="503"/>
+        <location filename="../QwcPreferencesWidget.ui" line="574"/>
         <source>News</source>
         <translation type="unfinished">Nouvelles</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="534"/>
         <source>Titles:</source>
-        <translation type="unfinished">Titres :</translation>
+        <translation type="obsolete">Titres :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="544"/>
+        <location filename="../QwcPreferencesWidget.ui" line="592"/>
         <source>News Font:</source>
         <translation type="unfinished">Police des nouvelles :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="645"/>
         <source>Messages</source>
-        <translation type="unfinished">Messages</translation>
+        <translation type="obsolete">Messages</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="650"/>
-        <location filename="../QwcPreferencesWidget.ui" line="1446"/>
         <source>Files</source>
-        <translation type="unfinished">Fichiers</translation>
+        <translation type="obsolete">Fichiers</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="671"/>
         <source>Files Font:</source>
-        <translation type="unfinished">Police des fichiers :</translation>
+        <translation type="obsolete">Police des fichiers :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="678"/>
-        <location filename="../QwcPreferencesWidget.ui" line="838"/>
         <source>Use Alternating Row Background</source>
-        <translation type="unfinished">Alterner la couleur des lignes</translation>
+        <translation type="obsolete">Alterner la couleur des lignes</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="711"/>
         <source>Preview</source>
-        <translation type="unfinished">Prévisualisation</translation>
+        <translation type="obsolete">Prévisualisation</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="742"/>
         <source>Preview Font:</source>
-        <translation type="unfinished">Police de la prévisualisation :</translation>
+        <translation type="obsolete">Police de la prévisualisation :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="819"/>
-        <location filename="../QwcPreferencesWidget.ui" line="1529"/>
+        <location filename="../QwcPreferencesWidget.ui" line="942"/>
         <source>Trackers</source>
         <translation type="unfinished">Annuaires</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="863"/>
+        <location filename="../QwcPreferencesWidget.ui" line="786"/>
         <source>Bookmarks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="888"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Create a new bookmark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+        <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Créer un nouveau signet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="894"/>
-        <location filename="../QwcPreferencesWidget.ui" line="1549"/>
         <source>New</source>
-        <translation type="unfinished">Nouveau</translation>
+        <translation type="obsolete">Nouveau</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="906"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Delete the selected bookmark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+        <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Effacer le signet sélectionné.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="912"/>
-        <location filename="../QwcPreferencesWidget.ui" line="1559"/>
         <source>Delete</source>
-        <translation type="unfinished">Effacer</translation>
+        <translation type="obsolete">Effacer</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="953"/>
         <source>Name:</source>
-        <translation type="unfinished">Nom :</translation>
+        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="966"/>
-        <source>Address:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcPreferencesWidget.ui" line="979"/>
         <source>Login:</source>
-        <translation type="unfinished">Nom :</translation>
+        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="992"/>
         <source>Password:</source>
-        <translation type="unfinished">Mot de passe :</translation>
+        <translation type="obsolete">Mot de passe :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1009"/>
         <source>Auto-Connect at Startup</source>
-        <translation type="unfinished">Connexion automatique au démarrage</translation>
+        <translation type="obsolete">Connexion automatique au démarrage</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1069"/>
         <source>Style:</source>
-        <translation type="unfinished">Style :</translation>
+        <translation type="obsolete">Style :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1081"/>
         <source>Qwired</source>
-        <translation type="unfinished">Qwired</translation>
+        <translation type="obsolete">Qwired</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1088"/>
-        <source>Wired</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1095"/>
         <source>IRC</source>
-        <translation type="unfinished">IRC</translation>
+        <translation type="obsolete">IRC</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1117"/>
         <source>Settings:</source>
-        <translation type="unfinished">Préférences :</translation>
+        <translation type="obsolete">Préférences :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1129"/>
         <source>Timestamp Every Line</source>
-        <translation type="unfinished">Horodatage sur chaque ligne</translation>
+        <translation type="obsolete">Horodatage sur chaque ligne</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1154"/>
         <source>Color:</source>
-        <translation type="unfinished">Couleur :</translation>
+        <translation type="obsolete">Couleur :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1207"/>
+        <location filename="../QwcPreferencesWidget.ui" line="522"/>
         <source>Show Emoticons</source>
         <translation type="unfinished">Montrer les émoticônes</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1329"/>
+        <location filename="../QwcPreferencesWidget.ui" line="559"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;body&gt;
+&lt;a href=&quot;http://code.google.com/p/qwired-suite/wiki/ChatStyles&quot;&gt;Download More Styles...&lt;/a&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcPreferencesWidget.ui" line="648"/>
         <source>Events</source>
         <translation type="unfinished">émoticône</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1371"/>
+        <location filename="../QwcPreferencesWidget.ui" line="698"/>
         <source>Play Sound:</source>
         <translation type="unfinished">Jouer le son :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1390"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation type="obsolete">...</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1399"/>
         <source>Display System Tray Message (requires Growl on Mac OS X)</source>
-        <translation type="unfinished">Afficher le message de le barre système (nécessite Growl sur Mac OS X)</translation>
+        <translation type="obsolete">Afficher le message de le barre système (nécessite Growl sur Mac OS X)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1406"/>
         <source>Post Event in Chat</source>
-        <translation type="unfinished">Poster l&apos;événement sur le chat</translation>
+        <translation type="obsolete">Poster l&apos;événement sur le chat</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1418"/>
         <source>Execute System Command:</source>
-        <translation type="unfinished">Exécuter la commande système : </translation>
+        <translation type="obsolete">Exécuter la commande système : </translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1452"/>
         <source>Download Folder:</source>
-        <translation type="unfinished">Dossier de réception :</translation>
+        <translation type="obsolete">Dossier de réception :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1484"/>
         <source>Transfers:</source>
-        <translation type="unfinished">Transferts :</translation>
+        <translation type="obsolete">Transferts :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1494"/>
         <source>Queue Transfers</source>
-        <translation type="unfinished">Mettre les transfert en fil d&apos;attente</translation>
+        <translation type="obsolete">Mettre les transfert en fil d&apos;attente</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1501"/>
         <source>Encrypt Transfers (slower on local networks)</source>
-        <translation type="unfinished">Crypter les transferts (Le cryptage diminue les performance sur les réseaux LAN)</translation>
+        <translation type="obsolete">Crypter les transferts (Le cryptage diminue les performance sur les réseaux LAN)</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1521"/>
         <source>Always Open Folders In New Windows</source>
-        <translation type="unfinished">Toujours ouvrir les dossiers dans une nouvelle fenêtre</translation>
+        <translation type="obsolete">Toujours ouvrir les dossiers dans une nouvelle fenêtre</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1586"/>
         <source>Tracker Settings</source>
-        <translation type="unfinished">Paramètres de l&apos;annuaire</translation>
+        <translation type="obsolete">Paramètres de l&apos;annuaire</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1592"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1012"/>
         <source>Tracker Name:</source>
         <translation type="unfinished">Nom de l&apos;annuaire :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1605"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1025"/>
         <source>Tracker Address:</source>
         <translation type="unfinished">Adresse de l&apos;annuaire :</translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1635"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1060"/>
         <source>Proxies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1647"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1072"/>
         <source>Proxy Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1653"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1078"/>
         <source>Proxy Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1660"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1085"/>
         <source>Proxy Host:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1670"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1095"/>
         <source>Proxy Port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1680"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1105"/>
         <source>User Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1690"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1115"/>
         <source>User Password:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1701"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1126"/>
         <source>No Proxy</source>
+        <extracomment>please do not translate &quot;proxy&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1719"/>
+        <location filename="../QwcPreferencesWidget.ui" line="1144"/>
         <source>Proxies might be required to connect to a Qwired server from inside a protected network. Also it can be used with Tor to give you more privacy.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcPreferencesWidget.ui" line="1810"/>
-        <source>Apply Changes</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1809,57 +1977,67 @@ p, li { white-space: pre-wrap; }
         <source>Save...</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../QwcPrivateMessager.ui" line="143"/>
+        <source>Enter a message and press the Enter key on your keyboard to send the message.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QwcServerInfoWidget</name>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="6"/>
+        <location filename="../QwcServerInfoWidget.ui" line="14"/>
         <source>Server Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="35"/>
+        <location filename="../QwcServerInfoWidget.ui" line="43"/>
         <source>My Great Server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="108"/>
+        <location filename="../QwcServerInfoWidget.ui" line="116"/>
         <source>Server Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="120"/>
+        <location filename="../QwcServerInfoWidget.ui" line="128"/>
         <source>Server Description:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="149"/>
+        <location filename="../QwcServerInfoWidget.ui" line="157"/>
         <source>Server Uptime:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="178"/>
+        <location filename="../QwcServerInfoWidget.ui" line="186"/>
         <source>Server URL:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="207"/>
+        <location filename="../QwcServerInfoWidget.ui" line="215"/>
         <source>Number of files:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="236"/>
+        <location filename="../QwcServerInfoWidget.ui" line="244"/>
         <source>Total size of files:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="265"/>
+        <location filename="../QwcServerInfoWidget.ui" line="273"/>
         <source>Server Version:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="294"/>
+        <location filename="../QwcServerInfoWidget.ui" line="302"/>
         <source>Session Protocol:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcServerInfoWidget.ui" line="360"/>
+        <source>Latency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1903,12 +2081,18 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Protocole :</translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.ui" line="323"/>
+        <location filename="../QwcServerInfoWidget.ui" line="331"/>
         <source>SSL Protocol:</source>
         <translation type="unfinished">SSL Protocole :</translation>
     </message>
     <message>
-        <location filename="../QwcServerInfoWidget.cpp" line="31"/>
+        <location filename="../QwcServerInfoWidget.cpp" line="28"/>
+        <source>%1 ms</source>
+        <extracomment>The milliseconds ping-time info for the server.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcServerInfoWidget.cpp" line="34"/>
         <source>Unknown Protocol</source>
         <extracomment>If the encryption (SSL) protocol is unknown, this is shown instead.</extracomment>
         <translation type="unfinished"></translation>
@@ -1923,59 +2107,59 @@ Set By: %2 --- %3</source>
 Défini par: %2 --- %3</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="451"/>
+        <location filename="../QwcSession.cpp" line="496"/>
         <source>Private Chat Invitation</source>
         <translation type="unfinished">Invitation à une discussion privée</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="452"/>
+        <location filename="../QwcSession.cpp" line="497"/>
         <source>%1 has invited you to a private chat.
 Join to open a separate private chat with %1.</source>
         <translation type="unfinished">%1 vous invite à une dicussion privée.
 Rejoindre et ouvrir une discussion privée séparée avec %1.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="454"/>
+        <location filename="../QwcSession.cpp" line="499"/>
         <source>Ignore</source>
         <translation type="unfinished">Ignorer</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="455"/>
+        <location filename="../QwcSession.cpp" line="500"/>
         <source>Reject</source>
         <translation type="unfinished">Refuser</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="456"/>
+        <location filename="../QwcSession.cpp" line="501"/>
         <source>Join</source>
         <translation type="unfinished">Rejoindre</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="485"/>
+        <location filename="../QwcSession.cpp" line="530"/>
         <source>Private Chat</source>
         <translation type="unfinished">Discussion privée</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="503"/>
+        <location filename="../QwcSession.cpp" line="548"/>
         <source>Connecting. Starting session...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="125"/>
+        <location filename="../QwcSession.cpp" line="139"/>
         <source>Connection Refused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="126"/>
+        <location filename="../QwcSession.cpp" line="140"/>
         <source>The connection was refused by the remote host. This normally means that there is no Wired server running on the remote machine.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="130"/>
+        <location filename="../QwcSession.cpp" line="144"/>
         <source>Host not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="131"/>
+        <location filename="../QwcSession.cpp" line="145"/>
         <source>Could not connect to the remote server because the host name could not be resolved.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1995,209 +2179,228 @@ Rejoindre et ouvrir une discussion privée séparée avec %1.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="90"/>
+        <location filename="../QwcSession.cpp" line="91"/>
         <source>Command Failed. An undefined internal server error has occoured.</source>
         <translation type="unfinished">Commande echouée. Une erreur interne indéfinie du serveur est survenue.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="91"/>
+        <location filename="../QwcSession.cpp" line="93"/>
         <source>Command Not Recognized. Qwired sent a command that is unknown by the server.</source>
         <translation type="unfinished">Commande non reconnue. Qwired à envoyé une commande qui n&apos;est pas interprétée par le serveur.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="92"/>
+        <location filename="../QwcSession.cpp" line="95"/>
         <source>Command Not Implemented. The last command is not implemented by the server.</source>
         <translation type="unfinished">Commande inexistante. La dernière commande est inexistante et donc non reconnue par le serveur.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="93"/>
+        <location filename="../QwcSession.cpp" line="97"/>
         <source>Syntax Error. The last command was not formatted correctly.</source>
         <translation type="unfinished">Erreur de syntaxe. La dernière commande n&apos;a pas été corrctement formatée.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="94"/>
+        <location filename="../QwcSession.cpp" line="99"/>
         <source>Login Failed. Username and password were not accepted by the server.</source>
         <translation type="unfinished">Connexion refusée. Le nom d&apos;utilisateur et/ou le mot de passe ont été refusés par le serveur.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="95"/>
+        <location filename="../QwcSession.cpp" line="101"/>
         <source>Banned. You have been banned from the server. Please try connecting later.</source>
         <translation type="unfinished">Vous avez été banni du serveur. Essayez de vous connecter plus tard.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="96"/>
+        <location filename="../QwcSession.cpp" line="103"/>
         <source>Client Not Found. The server could not find the client referred to.</source>
         <translation type="unfinished">Client non trouvé. Le serveur ne peut trouver le client que vous demandez.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="97"/>
+        <location filename="../QwcSession.cpp" line="105"/>
         <source>Account Not Found. The server could not find the account referred to.</source>
         <translation type="unfinished">Compte non trouvé. Le serveur ne peut trouver le compte que vous demandez.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="98"/>
+        <location filename="../QwcSession.cpp" line="107"/>
         <source>Account Exists. Could not create the account you specified.</source>
         <translation type="unfinished">Le compte existe déjà. Impossible de créer le compte que vous spécifiez.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="99"/>
+        <location filename="../QwcSession.cpp" line="109"/>
         <source>User can not be disconnected. The specified user can not be disconnected.</source>
         <translation type="unfinished">L&apos;utilisateur ne peut étre déconnecté. L&apos;utilisateur spécifier est protégé.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="100"/>
+        <location filename="../QwcSession.cpp" line="111"/>
         <source>Permission Denied. You don&apos;t have sufficient privileges to execute the last command.</source>
         <translation type="unfinished">Permission refusée. Vous n&apos;avezpas les privilèges nécessaires pour exécuter cette commande.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="102"/>
+        <location filename="../QwcSession.cpp" line="113"/>
         <source>File or Directory not found. The last command could not be completed because the file or directory could not be found.</source>
         <translation type="unfinished">Fichier ou répertoire non trouvé. La dernière commande ne peut aboutir car le fichier ou répértoire demandé ne peut étre trouvé.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="107"/>
+        <location filename="../QwcSession.cpp" line="119"/>
         <source>The last command could not be completed because the file or directory already exists.</source>
         <translation type="unfinished">La dernière commande ne peut aboutir car le fichier ou répértoire demandé existe déja.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="108"/>
+        <location filename="../QwcSession.cpp" line="121"/>
         <source>Checksum Mismatch.</source>
         <translation type="unfinished">Somme de contrôle invalide.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="109"/>
+        <location filename="../QwcSession.cpp" line="123"/>
         <source>Queue Limit Exceeded. Could not complete the last command because the server queue is full.</source>
         <translation type="unfinished">La dernière commande ne peut aboutir car votre transfert est en fil d&apos;attente.</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="114"/>
+        <location filename="../QwcSession.cpp" line="128"/>
         <source>Server Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="189"/>
-        <location filename="../QwcSession.cpp" line="980"/>
+        <location filename="../QwcSession.cpp" line="205"/>
+        <location filename="../QwcSession.cpp" line="1068"/>
         <source>Chat</source>
         <extracomment>Text of the main connection tab in the connection window.</extracomment>
         <translation type="unfinished">Discussion</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="498"/>
+        <location filename="../QwcSession.cpp" line="483"/>
+        <source>Info: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcSession.cpp" line="543"/>
         <source>Qwired - %1</source>
         <extracomment>This is the translateable string for the server name in the window title bar of the connection window.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="594"/>
+        <location filename="../QwcSession.cpp" line="650"/>
         <source>Show/Hide</source>
         <translation type="unfinished">Montrer/Cacher</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="617"/>
+        <location filename="../QwcSession.cpp" line="672"/>
         <source>Connected</source>
         <translation type="unfinished">Connecté</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="618"/>
+        <location filename="../QwcSession.cpp" line="673"/>
         <source>Disconnected</source>
         <translation type="unfinished">Déconnécté </translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="619"/>
+        <location filename="../QwcSession.cpp" line="674"/>
         <source>Server Error: %1</source>
         <translation type="unfinished">Erreur du serveur: %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="620"/>
+        <location filename="../QwcSession.cpp" line="675"/>
         <source>%1 joined</source>
         <translation type="unfinished">%1 vient d&apos;arriver</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="621"/>
+        <location filename="../QwcSession.cpp" line="676"/>
+        <source>&quot;%1&quot; is now known as &quot;%2&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcSession.cpp" line="677"/>
+        <source>%1 changed status to &quot;%2&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 is now known as %2</source>
-        <translation type="unfinished">%1 s&apos;appelle désormais %2</translation>
+        <translation type="obsolete">%1 s&apos;appelle désormais %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="622"/>
         <source>%1 changed status to &apos;%2&apos;</source>
-        <translation type="unfinished">%1 a changé son état en &apos;%2&apos;</translation>
+        <translation type="obsolete">%1 a changé son état en &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="623"/>
+        <location filename="../QwcSession.cpp" line="678"/>
         <source>%1 left</source>
         <translation type="unfinished">%1 vient de partir</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="624"/>
+        <location filename="../QwcSession.cpp" line="679"/>
         <source>Chat from %1:
 %2</source>
         <translation type="unfinished">Discussion privée de %1
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="625"/>
+        <location filename="../QwcSession.cpp" line="680"/>
         <source>Message from %1:
 %2</source>
         <translation type="unfinished">Message de %1 :
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="626"/>
+        <location filename="../QwcSession.cpp" line="681"/>
         <source>News Posted from %1:
 %2</source>
         <translation type="unfinished">News envoyé par %1 : 
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="627"/>
+        <location filename="../QwcSession.cpp" line="682"/>
         <source>Broadcast from %1:
 %2</source>
         <translation type="unfinished">Annonce à tous de %1 :
 %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="628"/>
+        <location filename="../QwcSession.cpp" line="683"/>
         <source>Transfer Started: %1</source>
         <translation type="unfinished">Téléchargement  commencé : %1</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="629"/>
+        <location filename="../QwcSession.cpp" line="684"/>
         <source>Transfer Finished: %1</source>
         <translation type="unfinished">Téléchargement terminé : %2</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="707"/>
+        <location filename="../QwcSession.cpp" line="777"/>
         <source>Receiving user list...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="721"/>
-        <location filename="../QwcSession.cpp" line="739"/>
+        <location filename="../QwcSession.cpp" line="791"/>
+        <location filename="../QwcSession.cpp" line="809"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="743"/>
+        <location filename="../QwcSession.cpp" line="813"/>
         <source>Qwired Newbie</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="850"/>
+        <location filename="../QwcSession.cpp" line="920"/>
         <source>Accounts</source>
         <translation type="unfinished">Comptes</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="886"/>
+        <location filename="../QwcSession.cpp" line="956"/>
         <source>News</source>
         <translation type="unfinished">Nouvelles</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="907"/>
+        <location filename="../QwcSession.cpp" line="975"/>
+        <location filename="../QwcSession.cpp" line="1139"/>
+        <source>Messages</source>
+        <translation type="unfinished">Messages</translation>
+    </message>
+    <message>
+        <location filename="../QwcSession.cpp" line="995"/>
         <source>Server Info</source>
         <translation type="unfinished">Information du serveur</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="966"/>
+        <location filename="../QwcSession.cpp" line="1054"/>
         <source>Files</source>
         <translation type="unfinished">Fichiers</translation>
     </message>
@@ -2206,20 +2409,15 @@ Rejoindre et ouvrir une discussion privée séparée avec %1.</translation>
         <translation type="obsolete">Recherche de fichiers</translation>
     </message>
     <message>
-        <location filename="../QwcSession.cpp" line="1033"/>
+        <location filename="../QwcSession.cpp" line="1121"/>
         <source>Transfers</source>
         <translation type="unfinished">Transferts</translation>
-    </message>
-    <message>
-        <location filename="../QwcSession.cpp" line="1049"/>
-        <source>Private Messages</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QwcSocket</name>
     <message>
-        <location filename="../QwcSocket.cpp" line="805"/>
+        <location filename="../QwcSocket.cpp" line="831"/>
         <source>kittehday nait fevrar</source>
         <translation type="unfinished">kittehday nait fevrar</translation>
     </message>
@@ -2286,14 +2484,18 @@ Rejoindre et ouvrir une discussion privée séparée avec %1.</translation>
 <context>
     <name>QwcUserInfoWidget</name>
     <message>
-        <location filename="../QwcUserInfoWidget.cpp" line="37"/>
+        <location filename="../QwcUserInfoWidget.cpp" line="32"/>
         <source>User Information: %1</source>
         <translation type="unfinished">Information à propos de %1</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.cpp" line="91"/>
+        <location filename="../QwcUserInfoWidget.cpp" line="45"/>
+        <source>%1 of %2 at %3/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 MB of %2 MB at %3 KiB/sec</source>
-        <translation type="unfinished">%1 MB de %2 MB à %3 KiB/sec</translation>
+        <translation type="obsolete">%1 MB de %2 MB à %3 KiB/sec</translation>
     </message>
     <message>
         <location filename="../QwcUserInfoWidget.ui" line="14"/>
@@ -2301,102 +2503,125 @@ Rejoindre et ouvrir une discussion privée séparée avec %1.</translation>
         <translation type="unfinished">Information sur l&apos;utilisateur</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="73"/>
         <source>user name</source>
-        <translation type="unfinished">Nom de l&apos;utilisateur</translation>
+        <translation type="obsolete">Nom de l&apos;utilisateur</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="90"/>
+        <location filename="../QwcUserInfoWidget.ui" line="98"/>
         <source>Status:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="97"/>
-        <source>This is it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcUserInfoWidget.ui" line="113"/>
+        <location filename="../QwcUserInfoWidget.ui" line="127"/>
         <source>Login:</source>
         <translation type="unfinished">Nom :</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="120"/>
-        <source>mylogin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcUserInfoWidget.ui" line="136"/>
+        <location filename="../QwcUserInfoWidget.ui" line="156"/>
         <source>ID:</source>
         <translation type="unfinished">ID :</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="143"/>
-        <source>124</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcUserInfoWidget.ui" line="159"/>
+        <location filename="../QwcUserInfoWidget.ui" line="185"/>
         <source>Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="166"/>
-        <source>1.2.3.4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcUserInfoWidget.ui" line="182"/>
+        <location filename="../QwcUserInfoWidget.ui" line="214"/>
         <source>Host:</source>
         <translation type="unfinished">Hôte :</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="189"/>
-        <source>main-gw.someprovider.com</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcUserInfoWidget.ui" line="205"/>
+        <location filename="../QwcUserInfoWidget.ui" line="243"/>
         <source>Version:</source>
         <translation type="unfinished">Version :</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="212"/>
-        <source>1.0 running on Mac OS X 10.4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../QwcUserInfoWidget.ui" line="228"/>
+        <location filename="../QwcUserInfoWidget.ui" line="272"/>
         <source>Cipher:</source>
         <translation type="unfinished">Algorithme de cryptage :</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="235"/>
-        <location filename="../QwcUserInfoWidget.ui" line="258"/>
-        <location filename="../QwcUserInfoWidget.ui" line="281"/>
         <source>TextLabel</source>
-        <translation type="unfinished">TextLabel</translation>
+        <translation type="obsolete">TextLabel</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="251"/>
+        <location filename="../QwcUserInfoWidget.ui" line="73"/>
+        <source>User Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="86"/>
+        <source>Session Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="111"/>
+        <source>(unknown status)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="140"/>
+        <source>(unknown login)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="169"/>
+        <source>(unknown ID)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="198"/>
+        <source>(unknown address)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="227"/>
+        <source>(unknown host)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="256"/>
+        <source>(unknown version)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="285"/>
+        <source>(unknown cipher)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="301"/>
         <source>Login Time:</source>
         <translation type="unfinished">Connecté depuis :</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="274"/>
+        <location filename="../QwcUserInfoWidget.ui" line="314"/>
+        <source>(unknown login time)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../QwcUserInfoWidget.ui" line="330"/>
         <source>Idle Time:</source>
         <translation type="unfinished">Inactif depuis :</translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="299"/>
-        <location filename="../QwcUserInfoWidget.ui" line="317"/>
-        <source>Downloads</source>
-        <translation type="unfinished">Téléchargements</translation>
+        <location filename="../QwcUserInfoWidget.ui" line="343"/>
+        <source>(unknown idle time)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../QwcUserInfoWidget.ui" line="331"/>
+        <location filename="../QwcUserInfoWidget.ui" line="356"/>
+        <source>Active Transfers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation type="obsolete">Téléchargements</translation>
+    </message>
+    <message>
         <source>Uploads</source>
-        <translation type="unfinished">Envois</translation>
+        <translation type="obsolete">Envois</translation>
     </message>
 </context>
 </TS>
