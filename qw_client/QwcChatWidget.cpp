@@ -8,7 +8,9 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QDesktopServices>
 
-#include <QtWebKit>
+#include <QtWebKit/QWebFrame>
+
+
 
 QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 {

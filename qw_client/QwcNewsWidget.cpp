@@ -8,7 +8,9 @@
 #include <QTextCursor>
 #include <QTextBlock>
 
-#include <QtWebKit>
+#include <QtWebKit/QWebFrame>
+#include <QtWebKit/QWebElement>
+
 #include <QDesktopServices>
 
 /*! \class QwcNewsWidget
