@@ -39,10 +39,9 @@ signals:
 
 
 public slots:
-    void addNewsItem(QString theNick, QDateTime time, QString thePost, bool insertAtTop = false);
-    /*! Adds a new item to the top of the list. */
-    void addNewsItemAtTop(QString theNick, QDateTime time, QString thePost)
-    { addNewsItem(theNick, time, thePost, true); }
+    void addNewsItem(const QString &nickname, QDateTime time, const QString &text,
+                     bool insertAtTop = false);
+
     void newsDone();
 
 private slots:
