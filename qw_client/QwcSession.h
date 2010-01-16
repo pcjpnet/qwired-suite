@@ -7,7 +7,6 @@
 #include "QwcChatWidget.h"
 #include "QwcConnectWidget.h"
 #include "QwcConnectionMainWindow.h"
-#include "QwcSocket.h"
 #include "QwcNewsWidget.h"
 #include "QwcPreferencesWidget.h"
 #include "QwcConnectWidget.h"
@@ -16,6 +15,8 @@
 #include "QwcServerInfoWidget.h"
 #include "QwcPrivateMessager.h"
 #include "QwcUserInfoWidget.h"
+
+class QwcSocket;
 
 namespace Qwired {
     enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick,
@@ -26,7 +27,8 @@ namespace Qwired {
 
 class QwcFileBrowserWidget;
 
-class QwcSession : public QObject
+class QwcSession :
+        public QObject
 {
     Q_OBJECT
 
@@ -34,11 +36,12 @@ public:
     QwcSession(QObject *parent = 0);
     ~QwcSession();
 
+    QwcSocket* socket();
+
     bool eventFilter(QObject *watched, QEvent *event);
 
 
-    /*! Returns a pointer to the underlying protocol socket. */
-    QwcSocket* socket();
+
 
     // Main window widgets
     void initMainWindow();
@@ -49,27 +52,24 @@ public:
 
 
     // Connection dialog widgets
-    QPointer<QwcConnectionMainWindow> connectionWindow;
-    QPointer<QwcConnectWidget> connectWidget;
+    QPointer<QwcConnectionMainWindow> m_mainWindow;
+    QPointer<QwcConnectWidget> m_connectWidget;
+    QPointer<QwcChatWidget> m_publicChat;
     QPointer<QTabWidget> connectionTabWidget;
-    QPointer<QwcChatWidget> mainChatWidget;
     QPointer<QStackedWidget> connectionStackedWidget;
 
-    QPointer<QwcNewsWidget> pWinNews;
-    QHash<int, QPointer<QwcChatWidget> > pChats;
-
-    QPointer<QwcServerInfoWidget> mainServerInfoWidget;
-    QPointer<QwcPreferencesWidget> pPrefsWindow;
-    QPointer<QwcFiletransferWidget> pTranfersWindow;
-    QPointer<QwcAccountsWidget> pWinAccounts;
-    QPointer<QwcFileBrowserWidget> mainFileWidget;
-
+    QPointer<QwcNewsWidget> m_newsWidget;
+    QHash<int, QPointer<QwcChatWidget> > m_chatWidgets;
+    QPointer<QwcServerInfoWidget> m_serverInfoWidget;
+    QPointer<QwcPreferencesWidget> m_preferencesWidget;
+    QPointer<QwcFiletransferWidget> m_transfersWidget;
+    QPointer<QwcAccountsWidget> m_accountsWidget;
+    QPointer<QwcFileBrowserWidget> m_fileBrowserWidget;
     /*! A list of QwcUserInfoWidgets, identified by the \a userId. */
-    QHash<int,QPointer<QwcUserInfoWidget> > userInfoWidgets;
+    QHash<int,QPointer<QwcUserInfoWidget> > m_userInfoWidgets;
 
-    QPointer<QMenu> pTrayMenuItem;
+    QPointer<QMenu> m_systemTrayMenu;
 
-    // Misc
     bool confirmDisconnection();
 
 private:

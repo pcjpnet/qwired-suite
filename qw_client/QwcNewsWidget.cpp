@@ -24,7 +24,7 @@ QwcNewsWidget::QwcNewsWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
-    newsCounter = 0;
+    m_newsCounter = 0;
 
     // Notification manager
     QwcSingleton *settings = &WSINGLETON::Instance();
@@ -63,7 +63,7 @@ void QwcNewsWidget::reloadPreferences()
     m_emoticonsEnabled = settings.value("interface/chat/emoticons", true).toBool();
 
     updateNewsCss();
-    newsCounter = 0;
+    m_newsCounter = 0;
     updateNewsStats();
     pageWidget->setCurrentIndex(1);
     emit requestedRefresh();
@@ -75,8 +75,8 @@ void QwcNewsWidget::reloadPreferences()
 */
 void QwcNewsWidget::updateNewsStats()
 {
-    fNewsStatus->setText(tr("%1 news article(s)").arg(newsCounter));
-    fBtnDelete->setEnabled(newsCounter > 0);
+    fNewsStatus->setText(tr("%1 news article(s)").arg(m_newsCounter));
+    fBtnDelete->setEnabled(m_newsCounter > 0);
 }
 
 
@@ -102,7 +102,7 @@ void QwcNewsWidget::addNewsItem(const QString &nickname, QDateTime time, const Q
         mainElement.appendInside(newItem);
     }
 
-    newsCounter++;
+    m_newsCounter++;
     updateNewsStats();
 }
 
@@ -116,7 +116,7 @@ void QwcNewsWidget::on_fBtnRefresh_clicked(bool checked)
     QWebElement newsItemsElement = newsView->page()->mainFrame()->findFirstElement("#news_items");
     newsItemsElement.setPlainText(QString());
 
-    newsCounter = 0;
+    m_newsCounter = 0;
     emit requestedRefresh();
     pageWidget->setCurrentIndex(1);
 }
@@ -136,7 +136,7 @@ void QwcNewsWidget::on_fBtnDelete_clicked(bool)
     if (QMessageBox::question(this, tr("Clear news"),
                               tr("Are you sure you want to clear all news items?\n\nThis cannot be undone."),
                               QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes) {
-        newsCounter = 0;
+        m_newsCounter = 0;
         emit userPurgedNews();
     }
 }
