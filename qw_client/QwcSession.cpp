@@ -82,6 +82,7 @@ void QwcSession::initializeMainWindow()
 {
     m_mainWindow = new QwcConnectionMainWindow();
     m_mainWindow->installEventFilter(this);
+    m_mainWindow->setSocket(m_socket);
     connect(m_mainWindow, SIGNAL(actionTriggered(QwcConnectionMainWindow::TriggeredAction)),
             this, SLOT(handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction)));
     connect(m_mainWindow, SIGNAL(destroyed(QObject*)),

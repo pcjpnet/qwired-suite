@@ -745,7 +745,7 @@ void QwcSocket::handleMessage601(const QwMessage &message)
 void QwcSocket::handleMessage602(const QwMessage &message)
 {
     sessionUser.setPrivilegesFromMessage602(&message);
-    emit receivedUserPrivileges(sessionUser);
+    emit receivedUserPrivileges();
 }
 
 
@@ -868,7 +868,10 @@ void QwcSocket::sendPing()
 
 /*! The SSL connection was established. Now send the session request HELLO. */
 void QwcSocket::handleSocketConnected()
-{ sendMessage(QwMessage("HELLO")); }
+{
+    sendMessage(QwMessage("HELLO"));
+    emit socketConnected();
+}
 
 
 /*! The connection to the server was lost.

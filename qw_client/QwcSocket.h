@@ -142,6 +142,9 @@ private slots:
 
 
 signals:
+    /*! Emitted when a SSL/TCP connection has been established, but no login has occurred yet. */
+    void socketConnected();
+
     /*! A protocol error was received from the server. This signal is emitted for every 5xx-type
         message, but some handling (such as login errors, etc.) is done inside the socket before
         the signal is emitted. */
@@ -229,7 +232,7 @@ signals:
 
     void groupSpecReceived(QwcUserInfo);
 
-    void receivedUserPrivileges(const QwcUserInfo theSession);
+    void receivedUserPrivileges();
     void fileTransferSocketError(QAbstractSocket::SocketError);
 
     // TRACKER
