@@ -23,7 +23,8 @@ public:
 private:
     /*! Stores the current number of news articles. */
     bool m_emoticonsEnabled;
-    int newsCounter;
+    int m_newsCounter;
+
     void updateNewsStats();
     void updateNewsCss();
 

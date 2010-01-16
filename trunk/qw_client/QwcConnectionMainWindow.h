@@ -15,7 +15,7 @@ Q_OBJECT
 
 public:
     QPointer<QwcAboutWidget> pQwcAboutWidget;
-    QwcConnectionMainWindow(QWidget *parent=0);
+    QwcConnectionMainWindow(QWidget *parent = 0);
 
     /*! This member holds a pointer to a QLabel which contains the pixmap for the server banner
         in the toolbar. */

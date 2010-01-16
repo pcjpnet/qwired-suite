@@ -57,7 +57,7 @@ QwcChatWidget::~QwcChatWidget()
 {
     // Leave the chat, if it is private
     if( pChatID != 1 ) {
-        m_session->pChats.remove(pChatID);
+        m_session->m_chatWidgets.remove(pChatID);
         m_session->socket()->leaveChat(pChatID);
     }
 
