@@ -2,6 +2,7 @@
 #include "QwcNewsWidget.h"
 #include "QwcMessageStyle.h"
 #include "QwFile.h"
+#include "QwcSocket.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -25,6 +26,8 @@ QwcNewsWidget::QwcNewsWidget(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
     m_newsCounter = 0;
+
+    m_socket = NULL;
 
     // Notification manager
     QwcSingleton *settings = &WSINGLETON::Instance();
@@ -54,6 +57,27 @@ QwcNewsWidget::~QwcNewsWidget()
 }
 
 
+void QwcNewsWidget::setSocket(QwcSocket *socket)
+{
+    if (m_socket) { disconnect(m_socket, 0, this, 0); }
+    m_socket = socket;
+    if (!socket) { return; }
+
+    connect(m_socket, SIGNAL(newsListingItem(QString,QDateTime,QString)),
+            this, SLOT(addNewsItem(QString, QDateTime, QString)));
+    connect(m_socket, SIGNAL(newsPosted(QString, QDateTime, QString)),
+            this, SLOT(addNewsItemAtTop(QString, QDateTime, QString)));
+    connect(m_socket, SIGNAL(newsListingDone()),
+            this, SLOT(newsDone()));
+
+    fBtnPost->setVisible(m_socket->sessionUser.privileges().testFlag(Qws::PrivilegePostNews));
+    fBtnDelete->setVisible(m_socket->sessionUser.privileges().testFlag(Qws::PrivilegeClearNews));
+}
+
+QwcSocket* QwcNewsWidget::socket()
+{ return m_socket; }
+
+
 /*! The preferences were changed and we should reload the news.
 */
 void QwcNewsWidget::reloadPreferences()
@@ -66,7 +90,7 @@ void QwcNewsWidget::reloadPreferences()
     m_newsCounter = 0;
     updateNewsStats();
     pageWidget->setCurrentIndex(1);
-    emit requestedRefresh();
+    m_socket->getNews();
 }
 
 
@@ -109,15 +133,13 @@ void QwcNewsWidget::addNewsItem(const QString &nickname, QDateTime time, const Q
 
 
 
-void QwcNewsWidget::on_fBtnRefresh_clicked(bool checked)
+void QwcNewsWidget::on_fBtnRefresh_clicked()
 {
-    Q_UNUSED(checked);
-
     QWebElement newsItemsElement = newsView->page()->mainFrame()->findFirstElement("#news_items");
     newsItemsElement.setPlainText(QString());
 
     m_newsCounter = 0;
-    emit requestedRefresh();
+    m_socket->getNews();
     pageWidget->setCurrentIndex(1);
 }
 
@@ -131,13 +153,13 @@ void QwcNewsWidget::on_fBtnPost_clicked()
 }
 
 
-void QwcNewsWidget::on_fBtnDelete_clicked(bool)
+void QwcNewsWidget::on_fBtnDelete_clicked()
 {
     if (QMessageBox::question(this, tr("Clear news"),
                               tr("Are you sure you want to clear all news items?\n\nThis cannot be undone."),
                               QMessageBox::Yes, QMessageBox::No ) == QMessageBox::Yes) {
         m_newsCounter = 0;
-        emit userPurgedNews();
+        m_socket->clearNews();
     }
 }
 
@@ -161,9 +183,8 @@ void QwcNewsWidget::on_btnComposeCancel_clicked()
 */
 void QwcNewsWidget::on_btnComposePost_clicked()
 {
-    if (!composeMessage->toPlainText().isEmpty()) {
-        emit doPostNews(composeMessage->toPlainText());
-    }
+    if (composeMessage->toPlainText().isEmpty()) { return; }
+    m_socket->postNews(composeMessage->toPlainText().trimmed());
     pageWidget->setCurrentIndex(0);
     composeMessage->setPlainText("");
 }
@@ -187,8 +208,7 @@ void QwcNewsWidget::newsDone()
 */
 void QwcNewsWidget::setupFromUser(const QwcUserInfo user)
 {
-    fBtnPost->setVisible(user.privileges().testFlag(Qws::PrivilegePostNews));
-    fBtnDelete->setVisible(user.privileges().testFlag(Qws::PrivilegeClearNews));
+
 }
 
 
