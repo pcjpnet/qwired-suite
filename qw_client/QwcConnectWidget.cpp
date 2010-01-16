@@ -1,6 +1,7 @@
 #include "QwcConnectWidget.h"
 #include "QwFile.h"
 
+#include "QwcSocket.h"
 #include <QDebug>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -17,6 +18,7 @@
 QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
+    m_socket = NULL;
     fContainer->setCurrentIndex(0);
     loadBookmarks();
     pReconnectTimerId = -1;
@@ -57,6 +59,24 @@ void QwcConnectWidget::connectAutomatically(const QString &address, const QStrin
     fPassword->setText(password);
     btnConnect->click();
 }
+
+
+void QwcConnectWidget::setSocket(QwcSocket *socket)
+{
+    if (m_socket) { disconnect(m_socket, 0, this, 0); }
+    m_socket = socket;
+    if (!socket) { return; }
+
+    connect(m_socket, SIGNAL(onServerInformation()),
+            this, SLOT(handleSocketServerInformation()));
+    connect(m_socket, SIGNAL(onServerLoginSuccessful()),
+            this, SLOT(handleSocketLoginSuccessful()));
+
+}
+
+QwcSocket* QwcConnectWidget::socket()
+{ return m_socket; }
+
 
 /*! The "Trackers..." button has been clicked.
 */
@@ -187,15 +207,16 @@ void QwcConnectWidget::updateTrackerMenu()
 
 void QwcConnectWidget::on_btnConnect_clicked()
 {
-    fContainer->setCurrentIndex(1);
     fStatus->setText(tr("Connecting..."));
-    emit userFinished(fAddress->text(), fLogin->text(), fPassword->text());
+    fContainer->setCurrentIndex(1);
+    m_socket->setUserAccount(fLogin->text(), fPassword->text());
+    m_socket->connectToServer(fAddress->text());
 }
 
 
 void QwcConnectWidget::on_btnConnectCancel_clicked()
 {
-    emit onConnectAborted();
+    m_socket->disconnectFromServer();
     stopReconnecting();
     resetForm();
 }
@@ -334,14 +355,19 @@ void QwcConnectWidget::resetForm()
 }
 
 
-void QwcConnectWidget::setProgressBar(int value, int max)
+void QwcConnectWidget::handleSocketServerInformation()
 {
-    fProgress->setMaximum(max);
-    fProgress->setValue(value);
+    fStatus->setText(tr("Connected, logging in..."));
+    fProgress->setMaximum(3);
+    fProgress->setValue(1);
 }
 
 
-void QwcConnectWidget::setStatus(const QString &status)
+void QwcConnectWidget::handleSocketLoginSuccessful()
 {
-    fStatus->setText(status);
+    fStatus->setText(tr("Logged in, initiating session..."));
+    fProgress->setMaximum(3);
+    fProgress->setValue(2);
+
 }
+

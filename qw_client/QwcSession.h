@@ -94,15 +94,8 @@ private slots:
     void handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction action);
 
 
-    // Connect widget
-    void onConnectAborted();
-
-
-    // File browser
-    void handleTransferComplete(const QwcTransferInfo &transfer);
-
     // Chat Window
-    void onUserlistComplete(int chatId);
+    void handleSocketUserlistComplete(int chatId);
 
     void handlePrivateMessage(QwcUserInfo sender, QString text);
 
@@ -124,14 +117,8 @@ public slots:
     void showMessagerForUser(const QwcUserInfo targetUser);
 
     void triggerEvent(QString event, QStringList parameters);
-    void setTrayMenuAction(QMenu*);
 
     void do_handle_chat_message(int, int, QString, bool);
-
-//    void doActionFiles(QString initialPath="/");
-
-    // Connect window
-    void onDoConnect(QString theHost, QString theLogin, QString thePassword);
 
     // Socket handlers
     void handleChatTopic(int chatId, QString nickname, QString login, QHostAddress userIp, QDateTime date, QString topic);
@@ -139,9 +126,6 @@ public slots:
 
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
     void createChatWidget(int chatId);
-
-    void handleServerInformation();
-    void onLoginSuccessful();
 
 
 

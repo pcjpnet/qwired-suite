@@ -7,14 +7,16 @@
 
 
 #include "QwcAccountsWidget.h"
+#include "QwcSocket.h"
 
-#include <QMessageBox>
+#include <QtGui/QMessageBox>
 
 
 QwcAccountsWidget::QwcAccountsWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
+    m_socket = NULL;
     newAccountMode = false;
     fGroupBasic->setEnabled(false);
     fGroupFiles->setEnabled(false);
@@ -23,6 +25,56 @@ QwcAccountsWidget::QwcAccountsWidget(QWidget *parent) : QWidget(parent)
     // Show the list by default
     stackedWidget->setCurrentIndex(1);
 }
+
+
+void QwcAccountsWidget::setSocket(QwcSocket *socket)
+{
+    if (m_socket) { disconnect(m_socket, 0, this, 0); }
+    m_socket = socket;
+    if (!socket) { return; }
+
+    connect(m_socket, SIGNAL(receivedAccountList(QStringList)),
+            this, SLOT(appendUserNames(QStringList)));
+    connect(m_socket, SIGNAL(receivedAccountGroupList(QStringList)),
+            this, SLOT(appendGroupNames(QStringList)));
+
+    connect(m_socket, SIGNAL(userSpecReceived(QwcUserInfo)),
+            this, SLOT(loadFromAccount(QwcUserInfo)));
+    connect(m_socket, SIGNAL(groupSpecReceived(QwcUserInfo)),
+            this, SLOT(loadFromAccount(QwcUserInfo)));
+
+//    connect(m_accountsWidget, SIGNAL(userSpecRequested(QString)),
+//            m_socket, SLOT(readUser(QString)));
+//    connect(m_accountsWidget, SIGNAL(groupSpecRequested(QString)),
+//            m_socket, SLOT(readGroup(QString)));
+//
+//
+//    connect(m_accountsWidget, SIGNAL(accountCreated(QwcUserInfo)),
+//            m_socket, SLOT(createUser(QwcUserInfo)));
+//    connect(m_accountsWidget, SIGNAL(accountEdited(QwcUserInfo)),
+//            m_socket, SLOT(editUser(QwcUserInfo)));
+//    connect(m_accountsWidget, SIGNAL(accountDeleted(QString)),
+//            m_socket, SLOT(deleteUser(QString)));
+//
+//    connect(m_accountsWidget, SIGNAL(groupCreated(QwcUserInfo)),
+//            m_socket, SLOT(createGroup(QwcUserInfo)));
+//    connect(m_accountsWidget, SIGNAL(groupEdited(QwcUserInfo)),
+//            m_socket, SLOT(editGroup(QwcUserInfo)));
+//    connect(m_accountsWidget, SIGNAL(groupDeleted(QString)),
+//            m_socket, SLOT(deleteGroup(QString)));
+//
+//    connect(m_accountsWidget, SIGNAL(refreshedAccountsAndGroups()),
+//            m_socket, SLOT(getGroups()));
+//    connect(m_accountsWidget, SIGNAL(refreshedAccountsAndGroups()),
+//            m_socket, SLOT(getUsers()));
+
+    m_socket->getGroups();
+    m_socket->getUsers();
+
+}
+
+QwcSocket* QwcAccountsWidget::socket()
+{ return m_socket; }
 
 
 /*! Enable/Disable the widgets of the editor form depending on the current editor mode. (e.g.
@@ -138,19 +190,19 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
         // Create new account/group
         if (newAccount.userType == Qws::UserTypeAccount) {
             appendUserNames(QStringList() << newAccount.name);
-            emit accountCreated(newAccount);
+            m_socket->createUser(newAccount);
         } else if (newAccount.userType == Qws::UserTypeGroup) {
             appendGroupNames(QStringList() << newAccount.name);
-            emit groupCreated(newAccount);
+            m_socket->createGroup(newAccount);
         }
         btnEditDelete->click();
 
     } else {
         // Update existing account/group
         if(fAccountType->currentIndex()==0) {
-            emit accountEdited(newAccount);
+            m_socket->editUser(newAccount);
         } else {
-            emit groupEdited(newAccount);
+            m_socket->editGroup(newAccount);
         }
     }
 
@@ -164,7 +216,8 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
 void QwcAccountsWidget::on_btnRefreshAccounts_clicked()
 {
     fList->clear();
-    emit refreshedAccountsAndGroups();
+    m_socket->getUsers();
+    m_socket->getGroups();
 }
 
 
@@ -219,9 +272,9 @@ void QwcAccountsWidget::on_btnEditAccount_clicked()
 
     // Request the account data from the server
     if (item->data(Qt::UserRole) == Qws::UserTypeAccount) {
-        emit userSpecRequested(item->text());
+        m_socket->readUser(item->text());
     } else if (item->data(Qt::UserRole) == Qws::UserTypeGroup) {
-        emit groupSpecRequested(item->text());
+        m_socket->readGroup(item->text());
     }
 
     // Switch to the editor form.
@@ -266,9 +319,9 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
         QListWidgetItem *listItem = fList->takeItem( fList->currentRow() );
         delete listItem;
         if (currentAccount.userType == Qws::UserTypeAccount) {
-            emit accountDeleted(currentAccount.name);
+            m_socket->deleteUser(currentAccount.name);
         } else if (currentAccount.userType == Qws::UserTypeGroup) {
-            emit groupDeleted(currentAccount.name);
+            m_socket->deleteGroup(currentAccount.name);
             // Also delete from the popup-menu if this is a group
             fGroup->removeItem(fGroup->findText(currentAccount.name));
         }

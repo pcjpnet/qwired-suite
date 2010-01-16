@@ -7,7 +7,8 @@
 #include <QDebug>
 #include <QDir>
 
-class QwcTransferInfo : public QwTransferInfo
+class QwcTransferInfo :
+        public QwTransferInfo
 {
 public:
     QwcTransferInfo();

@@ -33,9 +33,9 @@ public:
         TriggeredActionBroadcast
     };
 
-    QPointer<QwcAboutWidget> pQwcAboutWidget;
     QwcConnectionMainWindow(QWidget *parent = 0);
 
+    QPointer<QwcAboutWidget> pQwcAboutWidget;
     void setSocket(QwcSocket *socket);
     QwcSocket* socket();
 
@@ -44,7 +44,7 @@ protected:
     QwcSocket *m_socket;
 
 signals:
-    void actionTriggered(TriggeredAction action);
+    void actionTriggered(QwcConnectionMainWindow::TriggeredAction action);
 
 public slots:
     void toggleVisible();
@@ -58,13 +58,13 @@ private slots:
     void on_actionDisconnect_triggered();
     void on_actionReconnect_triggered();
     void on_actionServerInfo_triggered();
-    void on_actionServerNews_triggered();
-    void on_actionServerMessages_triggered();
-    void on_actionServerFiles_triggered();
-    void on_actionServerTransfers_triggered();
-    void on_actionServerAccounts_triggered();
-    void on_actionServerBroadcast_triggered();
-    void on_actionServerPreferences_triggered();
+    void on_actionNews_triggered();
+    void on_actionMessages_triggered();
+    void on_actionFiles_triggered();
+    void on_actionTransfers_triggered();
+    void on_actionAccounts_triggered();
+    void on_actionBroadcast_triggered();
+    void on_actionPreferences_triggered();
 
 };
 

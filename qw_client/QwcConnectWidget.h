@@ -6,6 +6,8 @@
 
 #include "QwTrackerClientSocket.h"
 
+class QwcSocket;
+
 class QwcConnectWidget :
         public QWidget,
         protected Ui::QwcConnectWidget
@@ -17,14 +19,18 @@ public:
 
     void connectAutomatically(const QString &address, const QString &login, const QString &password);
 
+    void setSocket(QwcSocket *socket);
+    QwcSocket* socket();
+
 public slots:
     void stopReconnecting();
     void startReconnecting();
     void resetForm();
-    void setProgressBar(int value, int max);
-    void setStatus(const QString &status);
 
 private slots:
+    void handleSocketServerInformation();
+    void handleSocketLoginSuccessful();
+
     void updateTrackerMenu();
 
     // Connect Page
@@ -50,16 +56,11 @@ private slots:
 
 
 protected:
+    QwcSocket *m_socket;
     void timerEvent(QTimerEvent *);
     QwTrackerClientSocket *trackerSocket;
     int pReconnectTimerId;
 
-
-signals:
-    /// The user clicked 'connect' and is ready to wait for a connection.
-    void userFinished(QString theHost, QString theLogin, QString thePassword);
-    /// The user clicked the cancel button.
-    void onConnectAborted();
     
 };
 

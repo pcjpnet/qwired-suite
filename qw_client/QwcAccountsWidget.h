@@ -4,6 +4,7 @@
 #include "ui_QwcAccountsWidget.h"
 #include "QwcUserInfo.h"
 
+class QwcSocket;
 
 class QwcAccountsWidget :
         public QWidget,
@@ -14,7 +15,11 @@ class QwcAccountsWidget :
 public:
     QwcAccountsWidget(QWidget *parent = 0);
 
+    void setSocket(QwcSocket *socket);
+    QwcSocket* socket();
+
 private:
+    QwcSocket *m_socket;
     void setupEditWidgets();
     QwcUserInfo currentAccount;
     bool newAccountMode;
@@ -34,29 +39,9 @@ private slots:
     void on_btnEditAccount_clicked();
     void on_btnDeleteAccount_clicked();
 
-
-public slots:
     void appendUserNames(QStringList);
     void appendGroupNames(QStringList);
     void loadFromAccount(const QwcUserInfo account);
-
-signals:
-    void userSpecRequested(QString theName);
-    void groupSpecRequested(QString theName);
-    void saveUserSpec(QwcUserInfo);
-    void saveGroupSpec(QwcUserInfo);
-
-
-    void accountCreated(QwcUserInfo);
-    void accountEdited(QwcUserInfo);
-    void accountDeleted(QString);
-
-    void groupCreated(QwcUserInfo);
-    void groupEdited(QwcUserInfo);
-    void groupDeleted(QString);
-
-    /*! Emitted when the user wants to refresh the list of available groups and users. */
-    void refreshedAccountsAndGroups();
 
 };
 
