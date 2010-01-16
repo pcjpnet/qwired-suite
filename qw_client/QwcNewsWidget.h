@@ -8,6 +8,8 @@
 #include <QtCore/QPointer>
 
 
+class QwcSocket;
+
 class QwcNewsWidget :
         public QWidget,
         private Ui_QwcNewsWidget
@@ -18,9 +20,14 @@ public:
     QwcNewsWidget(QWidget *parent=0);
     ~QwcNewsWidget();
 
+    void setSocket(QwcSocket *socket);
+    QwcSocket* socket();
+
     void setupFromUser(const QwcUserInfo user);
 
-private:
+protected:
+    QwcSocket *m_socket;
+
     /*! Stores the current number of news articles. */
     bool m_emoticonsEnabled;
     int m_newsCounter;
@@ -28,15 +35,7 @@ private:
     void updateNewsStats();
     void updateNewsCss();
 
-protected:
     bool eventFilter(QObject *what, QEvent *event);
-
-signals:
-    void requestedRefresh();
-    void doPostNews(QString text);
-    /*! This signal is emitted when the user clicked the 'purge news' button and all news should
-        be purged from the server database. */
-    void userPurgedNews();
 
 
 public slots:
@@ -46,9 +45,9 @@ public slots:
     void newsDone();
 
 private slots:
-    void on_fBtnRefresh_clicked(bool checked);
+    void on_fBtnRefresh_clicked();
     void on_fBtnPost_clicked();
-    void on_fBtnDelete_clicked(bool checked);
+    void on_fBtnDelete_clicked();
     void on_btnComposeCancel_clicked();
     void on_btnComposePost_clicked();
     void on_newsView_linkClicked(const QUrl &url);

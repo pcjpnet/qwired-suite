@@ -1,10 +1,3 @@
-/*! \author Bastian Bense <bastibense@gmail.com>
-    \date 2009-03-05
-
-    This class implementes a single connection (session) to a server, manages the GUI elements
-    such as the connection window, and also manages the file transfers.
-*/
-
 #include "QwcGlobals.h"
 #include "QwcSession.h"
 #include "QwcUserInfoWidget.h"
@@ -85,9 +78,6 @@ bool QwcSession::eventFilter(QObject *watched, QEvent *event)
     }
     return false;
 }
-
-
-
 
 
 /*! Handle a protocol-related error and display it to the user.
@@ -231,7 +221,8 @@ void QwcSession::initMainWindow()
 /// The user list was completely received after connecting.
 void QwcSession::onUserlistComplete(int chatId)
 {
-    if (chatId != 1 && connectionStackedWidget->currentIndex() != 0) return;
+    if (chatId == Qwc::PUBLIC_CHAT) { return; }
+    if (connectionStackedWidget->currentIndex() == 0) { return; }
     connectionStackedWidget->setCurrentIndex(1);
     setConnectionToolButtonsEnabled(true);
 }
@@ -299,8 +290,6 @@ void QwcSession::connectionWindowDestroyed(QObject*)
 }
 
 
-
-
 /// Set up connections between objects in this class.
 void QwcSession::setupConnections()
 {
@@ -326,9 +315,11 @@ void QwcSession::setupConnections()
     connect(m_socket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
             this,   SLOT(handleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
 
-    connect(m_socket, SIGNAL(onServerLoginSuccessful()), this, SLOT(onLoginSuccessful()) );
+    connect(m_socket, SIGNAL(onServerLoginSuccessful()),
+            this, SLOT(onLoginSuccessful()) );
 
-    connect(m_socket, SIGNAL(receivedUserlist(int)), this, SLOT(onUserlistComplete(int)) );
+    connect(m_socket, SIGNAL(receivedUserlist(int)),
+            this, SLOT(onUserlistComplete(int)) );
 
     connect(m_socket, SIGNAL(userInformation(QwcUserInfo)),
             this, SLOT(handleUserInformation(QwcUserInfo)));
@@ -354,9 +345,6 @@ void QwcSession::setupConnections()
     connect(m_socket, SIGNAL(userChanged(QwcUserInfo,QwcUserInfo)),
             this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
 
-    // News
-    connect(m_socket, SIGNAL(newsPosted(QString,QDateTime,QString)),
-            this, SLOT(newsPosted(QString,QDateTime,QString)) );
 
     // Main Window actions
     //
@@ -401,7 +389,6 @@ void QwcSession::handleFileInformation(QwcFileInfo file)
     if (!m_fileBrowserWidget) { return; }
     m_fileBrowserWidget->setFileInformation(file);
 }
-
 
 
 // Enable/Disable GUI elements depending on the privileges
@@ -463,7 +450,6 @@ void QwcSession::handleChatTopic(int chatId, QString nickname, QString login,
         m_chatWidgets[chatId]->setTopic(topic, nickname, date);
     }
 }
-
 
 
 /*! Handle information about a user (INFO).
@@ -549,7 +535,6 @@ void QwcSession::handleServerInformation()
 }
 
 
-
 /// Connect to the remote server.
 void QwcSession::onDoConnect(QString theHost, QString theLogin, QString thePassword)
 {
@@ -561,9 +546,6 @@ void QwcSession::onDoConnect(QString theHost, QString theLogin, QString thePassw
     }
     m_socket->connectToServer(theHost);
 }
-
-
-
 
 
 /// Enable/Disable connection-related toolbar items (true if connected)
@@ -582,8 +564,6 @@ void QwcSession::setConnectionToolButtonsEnabled(bool theEnable)
     m_mainWindow->actionNewsPost->setEnabled(theEnable);
     m_mainWindow->actionBroadcast->setEnabled(theEnable);
 }
-
-
 
 
 void QwcSession::setTrayMenuAction(QMenu *action)
@@ -744,6 +724,7 @@ void QwcSession::initWiredSocket()
             this, SLOT(handleTransferComplete(const QwcTransferInfo &)));
 }
 
+
 /*! Reload the preferences and check what needs to be done to synchronize the new settings with the
     rest of the application.
 */
@@ -769,8 +750,6 @@ void QwcSession::onConnectAborted()
 { m_socket->disconnectFromServer(); }
 
 
-
-
 /*! A file transfer is complete.
     We should check if we have a preview file transfer, then display the file.
 */
@@ -781,10 +760,6 @@ void QwcSession::handleTransferComplete(const QwcTransferInfo &transfer)
     }
 }
 
-
-
-// === ACTIONS FROM THE MAIN WINDOW === //
-// ==================================== //
 
 /// The disconnect button has been clicked. Disconnect from the server.
 void QwcSession::doActionDisconnect()
@@ -859,35 +834,18 @@ void QwcSession::doActionNews()
 {
     if (!m_newsWidget) {
         m_newsWidget = new QwcNewsWidget();
-        connect(m_socket, SIGNAL(newsListingItem(QString,QDateTime,QString)),
-                m_newsWidget, SLOT(addNewsItem(QString, QDateTime, QString)));
-        connect(m_socket, SIGNAL(newsPosted(QString, QDateTime, QString)),
-                m_newsWidget, SLOT(addNewsItemAtTop(QString, QDateTime, QString)));
-        connect(m_socket, SIGNAL(newsListingDone()),
-                m_newsWidget, SLOT(newsDone()));
-        connect(m_newsWidget, SIGNAL(requestedRefresh()),
-                m_socket, SLOT(getNews()));
-        connect(m_newsWidget, SIGNAL(userPurgedNews()),
-                m_socket, SLOT(clearNews()));
-        connect(m_newsWidget, SIGNAL(doPostNews(QString)),
-                m_socket, SLOT(postNews(QString)));
-
-        // Enable/Disable GUI elements depending on the privileges
+        m_newsWidget->setParent(m_mainWindow, Qt::Window);
+        m_newsWidget->setSocket(m_socket);
         m_newsWidget->setupFromUser(m_socket->sessionUser);
-
-        // Request the news from the server
         m_socket->getNews();
     }
 
-    // Display the widget if it is not in the tab widget
     if (connectionTabWidget->indexOf(m_newsWidget) == -1) {
         connectionTabWidget->addTab(m_newsWidget, tr("News"));
     }
-
-    // Ensure it is the currently visible widget
     connectionTabWidget->setCurrentWidget(m_newsWidget);
 
-    // Reset the icon
+    // Reset the tab icon
     m_mainWindow->actionNews->setIcon(QIcon(":/icons/32x32/internet-news-reader.png"));
 }
 
@@ -908,8 +866,6 @@ void QwcSession::doActionMessages()
 }
 
 
-
-
 /*! Display the server information in a tab.
 */
 void QwcSession::doActionServerInfo()
@@ -925,9 +881,6 @@ void QwcSession::doActionServerInfo()
 
     connectionTabWidget->setCurrentWidget(m_serverInfoWidget);
 }
-
-
-
 
 
 /* Show the file browser widget in a new tab.
@@ -988,9 +941,6 @@ void QwcSession::doActionPreferences()
 }
 
 
-
-
-
 /*! Show the transfers list.
 */
 void QwcSession::doActionTransfers()
@@ -1019,8 +969,6 @@ void QwcSession::doActionTransfers()
 }
 
 
-
-
 /*! Show the private messenger and select the provided user, so that a message can be sent to the
     target user. This is usually connected to the double-click events of user lists.
 */
@@ -1028,9 +976,9 @@ void QwcSession::showMessagerForUser(const QwcUserInfo targetUser)
 {
     if (!m_privateMessagerWidget) { return; }
     if (connectionTabWidget->indexOf(m_privateMessagerWidget) == -1) {
-        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(m_privateMessagerWidget,
-                                                                         QIcon(":/icons/tab-idle.png"),
-                                                                         tr("Messages")));
+        connectionTabWidget->setCurrentIndex(
+                connectionTabWidget->addTab(m_privateMessagerWidget, QIcon(":/icons/tab-idle.png"),
+                                            tr("Messages")));
     } else {
         connectionTabWidget->setCurrentWidget(m_privateMessagerWidget);
     }

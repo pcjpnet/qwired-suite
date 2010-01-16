@@ -52,7 +52,6 @@ private slots:
 
 private:
     QwcSocket *m_socket;
-
     bool appendMessageToCurrentSession(QTextDocument *document, const QString message,
                                        const QColor messageColor = Qt::gray);
 
