@@ -1,11 +1,10 @@
 #ifndef QWCPRIVATEMESSAGER_H
 #define QWCPRIVATEMESSAGER_H
 
-#include "QwcUserInfo.h"
 #include "ui_QwcPrivateMessager.h"
-#include <QWidget>
-#include <QGraphicsScene>
+#include "QwcUserInfo.h"
 
+#include <QtGui/QWidget>
 
 class QwcSocket;
 

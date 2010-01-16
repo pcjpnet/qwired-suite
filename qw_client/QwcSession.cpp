@@ -200,11 +200,7 @@ void QwcSession::handleProtocolError(Qw::ProtocolError error)
     case Qw::ErrorPermissionDenied:
         errorText = tr("Permission Denied. You don't have sufficient privileges to execute the last command."); break;
     case Qw::ErrorFileOrDirectoryNotFound:
-        errorText = tr("File or Directory not found. The last command could not be completed because the file or directory could not be found.");
-//        if (m_fileBrowserWidget != 0 && connectionTabWidget->currentWidget() == m_fileBrowserWidget) {
-//            m_fileBrowserWidget->stackedWidget->setCurrentWidget(m_fileBrowserWidget->pageBrowser);
-//        }
-        break;
+        errorText = tr("File or Directory not found. The last command could not be completed because the file or directory could not be found."); break;
     case Qw::ErrorFileOrDirectoryExists:
         errorText = tr("The last command could not be completed because the file or directory already exists."); break;
     case Qw::ErrorChecksumMismatch:
@@ -244,9 +240,6 @@ void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
 }
 
 
-
-/*! Switch to the tab panel after the connection has been established.
-*/
 void QwcSession::handleSocketUserlistComplete(int chatId)
 {
     if (chatId != Qwc::PUBLIC_CHAT) { return; }
@@ -259,15 +252,12 @@ void QwcSession::handleSocketUserlistComplete(int chatId)
 */
 void QwcSession::handlePrivateMessage(QwcUserInfo sender, QString text)
 {
-    m_privateMessagerWidget->handleNewMessage(sender, text);
+    showMessagerForUser(sender);
+    // Update the tab icon to indicate activity
     if (connectionTabWidget->indexOf(m_privateMessagerWidget) > -1) {
-        if (connectionTabWidget->currentWidget() != m_privateMessagerWidget) {
-            connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(m_privateMessagerWidget),
-                                            QIcon(":/icons/tab-content.png"));
-        }
-    } else {
-        showMessagerForUser(sender);
-        m_privateMessagerWidget->handleNewMessage(sender, text);
+        if (connectionTabWidget->currentWidget() == m_privateMessagerWidget) { return; }
+        connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(m_privateMessagerWidget),
+                                        QIcon(":/icons/tab-content.png"));
     }
 }
 
@@ -351,8 +341,6 @@ void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction
             m_newsWidget = new QwcNewsWidget();
             m_newsWidget->setParent(m_mainWindow, Qt::Window);
             m_newsWidget->setSocket(m_socket);
-            m_newsWidget->setupFromUser(m_socket->sessionUser);
-            m_socket->getNews();
         }
 
         if (connectionTabWidget->indexOf(m_newsWidget) == -1) {
@@ -510,10 +498,6 @@ void QwcSession::createChatWidget(int chatId)
 }
 
 
-
-
-
-
 /**
  * Handle a specific event from the current session.
  * @param event The event that occoured
@@ -623,15 +607,12 @@ void QwcSession::handleBroadcastMessage(QwcUserInfo theUser, QString theMessage)
 void QwcSession::reloadPreferences()
 {
     QSettings settings;
-
     if (m_socket->sessionUser.userNickname != settings.value("general/nickname", tr("Unnamed")).toString()) {
         m_socket->setNickname(settings.value("general/nickname").toString());
     }
-
     if (m_socket->sessionUser.userStatus != settings.value("general/status", tr("Qwired Newbie")).toString()) {
         m_socket->setUserStatus(settings.value("general/status").toString());
     }
-
     QPixmap newIcon = settings.value("general/icon", QPixmap(":/icons/qwired_logo_32.png")).value<QPixmap>();
     m_socket->setUserIcon(newIcon.toImage());
 }
