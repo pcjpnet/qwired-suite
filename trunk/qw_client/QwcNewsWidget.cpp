@@ -1,41 +1,26 @@
-#include "QwcGlobals.h"
 #include "QwcNewsWidget.h"
+#include "QwcGlobals.h"
 #include "QwcMessageStyle.h"
-#include "QwFile.h"
 #include "QwcSocket.h"
-
-#include <QMessageBox>
-#include <QDebug>
-#include <QTextCursor>
-#include <QTextBlock>
 
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElement>
 
-#include <QDesktopServices>
+#include <QtGui/QMessageBox>
+#include <QtGui/QDesktopServices>
 
-/*! \class QwcNewsWidget
-    \author Bastian Bense <bastibense@gmail.com>
-    \date 2009-03-06
-    \brief This is the news browser widget which allows interaction with the news system of the
-           Wired protocol.
-*/
-
-QwcNewsWidget::QwcNewsWidget(QWidget *parent) : QWidget(parent)
+QwcNewsWidget::QwcNewsWidget(QWidget *parent) :
+        QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
     m_newsCounter = 0;
-
     m_socket = NULL;
 
-    // Notification manager
-    QwcSingleton *settings = &WSINGLETON::Instance();
-    connect(settings, SIGNAL(applicationSettingsChanged()),
-            this, SLOT(reloadPreferences()));
+    // Jump to the waiting panel
+    pageWidget->setCurrentIndex(1);
 
-    pageWidget->setCurrentIndex(1); // jump to the waiting panel
-
+    // Set up WebKit
     newsView->installEventFilter(this);
     newsView->page()->mainFrame()->
             setHtml(QString("<html><body>"
@@ -48,14 +33,16 @@ QwcNewsWidget::QwcNewsWidget(QWidget *parent) : QWidget(parent)
                             "<span id=\"news_items\"></span>"
                             "</body></html>"));
     newsView->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+
+    // Notification manager
+    QwcSingleton *settings = &WSINGLETON::Instance();
+    connect(settings, SIGNAL(applicationSettingsChanged()),
+            this, SLOT(reloadPreferences()));
     reloadPreferences();
 }
 
-
 QwcNewsWidget::~QwcNewsWidget()
-{
-}
-
+{ }
 
 void QwcNewsWidget::setSocket(QwcSocket *socket)
 {
@@ -66,7 +53,7 @@ void QwcNewsWidget::setSocket(QwcSocket *socket)
     connect(m_socket, SIGNAL(newsListingItem(QString,QDateTime,QString)),
             this, SLOT(addNewsItem(QString, QDateTime, QString)));
     connect(m_socket, SIGNAL(newsPosted(QString, QDateTime, QString)),
-            this, SLOT(addNewsItemAtTop(QString, QDateTime, QString)));
+            this, SLOT(handleNewsPosted(QString,QDateTime,QString)));
     connect(m_socket, SIGNAL(newsListingDone()),
             this, SLOT(newsDone()));
     connect(m_socket, SIGNAL(receivedUserPrivileges()),
@@ -116,8 +103,6 @@ void QwcNewsWidget::addNewsItem(const QString &nickname, QDateTime time, const Q
     m_newsCounter++;
     fNewsStatus->setText(tr("%1 news article(s)").arg(m_newsCounter));
 }
-
-
 
 
 void QwcNewsWidget::on_fBtnRefresh_clicked()
@@ -198,7 +183,12 @@ void QwcNewsWidget::handleSocketPrivileges()
     fBtnDelete->setEnabled(m_socket->sessionUser.privileges() & Qws::PrivilegeClearNews);
 }
 
-
+/*! Helper slot to add the listed news item to the bottom instead of the top.
+*/
+void QwcNewsWidget::handleNewsPosted(QString nickname, QDateTime dateTime, QString text)
+{
+    addNewsItem(nickname, dateTime, text, true);
+}
 
 
 /*! Clear the contents of the news view and set an empty HTML page with styles.
@@ -220,10 +210,8 @@ bool QwcNewsWidget::eventFilter(QObject *what, QEvent *event)
 {
     // Filter out the context menu events so that we don't have to worry about the user messing up
     // QWebView.
-    if (what == newsView) {
-        if (event->type() == QEvent::ContextMenu) {
-            return true;
-        }
+    if (what == newsView && event->type() == QEvent::ContextMenu) {
+        return true;
     }
     return QWidget::eventFilter(what, event);
 }

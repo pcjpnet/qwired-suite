@@ -119,7 +119,7 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
 */
 void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QString message)
 {
-    if (!message.isNull()) { return; }
+    if (message.isNull()) { return; }
     QListWidgetItem *targetListItem = NULL;
     QTextDocument *targetDocument = NULL;
 

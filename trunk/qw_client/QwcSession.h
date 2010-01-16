@@ -74,10 +74,10 @@ private slots:
     void connectionWindowDestroyed(QObject *object);
     void handleProtocolError(Qw::ProtocolError error);
     void handleSocketError(QAbstractSocket::SocketError error);
+    void handleSocketChatInvitation(int chatId, QwcUserInfo inviter);
 
 
     // Main window widgets
-    void onTabBarCloseButtonClicked();
     void onTabBarCurrentChanged(int index);
     void onTabBarCloseRequested(int index);
 
@@ -112,7 +112,7 @@ public slots:
     // Socket handlers
     void handleUserInformation(QwcUserInfo user);
 
-    void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
+
     void createChatWidget(int chatId);
 
 

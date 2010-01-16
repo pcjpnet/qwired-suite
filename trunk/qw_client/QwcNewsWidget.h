@@ -7,7 +7,6 @@
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
 
-
 class QwcSocket;
 
 class QwcNewsWidget :
@@ -43,6 +42,7 @@ public slots:
 
 private slots:
     void handleSocketPrivileges();
+    void handleNewsPosted(QString nickname, QDateTime dateTime, QString text);
 
     void on_fBtnRefresh_clicked();
     void on_fBtnPost_clicked();
