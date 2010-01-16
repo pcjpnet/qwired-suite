@@ -26,8 +26,10 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
 
     m_model = new QStandardItemModel(this);
     m_model->setSortRole(Qt::UserRole + 1);
-
     fList->setModel(m_model);
+    connect(fList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(handleListSelectionChanged(QItemSelection,QItemSelection)));
+
 
     stackedWidget->setCurrentWidget(pageBrowser);
 }
@@ -167,8 +169,9 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
 */
 void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace)
 {
-    Q_UNUSED(path);
+    if (m_remotePath != path) { return; }
     if (!m_waitingForListItems) { return; }
+
     m_waitingForListItems = false;
     m_freeRemoteSpace = freeSpace;
     fStats->setText(tr("%1 items, %2 total, %3 available")
@@ -188,13 +191,11 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
 
     // Enable/disable upload/download as needed
     btnUpload->setEnabled(
-            (userInfo.privileges().testFlag(Qws::PrivilegeUploadAnywhere)) ||
-
-            (currentFolderInfo.type == Qw::FileTypeUploadsFolder
-             && userInfo.privileges().testFlag(Qws::PrivilegeUpload)) ||
-
-            (currentFolderInfo.type == Qw::FileTypeDropBox
-             && userInfo.privileges().testFlag(Qws::PrivilegeUpload)) );
+            (userInfo.privileges().testFlag(Qws::PrivilegeUploadAnywhere))
+            || (currentFolderInfo.type == Qw::FileTypeUploadsFolder
+                && userInfo.privileges().testFlag(Qws::PrivilegeUpload))
+            || (currentFolderInfo.type == Qw::FileTypeDropBox
+                && userInfo.privileges().testFlag(Qws::PrivilegeUpload)) );
 
 
     // Disable some controls if we are in "search mode"
@@ -265,8 +266,8 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
 
 /*! The "Download" button has been clicked.
 */
-void QwcFileBrowserWidget::on_btnDownload_clicked()
-{
+//void QwcFileBrowserWidget::on_btnDownload_clicked()
+//{
 //    QSettings settings;
 //    QList<QTreeWidgetItem*> items = fList->selectedItems();
 //
@@ -299,7 +300,7 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
 //
 //        m_socket->downloadFileOrFolder(itemInfo);
 //    }
-}
+//}
 
 
 /*! The "Preview" button has been clicked.
@@ -394,26 +395,41 @@ void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
     }
 }
 
-// Download button pressed
-//void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
-//{
-//    if(!pSession->wiredSocket()->sessionUser.privDownload) return;
-//    QListIterator<QModelIndex> i(fList->selectionModel()->selectedRows(0));
-//    while(i.hasNext()) {
-//        QModelIndex index = i.next();
-//        if(!index.isValid()) continue;
-//        QwcFileInfo tmpFile = index.data(Qt::UserRole+1).value<QwcFileInfo>();
-//        if (tmpFile.type == Qw::FileTypeFolder|| tmpFile.type == Qw::FileTypeDropBox|| tmpFile.type == Qw::FileTypeUploadsFolder) {
-//            // Folder download
-//            QSettings settings;
-//            QDir tmpDownloadFolder( settings.value("files/download_dir", QDir::homePath()).toString() );
-//            pSession->downloadFolder(tmpFile.path, tmpDownloadFolder.path());
-//        } else { // Regular file
-//            downloadFile(tmpFile.path);
-//        }
-//    }
-//    pSession->doActionTransfers();
-//}
+
+void QwcFileBrowserWidget::handleListSelectionChanged(const QItemSelection &,
+                                                      const QItemSelection &)
+{
+    const bool &hasSelection = fList->selectionModel()->hasSelection();
+    btnDownload->setEnabled(hasSelection);
+    btnDelete->setEnabled(hasSelection && m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeDeleteFiles));
+    btnInfo->setEnabled(hasSelection);
+}
+
+
+void QwcFileBrowserWidget::on_btnDownload_clicked()
+{
+    if (!m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeDownload)) { return; }
+    QSettings settings;
+
+    foreach (QModelIndex index, fList->selectionModel()->selectedIndexes()) {
+        QStandardItem *clickedItem = m_model->itemFromIndex(index);
+        if (!clickedItem) { continue; }
+        QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
+        if (!firstColumnItem) { continue; }
+        QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
+
+        QDir downloadFolder(settings.value("files/download_dir", QDir::homePath()).toString());
+        fileInfo.localAbsolutePath = QString("%1/%2")
+                                     .arg(downloadFolder.absolutePath())
+                                     .arg(fileInfo.fileName());
+        m_socket->downloadFileOrFolder(fileInfo);
+    }
+
+
+
+
+
+}
 
 
 

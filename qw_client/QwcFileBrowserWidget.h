@@ -60,6 +60,7 @@ private slots:
     void on_btnUpload_clicked();
     void on_findFilter_returnPressed();
     void on_fList_doubleClicked(const QModelIndex &index);
+    void handleListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 //    void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     // Info page
