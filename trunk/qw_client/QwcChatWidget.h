@@ -32,7 +32,7 @@ public:
 
 signals:
     /*! This signal is emitted if a entry has been double-clicked in the user list. */
-    void requestedNewPrivateMessage(const QwcUserInfo &user);
+    void requestedNewPrivateMessage(const QwcUserInfo &user, const QString &initialMessage);
 
 
 public slots:
@@ -58,12 +58,11 @@ private slots:
 
     void processChatInput();
 
-    void inviteMenuTriggered(QAction *action);
     void reloadPreferences();
 
     void handleChatViewFrameSizeChanged(QSize size);
 
-    void on_userListWidget_doubleClicked(const QModelIndex &index);
+    void on_userListWidget_itemDoubleClicked();
     void on_userListWidget_itemSelectionChanged();
     void on_btnInvite_clicked();
     void on_btnMessage_clicked();

@@ -47,6 +47,8 @@ void QwcConnectionMainWindow::setSocket(QwcSocket *socket)
             this, SLOT(handleSocketLoginSuccessful()));
     connect(m_socket, SIGNAL(connectionLost()),
             this, SLOT(handleSocketDisconnected()));
+    connect(m_socket, SIGNAL(privateMessage(QwcUserInfo,QString)),
+            this, SLOT(handleSocketPrivateMessage()));
 }
 
 
@@ -82,7 +84,7 @@ void QwcConnectionMainWindow::handleSocketNewsPosted(QString nickname, QDateTime
 
 void QwcConnectionMainWindow::handleSocketReceivedPrivileges()
 {
-    Qws::Privileges privs = m_socket->sessionUser.privileges();
+    Qws::Privileges privs = m_socket->sessionUser().privileges();
     actionAccounts->setEnabled(privs & Qws::PrivilegeCreateAccounts
                                || privs & Qws::PrivilegeDeleteAccounts
                                || privs & Qws::PrivilegeEditAccounts);
@@ -128,6 +130,17 @@ void QwcConnectionMainWindow::handleSocketLoginSuccessful()
     actionMessages->setEnabled(true);
     actionTransfers->setEnabled(true);
     actionChat->setEnabled(true);
+    setWindowTitle(tr("%1 - Qwired").arg(m_socket->serverInformation().name));
+}
+
+
+void QwcConnectionMainWindow::handleSocketPrivateMessage()
+{
+    // Update the toolbar icon if the news are not currently visible
+    QPixmap newIcon(":/icons/32x32/mail-message-new.png");
+    QPainter iconPainter(&newIcon);
+    iconPainter.drawImage(16, 16, QImage(":/icons/16x16/emblem-important.png"));
+    actionMessages->setIcon(newIcon);
 }
 
 
@@ -168,7 +181,10 @@ void QwcConnectionMainWindow::on_actionNews_triggered()
 }
 
 void QwcConnectionMainWindow::on_actionMessages_triggered()
-{ emit actionTriggered(TriggeredActionMessages); }
+{
+    actionMessages->setIcon(QIcon(":/icons/32x32/mail-message-new.png"));
+    emit actionTriggered(TriggeredActionMessages);
+}
 
 void QwcConnectionMainWindow::on_actionFiles_triggered()
 { emit actionTriggered(TriggeredActionFiles); }

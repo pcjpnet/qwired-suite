@@ -12,15 +12,15 @@ void QwcServerInfoWidget::setInformationFromSocket(const QwcSocket *socket)
 {
     if(!socket) { return; }
 
-    const QwServerInfo &serverInfo = socket->serverInfo;
+    const QwServerInfo &serverInfo = socket->serverInformation();
 
-    fBanner->setPixmap(QPixmap::fromImage(socket->serverImage));
+    fBanner->setPixmap(QPixmap::fromImage(socket->serverBanner()));
     fServerName->setText(serverInfo.name);
     fUptime->setText(serverInfo.startTime.toString());
     fDescription->setText(serverInfo.description);
     fURL->setText(QString("qwired://%1/").arg(socket->sslSocket()->peerAddress().toString()));
     fFiles->setText(QString::number(serverInfo.filesCount));
-    fSize->setText(QwFile::humanReadableSize(socket->serverInfo.filesSize));
+    fSize->setText(QwFile::humanReadableSize(socket->serverInformation().filesSize));
     fVersion->setText(serverInfo.serverVersion );
     fProtocol->setText(serverInfo.protocolVersion);
 

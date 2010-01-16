@@ -23,8 +23,8 @@ QwcPrivateMessagerSession::QwcPrivateMessagerSession()
     inactive = false;
     unreadCount = 0;
     document = NULL;
-
 }
+
 
 // Messenger Widget
 //
@@ -119,12 +119,13 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
 */
 void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QString message)
 {
-    if (message.isNull()) { return; }
+    if (sender.pUserID == 0) { return; }
+
     QListWidgetItem *targetListItem = NULL;
     QTextDocument *targetDocument = NULL;
 
     // Try to find an existing session
-    for (int i=0; i<fMessageList->count(); i++) {
+    for (int i = 0; i < fMessageList->count(); i++) {
         QListWidgetItem *item = fMessageList->item(i);
         if (!item) { continue; }
 
@@ -156,7 +157,7 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
     }
 
     // Add the data
-    if (!message.isNull()) {
+    if (!message.isEmpty()) {
         appendMessageToCurrentSession(targetDocument, message, Qt::green);
     } else {
         // Set the focus, because if the message is a null string, the user probably wants to

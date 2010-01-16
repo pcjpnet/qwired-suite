@@ -27,16 +27,12 @@ public:
     QwcSocket(QObject *parent = 0);
     ~QwcSocket();
 
-    /*! Information about the server, as provided during handshake. */
-    QwServerInfo serverInfo;
-    /*! The banner of the server as transmitted during handshake. */
-    QImage serverImage;
-    /*! The name of the client (software name). */
-    QString clientName;
-    /*! The version of the client software. */
-    QString clientSoftwareVersion;
-    /*! The client user object which keeps track of available information of the current session. */
-    QwcUserInfo sessionUser;
+    const QwcUserInfo & sessionUser() const;
+    const QwServerInfo & serverInformation() const;
+    const QImage & serverBanner() const;
+
+
+
     /*! This contains all users registered for the public user list (1). */
     QHash<int, QwcUserInfo> users;
     /*! A list of all currently used chat rooms. Chat rooms contain user lists and refer to them by
@@ -242,7 +238,14 @@ signals:
     void trackerServersReceived(QList<QwcTrackerServerInfo>);
 
 
-private:
+protected:
+    /*! The client user object which keeps track of available information of the current session. */
+    QwcUserInfo m_sessionUser;
+    QwServerInfo m_serverInformation;
+    QImage m_serverBanner;
+    QString m_clientName;
+    QString m_clientVersion;
+
     // Message Handlers
     void handleMessage200(const QwMessage &message);
     void handleMessage201(const QwMessage &message);

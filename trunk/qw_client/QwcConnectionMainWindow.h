@@ -55,6 +55,7 @@ private slots:
     void handleSocketConnected();
     void handleSocketDisconnected();
     void handleSocketLoginSuccessful();
+    void handleSocketPrivateMessage();
 
     void on_actionAbout_triggered(bool);
     void on_actionDonate_triggered();

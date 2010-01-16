@@ -101,17 +101,20 @@ void QwcSession::initializeMainWindow()
 
     // Create the tab bar for the normal program use
     connectionTabWidget = new QTabWidget(connectionStackedWidget);
+    connectionTabWidget->setMovable(true);
+    connectionTabWidget->setDocumentMode(true);
+    connectionTabWidget->setTabsClosable(true);
     connect(connectionTabWidget, SIGNAL(tabCloseRequested(int)),
             this, SLOT(onTabBarCloseRequested(int)));
     connect(connectionTabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(onTabBarCurrentChanged(int)) );
     connectionStackedWidget->addWidget(connectionTabWidget);
-    connectionTabWidget->setDocumentMode(true);
-    connectionTabWidget->setTabsClosable(true);
 
     // Create the initial tab for the main chat
     m_publicChat = new QwcChatWidget(m_mainWindow);
     m_publicChat->setAttribute(Qt::WA_DeleteOnClose, false);
+    connect(m_publicChat, SIGNAL(requestedNewPrivateMessage(QwcUserInfo,QString)),
+            this, SLOT(showMessagerForUser(QwcUserInfo,QString)));
     /*: Text of the main connection tab in the connection window. */
     connectionTabWidget->addTab(m_publicChat, tr("Chat"));
     m_publicChat->setSocket(m_socket);
@@ -231,7 +234,6 @@ void QwcSession::handleSocketError(QAbstractSocket::SocketError error)
                               tr("Could not connect to the remote server because the host name could not be resolved."));
     } else {
         // Disconnected suddenly
-        qDebug() << error;
         connectionStackedWidget->setCurrentIndex(0);
         m_connectWidget->resetForm();
         m_connectWidget->startReconnecting();
@@ -252,13 +254,12 @@ void QwcSession::handleSocketUserlistComplete(int chatId)
 */
 void QwcSession::handlePrivateMessage(QwcUserInfo sender, QString text)
 {
-    showMessagerForUser(sender);
-    // Update the tab icon to indicate activity
-    if (connectionTabWidget->indexOf(m_privateMessagerWidget) > -1) {
-        if (connectionTabWidget->currentWidget() == m_privateMessagerWidget) { return; }
-        connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(m_privateMessagerWidget),
-                                        QIcon(":/icons/tab-content.png"));
-    }
+//    // Update the tab icon to indicate activity
+//    if (connectionTabWidget->indexOf(m_privateMessagerWidget) > -1) {
+//        if (connectionTabWidget->currentWidget() == m_privateMessagerWidget) { return; }
+//        connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(m_privateMessagerWidget),
+//                                        QIcon(":/icons/tab-content.png"));
+//    }
 }
 
 
@@ -293,6 +294,10 @@ void QwcSession::onTabBarCloseRequested(int index)
 }
 
 
+
+
+
+
 /*! Handle a 'action' from the main window.
 */
 void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction action)
@@ -315,11 +320,10 @@ void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction
         m_connectWidget->resetForm();
         m_socket->disconnectFromServer();
         connectionStackedWidget->setCurrentIndex(0); // go to connect dialog
-        m_socket->serverInfo = QwServerInfo();
 
 
     } else if (action == QwcConnectionMainWindow::TriggeredActionMessages) {
-        showMessagerForUser(QwcUserInfo());
+        showMessagerForUser(QwcUserInfo(), QString());
 
     } else if (action == QwcConnectionMainWindow::TriggeredActionPreferences) {
         if (!m_preferencesWidget) {
@@ -479,6 +483,8 @@ void QwcSession::createChatWidget(int chatId)
 {
     QwcChatWidget *chat = new QwcChatWidget();
     chat->setParent(m_mainWindow, Qt::Window);
+    connect(chat, SIGNAL(requestedNewPrivateMessage(QwcUserInfo)),
+            this, SLOT(showMessagerForUser(QwcUserInfo)));
     chat->setSocket(m_socket);
     chat->setChatId(chatId);
     m_chatWidgets[chatId] = chat;
@@ -527,7 +533,7 @@ void QwcSession::triggerEvent(QString event, QStringList params)
     // Show a message in the system tray
     if(conf.value(QString("events/%1/traymsg").arg(event)).toBool()) {
         QwcSingleton *tmpS = &WSINGLETON::Instance();
-        tmpS->pTrayIcon->showMessage( m_socket->serverInfo.name, eventMessage );
+        tmpS->pTrayIcon->showMessage( m_socket->serverInformation().name, eventMessage );
     }
 
     // Play sound
@@ -590,18 +596,16 @@ void QwcSession::handleBroadcastMessage(QwcUserInfo theUser, QString theMessage)
 }
 
 
-
-
 /*! Reload the preferences and check what needs to be done to synchronize the new settings with the
     rest of the application.
 */
 void QwcSession::reloadPreferences()
 {
     QSettings settings;
-    if (m_socket->sessionUser.userNickname != settings.value("general/nickname", tr("Unnamed")).toString()) {
+    if (m_socket->sessionUser().userNickname != settings.value("general/nickname", tr("Unnamed")).toString()) {
         m_socket->setNickname(settings.value("general/nickname").toString());
     }
-    if (m_socket->sessionUser.userStatus != settings.value("general/status", tr("Qwired Newbie")).toString()) {
+    if (m_socket->sessionUser().userStatus != settings.value("general/status", tr("Qwired Newbie")).toString()) {
         m_socket->setUserStatus(settings.value("general/status").toString());
     }
     QPixmap newIcon = settings.value("general/icon", QPixmap(":/icons/qwired_logo_32.png")).value<QPixmap>();
@@ -612,7 +616,7 @@ void QwcSession::reloadPreferences()
 /*! Show the private messenger and select the provided user, so that a message can be sent to the
     target user. This is usually connected to the double-click events of user lists.
 */
-void QwcSession::showMessagerForUser(const QwcUserInfo targetUser)
+void QwcSession::showMessagerForUser(const QwcUserInfo &targetUser, const QString &message)
 {
     if (!m_privateMessagerWidget) { return; }
     if (connectionTabWidget->indexOf(m_privateMessagerWidget) == -1) {
@@ -622,5 +626,5 @@ void QwcSession::showMessagerForUser(const QwcUserInfo targetUser)
     } else {
         connectionTabWidget->setCurrentWidget(m_privateMessagerWidget);
     }
-    m_privateMessagerWidget->handleNewMessage(targetUser, QString());
+    m_privateMessagerWidget->handleNewMessage(targetUser, message);
 }
