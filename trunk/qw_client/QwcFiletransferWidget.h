@@ -8,7 +8,9 @@
 #include <QWidget>
 
 
-class QwcFiletransferWidget : public QWidget, public Ui_QwcFiletransferWidget
+class QwcFiletransferWidget :
+        public QWidget,
+        protected Ui_QwcFiletransferWidget
 {
 
     Q_OBJECT

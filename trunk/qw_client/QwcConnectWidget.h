@@ -35,7 +35,6 @@ private slots:
 
     // Connect Page
     void on_btnConnectTrackers_clicked();
-
     void on_btnConnectCancel_clicked();
 
     // Tracker Page

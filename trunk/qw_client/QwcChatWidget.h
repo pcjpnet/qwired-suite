@@ -7,7 +7,7 @@
 
 #include <QtCore/QPointer>
 
-class QwcSession;
+class QwcSocket;
 
 class QwcChatWidget :
         public QWidget,
@@ -19,18 +19,16 @@ public:
     QwcChatWidget(QWidget *parent = 0);
     ~QwcChatWidget();
 
-    void setSession(QwcSession *session);
+    void setSocket(QwcSocket *socket);
+    QwcSocket* socket();
+
     bool eventFilter(QObject *watched, QEvent *event);
 
-    QwcSession* session();
 
     void setChatId(int newId);
     int chatId() const;
 
-
     void loadChatStyle(const QString &path = QString());
-
-
 
 signals:
     /*! This signal is emitted if a entry has been double-clicked in the user list. */
@@ -41,12 +39,11 @@ public slots:
     void resetForm();
     void writeTextToChat(QwUser sender, QString text, bool emote);
     void writeEventToChat(QString eventText, QString eventType);
-    void writeBroadcastToChat(QwcUserInfo sender, QString text);
-    void setTopic(const QString &text, const QString &user, const QDateTime &dateTime);
-
+    void handleSocketBroadcastMessage(QwcUserInfo sender, QString text);
+    void handleSocketChatMessage(int chatId, int userId, const QString &text, bool isEmote);
 
 private:
-    QwcSession *m_session;
+    QwcSocket *m_socket;
     int m_chatId;
 
     QPointer<QMenu> pInviteMenu;
@@ -56,6 +53,9 @@ private:
     QwcMessageStyle m_currentMessageStyle;
 
 private slots:
+    void handleSocketChatTopic(int chatId, const QString &nickname, const QString &login, QHostAddress ip,
+                               QDateTime dateTime, const QString &topic);
+
     void handleExternalLinkClicked(const QUrl &url);
 
     void processChatInput();
