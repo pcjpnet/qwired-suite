@@ -41,7 +41,14 @@ void QwcConnectionMainWindow::setSocket(QwcSocket *socket)
 
     connect(m_socket, SIGNAL(newsPosted(QString,QDateTime,QString)),
             this, SLOT(handleSocketNewsPosted(QString,QDateTime,QString)));
+    connect(m_socket, SIGNAL(receivedUserPrivileges()),
+            this, SLOT(handleSocketReceivedPrivileges()));
+    connect(m_socket, SIGNAL(onServerLoginSuccessful()),
+            this, SLOT(handleSocketLoginSuccessful()));
+    connect(m_socket, SIGNAL(connectionLost()),
+            this, SLOT(handleSocketDisconnected()));
 }
+
 
 QwcSocket* QwcConnectionMainWindow::socket()
 { return m_socket; }
@@ -70,6 +77,57 @@ void QwcConnectionMainWindow::handleSocketNewsPosted(QString nickname, QDateTime
     QPainter iconPainter(&newIcon);
     iconPainter.drawImage(16, 16, QImage(":/icons/16x16/emblem-important.png"));
     actionNews->setIcon(newIcon);
+}
+
+
+void QwcConnectionMainWindow::handleSocketReceivedPrivileges()
+{
+    Qws::Privileges privs = m_socket->sessionUser.privileges();
+    actionAccounts->setEnabled(privs & Qws::PrivilegeCreateAccounts
+                               || privs & Qws::PrivilegeDeleteAccounts
+                               || privs & Qws::PrivilegeEditAccounts);
+    actionFiles->setEnabled(privs & Qws::PrivilegeAlterFiles
+                            || privs & Qws::PrivilegeCreateFolders
+                            || privs & Qws::PrivilegeDeleteFiles
+                            || privs & Qws::PrivilegeDownload
+                            || privs & Qws::PrivilegeUpload
+                            || privs & Qws::PrivilegeUploadAnywhere
+                            || privs & Qws::PrivilegeViewDropboxes);
+    actionBroadcast->setEnabled(privs & Qws::PrivilegeSendBroadcast);
+    actionNewsPost->setEnabled(privs & Qws::PrivilegePostNews);
+}
+
+
+void QwcConnectionMainWindow::handleSocketConnected()
+{
+    actionDisconnect->setEnabled(true);
+    actionReconnect->setEnabled(true);
+}
+
+
+void QwcConnectionMainWindow::handleSocketDisconnected()
+{
+    actionDisconnect->setEnabled(false);
+
+    actionServerInfo->setEnabled(false);
+    actionNews->setEnabled(false);
+    actionMessages->setEnabled(false);
+    actionTransfers->setEnabled(false);
+    actionChat->setEnabled(false);
+
+    actionAccounts->setEnabled(false);
+    actionFiles->setEnabled(false);
+    actionBroadcast->setEnabled(false);
+    actionNewsPost->setEnabled(false);
+}
+
+void QwcConnectionMainWindow::handleSocketLoginSuccessful()
+{
+    actionServerInfo->setEnabled(true);
+    actionNews->setEnabled(true);
+    actionMessages->setEnabled(true);
+    actionTransfers->setEnabled(true);
+    actionChat->setEnabled(true);
 }
 
 

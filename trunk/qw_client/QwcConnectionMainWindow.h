@@ -51,6 +51,10 @@ public slots:
 	
 private slots:
     void handleSocketNewsPosted(QString nickname, QDateTime time, QString post);
+    void handleSocketReceivedPrivileges();
+    void handleSocketConnected();
+    void handleSocketDisconnected();
+    void handleSocketLoginSuccessful();
 
     void on_actionAbout_triggered(bool);
     void on_actionDonate_triggered();
