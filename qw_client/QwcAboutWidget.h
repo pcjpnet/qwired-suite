@@ -3,10 +3,11 @@
 
 #include "ui_QwcAboutWidget.h"
 
-class QwcAboutWidget : public QWidget, public Ui_QwcAboutWidget
+class QwcAboutWidget :
+        public QWidget,
+        protected Ui_QwcAboutWidget
 {
-
-Q_OBJECT
+    Q_OBJECT
 
 public:
     QwcAboutWidget(QWidget *parent=0);

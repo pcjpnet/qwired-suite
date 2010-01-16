@@ -5,10 +5,12 @@
 #include "ui_QwcServerInfoWidget.h"
 #include "QwcSocket.h"
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 
-class QwcServerInfoWidget : public QWidget, public Ui_QwcServerInfoWidget
+class QwcServerInfoWidget :
+        public QWidget,
+        protected Ui_QwcServerInfoWidget
 {
     Q_OBJECT
 

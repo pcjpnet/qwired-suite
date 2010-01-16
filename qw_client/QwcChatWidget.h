@@ -11,7 +11,7 @@ class QwcSession;
 
 class QwcChatWidget :
         public QWidget,
-        public Ui_QwcChatWidget
+        protected Ui_QwcChatWidget
 {
     Q_OBJECT
 
@@ -23,7 +23,10 @@ public:
     bool eventFilter(QObject *watched, QEvent *event);
 
     QwcSession* session();
-    int pChatID;
+
+    void setChatId(int newId);
+    int chatId() const;
+
 
     void loadChatStyle(const QString &path = QString());
 
@@ -44,6 +47,7 @@ public slots:
 
 private:
     QwcSession *m_session;
+    int m_chatId;
 
     QPointer<QMenu> pInviteMenu;
     void updateInviteMenu();

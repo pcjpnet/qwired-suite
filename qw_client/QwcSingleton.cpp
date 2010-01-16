@@ -103,10 +103,10 @@ void QwcSingleton::createInitialSessions()
         settings.setArrayIndex(i);
         if (settings.value("autoconnect").toBool()) {
             QwcSession *newSession = new QwcSession();
-            newSession->m_connectWidget->fAddress->insert(settings.value("address").toString());
-            newSession->m_connectWidget->fLogin->insert(settings.value("login").toString());
-            newSession->m_connectWidget->fPassword->insert(settings.value("password").toString());
-            newSession->m_connectWidget->btnConnect->click();
+            newSession->m_connectWidget->connectAutomatically(
+                    settings.value("address").toString(),
+                    settings.value("login").toString(),
+                    settings.value("password").toString());
             addSession(newSession);
             autoconnectedBookmarks++;
         }

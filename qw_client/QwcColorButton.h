@@ -7,10 +7,10 @@
 #include <QColorDialog>
 
 
-class QwcColorButton : public QToolButton
+class QwcColorButton :
+        public QToolButton
 {
-	
-Q_OBJECT
+    Q_OBJECT
 		
 public:
     QwcColorButton(QWidget *parent = 0);
@@ -18,18 +18,17 @@ public:
     QColor selectedColor();
 	
 private:
-	QColor pColor;
+    QColor pColor;
     void updateIcon();
 
 private slots:
     void requestColor();
-
 	
 public slots:
     void setColor(QColor theColor);
 
 signals:
-	void colorSelected(QColor);
+    void colorSelected(QColor);
 
 };
 

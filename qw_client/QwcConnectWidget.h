@@ -6,21 +6,23 @@
 
 #include "QwTrackerClientSocket.h"
 
-class QwcConnectWidget : public QWidget, public Ui::QwcConnectWidget
+class QwcConnectWidget :
+        public QWidget,
+        protected Ui::QwcConnectWidget
 {
     Q_OBJECT
 
 public:
     QwcConnectWidget(QWidget *parent = 0);
 
-private:
+    void connectAutomatically(const QString &address, const QString &login, const QString &password);
 
-
-    QwTrackerClientSocket *trackerSocket;
-    int pReconnectTimerId;
-
-
-
+public slots:
+    void stopReconnecting();
+    void startReconnecting();
+    void resetForm();
+    void setProgressBar(int value, int max);
+    void setStatus(const QString &status);
 
 private slots:
     void updateTrackerMenu();
@@ -49,14 +51,8 @@ private slots:
 
 protected:
     void timerEvent(QTimerEvent *);
-
-
-public slots:
-    void stopReconnecting();
-    void startReconnecting();
-    void resetForm();
-    void setProgressBar(int value, int max);
-    void setStatus(const QString &status);
+    QwTrackerClientSocket *trackerSocket;
+    int pReconnectTimerId;
 
 
 signals:

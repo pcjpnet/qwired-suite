@@ -1,12 +1,13 @@
 #ifndef QWCACCOUNTSWIDGET_H
 #define QWCACCOUNTSWIDGET_H
 
-//#include <QWidget>
 #include "ui_QwcAccountsWidget.h"
 #include "QwcUserInfo.h"
 
 
-class QwcAccountsWidget : public QWidget, public Ui_QwcAccountsWidget
+class QwcAccountsWidget :
+        public QWidget,
+        protected Ui_QwcAccountsWidget
 {
     Q_OBJECT
 
@@ -17,10 +18,6 @@ private:
     void setupEditWidgets();
     QwcUserInfo currentAccount;
     bool newAccountMode;
-
-
-//    void enableGui(bool);
-
 
 private slots:
     void on_btnCreateAccount_clicked();

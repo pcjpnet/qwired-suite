@@ -12,7 +12,7 @@ class QwcSocket;
 
 class QwcNewsWidget :
         public QWidget,
-        private Ui_QwcNewsWidget
+        protected Ui_QwcNewsWidget
 {
     Q_OBJECT
 
