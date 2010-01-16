@@ -5,8 +5,10 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QFileDialog>
 #include <QtGui/QInputDialog>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QStandardItem>
+#include <QtGui/QFileIconProvider>
 #include <QtCore/QSettings>
-
 #include <math.h>
 
 QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
@@ -21,6 +23,11 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
     m_totalUsedSpace = 0;
     m_freeRemoteSpace = 0;
     labelCurrentPath->setText("/");
+
+    m_model = new QStandardItemModel(this);
+    m_model->setSortRole(Qt::UserRole + 1);
+
+    fList->setModel(m_model);
 
     stackedWidget->setCurrentWidget(pageBrowser);
 }
@@ -40,12 +47,12 @@ void QwcFileBrowserWidget::setSocket(QwcSocket *socket)
             this, SLOT(handleFilesListItem(QwcFileInfo)));
     connect(m_socket, SIGNAL(fileSearchResultListDone()),
             this, SLOT(handleSearchResultListDone()));
+
+    setRemotePath("/");
 }
 
 QwcSocket* QwcFileBrowserWidget::socket()
 { return m_socket; }
-
-
 
 QString QwcFileBrowserWidget::remotePath() const
 { return m_remotePath; }
@@ -64,7 +71,8 @@ void QwcFileBrowserWidget::setRemotePath(const QString &path)
 */
 void QwcFileBrowserWidget::resetForListing()
 {
-    fList->clear();
+    m_model->clear();
+    m_model->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Modified") << tr("Size"));
     labelCurrentPath->setText(m_remotePath);
     m_totalUsedSpace = 0;
     m_freeRemoteSpace = 0;
@@ -79,7 +87,7 @@ void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
 {
     infoName->setText(file.fileName());
     infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
-    infoSize->setText(tr("%1 (%2 bytes)").arg(QwcFileInfo::humanReadableSize(file.size)).arg(file.size));
+    infoSize->setText(tr("%1 (%2)").arg(QwcFileInfo::humanReadableSize(file.size)).arg(file.size));
     infoPath->setText(file.path);
     infoModified->setText(file.modified.toString());
     infoCreated->setText(file.created.toString());
@@ -87,20 +95,11 @@ void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
     infoComment->setText(file.comment);
 
     switch (file.type) {
-    case Qw::FileTypeDropBox:
-        infoKind->setText(tr("Drop Box"));
-        break;
-    case Qw::FileTypeFolder:
-        infoKind->setText(tr("Folder"));
-        break;
-    case Qw::FileTypeRegular:
-        infoKind->setText(tr("File"));
-        break;
-    case Qw::FileTypeUploadsFolder:
-        infoKind->setText(tr("Upload Folder"));
-        break;
-    default:
-        infoKind->setText(tr("n/a"));
+    case Qw::FileTypeDropBox: infoKind->setText(tr("Drop Box")); break;
+    case Qw::FileTypeFolder: infoKind->setText(tr("Folder")); break;
+    case Qw::FileTypeRegular: infoKind->setText(tr("File")); break;
+    case Qw::FileTypeUploadsFolder: infoKind->setText(tr("Upload Folder")); break;
+    default: infoKind->setText(tr("n/a")); break;
     }
 
     pageInfo->setEnabled(true);
@@ -131,18 +130,32 @@ void QwcFileBrowserWidget::setUserInformation(QwcUserInfo info)
 void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
 {
     if (!m_waitingForListItems) { return; }
-    QTreeWidgetItem *treeItem = new QTreeWidgetItem(fList);
-    treeItem->setText(0, item.fileName());
-    treeItem->setIcon(0, item.fileIcon());
-    treeItem->setData(0, Qt::UserRole, QVariant::fromValue(item));
+    QList<QStandardItem*> columns;
+    QStandardItem *newItem;
 
+    newItem = new QStandardItem(); // File name
+    newItem->setText(item.fileName());
+    newItem->setIcon(item.fileIcon());
+    newItem->setData(QVariant::fromValue(item), Qt::UserRole); // file information
+    newItem->setData(item.fileName(), Qt::UserRole + 1); // sort role
+    columns << newItem;
+
+    newItem = new QStandardItem(); // Date
+    newItem->setText(item.modified.toString());
+    newItem->setData(item.modified, Qt::UserRole + 1); // sort role
+    columns << newItem;
+
+    newItem = new QStandardItem(); // Size
     if (item.type == Qw::FileTypeRegular) {
-        treeItem->setText(1, item.humanReadableSize(item.size));
+        newItem->setText(item.humanReadableSize(item.size));
     } else {
-        treeItem->setText(1, QString("%1 item(s)").arg(item.size));
+        newItem->setText(QString("%1 item(s)").arg(item.size));
     }
+    newItem->setData(item.size, Qt::UserRole + 1); // sort role
+    columns << newItem;
 
-    treeItem->setText(2, item.modified.toLocalTime().toString());
+    m_model->appendRow(columns);
+
 
     if (item.type == Qw::FileTypeRegular) {
         m_totalUsedSpace += item.size;
@@ -159,7 +172,7 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
     m_waitingForListItems = false;
     m_freeRemoteSpace = freeSpace;
     fStats->setText(tr("%1 items, %2 total, %3 available")
-                    .arg(fList->topLevelItemCount())
+                    .arg(m_model->rowCount())
                     .arg(QwFile::humanReadableSize(m_totalUsedSpace))
                     .arg(QwFile::humanReadableSize(m_freeRemoteSpace)));
     this->setEnabled(true);
@@ -202,7 +215,7 @@ void QwcFileBrowserWidget::handleSearchResultListDone()
     m_waitingForListItems = false;
     m_freeRemoteSpace = 0;
     fStats->setText(tr("%1 results for \"%2\"")
-                    .arg(fList->topLevelItemCount())
+                    .arg(m_model->rowCount())
                     .arg(findFilter->text()));
     this->setEnabled(true);
     fList->resizeColumnToContents(0);
@@ -226,27 +239,27 @@ void QwcFileBrowserWidget::on_btnRefresh_clicked()
 */
 void QwcFileBrowserWidget::on_btnDelete_clicked()
 {
-    QList<QTreeWidgetItem*> items = fList->selectedItems();
-
-    // Confirm first
-    QMessageBox::StandardButton button = QMessageBox::question(this,
-        tr("Delete Files and Folders"),
-        tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", items.count()),
-        QMessageBox::Yes | QMessageBox::No,
-        QMessageBox::No);
-    if (button == QMessageBox::No) { return; }
-
-    // Now delete the selected items
-    QListIterator<QTreeWidgetItem*> i(items);
-    while (i.hasNext()) {
-        QTreeWidgetItem *item = i.next();
-        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-        m_socket->deleteFile(itemInfo.path);
-    }
-
-    // Reset the file browser
-    resetForListing();
-    m_socket->getFileList(m_remotePath);
+//    QList<QTreeWidgetItem*> items = fList->selectedItems();
+//
+//    // Confirm first
+//    QMessageBox::StandardButton button = QMessageBox::question(this,
+//        tr("Delete Files and Folders"),
+//        tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", items.count()),
+//        QMessageBox::Yes | QMessageBox::No,
+//        QMessageBox::No);
+//    if (button == QMessageBox::No) { return; }
+//
+//    // Now delete the selected items
+//    QListIterator<QTreeWidgetItem*> i(items);
+//    while (i.hasNext()) {
+//        QTreeWidgetItem *item = i.next();
+//        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+//        m_socket->deleteFile(itemInfo.path);
+//    }
+//
+//    // Reset the file browser
+//    resetForListing();
+//    m_socket->getFileList(m_remotePath);
 }
 
 
@@ -254,38 +267,38 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
 */
 void QwcFileBrowserWidget::on_btnDownload_clicked()
 {
-    QSettings settings;
-    QList<QTreeWidgetItem*> items = fList->selectedItems();
-
-    // Now delete the selected items
-    QListIterator<QTreeWidgetItem*> i(items);
-    while (i.hasNext()) {
-        QTreeWidgetItem *item = i.next();
-        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-
-        QDir downloadDirectory(settings.value("files/download_dir", QDir::homePath()).toString());
-
-        // Check if the target file already exists
-        if (QFile::exists(downloadDirectory.absoluteFilePath(itemInfo.fileName()))) {
-            if (QMessageBox::Cancel == QMessageBox::question(this,
-                tr("File exists"),
-                tr("The file or directory \"%1\" already exists. Do you want to overwrite it?").arg(itemInfo.fileName()),
-                QMessageBox::Cancel | QMessageBox::Save,
-                QMessageBox::Cancel))
-            {
-                return;
-            }
-        }
-
-        // Set the local path properly
-        if (itemInfo.type == Qw::FileTypeRegular) {
-            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
-        } else {
-            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName());
-        }
-
-        m_socket->downloadFileOrFolder(itemInfo);
-    }
+//    QSettings settings;
+//    QList<QTreeWidgetItem*> items = fList->selectedItems();
+//
+//    // Now delete the selected items
+//    QListIterator<QTreeWidgetItem*> i(items);
+//    while (i.hasNext()) {
+//        QTreeWidgetItem *item = i.next();
+//        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+//
+//        QDir downloadDirectory(settings.value("files/download_dir", QDir::homePath()).toString());
+//
+//        // Check if the target file already exists
+//        if (QFile::exists(downloadDirectory.absoluteFilePath(itemInfo.fileName()))) {
+//            if (QMessageBox::Cancel == QMessageBox::question(this,
+//                tr("File exists"),
+//                tr("The file or directory \"%1\" already exists. Do you want to overwrite it?").arg(itemInfo.fileName()),
+//                QMessageBox::Cancel | QMessageBox::Save,
+//                QMessageBox::Cancel))
+//            {
+//                return;
+//            }
+//        }
+//
+//        // Set the local path properly
+//        if (itemInfo.type == Qw::FileTypeRegular) {
+//            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
+//        } else {
+//            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName());
+//        }
+//
+//        m_socket->downloadFileOrFolder(itemInfo);
+//    }
 }
 
 
@@ -293,19 +306,19 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
 */
 void QwcFileBrowserWidget::on_btnPreview_clicked()
 {
-    QSettings settings;
-    QList<QTreeWidgetItem*> items = fList->selectedItems();
-
-    // Now delete the selected items
-    QListIterator<QTreeWidgetItem*> i(items);
-    while (i.hasNext()) {
-        QTreeWidgetItem *item = i.next();
-        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-        QDir downloadDirectory = QDir::temp();
-        itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
-        itemInfo.previewFileAfterTransfer = true;
-        m_socket->downloadFileOrFolder(itemInfo);
-    }
+//    QSettings settings;
+//    QList<QTreeWidgetItem*> items = fList->selectedItems();
+//
+//    // Now delete the selected items
+//    QListIterator<QTreeWidgetItem*> i(items);
+//    while (i.hasNext()) {
+//        QTreeWidgetItem *item = i.next();
+//        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+//        QDir downloadDirectory = QDir::temp();
+//        itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
+//        itemInfo.previewFileAfterTransfer = true;
+//        m_socket->downloadFileOrFolder(itemInfo);
+//    }
 }
 
 
@@ -361,6 +374,25 @@ void QwcFileBrowserWidget::on_findFilter_returnPressed()
     }
 }
 
+
+void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
+{
+    QStandardItem *clickedItem = m_model->itemFromIndex(index);
+    if (!clickedItem) { return; }
+    QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
+    if (!firstColumnItem) { return; }
+
+    QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
+
+    if (fileInfo.type == Qw::FileTypeDropBox
+        || fileInfo.type == Qw::FileTypeFolder
+        || fileInfo.type == Qw::FileTypeUploadsFolder)
+    {
+        m_remotePath = fileInfo.path;
+        currentFolderInfo = fileInfo;
+        setRemotePath(fileInfo.path);
+    }
+}
 
 // Download button pressed
 //void QwcFileBrowserWidget::on_fBtnDownload_clicked(bool)
@@ -423,13 +455,13 @@ void QwcFileBrowserWidget::on_btnBack_clicked()
 */
 void QwcFileBrowserWidget::on_btnInfo_clicked()
 {
-    QList<QTreeWidgetItem*> items = fList->selectedItems();
-    if (items.count() == 0) { return; }
-    QTreeWidgetItem *item = items.first();
-    currentFileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-    m_socket->getFileInformation(currentFileInfo.path);
-    stackedWidget->setCurrentWidget(pageInfo);
-    pageInfo->setEnabled(false);
+//    QList<QTreeWidgetItem*> items = fList->selectedItems();
+//    if (items.count() == 0) { return; }
+//    QTreeWidgetItem *item = items.first();
+//    currentFileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+//    m_socket->getFileInformation(currentFileInfo.path);
+//    stackedWidget->setCurrentWidget(pageInfo);
+//    pageInfo->setEnabled(false);
 }
 
 
@@ -458,45 +490,45 @@ void QwcFileBrowserWidget::on_btnNewFolder_clicked()
 
 /*! Another item was selected from the list.
 */
-void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
-{
-    btnInfo->setEnabled(fList->selectedItems().count());
-    btnDelete->setEnabled(fList->selectedItems().count());
-
-    btnDownload->setEnabled(fList->selectedItems().count()
-                            && userInfo.privileges().testFlag(Qws::PrivilegeDownload));
-
-    if (fList->selectedItems().count()) {
-        QStringList supportedPreviewSuffixes = QStringList() << "jpg" << "png" << "gif" << "jpeg";
-        QwcFileInfo fileInfo = fList->selectedItems().first()->data(0, Qt::UserRole).value<QwcFileInfo>();
-        btnPreview->setEnabled(fList->selectedItems().count()
-                    && userInfo.privileges().testFlag(Qws::PrivilegeDownload)
-                    && fileInfo.type == Qw::FileTypeRegular
-                    && supportedPreviewSuffixes.contains(fileInfo.fileName().section(".", -1, -1), Qt::CaseInsensitive));
-    } else {
-        btnPreview->setEnabled(false);
-    }
-}
+//void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
+//{
+//    btnInfo->setEnabled(fList->selectedItems().count());
+//    btnDelete->setEnabled(fList->selectedItems().count());
+//
+//    btnDownload->setEnabled(fList->selectedItems().count()
+//                            && userInfo.privileges().testFlag(Qws::PrivilegeDownload));
+//
+//    if (fList->selectedItems().count()) {
+//        QStringList supportedPreviewSuffixes = QStringList() << "jpg" << "png" << "gif" << "jpeg";
+//        QwcFileInfo fileInfo = fList->selectedItems().first()->data(0, Qt::UserRole).value<QwcFileInfo>();
+//        btnPreview->setEnabled(fList->selectedItems().count()
+//                    && userInfo.privileges().testFlag(Qws::PrivilegeDownload)
+//                    && fileInfo.type == Qw::FileTypeRegular
+//                    && supportedPreviewSuffixes.contains(fileInfo.fileName().section(".", -1, -1), Qt::CaseInsensitive));
+//    } else {
+//        btnPreview->setEnabled(false);
+//    }
+//}
 
 
 /*! An item has been double-clicked. If it is a directory, we should descent into it.
 */
-void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column)
-{
-    Q_UNUSED(column);
-    if (!item) { return; }
-    QwcFileInfo fileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-    if (fileInfo.type == Qw::FileTypeDropBox
-        || fileInfo.type == Qw::FileTypeFolder
-        || fileInfo.type == Qw::FileTypeUploadsFolder)
-    {
-        m_remotePath = fileInfo.path;
-        currentFolderInfo = fileInfo;
-        resetForListing();
-        m_socket->getFileList(m_remotePath);
-    }
-
-}
+//void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column)
+//{
+//    Q_UNUSED(column);
+//    if (!item) { return; }
+//    QwcFileInfo fileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
+//    if (fileInfo.type == Qw::FileTypeDropBox
+//        || fileInfo.type == Qw::FileTypeFolder
+//        || fileInfo.type == Qw::FileTypeUploadsFolder)
+//    {
+//        m_remotePath = fileInfo.path;
+//        currentFolderInfo = fileInfo;
+//        resetForListing();
+//        m_socket->getFileList(m_remotePath);
+//    }
+//
+//}
 
 
 
