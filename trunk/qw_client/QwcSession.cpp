@@ -444,18 +444,22 @@ void QwcSession::handleSocketChatMessage(int chatId, int userId, const QString &
 */
 void QwcSession::handleUserInformation(QwcUserInfo user)
 {
-    QwcUserInfoWidget *infoWidget = NULL;
-    if (m_userInfoWidgets.contains(user.pUserID)) {
-        infoWidget = m_userInfoWidgets.value(user.pUserID);
-    } else {
+    QString widgetName = QString("UserInfo_%1").arg(user.pUserID);
+    QwcUserInfoWidget *infoWidget = m_mainWindow->findChild<QwcUserInfoWidget*>(widgetName);
+
+    if (!infoWidget) {
         infoWidget = new QwcUserInfoWidget(m_mainWindow);
-        m_userInfoWidgets[user.pUserID] = infoWidget;
-        connectionTabWidget->addTab(infoWidget, tr("Info: %1").arg(user.userNickname));
+        infoWidget->setUser(user);
+        infoWidget->setObjectName(widgetName);
+    }
+    if (!infoWidget) { return; }
+
+    if (connectionTabWidget->indexOf(infoWidget) == -1) {
+        int index = connectionTabWidget->addTab(infoWidget, user.userNickname);
+        connectionTabWidget->setCurrentIndex(index);
+    } else {
         connectionTabWidget->setCurrentWidget(infoWidget);
     }
-
-    if (!infoWidget) { return; }
-    infoWidget->setUser(user);
 }
 
 
