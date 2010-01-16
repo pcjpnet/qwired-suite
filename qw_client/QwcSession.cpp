@@ -92,6 +92,10 @@ void QwcSession::initializeMainWindow()
     connectionStackedWidget = new QStackedWidget(m_mainWindow);
     m_mainWindow->setCentralWidget(connectionStackedWidget);
 
+#ifdef Q_WS_X11
+    connectionStackedWidget->setContentsMargins(6, 6, 6, 6);
+#endif
+
     // Create the login dialog
     m_connectWidget = new QwcConnectWidget(connectionStackedWidget);
     m_connectWidget->setSocket(m_socket);
@@ -102,7 +106,9 @@ void QwcSession::initializeMainWindow()
     // Create the tab bar for the normal program use
     connectionTabWidget = new QTabWidget(connectionStackedWidget);
     connectionTabWidget->setMovable(true);
+#if Q_WS_MAC
     connectionTabWidget->setDocumentMode(true);
+#endif
     connectionTabWidget->setTabsClosable(true);
     connect(connectionTabWidget, SIGNAL(tabCloseRequested(int)),
             this, SLOT(onTabBarCloseRequested(int)));
