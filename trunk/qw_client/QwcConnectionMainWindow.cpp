@@ -31,6 +31,7 @@ void QwcConnectionMainWindow::setSocket(QwcSocket *socket)
     if (m_socket) { disconnect(m_socket, 0, this, 0); }
     m_socket = socket;
     if (!socket) { return; }
+
     connect(m_socket, SIGNAL(newsPosted(QString,QDateTime,QString)),
             this, SLOT(handleSocketNewsPosted(QString,QDateTime,QString)));
 }
@@ -92,26 +93,26 @@ void QwcConnectionMainWindow::on_actionReconnect_triggered()
 void QwcConnectionMainWindow::on_actionServerInfo_triggered()
 { emit actionTriggered(TriggeredActionServerInformation); }
 
-void QwcConnectionMainWindow::on_actionServerNews_triggered()
+void QwcConnectionMainWindow::on_actionNews_triggered()
 {
     actionNews->setIcon(QIcon(":/icons/32x32/internet-news-reader.png"));
     emit actionTriggered(TriggeredActionNews);
 }
 
-void QwcConnectionMainWindow::on_actionServerMessages_triggered()
+void QwcConnectionMainWindow::on_actionMessages_triggered()
 { emit actionTriggered(TriggeredActionMessages); }
 
-void QwcConnectionMainWindow::on_actionServerFiles_triggered()
+void QwcConnectionMainWindow::on_actionFiles_triggered()
 { emit actionTriggered(TriggeredActionFiles); }
 
-void QwcConnectionMainWindow::on_actionServerTransfers_triggered()
+void QwcConnectionMainWindow::on_actionTransfers_triggered()
 { emit actionTriggered(TriggeredActionTransfers); }
 
-void QwcConnectionMainWindow::on_actionServerAccounts_triggered()
+void QwcConnectionMainWindow::on_actionAccounts_triggered()
 { emit actionTriggered(TriggeredActionAccounts); }
 
-void QwcConnectionMainWindow::on_actionServerBroadcast_triggered()
+void QwcConnectionMainWindow::on_actionBroadcast_triggered()
 { emit actionTriggered(TriggeredActionBroadcast); }
 
-void QwcConnectionMainWindow::on_actionServerPreferences_triggered()
+void QwcConnectionMainWindow::on_actionPreferences_triggered()
 { emit actionTriggered(TriggeredActionPreferences); }

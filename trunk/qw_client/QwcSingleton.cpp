@@ -149,11 +149,6 @@ void QwcSingleton::addSession(QwcSession *session)
 {
     sessions.append(session);
     connect(session, SIGNAL(destroyed(QObject*)), this, SLOT(sessionDestroyed(QObject*)));
-
-    // Tray menu
-    QMenu *tmpMenu = new QMenu(pTrayMenu);
-    session->setTrayMenuAction(tmpMenu);
-    pTrayMenu->addMenu(tmpMenu);
 }
 
 

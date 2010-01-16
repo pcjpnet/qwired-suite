@@ -12,7 +12,8 @@
 
 const int transferTimerInterval = 250;
 
-class QwcTransferSocket : public QObject
+class QwcTransferSocket :
+        public QObject
 {
     Q_OBJECT
 

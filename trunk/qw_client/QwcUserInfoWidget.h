@@ -9,7 +9,9 @@
         @author Bastian Bense <bastibense@gmail.com>
 */
 
-class QwcUserInfoWidget : public QWidget, public Ui_QwcUserInfoWidget
+class QwcUserInfoWidget :
+        public QWidget,
+        protected Ui_QwcUserInfoWidget
 {
     Q_OBJECT
 

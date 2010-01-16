@@ -6,18 +6,14 @@
     \sa socketDataReceived()
 */
 
-QwSocket::QwSocket(QObject *parent) : QObject(parent)
+QwSocket::QwSocket(QObject *parent) :
+        QObject(parent)
 {
-    qDebug() << this << "Initializing new connection.";
     socket = NULL;
 }
 
-
 QwSocket::~QwSocket()
-{
-    qDebug() << this << "Destroying QwSocket.";
-}
-
+{ }
 
 /*! Sende eine Nachricht zum Verbindungspartner. Der Inhalt von message wird serialisiert und über
     das Central Park Protokoll an den Verbindungspartner gesendet.
@@ -30,7 +26,6 @@ void QwSocket::sendMessage(const QwMessage &message)
     QDataStream stream(&buffer, QIODevice::WriteOnly);
     buffer += message.generateFrame();
     buffer.append('\x04');
-    qDebug() << "Sending message:" <<message.commandName<< ":" << message.arguments.count();
     socket->write(buffer);
     socket->flush();
 }
@@ -49,14 +44,13 @@ const QSslSocket* QwSocket::sslSocket() const
 */
 void QwSocket::setSslSocket(QSslSocket *socket)
 {
-    qDebug() << this << "Setting"<<socket;
-    if(!socket) return;
+    if (!socket) return;
     this->socket = socket;
     socket->setParent(this);
-    connect( socket, SIGNAL(readyRead()),
-             this, SLOT(socketDataReceived()), Qt::QueuedConnection );
-    connect( socket, SIGNAL(disconnected()),
-             this, SIGNAL(connectionLost()), Qt::QueuedConnection );
+    connect(socket, SIGNAL(readyRead()),
+            this, SLOT(socketDataReceived()), Qt::QueuedConnection );
+    connect(socket, SIGNAL(disconnected()),
+            this, SIGNAL(connectionLost()), Qt::QueuedConnection );
 }
 
 
