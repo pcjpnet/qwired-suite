@@ -15,6 +15,7 @@
 #include <QGraphicsItemAnimation>
 #include <QMessageBox>
 
+#include "QwcSocket.h"
 
 // Session intialization
 QwcPrivateMessagerSession::QwcPrivateMessagerSession()
@@ -22,6 +23,7 @@ QwcPrivateMessagerSession::QwcPrivateMessagerSession()
     inactive = false;
     unreadCount = 0;
     document = NULL;
+
 }
 
 // Messenger Widget
@@ -29,6 +31,7 @@ QwcPrivateMessagerSession::QwcPrivateMessagerSession()
 QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
+    m_socket = NULL;
     fMessageList->setItemDelegate(new QwcUserlistDelegate(fMessageList));
     fMessageInput->installEventFilter(this);
 
@@ -42,6 +45,24 @@ QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
     splitterHorizontal->restoreState(settings.value("messager/splitterHorizontal", splitterHorizontal->saveState()).toByteArray());
 
 }
+
+void QwcPrivateMessager::setSocket(QwcSocket *socket)
+{
+    if (m_socket) { disconnect(m_socket, 0, this, 0); }
+    m_socket = socket;
+    if (!socket) { return; }
+
+    connect(m_socket, SIGNAL(userChanged(QwcUserInfo, QwcUserInfo)),
+            this, SLOT(handleUserChanged(QwcUserInfo, QwcUserInfo)) );
+    connect(m_socket, SIGNAL(userLeftRoom(int, QwcUserInfo)),
+            this, SLOT(handleUserLeft(int, QwcUserInfo)));
+
+    m_socket = socket;
+}
+
+QwcSocket* QwcPrivateMessager::socket()
+{ return m_socket; }
+
 
 
 QwcPrivateMessager::~QwcPrivateMessager()
@@ -74,7 +95,7 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
                     fMessageView->setTextCursor(fMessageView->document()->rootFrame()->lastCursorPosition());
                     fMessageView->ensureCursorVisible();
                     // Let other parts of the program know that the user entered a message
-                    emit enteredNewMessage(session.userInfo.pUserID, fMessageInput->toPlainText());
+                    m_socket->sendPrivateMessage(session.userInfo.pUserID, fMessageInput->toPlainText());
                     fMessageInput->clear();
                     return true;
                 }

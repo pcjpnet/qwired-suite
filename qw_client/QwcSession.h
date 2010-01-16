@@ -1,30 +1,6 @@
 #ifndef QWCSESSION_H
 #define QWCSESSION_H
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-
-#include <QtGui/QTabWidget>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QMenu>
-
-#include <QtNetwork/QAbstractSocket>
-
-
-//#include <QtQStackedLayout>
-
-//#include "QwcChatWidget.h"
-//#include "QwcConnectWidget.h"
-//#include "QwcConnectionMainWindow.h"
-//#include "QwcNewsWidget.h"
-//#include "QwcPreferencesWidget.h"
-//#include "QwcConnectWidget.h"
-//#include "QwcFiletransferWidget.h"
-//#include "QwcAccountsWidget.h"
-//#include "QwcServerInfoWidget.h"
-//#include "QwcPrivateMessager.h"
-//#include "QwcUserInfoWidget.h"
-
 class QwcSocket;
 class QwcPrivateMessager;
 class QwcConnectionMainWindow;
@@ -42,12 +18,17 @@ class QwcUserInfoWidget;
 #include "QwcFileInfo.h"
 #include "QwcTransferInfo.h"
 
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
 
-namespace Qwired {
-    enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick,
-                 UserChangedStatus, UserLeft, ChatReceived, MessageReceived, NewsPosted,
-                 BroadcastReceived, TransferStarted, TransferFinished };
-}
+#include <QtGui/QTabWidget>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QMenu>
+
+#include <QtNetwork/QAbstractSocket>
+
+
+
 
 
 class QwcFileBrowserWidget;
@@ -70,7 +51,7 @@ public:
 
     // Main window widgets
     void initMainWindow();
-    QPointer<QwcPrivateMessager> privateMessager;
+
 
     // Wired Socket
     void initWiredSocket();
@@ -82,6 +63,7 @@ public:
     QPointer<QwcChatWidget> m_publicChat;
     QPointer<QTabWidget> connectionTabWidget;
     QPointer<QStackedWidget> connectionStackedWidget;
+    QPointer<QwcPrivateMessager> m_privateMessagerWidget;
 
     QPointer<QwcNewsWidget> m_newsWidget;
     QHash<int, QPointer<QwcChatWidget> > m_chatWidgets;

@@ -1,6 +1,7 @@
 #ifndef WIREDSOCKET_H
 #define WIREDSOCKET_H
 
+#include "QwGlobals.h"
 #include "QwsUser.h"
 #include "QwsFile.h"
 #include "QwSocket.h"
@@ -11,13 +12,14 @@
 #include <QtNetwork>
 
 namespace Qws {
-    enum SessionState{ /*! TCP-unknown, no handshake, not logged in */
-                       StateInactive,
-                       /*! TCP connected, handshake OK, not logged in */
-                       StateConnected,
-                       /*! TCP connected, handshake OK, logged in (ready) */
-                       StateActive
-                     };
+    enum SessionState{
+        /*! TCP-unknown, no handshake, not logged in */
+        StateInactive,
+        /*! TCP connected, handshake OK, not logged in */
+        StateConnected,
+        /*! TCP connected, handshake OK, logged in (ready) */
+        StateActive
+    };
 }
 
 
