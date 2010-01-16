@@ -149,6 +149,9 @@ void QwcConnectionMainWindow::on_actionDonate_triggered()
 void QwcConnectionMainWindow::on_actionNewConnection_triggered()
 { emit actionTriggered(TriggeredActionNewConnection); }
 
+void QwcConnectionMainWindow::on_actionChat_triggered()
+{ emit actionTriggered(TriggeredActionChat); }
+
 void QwcConnectionMainWindow::on_actionDisconnect_triggered()
 { emit actionTriggered(TriggeredActionDisconnect); }
 

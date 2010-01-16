@@ -14,17 +14,16 @@
 
 
 
-
-
 QwcChatWidget::QwcChatWidget(QWidget *parent) :
         QWidget(parent)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
+
     m_socket = NULL;
     m_chatId = Qwc::PUBLIC_CHAT;
 
-    setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
-    fBtnInvite->setVisible(false);
+    btnInvite->setVisible(false);
 
     fChatInput->installEventFilter(this);
 
@@ -85,6 +84,8 @@ void QwcChatWidget::setSocket(QwcSocket *socket)
             this, SLOT(handleSocketBroadcastMessage(QwcUserInfo,QString)));
     connect(m_socket, SIGNAL(receivedChatMessage(int,int,QString,bool)),
             this, SLOT(handleSocketChatMessage(int,int,QString,bool)));
+    connect(m_socket, SIGNAL(privateChatDeclined(int,QwcUserInfo)),
+            this, SLOT(handleSocketPrivateChatDeclined(int,QwcUserInfo)));
 }
 
 QwcSocket* QwcChatWidget::socket()
@@ -94,7 +95,9 @@ QwcSocket* QwcChatWidget::socket()
 void QwcChatWidget::setChatId(int newId)
 {
     m_chatId = newId;
-    fBtnChat->setVisible(newId == Qwc::PUBLIC_CHAT);
+    userListWidget->setChatId(newId);
+    btnInvite->setVisible(newId == Qwc::PUBLIC_CHAT);
+    m_socket->getUserlist(newId);
 }
 
 int QwcChatWidget::chatId() const
@@ -163,7 +166,7 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
 
 /*! Write a status message/event to the chat.
 */
-void QwcChatWidget::writeEventToChat(QString eventText, QString eventType)
+void QwcChatWidget::writeEventToChat(QString eventText)
 {
     m_currentMessageStyle.addStatusMessage(chatView->page()->currentFrame(), eventText);
 }
@@ -198,6 +201,14 @@ void QwcChatWidget::handleSocketChatTopic(int chatId, const QString &nickname, c
 {
     if (chatId != m_chatId) { return; }
     QwcMessageStyle::setTopicContents(chatView->page()->currentFrame(), topic, nickname, dateTime);
+}
+
+
+void QwcChatWidget::handleSocketPrivateChatDeclined(int chatId, const QwcUserInfo &user)
+{
+    if (chatId != m_chatId) { return; }
+
+    writeEventToChat(tr("%1 declined the invitation to a private chat").arg(user.userNickname));
 }
 
 
@@ -250,13 +261,13 @@ void QwcChatWidget::processChatInput()
         QFile outFile(targetFile);
         if (!outFile.open(QIODevice::WriteOnly)) {
             //: The message that is displayed in the chat if saving the chat transcript failed (/save)
-            writeEventToChat(tr("Error: Failed to write log to file."), "");
+            writeEventToChat(tr("Error: Failed to write log to file."));
             return;
         }
 
         outFile.write(chatView->page()->mainFrame()->toHtml().toUtf8());
         //: The message that is displayed in the chat if the log was saved successfully (/save)
-        writeEventToChat(tr("Chat transcript was saved to %1").arg(targetFile), "");
+        writeEventToChat(tr("Chat transcript was saved to %1").arg(targetFile));
 
 
     } else if (inputText.startsWith("/caturday")) {
@@ -275,116 +286,18 @@ void QwcChatWidget::processChatInput()
 }
 
 
-void QwcChatWidget::on_fBtnKick_clicked()
-{
-    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
-    if (!tmpIdx.isValid()) { return; }
-    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
-
-    bool ok;
-    QString reason = QInputDialog::getText(this, tr("Kick"),
-                        tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.")
-                        .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
-    if (!ok) { return; }
-    m_socket->kickClient(userInfo.pUserID, reason);
-}
 
 
-void QwcChatWidget::on_fBtnBan_clicked()
-{
-    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
-    if (!tmpIdx.isValid()) { return; }
-    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
-
-    bool ok;
-    QString reason = QInputDialog::getText(this, tr("Kick"),
-                                           tr("You are about to ban '%1'.\nPlease enter a reason and press OK.")
-                                           .arg(userInfo.userNickname), QLineEdit::Normal, "", &ok);
-    if (!ok) { return; }
-    m_socket->banClient(userInfo.pUserID, reason);
-}
 
 
-void QwcChatWidget::on_fBtnMsg_clicked()
-{
-    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
-    on_fUsers_doubleClicked(tmpIdx);
-}
 
 
-/*! A user (or more) have been double-clicked. We emit a signal for this event, so the session
-    can comfortably handle this.
-*/
-void QwcChatWidget::on_fUsers_doubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid()) { return; }
-    QwcUserInfo userInfo = index.data(Qt::UserRole).value<QwcUserInfo>();
-    emit userDoubleClicked(userInfo);
-}
 
 
-/*! The selection of the user list has changed.
-*/
-void QwcChatWidget::onUserlistSelectionChanged(const QItemSelection &, const QItemSelection &)
-{
-    fBtnInfo->setEnabled(userListWidget->selectionModel()->hasSelection()
-                         && m_socket->sessionUser.privileges().testFlag(Qws::PrivilegeGetUserInfo));
-
-    fBtnBan->setEnabled(userListWidget->selectionModel()->hasSelection()
-                        && m_socket->sessionUser.privileges().testFlag(Qws::PrivilegeBanUsers));
-    fBtnMsg->setEnabled(userListWidget->selectionModel()->hasSelection());
-    fBtnKick->setEnabled(userListWidget->selectionModel()->hasSelection()
-                         && m_socket->sessionUser.privileges().testFlag(Qws::PrivilegeKickUsers));
-    fBtnChat->setEnabled(userListWidget->selectionModel()->hasSelection());
-}
 
 
-/*! The privat-chat button has been clicked.
-*/
-void QwcChatWidget::on_fBtnChat_clicked()
-{
-    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
-    if (!tmpIdx.isValid()) { return; }
-    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
-    m_socket->createChatWithClient(userInfo.pUserID);
-}
 
 
-/*! The get-info button has been clicked.
-*/
-void QwcChatWidget::on_fBtnInfo_clicked()
-{
-    const QModelIndex tmpIdx = userListWidget->selectionModel()->currentIndex();
-    if (!tmpIdx.isValid()) { return; }
-    QwcUserInfo userInfo = tmpIdx.data(Qt::UserRole).value<QwcUserInfo>();
-    m_socket->getClientInformation(userInfo.pUserID);
-
-}
-
-
-//
-// INVITE MENU
-//
-void QwcChatWidget::updateInviteMenu()
-{
-    if (!pInviteMenu) {
-        pInviteMenu = new QMenu(fBtnInvite);
-        fBtnInvite->setMenu(pInviteMenu);
-        connect(pInviteMenu, SIGNAL(triggered(QAction*)),
-                this, SLOT(inviteMenuTriggered(QAction*)));
-    }
-
-    pInviteMenu->clear();
-    QHashIterator<int, QwcUserInfo> i(m_socket->users);
-    while (i.hasNext()) {
-        i.next();
-        const QwcUserInfo &item = i.value();
-        if (item.pUserID == m_socket->sessionUser.pUserID) { continue; }
-        QAction *tmpAct = pInviteMenu->addAction(item.userNickname);
-        tmpAct->setIcon(QPixmap::fromImage(item.userImage()));
-        tmpAct->setData(item.pUserID);
-    }
-}
 
 
 void QwcChatWidget::inviteMenuTriggered(QAction *action)
@@ -411,19 +324,101 @@ void QwcChatWidget::reloadPreferences()
 }
 
 
-void QwcChatWidget::resetForm()
-{
-    fChatInput->clear();
-}
-
-
+/*! Workaround helper for scrolling in the chat log.
+*/
 void QwcChatWidget::handleChatViewFrameSizeChanged(QSize size)
 {
     chatView->page()->mainFrame()->setScrollPosition(QPoint(0, size.height()));
 }
 
+/*! A user (or more) have been double-clicked. We emit a signal for this event, so the session
+    can comfortably handle this.
+*/
+void QwcChatWidget::on_userListWidget_doubleClicked(const QModelIndex &)
+{
+    if (!userListWidget->selectedUsers().count()) { return; }
+    QwcUserInfo target = userListWidget->selectedUsers().first();
+    emit requestedNewPrivateMessage(target);
+}
 
 
+/*! The selection of the user list has changed.
+*/
+void QwcChatWidget::on_userListWidget_itemSelectionChanged()
+{
+    bool hasSelection = userListWidget->selectionModel()->hasSelection();
+    btnInformation->setEnabled(hasSelection && m_socket->sessionUser.privileges() & Qws::PrivilegeGetUserInfo);
+    btnBan->setEnabled(hasSelection && m_socket->sessionUser.privileges() & Qws::PrivilegeBanUsers);
+    btnMessage->setEnabled(hasSelection && m_socket->sessionUser.privileges());
+    btnKick->setEnabled(hasSelection && m_socket->sessionUser.privileges() & Qws::PrivilegeKickUsers);
+    btnChat->setEnabled(hasSelection);
+}
+
+void QwcChatWidget::on_btnInvite_clicked()
+{
+    QMenu menu;
+
+    QwRoom publicRoom = m_socket->rooms[Qwc::PUBLIC_CHAT];
+    foreach (int id, publicRoom.pUsers) {
+        QAction *action = menu.addAction(m_socket->users[id].userNickname);
+        action->setData(id);
+    }
+
+    QAction *result = menu.exec();
+    if (!result) { return; }
+
+}
+
+void QwcChatWidget::on_btnMessage_clicked()
+{
+    if (!userListWidget->selectedUsers().count()) { return; }
+    QwcUserInfo target = userListWidget->selectedUsers().first();
+    emit requestedNewPrivateMessage(target);
+}
+
+
+void QwcChatWidget::on_btnKick_clicked()
+{
+    if (!userListWidget->selectedUsers().count()) { return; }
+    QwcUserInfo target = userListWidget->selectedUsers().first();
+
+    bool ok;
+    QString reason = QInputDialog::getText(this, tr("Kick User"),
+                        tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.")
+                        .arg(target.userNickname), QLineEdit::Normal, "", &ok);
+    if (!ok) { return; }
+    m_socket->kickClient(target.pUserID, reason);
+}
+
+
+void QwcChatWidget::on_btnBan_clicked()
+{
+    if (!userListWidget->selectedUsers().count()) { return; }
+    QwcUserInfo target = userListWidget->selectedUsers().first();
+
+    bool ok;
+    QString reason = QInputDialog::getText(this, tr("Kick"),
+                                           tr("You are about to ban '%1'.\nPlease enter a reason and press OK.")
+                                           .arg(target.userNickname), QLineEdit::Normal, "", &ok);
+    if (!ok) { return; }
+    m_socket->banClient(target.pUserID, reason);
+}
+
+
+void QwcChatWidget::on_btnInformation_clicked()
+{
+    if (!userListWidget->selectedUsers().count()) { return; }
+    QwcUserInfo target = userListWidget->selectedUsers().first();
+    m_socket->getClientInformation(target.pUserID);
+}
+
+
+void QwcChatWidget::on_btnChat_clicked()
+{
+    if (!userListWidget->selectedUsers().count()) { return; }
+    QwcUserInfo target = userListWidget->selectedUsers().first();
+    m_socket->createChatWithClient(target.pUserID);
+}
 
 
 

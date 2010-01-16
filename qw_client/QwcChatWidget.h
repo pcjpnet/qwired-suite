@@ -32,13 +32,12 @@ public:
 
 signals:
     /*! This signal is emitted if a entry has been double-clicked in the user list. */
-    void userDoubleClicked(const QwcUserInfo user);
+    void requestedNewPrivateMessage(const QwcUserInfo &user);
 
 
 public slots:
-    void resetForm();
     void writeTextToChat(QwUser sender, QString text, bool emote);
-    void writeEventToChat(QString eventText, QString eventType);
+    void writeEventToChat(QString eventText);
     void handleSocketBroadcastMessage(QwcUserInfo sender, QString text);
     void handleSocketChatMessage(int chatId, int userId, const QString &text, bool isEmote);
 
@@ -46,30 +45,32 @@ private:
     QwcSocket *m_socket;
     int m_chatId;
 
-    QPointer<QMenu> pInviteMenu;
-    void updateInviteMenu();
-
     /*! The currently used message style for this chat. */
     QwcMessageStyle m_currentMessageStyle;
 
 private slots:
+
     void handleSocketChatTopic(int chatId, const QString &nickname, const QString &login, QHostAddress ip,
                                QDateTime dateTime, const QString &topic);
+    void handleSocketPrivateChatDeclined(int chatId, const QwcUserInfo &user);
 
     void handleExternalLinkClicked(const QUrl &url);
 
     void processChatInput();
-    void on_fUsers_doubleClicked(const QModelIndex &index);
-    void on_fBtnMsg_clicked();
-    void on_fBtnKick_clicked();
-    void on_fBtnBan_clicked();
-    void on_fBtnInfo_clicked();
-    void on_fBtnChat_clicked();
-    void onUserlistSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
+
     void inviteMenuTriggered(QAction *action);
     void reloadPreferences();
 
     void handleChatViewFrameSizeChanged(QSize size);
+
+    void on_userListWidget_doubleClicked(const QModelIndex &index);
+    void on_userListWidget_itemSelectionChanged();
+    void on_btnInvite_clicked();
+    void on_btnMessage_clicked();
+    void on_btnKick_clicked();
+    void on_btnBan_clicked();
+    void on_btnInformation_clicked();
+    void on_btnChat_clicked();
 
 };
 

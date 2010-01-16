@@ -65,7 +65,7 @@ void QwcSession::initializeSocket()
     connect(m_socket, SIGNAL(userInformation(QwcUserInfo)),
             this, SLOT(handleUserInformation(QwcUserInfo)));
     connect(m_socket, SIGNAL(privateChatInvitation(int,QwcUserInfo)),
-            this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
+            this, SLOT(handleSocketChatInvitation(int,QwcUserInfo)) );
     connect(m_socket, SIGNAL(privateChatCreated(int)),
             this, SLOT(createChatWidget(int)));
     connect(m_socket, SIGNAL(fileInformation(QwcFileInfo)),
@@ -262,17 +262,6 @@ void QwcSession::handlePrivateMessage(QwcUserInfo sender, QString text)
 }
 
 
-/// Tab bar close button clicked. Close the current widget.
-void QwcSession::onTabBarCloseButtonClicked()
-{
-    int index = connectionTabWidget->currentIndex();
-    // We check if the chat tab is the current one so that not to close it
-    if(connectionTabWidget->currentWidget() == m_publicChat) return;
-    connectionTabWidget->currentWidget()->close();
-    connectionTabWidget->removeTab(index);
-}
-
-
 void QwcSession::onTabBarCurrentChanged(int index)
 {
     // Icon removal for private chats
@@ -291,8 +280,15 @@ void QwcSession::onTabBarCurrentChanged(int index)
 */
 void QwcSession::onTabBarCloseRequested(int index)
 {
-    QWidget *tabWidget = connectionTabWidget->widget(index);
-    if (!tabWidget) { return; }
+    QWidget *targetWidget = connectionTabWidget->widget(index);
+    if (!targetWidget) { return; }
+
+    // We check if the chat tab is the current one so that not to close it
+    QwcChatWidget *chatWidget = qobject_cast<QwcChatWidget*>(targetWidget);
+    if (chatWidget && chatWidget->chatId() != Qwc::PUBLIC_CHAT) {
+        chatWidget->close();
+    }
+
     connectionTabWidget->removeTab(index);
 }
 
@@ -316,7 +312,6 @@ void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction
 
 
     } else if (action == QwcConnectionMainWindow::TriggeredActionDisconnect) {
-        m_publicChat->resetForm();
         m_connectWidget->resetForm();
         m_socket->disconnectFromServer();
         connectionStackedWidget->setCurrentIndex(0); // go to connect dialog
@@ -455,28 +450,25 @@ void QwcSession::handleUserInformation(QwcUserInfo user)
 
 
 // Received an invitation to a private chat.
-void QwcSession::doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser)
+void QwcSession::handleSocketChatInvitation(int chatId, QwcUserInfo inviter)
 {
     QMessageBox messageBox(m_mainWindow);
     messageBox.setWindowTitle(tr("Private Chat Invitation"));
-    messageBox.setText(tr("%1 has invited you to a private chat.\nJoin to open a separate private chat with %1.").arg(theUser.userNickname) );
-    messageBox.setIconPixmap( QPixmap(":/icons/btn_chat.png") );
-    QAbstractButton *ignoreButton = messageBox.addButton(tr("Ignore"), QMessageBox::DestructiveRole);
+    messageBox.setText(tr("%1 has invited you to a private chat.\n"
+                          "Join to open a separate private chat with %1.")
+                       .arg(inviter.userNickname) );
+    messageBox.setIconPixmap(QPixmap(":/icons/btn_chat.png"));
     QAbstractButton *rejectButton = messageBox.addButton(tr("Reject"), QMessageBox::RejectRole);
     QAbstractButton *joinButton = messageBox.addButton(tr("Join"), QMessageBox::AcceptRole);
-
-    Q_UNUSED(ignoreButton);
 
     messageBox.exec();
     if (messageBox.clickedButton() == joinButton) {
         // Create a new chat
-        createChatWidget(theChatID);
-        m_socket->joinChat(theChatID);
+        createChatWidget(chatId);
+        m_socket->joinChat(chatId);
     } else if( messageBox.clickedButton() == rejectButton ) {
         // Reject the chat.
-        m_socket->rejectChat(theChatID);
-    } else {
-        // Ignore
+        m_socket->rejectChat(chatId);
     }
 }
 
@@ -489,7 +481,6 @@ void QwcSession::createChatWidget(int chatId)
     chat->setParent(m_mainWindow, Qt::Window);
     chat->setSocket(m_socket);
     chat->setChatId(chatId);
-
     m_chatWidgets[chatId] = chat;
 
     int index = connectionTabWidget->addTab(chat, tr("Private Chat"));
@@ -530,7 +521,7 @@ void QwcSession::triggerEvent(QString event, QStringList params)
 
     // Write to the chat
     if (conf.value(QString("events/%1/chat").arg(event)).toBool()) {
-        m_publicChat->writeEventToChat(eventMessage, event);
+        m_publicChat->writeEventToChat(eventMessage);
     }
 
     // Show a message in the system tray

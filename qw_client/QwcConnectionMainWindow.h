@@ -59,6 +59,7 @@ private slots:
     void on_actionAbout_triggered(bool);
     void on_actionDonate_triggered();
     void on_actionNewConnection_triggered();
+    void on_actionChat_triggered();
     void on_actionDisconnect_triggered();
     void on_actionReconnect_triggered();
     void on_actionServerInfo_triggered();

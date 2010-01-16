@@ -89,6 +89,7 @@ public slots:
     void writeToChat(int chat, QString text, bool emote);
     void inviteClientToChat(int chatId, int userId);
     void joinChat(int theChatID);
+    void getUserlist(int roomId);
 
     // Administration
     //
@@ -134,7 +135,7 @@ private slots:
     void handleSocketConnected();
     void handleSocketConnectionLost();
 
-    void getUserlist(int roomId);
+
 
 
     void cleanTransfers();
@@ -204,6 +205,7 @@ signals:
 
     void privateChatCreated(int theChatID);
     void privateChatInvitation(int theChatID, QwcUserInfo theUser);
+    void privateChatDeclined(int chatId, const QwcUserInfo &user);
 
 
 
@@ -263,6 +265,7 @@ private:
     void handleMessage322(const QwMessage &message);
     void handleMessage330(const QwMessage &message);
     void handleMessage331(const QwMessage &message);
+    void handleMessage332(const QwMessage &message);
     void handleMessage340(const QwMessage &message);
     void handleMessage341(const QwMessage &message);
     void handleMessage400(const QwMessage &message);

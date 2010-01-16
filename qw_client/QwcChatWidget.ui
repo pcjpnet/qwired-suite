@@ -65,7 +65,7 @@
           <number>4</number>
          </property>
          <item>
-          <widget class="QToolButton" name="fBtnMsg">
+          <widget class="QToolButton" name="btnMessage">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -94,7 +94,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="fBtnChat">
+          <widget class="QToolButton" name="btnChat">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -123,7 +123,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="fBtnInfo">
+          <widget class="QToolButton" name="btnInformation">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -165,7 +165,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QToolButton" name="fBtnBan">
+          <widget class="QToolButton" name="btnBan">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -194,7 +194,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="fBtnKick">
+          <widget class="QToolButton" name="btnKick">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -226,7 +226,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="fBtnInvite">
+          <widget class="QToolButton" name="btnInvite">
            <property name="minimumSize">
             <size>
              <width>20</width>
@@ -291,7 +291,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="application.qrc"/>
   <include location="application.qrc"/>
  </resources>
  <connections/>

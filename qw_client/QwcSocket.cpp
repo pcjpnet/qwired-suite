@@ -152,6 +152,8 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
     } else if (commandId == 322) {    handleMessage322(message); // News Posted
     } else if (commandId == 330) {    handleMessage330(message); // Private Chat Created
     } else if (commandId == 331) {    handleMessage331(message); // Private Chat Invitation
+    } else if (commandId == 332) {    handleMessage332(message); // Private Chat Declined
+
     } else if (commandId == 340) {    handleMessage340(message); // Client Image Change
     } else if (commandId == 341) {    handleMessage341(message); // Chat Topic
     } else if (commandId == 400) {    handleMessage400(message); // Transfer Ready
@@ -443,11 +445,13 @@ void QwcSocket::handleMessage322(const QwMessage &message)
 void QwcSocket::handleMessage330(const QwMessage &message)
 {
     int roomId = message.stringArg(0).toInt();
+
     QwRoom newRoom;
     newRoom.pChatId = roomId;
-    newRoom.pUsers.append(sessionUser.pUserID);
     rooms[roomId] = newRoom;
+
     emit privateChatCreated(roomId);
+
     if (m_invitedUserId > 0) {
         inviteClientToChat(roomId, m_invitedUserId);
         m_invitedUserId = 0;
@@ -456,12 +460,21 @@ void QwcSocket::handleMessage330(const QwMessage &message)
 
 
 /*! 331 Private Chat Invitation
-    User was invited to a private chat..
+    User was invited to a private chat.
 */
 void QwcSocket::handleMessage331(const QwMessage &message)
 {
     QwcUserInfo senderUser = users[message.stringArg(1).toInt()];
     emit privateChatInvitation(message.stringArg(0).toInt(), senderUser);
+}
+
+/*! 332 Private Chat Declined
+    Invited user declined the invitation to a private chat.
+*/
+void QwcSocket::handleMessage332(const QwMessage &message)
+{
+    QwcUserInfo senderUser = users[message.stringArg(1).toInt()];
+    emit privateChatDeclined(message.stringArg(0).toInt(), senderUser);
 }
 
 
@@ -849,7 +862,6 @@ void QwcSocket::setCaturdayMode(bool b) {
                 m_tranzlator[tmpKey]=tmpVal;
             }
             tmpF.close();
-            qDebug() << "Loaded lolspeak: "<<m_tranzlator.count();
             m_caturdayFlag = true;
             return;
         }
@@ -996,7 +1008,6 @@ void QwcSocket::rejectChat(int roomId)
 void QwcSocket::joinChat(int roomId)
 {
     sendMessage(QwMessage("JOIN").appendArg(QString::number(roomId)));
-    getUserlist(roomId);
 }
 
 
