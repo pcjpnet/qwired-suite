@@ -23,8 +23,6 @@ public:
     void setSocket(QwcSocket *socket);
     QwcSocket* socket();
 
-    void setupFromUser(const QwcUserInfo user);
-
 protected:
     QwcSocket *m_socket;
 
@@ -32,7 +30,6 @@ protected:
     bool m_emoticonsEnabled;
     int m_newsCounter;
 
-    void updateNewsStats();
     void updateNewsCss();
 
     bool eventFilter(QObject *what, QEvent *event);
@@ -45,6 +42,8 @@ public slots:
     void newsDone();
 
 private slots:
+    void handleSocketPrivileges();
+
     void on_fBtnRefresh_clicked();
     void on_fBtnPost_clicked();
     void on_fBtnDelete_clicked();

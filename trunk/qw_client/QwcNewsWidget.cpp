@@ -69,9 +69,11 @@ void QwcNewsWidget::setSocket(QwcSocket *socket)
             this, SLOT(addNewsItemAtTop(QString, QDateTime, QString)));
     connect(m_socket, SIGNAL(newsListingDone()),
             this, SLOT(newsDone()));
+    connect(m_socket, SIGNAL(receivedUserPrivileges()),
+            this, SLOT(handleSocketPrivileges()));
 
-    fBtnPost->setVisible(m_socket->sessionUser.privileges().testFlag(Qws::PrivilegePostNews));
-    fBtnDelete->setVisible(m_socket->sessionUser.privileges().testFlag(Qws::PrivilegeClearNews));
+    handleSocketPrivileges();
+    m_socket->getNews();
 }
 
 QwcSocket* QwcNewsWidget::socket()
@@ -83,24 +85,9 @@ QwcSocket* QwcNewsWidget::socket()
 void QwcNewsWidget::reloadPreferences()
 {
     QSettings settings;
-
     m_emoticonsEnabled = settings.value("interface/chat/emoticons", true).toBool();
-
     updateNewsCss();
-    m_newsCounter = 0;
-    updateNewsStats();
     pageWidget->setCurrentIndex(1);
-    m_socket->getNews();
-}
-
-
-
-/*! Update the news statistics bar in the bottom of the widget.
-*/
-void QwcNewsWidget::updateNewsStats()
-{
-    fNewsStatus->setText(tr("%1 news article(s)").arg(m_newsCounter));
-    fBtnDelete->setEnabled(m_newsCounter > 0);
 }
 
 
@@ -127,7 +114,7 @@ void QwcNewsWidget::addNewsItem(const QString &nickname, QDateTime time, const Q
     }
 
     m_newsCounter++;
-    updateNewsStats();
+    fNewsStatus->setText(tr("%1 news article(s)").arg(m_newsCounter));
 }
 
 
@@ -204,12 +191,14 @@ void QwcNewsWidget::newsDone()
 }
 
 
-/*! Enable/Disable GUI elements based on the user privileges.
-*/
-void QwcNewsWidget::setupFromUser(const QwcUserInfo user)
+void QwcNewsWidget::handleSocketPrivileges()
 {
-
+    Q_ASSERT(m_socket);
+    fBtnPost->setEnabled(m_socket->sessionUser.privileges() & Qws::PrivilegePostNews);
+    fBtnDelete->setEnabled(m_socket->sessionUser.privileges() & Qws::PrivilegeClearNews);
 }
+
+
 
 
 /*! Clear the contents of the news view and set an empty HTML page with styles.

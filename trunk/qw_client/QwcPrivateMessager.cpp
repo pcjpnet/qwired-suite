@@ -28,11 +28,12 @@ QwcPrivateMessagerSession::QwcPrivateMessagerSession()
 
 // Messenger Widget
 //
-QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) : QWidget(parent)
+QwcPrivateMessager::QwcPrivateMessager(QWidget *parent) :
+        QWidget(parent)
 {
     setupUi(this);
     m_socket = NULL;
-    fMessageList->setItemDelegate(new QwcUserlistDelegate(fMessageList));
+
     fMessageInput->installEventFilter(this);
 
     // Set up the splitter
@@ -52,18 +53,24 @@ void QwcPrivateMessager::setSocket(QwcSocket *socket)
     m_socket = socket;
     if (!socket) { return; }
 
+    // Install new delegate
+    if (fMessageList->itemDelegate()) { delete fMessageList->itemDelegate(); }
+    QwcUserlistDelegate *listDelegate = new QwcUserlistDelegate;
+    listDelegate->setSocket(m_socket);
+    fMessageList->setItemDelegate(listDelegate);
+
     connect(m_socket, SIGNAL(userChanged(QwcUserInfo, QwcUserInfo)),
             this, SLOT(handleUserChanged(QwcUserInfo, QwcUserInfo)) );
     connect(m_socket, SIGNAL(userLeftRoom(int, QwcUserInfo)),
             this, SLOT(handleUserLeft(int, QwcUserInfo)));
+    connect(m_socket, SIGNAL(privateMessage(QwcUserInfo,QString)),
+            this, SLOT(handleNewMessage(QwcUserInfo,QString)));
 
     m_socket = socket;
 }
 
 QwcSocket* QwcPrivateMessager::socket()
 { return m_socket; }
-
-
 
 QwcPrivateMessager::~QwcPrivateMessager()
 {
@@ -112,6 +119,7 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
 */
 void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QString message)
 {
+    if (!message.isNull()) { return; }
     QListWidgetItem *targetListItem = NULL;
     QTextDocument *targetDocument = NULL;
 
