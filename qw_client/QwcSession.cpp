@@ -31,7 +31,6 @@ QwcSession::QwcSession(QObject *parent) :
 QwcSession::~QwcSession()
 {
     m_mainWindow->deleteLater();
-    m_fileBrowserWidget->deleteLater();
 }
 
 
@@ -394,6 +393,20 @@ void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction
         QwcSingleton *singleton = &WSINGLETON::Instance();
         QwcSession *newSession = new QwcSession();
         singleton->addSession(newSession);
+
+    } else if (action == QwcConnectionMainWindow::TriggeredActionFiles) {
+        if (!m_fileBrowserWidget) {
+            m_fileBrowserWidget = new QwcFileBrowserWidget();
+            m_fileBrowserWidget->setParent(m_mainWindow, Qt::Window);
+            m_fileBrowserWidget->setSocket(m_socket);
+        }
+
+        int index = connectionTabWidget->indexOf(m_fileBrowserWidget);
+        if (index == -1) {
+            index = connectionTabWidget->addTab(m_fileBrowserWidget, tr("Files"));
+        }
+        connectionTabWidget->setCurrentIndex(index);
+
     }
 
 

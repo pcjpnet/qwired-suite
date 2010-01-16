@@ -10,6 +10,8 @@
 #include <QPointer>
 #include <QSortFilterProxyModel>
 
+class QStandardItemModel;
+
 /*! \class QwcFileBrowserWidget
     \author Bastian Bense <bastibense@gmail.com>
     \date 2009-03-06
@@ -19,6 +21,7 @@
 */
 
 class QwcSocket;
+
 
 class QwcFileBrowserWidget :
         public QWidget,
@@ -56,15 +59,17 @@ private slots:
     void on_btnPreview_clicked();
     void on_btnUpload_clicked();
     void on_findFilter_returnPressed();
-    void on_fList_itemSelectionChanged();
-    void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
+    void on_fList_doubleClicked(const QModelIndex &index);
+//    void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     // Info page
     void on_btnInfoCancel_clicked();
     void on_btnInfoApply_clicked();
 
 
-private:
+protected:
+    /*! The model for the file list view. */
+    QStandardItemModel *m_model;
     /*! The currently used socket to send data to the server. */
     QwcSocket *m_socket;
     /*! This member is true if the browser is expecting more list items. */

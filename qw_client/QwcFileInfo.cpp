@@ -41,6 +41,7 @@ void QwcFileInfo::setFromMessage410(const QwMessage &message)
 QIcon QwcFileInfo::fileIcon() const
 {
     QHash<QString,QString> tmpTypes;
+
     tmpTypes["jpg"] = ":/icons/files/files-image.png";
     tmpTypes["jpeg"] = ":/icons/files/files-image.png";
     tmpTypes["gif"] = ":/icons/files/files-image.png";

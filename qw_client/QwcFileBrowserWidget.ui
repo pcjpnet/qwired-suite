@@ -353,7 +353,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTreeWidget" name="fList">
+        <widget class="QTreeView" name="fList">
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -378,24 +378,6 @@
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
-         <property name="columnCount">
-          <number>3</number>
-         </property>
-         <column>
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Size</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Modified</string>
-          </property>
-         </column>
         </widget>
        </item>
        <item>
