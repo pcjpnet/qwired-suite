@@ -713,7 +713,7 @@ void QwsServerController::relayMessageToUser(const int userId, const QString tex
     if (sockets.contains(userId)) {
         QwsClientSocket *targetUser = sockets[userId];
         QwMessage reply("305");
-        reply.appendArg(QByteArray::number(userId));
+        reply.appendArg(QByteArray::number(user->user.pUserID));
         reply.appendArg(text);
         targetUser->sendMessage(reply);
     } else {
