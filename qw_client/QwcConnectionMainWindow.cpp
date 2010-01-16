@@ -3,6 +3,7 @@
 #include "QwcSocket.h"
 
 #include <QtCore/QUrl>
+#include <QtCore/QSettings>
 
 #include <QtGui/QDesktopServices>
 #include <QtGui/QPainter>
@@ -23,6 +24,12 @@ QwcConnectionMainWindow::QwcConnectionMainWindow(QWidget *parent) :
     setUnifiedTitleAndToolBarOnMac(true);
     setWindowIcon(QIcon(":/icons/qwired_logo_32.png"));
     m_socket = NULL;
+
+    // Restore the window geometry
+    QSettings settings;
+    if (settings.contains("window_states/session")) {
+        restoreGeometry(settings.value("window_states/session").toByteArray());
+    }
 }
 
 

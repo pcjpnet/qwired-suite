@@ -8,7 +8,8 @@
 
 #include <QPointer>
 
-class QwcFiletransferModel : public QAbstractListModel
+class QwcFiletransferModel :
+        public QAbstractListModel
 {
     Q_OBJECT
 		

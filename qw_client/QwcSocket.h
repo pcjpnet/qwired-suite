@@ -193,8 +193,9 @@ signals:
     void userBanned(QwcUserInfo theVictim, QwcUserInfo theKiller, QString theReason);
     void userInformation(QwcUserInfo theUser);
 
-    void receivedChatMessage(int theChatID, int theUserID, QString theText, bool theIsAction);
-    void onChatTopic(int theChatID, QString theNick, QString theLogin, QHostAddress theIP, QDateTime theDateTime, QString theTopic);
+    void receivedChatMessage(int chatId, int userId, const QString &text, bool isEmote);
+    void onChatTopic(int chatId, const QString &nickname, const QString &login, QHostAddress ip,
+                     QDateTime dateTime, const QString &topic);
     void privateMessage(QwcUserInfo theUser, QString theMessage);
     void broadcastMessage(QwcUserInfo theUser, QString theMessage);
 

@@ -40,19 +40,6 @@ public:
 
     QwcSocket* socket();
 
-    bool eventFilter(QObject *watched, QEvent *event);
-
-
-
-
-    // Main window widgets
-    void initMainWindow();
-
-
-    // Wired Socket
-    void initWiredSocket();
-
-
     // Connection dialog widgets
     QPointer<QwcConnectionMainWindow> m_mainWindow;
     QPointer<QwcConnectWidget> m_connectWidget;
@@ -75,9 +62,12 @@ public:
 
     bool confirmDisconnection();
 
-private:
+protected:
     QPointer<QwcSocket> m_socket;
-    void setupConnections();
+
+    void initializeSocket();
+    void initializeMainWindow();
+    bool eventFilter(QObject *watched, QEvent *event);
 
 private slots:
     // Protocol + Socket
@@ -113,15 +103,13 @@ private slots:
     void handleBroadcastMessage(QwcUserInfo theUser, QString theMessage);
 
 public slots:
-
     void showMessagerForUser(const QwcUserInfo targetUser);
 
     void triggerEvent(QString event, QStringList parameters);
 
-    void do_handle_chat_message(int, int, QString, bool);
+    void handleSocketChatMessage(int chatId, int userId, const QString &text, bool isEmote);
 
     // Socket handlers
-    void handleChatTopic(int chatId, QString nickname, QString login, QHostAddress userIp, QDateTime date, QString topic);
     void handleUserInformation(QwcUserInfo user);
 
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);

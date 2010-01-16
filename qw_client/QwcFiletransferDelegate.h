@@ -3,7 +3,8 @@
 
 #include <QAbstractItemDelegate>
 
-class QwcFiletransferDelegate : public QAbstractItemDelegate
+class QwcFiletransferDelegate :
+        public QAbstractItemDelegate
 {
     Q_OBJECT
 

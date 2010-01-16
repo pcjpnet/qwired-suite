@@ -22,7 +22,7 @@ class QwcSocket;
 
 class QwcFileBrowserWidget :
         public QWidget,
-        public Ui_QwcFileBrowserWidget
+        protected Ui_QwcFileBrowserWidget
 {
     Q_OBJECT
 

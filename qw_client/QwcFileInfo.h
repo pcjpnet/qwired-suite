@@ -6,7 +6,8 @@
 #include "QwFile.h"
 #include "QwMessage.h"
 
-class QwcFileInfo : public QwFile
+class QwcFileInfo :
+        public QwFile
 {
 
 public:
