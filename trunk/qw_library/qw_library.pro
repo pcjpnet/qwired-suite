@@ -23,6 +23,7 @@ HEADERS += QwMessage.h \
     QwServerInfo.h \
     QwTransferInfo.h \
     QwFile.h \
-    QwSocksSocket.h
+    QwSocksSocket.h \
+    QwGlobals.h
 TARGET = qwlibrary
 DESTDIR = ../bin/

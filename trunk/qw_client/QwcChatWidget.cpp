@@ -2,13 +2,17 @@
 #include "QwcSession.h"
 #include "QwcChatWidget.h"
 #include "QwcGlobals.h"
-#include <QInputDialog>
-#include <QProcess>
+#include "QwcSocket.h"
 
+#include <QtGui/QInputDialog>
 #include <QtGui/QFileDialog>
 #include <QtGui/QDesktopServices>
 
+#include <QtCore/QProcess>
+
 #include <QtWebKit/QWebFrame>
+
+
 
 
 

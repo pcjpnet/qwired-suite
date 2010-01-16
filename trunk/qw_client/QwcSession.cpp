@@ -11,6 +11,14 @@
 #include "QwcConnectWidget.h"
 #include "QwcFiletransferModel.h"
 #include "QwcFileBrowserWidget.h"
+#include "QwcConnectionMainWindow.h"
+#include "QwcChatWidget.h"
+#include "QwcPrivateMessager.h"
+#include "QwcNewsWidget.h"
+#include "QwcAccountsWidget.h"
+#include "QwcServerInfoWidget.h"
+#include "QwcPreferencesWidget.h"
+#include "QwcFiletransferWidget.h"
 
 #include <QtGui/QSound>
 #include <QtGui/QMessageBox>
@@ -336,8 +344,6 @@ void QwcSession::setupConnections()
 
     connect(m_socket, SIGNAL(onServerInformation()),
             this, SLOT(handleServerInformation()) );
-    connect(m_socket, SIGNAL(serverBannerReceived(QPixmap)),
-            this, SLOT(setBannerView(QPixmap)) );
 
     connect(m_socket, SIGNAL(fileInformation(QwcFileInfo)),
             this, SLOT(handleFileInformation(QwcFileInfo)) );
@@ -370,8 +376,7 @@ void QwcSession::setupConnections()
             this, SLOT(doActionMessages()));
     connect( m_mainWindow->actionServerInfo, SIGNAL(triggered(bool)),
              this, SLOT(doActionServerInfo()) );
-    connect( m_mainWindow->actionBroadcast, SIGNAL(triggered(bool)),
-             this, SLOT(doActionBroadcast()) );
+
     connect( m_mainWindow->actionFiles, SIGNAL(triggered(bool)),
              this, SLOT(doActionFiles()) );
     connect( m_mainWindow->actionPreferences, SIGNAL(triggered(bool)),
@@ -579,27 +584,6 @@ void QwcSession::setConnectionToolButtonsEnabled(bool theEnable)
     m_mainWindow->actionBroadcast->setEnabled(theEnable);
 }
 
-
-/*! Update the banner in the main connection window toolbar.
-*/
-void QwcSession::setBannerView(const QPixmap banner)
-{ }
-
-/// Connected to the download button in the search dialog.
-void QwcSession::search_download_file(QString thePath)
-{
-    QSettings settings;
-    doActionTransfers();
-    QString tmpName = thePath.section("/",-1,-1);
-    QDir tmpDownloadFolder(settings.value("files/download_dir", QDir::homePath()).toString());
-    //downloadFile(thePath, tmpDownloadFolder.absoluteFilePath(tmpName));
-}
-
-
-void QwcSession::search_reveal_file(QString thePath)
-{
-    doActionFiles(thePath.section("/",0,-2));
-}
 
 
 
@@ -944,14 +928,7 @@ void QwcSession::doActionServerInfo()
 }
 
 
-/// Open a new broadcast message dialog.
-void QwcSession::doActionBroadcast()
-{
-//    SendPrivateMessageWidget *msg = new SendPrivateMessageWidget();
-//    msg->setParent(connectionWindow, Qt::Window);
-//    msg->move( connectionWindow->pos() );
-//    msg->show();
-}
+
 
 
 /* Show the file browser widget in a new tab.

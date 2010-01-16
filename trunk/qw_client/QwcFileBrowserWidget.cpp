@@ -1,14 +1,16 @@
 #include "QwcFileBrowserWidget.h"
 #include "QwcSession.h"
+#include "QwcSocket.h"
+
+#include <QtGui/QMessageBox>
+#include <QtGui/QFileDialog>
+#include <QtGui/QInputDialog>
+#include <QtCore/QSettings>
 
 #include <math.h>
 
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QInputDialog>
-
-
-QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) : QWidget(parent)
+QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
+        QWidget(parent)
 {
     setupUi(this);
     setAcceptDrops(true);

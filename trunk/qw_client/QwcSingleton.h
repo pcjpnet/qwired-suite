@@ -3,16 +3,17 @@
 
 #include "QwcPluginInterface.h"
 
-#include <QObject>
-#include <QPointer>
-#include <QColor>
-#include <QSettings>
-#include <QMenu>
-#include <QSystemTrayIcon>
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
+#include <QtCore/QSettings>
+#include <QtGui/QColor>
+#include <QtGui/QMenu>
+#include <QtGui/QSystemTrayIcon>
 
 class QwcSession;
 
-class QwcSingleton : public QObject
+class QwcSingleton :
+        public QObject
 {
     Q_OBJECT
 
