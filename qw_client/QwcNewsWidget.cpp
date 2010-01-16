@@ -179,8 +179,8 @@ void QwcNewsWidget::newsDone()
 void QwcNewsWidget::handleSocketPrivileges()
 {
     Q_ASSERT(m_socket);
-    fBtnPost->setEnabled(m_socket->sessionUser.privileges() & Qws::PrivilegePostNews);
-    fBtnDelete->setEnabled(m_socket->sessionUser.privileges() & Qws::PrivilegeClearNews);
+    fBtnPost->setEnabled(m_socket->sessionUser().privileges() & Qws::PrivilegePostNews);
+    fBtnDelete->setEnabled(m_socket->sessionUser().privileges() & Qws::PrivilegeClearNews);
 }
 
 /*! Helper slot to add the listed news item to the bottom instead of the top.

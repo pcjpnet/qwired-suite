@@ -13,7 +13,6 @@
 #include <QtWebKit/QWebFrame>
 
 
-
 QwcChatWidget::QwcChatWidget(QWidget *parent) :
         QWidget(parent)
 {
@@ -96,7 +95,7 @@ void QwcChatWidget::setChatId(int newId)
 {
     m_chatId = newId;
     userListWidget->setChatId(newId);
-    btnInvite->setVisible(newId == Qwc::PUBLIC_CHAT);
+    btnInvite->setVisible(newId != Qwc::PUBLIC_CHAT);
     m_socket->getUserlist(newId);
 }
 
@@ -285,27 +284,6 @@ void QwcChatWidget::processChatInput()
     fChatInput->clear();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void QwcChatWidget::inviteMenuTriggered(QAction *action)
-{
-    m_socket->inviteClientToChat(m_chatId, action->data().toInt());
-}
-
-
 void QwcChatWidget::reloadPreferences()
 {
     QSettings settings;
@@ -334,11 +312,11 @@ void QwcChatWidget::handleChatViewFrameSizeChanged(QSize size)
 /*! A user (or more) have been double-clicked. We emit a signal for this event, so the session
     can comfortably handle this.
 */
-void QwcChatWidget::on_userListWidget_doubleClicked(const QModelIndex &)
+void QwcChatWidget::on_userListWidget_itemDoubleClicked()
 {
     if (!userListWidget->selectedUsers().count()) { return; }
     QwcUserInfo target = userListWidget->selectedUsers().first();
-    emit requestedNewPrivateMessage(target);
+    emit requestedNewPrivateMessage(target, QString());
 }
 
 
@@ -347,10 +325,10 @@ void QwcChatWidget::on_userListWidget_doubleClicked(const QModelIndex &)
 void QwcChatWidget::on_userListWidget_itemSelectionChanged()
 {
     bool hasSelection = userListWidget->selectionModel()->hasSelection();
-    btnInformation->setEnabled(hasSelection && m_socket->sessionUser.privileges() & Qws::PrivilegeGetUserInfo);
-    btnBan->setEnabled(hasSelection && m_socket->sessionUser.privileges() & Qws::PrivilegeBanUsers);
-    btnMessage->setEnabled(hasSelection && m_socket->sessionUser.privileges());
-    btnKick->setEnabled(hasSelection && m_socket->sessionUser.privileges() & Qws::PrivilegeKickUsers);
+    btnInformation->setEnabled(hasSelection && m_socket->sessionUser().privileges() & Qws::PrivilegeGetUserInfo);
+    btnBan->setEnabled(hasSelection && m_socket->sessionUser().privileges() & Qws::PrivilegeBanUsers);
+    btnMessage->setEnabled(hasSelection && m_socket->sessionUser().privileges());
+    btnKick->setEnabled(hasSelection && m_socket->sessionUser().privileges() & Qws::PrivilegeKickUsers);
     btnChat->setEnabled(hasSelection);
 }
 
@@ -361,19 +339,22 @@ void QwcChatWidget::on_btnInvite_clicked()
     QwRoom publicRoom = m_socket->rooms[Qwc::PUBLIC_CHAT];
     foreach (int id, publicRoom.pUsers) {
         QAction *action = menu.addAction(m_socket->users[id].userNickname);
+        action->setIcon(QPixmap::fromImage(m_socket->users[id].userImage()));
         action->setData(id);
     }
 
     QAction *result = menu.exec();
     if (!result) { return; }
+    m_socket->inviteClientToChat(m_chatId, result->data().toInt());
 
+    writeEventToChat(tr("Invited %1 to join this chat").arg(result->text()));
 }
 
 void QwcChatWidget::on_btnMessage_clicked()
 {
     if (!userListWidget->selectedUsers().count()) { return; }
     QwcUserInfo target = userListWidget->selectedUsers().first();
-    emit requestedNewPrivateMessage(target);
+    emit requestedNewPrivateMessage(target, QString());
 }
 
 

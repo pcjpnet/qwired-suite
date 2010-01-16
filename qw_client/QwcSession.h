@@ -33,6 +33,7 @@ class QwcSession :
         public QObject
 {
     Q_OBJECT
+    friend class QwcSingleton;
 
 public:
     QwcSession(QObject *parent = 0);
@@ -40,6 +41,14 @@ public:
 
     QwcSocket* socket();
 
+
+
+    QPointer<QMenu> m_systemTrayMenu;
+
+    bool confirmDisconnection();
+
+protected:
+    QPointer<QwcSocket> m_socket;
     // Connection dialog widgets
     QPointer<QwcConnectionMainWindow> m_mainWindow;
     QPointer<QwcConnectWidget> m_connectWidget;
@@ -58,40 +67,28 @@ public:
     /*! A list of QwcUserInfoWidgets, identified by the \a userId. */
     QHash<int,QPointer<QwcUserInfoWidget> > m_userInfoWidgets;
 
-    QPointer<QMenu> m_systemTrayMenu;
-
-    bool confirmDisconnection();
-
-protected:
-    QPointer<QwcSocket> m_socket;
-
     void initializeSocket();
     void initializeMainWindow();
     bool eventFilter(QObject *watched, QEvent *event);
 
 private slots:
+
+    void reloadPreferences();
+
     // Protocol + Socket
     void connectionWindowDestroyed(QObject *object);
     void handleProtocolError(Qw::ProtocolError error);
     void handleSocketError(QAbstractSocket::SocketError error);
     void handleSocketChatInvitation(int chatId, QwcUserInfo inviter);
 
-
     // Main window widgets
+    void handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction action);
     void onTabBarCurrentChanged(int index);
     void onTabBarCloseRequested(int index);
 
-    void handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction action);
 
-
-    // Chat Window
     void handleSocketUserlistComplete(int chatId);
-
     void handlePrivateMessage(QwcUserInfo sender, QString text);
-
-
-    void reloadPreferences();
-
 
     void handleFileInformation(QwcFileInfo file);
 
@@ -99,20 +96,12 @@ private slots:
     void userLeft(int theChat, QwcUserInfo theUser);
     void userChanged(QwcUserInfo theOld, QwcUserInfo theNew);
     void newsPosted(QString nickname, QDateTime time, QString post);
-
     void handleBroadcastMessage(QwcUserInfo theUser, QString theMessage);
-
-public slots:
-    void showMessagerForUser(const QwcUserInfo targetUser);
-
-    void triggerEvent(QString event, QStringList parameters);
-
-    void handleSocketChatMessage(int chatId, int userId, const QString &text, bool isEmote);
-
-    // Socket handlers
     void handleUserInformation(QwcUserInfo user);
 
-
+    void showMessagerForUser(const QwcUserInfo &targetUser, const QString &message = QString());
+    void triggerEvent(QString event, QStringList parameters);
+    void handleSocketChatMessage(int chatId, int userId, const QString &text, bool isEmote);
     void createChatWidget(int chatId);
 
 

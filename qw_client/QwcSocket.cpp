@@ -28,8 +28,8 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
             this, SLOT(handleSocketConnectionLost()));
 
     // Set some basic information
-    clientName = "Qwired SVN";
-    clientSoftwareVersion = QWIRED_VERSION;
+    m_clientName = "Qwired SVN";
+    m_clientVersion = QWIRED_VERSION;
     m_caturdayFlag = false;
 
     indexingFiles = false;
@@ -48,6 +48,18 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
 QwcSocket::~QwcSocket()
 { }
 
+
+/*! Returns a const reference to the current session user information. */
+const QwcUserInfo & QwcSocket::sessionUser() const
+{ return m_sessionUser; }
+
+/*! Returns a const reference to the server-provided information. */
+const QwServerInfo & QwcSocket::serverInformation() const
+{ return m_serverInformation; }
+
+/*! Returns a const reference to the servers banner data. */
+const QImage & QwcSocket::serverBanner() const
+{ return m_serverBanner; }
 
 /*! Returns the PING latency between the client and the server. */
 int QwcSocket::pingLatency() const
@@ -182,24 +194,24 @@ void QwcSocket::handleMessageReceived(const QwMessage &message)
 void QwcSocket::handleMessage200(const QwMessage &message)
 {
     // Server Information
-    serverInfo.serverVersion = message.stringArg(0);
-    serverInfo.protocolVersion = message.stringArg(1);
-    serverInfo.name = message.stringArg(2);
-    serverInfo.description = message.stringArg(3);
-    serverInfo.startTime = QDateTime::fromString(message.stringArg(4), Qt::ISODate);
+    m_serverInformation.serverVersion = message.stringArg(0);
+    m_serverInformation.protocolVersion = message.stringArg(1);
+    m_serverInformation.name = message.stringArg(2);
+    m_serverInformation.description = message.stringArg(3);
+    m_serverInformation.startTime = QDateTime::fromString(message.stringArg(4), Qt::ISODate);
 
-    if (serverInfo.protocolVersion == "1.1") {
-        serverInfo.filesCount = message.stringArg(5).toInt();
-        serverInfo.filesSize = message.stringArg(6).toLongLong();
+    if (m_serverInformation.protocolVersion == "1.1") {
+        m_serverInformation.filesCount = message.stringArg(5).toInt();
+        m_serverInformation.filesSize = message.stringArg(6).toLongLong();
     }
 
     // Send login sequence
     sendMessageINFO();
-    setNickname(sessionUser.userNickname);
-    setUserIcon(sessionUser.userImage());
-    setUserStatus(sessionUser.userStatus);
-    sendMessage(QwMessage("USER").appendArg(sessionUser.name));
-    sendMessage(QwMessage("PASS").appendArg(sessionUser.cryptedPassword()));
+    setNickname(m_sessionUser.userNickname);
+    setUserIcon(m_sessionUser.userImage());
+    setUserStatus(m_sessionUser.userStatus);
+    sendMessage(QwMessage("USER").appendArg(m_sessionUser.name));
+    sendMessage(QwMessage("PASS").appendArg(m_sessionUser.cryptedPassword()));
     emit onServerInformation();
 }
 
@@ -209,7 +221,7 @@ void QwcSocket::handleMessage200(const QwMessage &message)
 */
 void QwcSocket::handleMessage201(const QwMessage &message)
 {
-    sessionUser.pUserID = message.stringArg(0).toInt();
+    m_sessionUser.pUserID = message.stringArg(0).toInt();
     sendMessage(QwMessage("WHO").appendArg(1));
     sendMessage(QwMessage("BANNER"));
     sendMessage(QwMessage("PRIVILEGES"));
@@ -232,8 +244,8 @@ void QwcSocket::handleMessage202(const QwMessage &)
 */
 void QwcSocket::handleMessage203(const QwMessage &message)
 {
-    serverImage.loadFromData(QByteArray::fromBase64(message.stringArg(0).toAscii()));
-    emit serverBannerReceived(QPixmap::fromImage(serverImage));
+    m_serverBanner.loadFromData(QByteArray::fromBase64(message.stringArg(0).toAscii()));
+    emit serverBannerReceived(QPixmap::fromImage(m_serverBanner));
 }
 
 
@@ -757,7 +769,7 @@ void QwcSocket::handleMessage601(const QwMessage &message)
 */
 void QwcSocket::handleMessage602(const QwMessage &message)
 {
-    sessionUser.setPrivilegesFromMessage602(&message);
+    m_sessionUser.setPrivilegesFromMessage602(&message);
     emit receivedUserPrivileges();
 }
 
@@ -835,8 +847,8 @@ void QwcSocket::disconnectFromServer()
 // Set the username and password for the login sequence.
 void QwcSocket::setUserAccount(QString theAcct, QString thePass)
 {
-    sessionUser.name = theAcct;
-    sessionUser.pPassword = thePass;
+    m_sessionUser.name = theAcct;
+    m_sessionUser.pPassword = thePass;
 }
 
 
@@ -847,7 +859,7 @@ void QwcSocket::setCaturdayMode(bool b) {
         m_tranzlator.clear();
         setUserIcon( QImage(":/icons/icon_happycat.png") );
         setUserStatus(tr("kittehday nait fevrar"));
-        QString tmpNick = sessionUser.userNickname;
+        QString tmpNick = m_sessionUser.userNickname;
         tmpNick = tmpNick.replace("s","z");
         tmpNick = tmpNick.replace("e","3");
         tmpNick = tmpNick.replace("i","ie");
@@ -938,8 +950,11 @@ void QwcSocket::createChatWithClient(int firstInvitedUser)
 /*! Invite a client to a private chat. \a chatId can be obtained by creating a new chat or inviting
     a client to an existing chat room. */
 void QwcSocket::inviteClientToChat(int chatId, int userId)
-{ sendMessage(QwMessage("INVITE").appendArg(QString::number(userId))
-              .appendArg(QString::number(chatId))); }
+{
+    sendMessage(QwMessage("INVITE")
+              .appendArg(QString::number(userId))
+              .appendArg(QString::number(chatId)));
+}
 
 
 /*! Clear the news on the server. */
@@ -966,22 +981,16 @@ void QwcSocket::setUserIcon(QImage icon)
     QBuffer imageDataBuffer(&imageData);
     imageDataBuffer.open(QIODevice::WriteOnly);
     icon.save(&imageDataBuffer, "PNG");
-    sessionUser.setUserImage(icon);
+    m_sessionUser.setUserImage(icon);
     sendMessage(QwMessage("ICON").appendArg(0).appendArg(imageData.toBase64()));
 }
-
-
-
-// ///
-// /// Request Commands ///
-// ///
 
 
 /*! Set the current user nickname and send it to the server.
 */
 void QwcSocket::setNickname(QString theNick)
 {
-    sessionUser.userNickname = theNick;
+    m_sessionUser.userNickname = theNick;
     sendMessage(QwMessage("NICK").appendArg(theNick));
 }
 
@@ -990,8 +999,8 @@ void QwcSocket::setNickname(QString theNick)
 */
 void QwcSocket::setUserStatus(QString theStatus)
 {
-    sessionUser.userStatus = theStatus;
-    sendMessage(QwMessage("STATUS").appendArg(sessionUser.userStatus));
+    m_sessionUser.userStatus = theStatus;
+    sendMessage(QwMessage("STATUS").appendArg(m_sessionUser.userStatus));
 }
 
 
@@ -1297,7 +1306,7 @@ void QwcSocket::sendMessageINFO()
 #endif
 
     sendMessage(QwMessage("CLIENT")
-                .appendArg(tmpV.arg(clientName, clientSoftwareVersion, tmpOsName, tmpOsVersion, tmpOsArch)));
+                .appendArg(tmpV.arg(m_clientName, m_clientVersion, tmpOsName, tmpOsVersion, tmpOsArch)));
 }
 
 
