@@ -19,7 +19,7 @@
 QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 {
     m_session = NULL;
-    pChatID = 1;
+    m_chatId = Qwc::PUBLIC_CHAT;
 
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
@@ -60,9 +60,9 @@ QwcChatWidget::QwcChatWidget(QWidget *parent) : QWidget (parent)
 QwcChatWidget::~QwcChatWidget()
 {
     // Leave the chat, if it is private
-    if( pChatID != 1 ) {
-        m_session->m_chatWidgets.remove(pChatID);
-        m_session->socket()->leaveChat(pChatID);
+    if( m_chatId != 1 ) {
+        m_session->m_chatWidgets.remove(m_chatId);
+        m_session->socket()->leaveChat(m_chatId);
     }
 
     // Save the splitters
@@ -76,6 +76,15 @@ QwcChatWidget::~QwcChatWidget()
 */
 QwcSession* QwcChatWidget::session()
 { return m_session; }
+
+void QwcChatWidget::setChatId(int newId)
+{
+    m_chatId = newId;
+    fBtnChat->setVisible(newId == Qwc::PUBLIC_CHAT);
+}
+
+int QwcChatWidget::chatId() const
+{ return m_chatId; }
 
 void QwcChatWidget::setSession(QwcSession *session)
 {
@@ -110,7 +119,7 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
                 }
 
                 // Get information about the current room from the socket
-                QwRoom currentRoom = m_session->socket()->rooms[pChatID];
+                QwRoom currentRoom = m_session->socket()->rooms[m_chatId];
                 QListIterator<int> i(currentRoom.pUsers);
                 while (i.hasNext()) {
                     // Now run through all user IDs registered in this room and get the proper
@@ -191,11 +200,11 @@ void QwcChatWidget::processChatInput()
     QString inputText = fChatInput->toPlainText();
     if(inputText.startsWith("/me ")) {
         // Write an emote to the current chat room
-        m_session->socket()->writeToChat(pChatID, inputText.mid(4), true);
+        m_session->socket()->writeToChat(m_chatId, inputText.mid(4), true);
 
     } else if(inputText.startsWith("/topic ")) {
         // Change the chat room topic
-        m_session->socket()->setChatTopic(pChatID, inputText.mid(7));
+        m_session->socket()->setChatTopic(m_chatId, inputText.mid(7));
 
     } else if (inputText.startsWith("/status ")) {
         // Change the current user status
@@ -214,7 +223,7 @@ void QwcChatWidget::processChatInput()
             QProcess process;
             process.start(command);
             if(process.waitForFinished())
-                m_session->socket()->writeToChat(pChatID, process.readAllStandardOutput(), false);
+                m_session->socket()->writeToChat(m_chatId, process.readAllStandardOutput(), false);
         }
 
     } else if (inputText.startsWith("/save ")) {
@@ -243,7 +252,7 @@ void QwcChatWidget::processChatInput()
         if (inputText.trimmed().isEmpty()) { return; }
 
         bool isEmote = qApp->keyboardModifiers() & Qt::AltModifier;
-        m_session->socket()->writeToChat(pChatID, inputText, isEmote);
+        m_session->socket()->writeToChat(m_chatId, inputText, isEmote);
     }
 
     fChatInput->clear();
@@ -364,7 +373,7 @@ void QwcChatWidget::updateInviteMenu()
 
 void QwcChatWidget::inviteMenuTriggered(QAction *action)
 {
-    m_session->socket()->inviteClientToChat(pChatID, action->data().toInt());
+    m_session->socket()->inviteClientToChat(m_chatId, action->data().toInt());
 }
 
 

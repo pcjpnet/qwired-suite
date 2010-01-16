@@ -28,7 +28,7 @@ Q_DECLARE_METATYPE(QwcPrivateMessagerSession);
 */
 class QwcPrivateMessager :
         public QWidget,
-        private Ui_QwcPrivateMessager
+        protected Ui_QwcPrivateMessager
 {
     Q_OBJECT
 

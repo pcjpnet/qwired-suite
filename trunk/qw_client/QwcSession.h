@@ -3,7 +3,6 @@
 
 class QwcSocket;
 class QwcPrivateMessager;
-class QwcConnectionMainWindow;
 class QwcConnectWidget;
 class QwcChatWidget;
 class QwcNewsWidget;
@@ -17,6 +16,7 @@ class QwcUserInfoWidget;
 #include "QwcUserInfo.h"
 #include "QwcFileInfo.h"
 #include "QwcTransferInfo.h"
+#include "QwcConnectionMainWindow.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
@@ -26,10 +26,6 @@ class QwcUserInfoWidget;
 #include <QtGui/QMenu>
 
 #include <QtNetwork/QAbstractSocket>
-
-
-
-
 
 class QwcFileBrowserWidget;
 
@@ -82,11 +78,10 @@ public:
 private:
     QPointer<QwcSocket> m_socket;
     void setupConnections();
-    void setConnectionToolButtonsEnabled(bool);
-
 
 private slots:
     // Protocol + Socket
+    void connectionWindowDestroyed(QObject *object);
     void handleProtocolError(Qw::ProtocolError error);
     void handleSocketError(QAbstractSocket::SocketError error);
 
@@ -95,6 +90,8 @@ private slots:
     void onTabBarCloseButtonClicked();
     void onTabBarCurrentChanged(int index);
     void onTabBarCloseRequested(int index);
+
+    void handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction action);
 
 
     // Connect widget
@@ -109,9 +106,9 @@ private slots:
 
     void handlePrivateMessage(QwcUserInfo sender, QString text);
 
-    void connectionWindowDestroyed(QObject *obj);
+
     void reloadPreferences();
-    void onSocketPrivileges(QwcUserInfo);
+
 
     void handleFileInformation(QwcFileInfo file);
 
@@ -131,20 +128,7 @@ public slots:
 
     void do_handle_chat_message(int, int, QString, bool);
 
-    // Acount buttons from connect window.
-    void doActionAccounts();
-    void doActionDisconnect();
-    void doActionNews();
-    void doActionMessages();
-    void doActionServerInfo();
-    void doActionNewConnection();
-    void doActionFiles(QString initialPath="/");
-    void doActionPublicChat();
-
-    // Toolbar handlers
-    void doActionPreferences();
-    void doActionTransfers();
-
+//    void doActionFiles(QString initialPath="/");
 
     // Connect window
     void onDoConnect(QString theHost, QString theLogin, QString thePassword);
@@ -154,7 +138,7 @@ public slots:
     void handleUserInformation(QwcUserInfo user);
 
     void doHandlePrivateChatInvitation(int theChatID, QwcUserInfo theUser);
-    void doCreateNewChat(int theChatID);
+    void createChatWidget(int chatId);
 
     void handleServerInformation();
     void onLoginSuccessful();

@@ -47,6 +47,17 @@ QwcConnectWidget::QwcConnectWidget(QWidget *parent) : QWidget(parent)
 }
 
 
+/*! Fill in the fields for address, login and password and imitate a click on the "connect" button.
+*/
+void QwcConnectWidget::connectAutomatically(const QString &address, const QString &login,
+                                 const QString &password)
+{
+    fAddress->setText(address);
+    fLogin->setText(login);
+    fPassword->setText(password);
+    btnConnect->click();
+}
+
 /*! The "Trackers..." button has been clicked.
 */
 void QwcConnectWidget::on_btnConnectTrackers_clicked()
