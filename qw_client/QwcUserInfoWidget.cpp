@@ -5,8 +5,9 @@
 
 QwcUserInfoWidget::QwcUserInfoWidget(QWidget *parent) : QWidget(parent)
 {
-	setupUi(this);
-	pUserID = 0;
+    setAttribute(Qt::WA_DeleteOnClose);
+    setupUi(this);
+    pUserID = 0;
 }
 
 

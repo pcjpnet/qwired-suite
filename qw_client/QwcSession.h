@@ -64,8 +64,6 @@ protected:
     QPointer<QwcFiletransferWidget> m_transfersWidget;
     QPointer<QwcAccountsWidget> m_accountsWidget;
     QPointer<QwcFileBrowserWidget> m_fileBrowserWidget;
-    /*! A list of QwcUserInfoWidgets, identified by the \a userId. */
-    QHash<int,QPointer<QwcUserInfoWidget> > m_userInfoWidgets;
 
     void initializeSocket();
     void initializeMainWindow();
