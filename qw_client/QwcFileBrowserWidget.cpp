@@ -240,27 +240,30 @@ void QwcFileBrowserWidget::on_btnRefresh_clicked()
 */
 void QwcFileBrowserWidget::on_btnDelete_clicked()
 {
-//    QList<QTreeWidgetItem*> items = fList->selectedItems();
-//
-//    // Confirm first
-//    QMessageBox::StandardButton button = QMessageBox::question(this,
-//        tr("Delete Files and Folders"),
-//        tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "", items.count()),
-//        QMessageBox::Yes | QMessageBox::No,
-//        QMessageBox::No);
-//    if (button == QMessageBox::No) { return; }
-//
-//    // Now delete the selected items
-//    QListIterator<QTreeWidgetItem*> i(items);
-//    while (i.hasNext()) {
-//        QTreeWidgetItem *item = i.next();
-//        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-//        m_socket->deleteFile(itemInfo.path);
-//    }
-//
-//    // Reset the file browser
-//    resetForListing();
-//    m_socket->getFileList(m_remotePath);
+    if (!m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeDownload)) { return; }
+    QSettings settings;
+
+    // Confirm first
+    QMessageBox::StandardButton button = QMessageBox::question(this,
+        tr("Delete Files and Folders"),
+        tr("Are you sure you want to delete the selected %n item(s)?\nThis can not be undone!", "",
+           fList->selectionModel()->selectedRows(0).count()),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+    if (button == QMessageBox::No) { return; }
+
+    foreach (QModelIndex index, fList->selectionModel()->selectedRows(0)) {
+        QStandardItem *clickedItem = m_model->itemFromIndex(index);
+        if (!clickedItem) { continue; }
+        QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
+        if (!firstColumnItem) { continue; }
+        QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
+        m_socket->deleteFile(fileInfo.path);
+    }
+
+    // Reset the file browser
+    resetForListing();
+    m_socket->getFileList(m_remotePath);
 }
 
 
@@ -411,7 +414,7 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
     if (!m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeDownload)) { return; }
     QSettings settings;
 
-    foreach (QModelIndex index, fList->selectionModel()->selectedIndexes()) {
+    foreach (QModelIndex index, fList->selectionModel()->selectedRows(0)) {
         QStandardItem *clickedItem = m_model->itemFromIndex(index);
         if (!clickedItem) { continue; }
         QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
@@ -424,30 +427,9 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
                                      .arg(fileInfo.fileName());
         m_socket->downloadFileOrFolder(fileInfo);
     }
-
-
-
-
-
 }
 
 
-
-//void QwcFileBrowserWidget::on_fBtnUpload_clicked(bool)
-//{
-//    QStringList files = QFileDialog::getOpenFileNames(this, tr("Upload File"), QDir::homePath());
-//    QStringListIterator i(files);
-//    while (i.hasNext()) {
-//        QString item = i.next();
-//        QFileInfo itemInfo(item);
-//        if (!itemInfo.exists() || !itemInfo.isReadable()) { continue; }
-//        QString remotePath = pModel->pCurrentPath + "/" + itemInfo.fileName();
-//        pSession->wiredSocket()->putFile(itemInfo.absoluteFilePath(), remotePath);
-//        //pSession->uploadFile(itemInfo.absoluteFilePath(), remotePath);
-//    }
-//    // Display the transfer pane
-//    pSession->doActionTransfers();
-//}
 
 
 
@@ -471,13 +453,13 @@ void QwcFileBrowserWidget::on_btnBack_clicked()
 */
 void QwcFileBrowserWidget::on_btnInfo_clicked()
 {
-//    QList<QTreeWidgetItem*> items = fList->selectedItems();
-//    if (items.count() == 0) { return; }
-//    QTreeWidgetItem *item = items.first();
-//    currentFileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-//    m_socket->getFileInformation(currentFileInfo.path);
-//    stackedWidget->setCurrentWidget(pageInfo);
-//    pageInfo->setEnabled(false);
+    QStandardItem *clickedItem = m_model->itemFromIndex(fList->selectionModel()->selectedRows(0).first());
+    if (!clickedItem) { return; }
+    currentFileInfo = clickedItem->data(Qt::UserRole).value<QwcFileInfo>();
+
+    m_socket->getFileInformation(currentFileInfo.path);
+    stackedWidget->setCurrentWidget(pageInfo);
+    pageInfo->setEnabled(false);
 }
 
 
@@ -502,50 +484,6 @@ void QwcFileBrowserWidget::on_btnNewFolder_clicked()
     resetForListing();
     m_socket->getFileList(m_remotePath);
 }
-
-
-/*! Another item was selected from the list.
-*/
-//void QwcFileBrowserWidget::on_fList_itemSelectionChanged()
-//{
-//    btnInfo->setEnabled(fList->selectedItems().count());
-//    btnDelete->setEnabled(fList->selectedItems().count());
-//
-//    btnDownload->setEnabled(fList->selectedItems().count()
-//                            && userInfo.privileges().testFlag(Qws::PrivilegeDownload));
-//
-//    if (fList->selectedItems().count()) {
-//        QStringList supportedPreviewSuffixes = QStringList() << "jpg" << "png" << "gif" << "jpeg";
-//        QwcFileInfo fileInfo = fList->selectedItems().first()->data(0, Qt::UserRole).value<QwcFileInfo>();
-//        btnPreview->setEnabled(fList->selectedItems().count()
-//                    && userInfo.privileges().testFlag(Qws::PrivilegeDownload)
-//                    && fileInfo.type == Qw::FileTypeRegular
-//                    && supportedPreviewSuffixes.contains(fileInfo.fileName().section(".", -1, -1), Qt::CaseInsensitive));
-//    } else {
-//        btnPreview->setEnabled(false);
-//    }
-//}
-
-
-/*! An item has been double-clicked. If it is a directory, we should descent into it.
-*/
-//void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column)
-//{
-//    Q_UNUSED(column);
-//    if (!item) { return; }
-//    QwcFileInfo fileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-//    if (fileInfo.type == Qw::FileTypeDropBox
-//        || fileInfo.type == Qw::FileTypeFolder
-//        || fileInfo.type == Qw::FileTypeUploadsFolder)
-//    {
-//        m_remotePath = fileInfo.path;
-//        currentFolderInfo = fileInfo;
-//        resetForListing();
-//        m_socket->getFileList(m_remotePath);
-//    }
-//
-//}
-
 
 
 

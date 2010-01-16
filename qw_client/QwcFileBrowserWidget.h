@@ -11,17 +11,7 @@
 #include <QSortFilterProxyModel>
 
 class QStandardItemModel;
-
-/*! \class QwcFileBrowserWidget
-    \author Bastian Bense <bastibense@gmail.com>
-    \date 2009-03-06
-
-    This provides a widget for browsing files on a remote server. It emits signal for certain actions
-    such as download requests, get info requests and so on.
-*/
-
 class QwcSocket;
-
 
 class QwcFileBrowserWidget :
         public QWidget,
@@ -61,7 +51,6 @@ private slots:
     void on_findFilter_returnPressed();
     void on_fList_doubleClicked(const QModelIndex &index);
     void handleListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-//    void on_fList_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     // Info page
     void on_btnInfoCancel_clicked();
