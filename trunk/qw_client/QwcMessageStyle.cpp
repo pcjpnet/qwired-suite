@@ -173,6 +173,7 @@ bool QwcMessageStyle::setStyleOverride(QWebFrame *frame, const QString &css)
 
 QString QwcMessageStyle::replaceEmoticons(const QString &text, bool enableEmoticons)
 {
+    Q_UNUSED(enableEmoticons);
 
     // URL
     QRegExp urlRegex("([a-z0-9]+://[a-zA-Z0-9._-]+(:[0-9]*)?([a-z0-9/\\?&=_\\.\\-%]*))",
@@ -181,30 +182,30 @@ QString QwcMessageStyle::replaceEmoticons(const QString &text, bool enableEmotic
     processText = Qt::escape(processText);
     processText.replace(urlRegex, "<a href=\"\\1\">\\1</a>");
 
-    if (enableEmoticons) {
-        QHash<QString,QString> pEmotes;
-        pEmotes[":):)"] = ":/icons/emotes/face-smile-big.png";
-        pEmotes[":D"] = ":/icons/emotes/face-grin.png";
-        pEmotes[":-D"] = ":/icons/emotes/face-grin.png";
-        pEmotes[":O"] = ":/icons/emotes/face-surprise.png";
-        pEmotes[";)"] = ":/icons/emotes/face-wink.png";
-        pEmotes[";-)"] = ":/icons/emotes/face-wink.png";
-        pEmotes[":)"] = ":/icons/emotes/face-smile.png";
-        pEmotes[":-)"] = ":/icons/emotes/face-smile.png";
-        pEmotes[":>"] = ":/icons/emotes/face-smile.png";
-        pEmotes[":("] = ":/icons/emotes/face-sad.png";
-        pEmotes[":-("] = ":/icons/emotes/face-sad.png";
-        pEmotes[";("] = ":/icons/emotes/face-crying.png";
-        pEmotes[";-("] = ":/icons/emotes/face-crying.png";
-        pEmotes[":*"] = ":/icons/emotes/face-kiss.png";
-        pEmotes[":-*"] = ":/icons/emotes/face-kiss.png";
-
-        QHashIterator<QString,QString> it(pEmotes);
-        while (it.hasNext()) {
-            it.next();
-            processText.replace(it.key(), QString("<img src=\"qrc%1\">").arg(it.value()));
-        }
-    }
+//    if (enableEmoticons) {
+//        QHash<QString,QString> pEmotes;
+//        pEmotes[":):)"] = ":/icons/emotes/face-smile-big.png";
+//        pEmotes[":D"] = ":/icons/emotes/face-grin.png";
+//        pEmotes[":-D"] = ":/icons/emotes/face-grin.png";
+//        pEmotes[":O"] = ":/icons/emotes/face-surprise.png";
+//        pEmotes[";)"] = ":/icons/emotes/face-wink.png";
+//        pEmotes[";-)"] = ":/icons/emotes/face-wink.png";
+//        pEmotes[":)"] = ":/icons/emotes/face-smile.png";
+//        pEmotes[":-)"] = ":/icons/emotes/face-smile.png";
+//        pEmotes[":>"] = ":/icons/emotes/face-smile.png";
+//        pEmotes[":("] = ":/icons/emotes/face-sad.png";
+//        pEmotes[":-("] = ":/icons/emotes/face-sad.png";
+//        pEmotes[";("] = ":/icons/emotes/face-crying.png";
+//        pEmotes[";-("] = ":/icons/emotes/face-crying.png";
+//        pEmotes[":*"] = ":/icons/emotes/face-kiss.png";
+//        pEmotes[":-*"] = ":/icons/emotes/face-kiss.png";
+//
+//        QHashIterator<QString,QString> it(pEmotes);
+//        while (it.hasNext()) {
+//            it.next();
+//            processText.replace(it.key(), QString("<img src=\"qrc%1\">").arg(it.value()));
+//        }
+//    }
 
     return processText;
 }

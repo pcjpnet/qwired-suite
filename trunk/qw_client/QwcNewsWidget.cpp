@@ -80,21 +80,20 @@ void QwcNewsWidget::updateNewsStats()
 }
 
 
-void QwcNewsWidget::addNewsItem(QString theNick, QDateTime time, QString thePost, bool insertAtTop)
+void QwcNewsWidget::addNewsItem(const QString &nickname, QDateTime time, const QString &text,
+                                bool insertAtTop)
 {
-
-    QString messageText = thePost.trimmed();
+    QString messageText = text.trimmed();
     messageText = Qt::escape(messageText);
-    QwcMessageStyle::replaceEmoticons(messageText, m_emoticonsEnabled);
+    messageText = QwcMessageStyle::replaceEmoticons(messageText, m_emoticonsEnabled);
     messageText.replace("\n", "<br>");
 
     QString newItem = QString("<div class=\"news_item\">"
                               "<span class=\"news_header\">From %1 (%2):</span>"
                               "<span class=\"news_body\">%3</span></div>")
-                      .arg(Qt::escape(theNick))
+                      .arg(Qt::escape(nickname))
                       .arg(Qt::escape(time.toString()))
                       .arg(messageText);
-
 
     QWebElement mainElement = newsView->page()->mainFrame()->findFirstElement("#news_items");
     if (insertAtTop) {
