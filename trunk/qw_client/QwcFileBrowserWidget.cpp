@@ -14,12 +14,46 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) : QWidget(parent)
     setAcceptDrops(true);
     setAttribute(Qt::WA_DeleteOnClose);
 
-    waitingForListItems = false;
-    totalUsedSpace = 0;
-    freeRemoteSpace = 0;
+    m_socket = NULL;
+    m_waitingForListItems = false;
+    m_totalUsedSpace = 0;
+    m_freeRemoteSpace = 0;
     labelCurrentPath->setText("/");
 
     stackedWidget->setCurrentWidget(pageBrowser);
+}
+
+
+void QwcFileBrowserWidget::setSocket(QwcSocket *socket)
+{
+    if (m_socket) { disconnect(m_socket, 0, this, 0); }
+
+    m_socket = socket;
+    connect(m_socket, SIGNAL(onFilesListItem(QwcFileInfo)),
+            this, SLOT(handleFilesListItem(QwcFileInfo)));
+    connect(m_socket, SIGNAL(onFilesListDone(QString,qlonglong)),
+            this, SLOT(handleFilesListDone(QString,qlonglong)));
+
+    connect(m_socket, SIGNAL(fileSearchResultListItem(QwcFileInfo)),
+            this, SLOT(handleFilesListItem(QwcFileInfo)));
+    connect(m_socket, SIGNAL(fileSearchResultListDone()),
+            this, SLOT(handleSearchResultListDone()));
+}
+
+QwcSocket* QwcFileBrowserWidget::socket()
+{ return m_socket; }
+
+
+
+QString QwcFileBrowserWidget::remotePath() const
+{ return m_remotePath; }
+
+
+void QwcFileBrowserWidget::setRemotePath(const QString &path)
+{
+    m_remotePath = path;
+    resetForListing();
+    m_socket->getFileList(m_remotePath);
 }
 
 
@@ -29,10 +63,10 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) : QWidget(parent)
 void QwcFileBrowserWidget::resetForListing()
 {
     fList->clear();
-    labelCurrentPath->setText(remotePath);
-    totalUsedSpace = 0;
-    freeRemoteSpace = 0;
-    waitingForListItems = true;
+    labelCurrentPath->setText(m_remotePath);
+    m_totalUsedSpace = 0;
+    m_freeRemoteSpace = 0;
+    m_waitingForListItems = true;
     this->setEnabled(false);
 }
 
@@ -94,7 +128,7 @@ void QwcFileBrowserWidget::setUserInformation(QwcUserInfo info)
 */
 void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
 {
-    if (!waitingForListItems) { return; }
+    if (!m_waitingForListItems) { return; }
     QTreeWidgetItem *treeItem = new QTreeWidgetItem(fList);
     treeItem->setText(0, item.fileName());
     treeItem->setIcon(0, item.fileIcon());
@@ -109,7 +143,7 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     treeItem->setText(2, item.modified.toLocalTime().toString());
 
     if (item.type == Qw::FileTypeRegular) {
-        totalUsedSpace += item.size;
+        m_totalUsedSpace += item.size;
     }
 }
 
@@ -119,19 +153,19 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
 void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace)
 {
     Q_UNUSED(path);
-    if (!waitingForListItems) { return; }
-    waitingForListItems = false;
-    freeRemoteSpace = freeSpace;
+    if (!m_waitingForListItems) { return; }
+    m_waitingForListItems = false;
+    m_freeRemoteSpace = freeSpace;
     fStats->setText(tr("%1 items, %2 total, %3 available")
                     .arg(fList->topLevelItemCount())
-                    .arg(QwFile::humanReadableSize(totalUsedSpace))
-                    .arg(QwFile::humanReadableSize(freeRemoteSpace)));
+                    .arg(QwFile::humanReadableSize(m_totalUsedSpace))
+                    .arg(QwFile::humanReadableSize(m_freeRemoteSpace)));
     this->setEnabled(true);
-    btnBack->setEnabled(remotePath != "/");
+    btnBack->setEnabled(m_remotePath != "/");
     fList->resizeColumnToContents(0);
 
     // Set the root information as we don't get this from previous requests.
-    if (remotePath == "/") {
+    if (m_remotePath == "/") {
         currentFolderInfo = QwcFileInfo();
         currentFolderInfo.path = "/";
         currentFolderInfo.type = Qw::FileTypeFolder;
@@ -161,10 +195,10 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
 void QwcFileBrowserWidget::handleSearchResultListDone()
 {
 
-    if (!waitingForListItems) { return; }
+    if (!m_waitingForListItems) { return; }
     qDebug() << "DONE";
-    waitingForListItems = false;
-    freeRemoteSpace = 0;
+    m_waitingForListItems = false;
+    m_freeRemoteSpace = 0;
     fStats->setText(tr("%1 results for \"%2\"")
                     .arg(fList->topLevelItemCount())
                     .arg(findFilter->text()));
@@ -182,7 +216,7 @@ void QwcFileBrowserWidget::handleSearchResultListDone()
 void QwcFileBrowserWidget::on_btnRefresh_clicked()
 {
     resetForListing();
-    emit requestedRefresh(remotePath);
+    m_socket->getFileList(m_remotePath);
 }
 
 
@@ -205,12 +239,12 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
     while (i.hasNext()) {
         QTreeWidgetItem *item = i.next();
         QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-        emit requestedDelete(itemInfo.path);
+        m_socket->deleteFile(itemInfo.path);
     }
 
     // Reset the file browser
     resetForListing();
-    emit requestedRefresh(remotePath);
+    m_socket->getFileList(m_remotePath);
 }
 
 
@@ -248,7 +282,7 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
             itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName());
         }
 
-        emit requestedDownload(itemInfo);
+        m_socket->downloadFileOrFolder(itemInfo);
     }
 }
 
@@ -268,7 +302,7 @@ void QwcFileBrowserWidget::on_btnPreview_clicked()
         QDir downloadDirectory = QDir::temp();
         itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
         itemInfo.previewFileAfterTransfer = true;
-        emit requestedDownload(itemInfo);
+        m_socket->downloadFileOrFolder(itemInfo);
     }
 }
 
@@ -307,7 +341,7 @@ void QwcFileBrowserWidget::on_btnUpload_clicked()
             targetInfo.size = itemInfo.size();
             targetInfo.updateLocalChecksum();
         }
-        emit requestedUpload(targetInfo);
+        m_socket->uploadFileOrFolder(targetInfo);
     }
 }
 
@@ -319,9 +353,9 @@ void QwcFileBrowserWidget::on_findFilter_returnPressed()
     resetForListing();
     if (!findFilter->text().isEmpty()) {
         this->setEnabled(false);
-        emit requestedFileSearch(findFilter->text());
+        m_socket->searchFiles(findFilter->text());
     } else {
-        emit requestedRefresh("/");
+        m_socket->getFileList("/");
     }
 }
 
@@ -374,12 +408,12 @@ void QwcFileBrowserWidget::on_findFilter_returnPressed()
 */
 void QwcFileBrowserWidget::on_btnBack_clicked()
 {
-    remotePath = remotePath.section("/", 0, -2);
-    if (!remotePath.startsWith("/")) {
-        remotePath = remotePath.prepend("/");
+    m_remotePath = m_remotePath.section("/", 0, -2);
+    if (!m_remotePath.startsWith("/")) {
+        m_remotePath = m_remotePath.prepend("/");
     }
     resetForListing();
-    emit requestedRefresh(remotePath);
+    m_socket->getFileList(m_remotePath);
 }
 
 
@@ -391,7 +425,7 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
     if (items.count() == 0) { return; }
     QTreeWidgetItem *item = items.first();
     currentFileInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-    emit requestedInformation(currentFileInfo.path);
+    m_socket->getFileInformation(currentFileInfo.path);
     stackedWidget->setCurrentWidget(pageInfo);
     pageInfo->setEnabled(false);
 }
@@ -414,9 +448,9 @@ void QwcFileBrowserWidget::on_btnNewFolder_clicked()
     }
 
     folderName = folderName.replace("/","_");
-    emit requestedNewFolder(remotePath + "/" + folderName);
+    m_socket->createFolder(QString("%1/%2").arg(m_remotePath).arg(folderName));
     resetForListing();
-    emit requestedRefresh(remotePath);
+    m_socket->getFileList(m_remotePath);
 }
 
 
@@ -454,10 +488,10 @@ void QwcFileBrowserWidget::on_fList_itemDoubleClicked(QTreeWidgetItem *item, int
         || fileInfo.type == Qw::FileTypeFolder
         || fileInfo.type == Qw::FileTypeUploadsFolder)
     {
-        remotePath = fileInfo.path;
+        m_remotePath = fileInfo.path;
         currentFolderInfo = fileInfo;
         resetForListing();
-        emit requestedRefresh(remotePath);
+        m_socket->getFileList(m_remotePath);
     }
 
 }
@@ -483,9 +517,16 @@ void QwcFileBrowserWidget::on_btnInfoApply_clicked()
     // Replace all slashes to prevent corrupted names
     newInfo.path = currentFileInfo.directoryPath() + infoName->text().replace("/", "_");
 
-    emit requestedPathChange(currentFileInfo, newInfo);
+    if (currentFileInfo.comment != newInfo.comment) {
+        m_socket->setFileComment(newInfo.path, newInfo.comment);
+    }
+
+    if (currentFileInfo.path != newInfo.path) {
+        m_socket->moveFile(currentFileInfo.path, newInfo.path);
+    }
+
     resetForListing();
-    emit requestedRefresh(currentFolderInfo.path);
+    m_socket->getFileList(currentFolderInfo.path);
     stackedWidget->setCurrentWidget(pageBrowser);
 }
 

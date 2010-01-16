@@ -24,7 +24,7 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="pageBrowser">
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="margin">
         <number>0</number>
        </property>
@@ -399,30 +399,37 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelCurrentPath">
-         <property name="frameShadow">
-          <enum>QFrame::Sunken</enum>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>0</number>
          </property>
-         <property name="text">
-          <string notr="true">/local/user/test/</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="fStats">
-         <property name="text">
-          <string>0 items, 0 bytes total, 0 GB available</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
+         <item>
+          <widget class="QLabel" name="labelCurrentPath">
+           <property name="frameShadow">
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="text">
+            <string notr="true">/local/user/test/</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="fStats">
+           <property name="text">
+            <string>0 items, 0 bytes total, 0 GB available</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -783,7 +790,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="application.qrc"/>
   <include location="application.qrc"/>
  </resources>
  <connections/>

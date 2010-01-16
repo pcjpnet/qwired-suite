@@ -18,15 +18,23 @@
     such as download requests, get info requests and so on.
 */
 
-class QwcFileBrowserWidget : public QWidget, public Ui_QwcFileBrowserWidget
+class QwcSocket;
+
+class QwcFileBrowserWidget :
+        public QWidget,
+        public Ui_QwcFileBrowserWidget
 {
     Q_OBJECT
 
 public:
     QwcFileBrowserWidget(QWidget *parent = 0);
 
-    /*! The path to the current directory on the remote server. */
-    QString remotePath;
+    void setSocket(QwcSocket *socket);
+    QwcSocket* socket();
+
+    QString remotePath() const;
+    void setRemotePath(const QString &path);
+
     /*! Information about the current directory/folder. */
     QwcFileInfo currentFolderInfo;
     /*! Information about the currently selected file/folder in the list (for get info) */
@@ -37,25 +45,6 @@ public:
     void resetForListing();
     void setFileInformation(QwcFileInfo file);
     void setUserInformation(QwcUserInfo info);
-
-
-signals:
-    /*! This signal is emitted when the user wants to refresh the contents of the current directory. */
-    void requestedRefresh(QString path);
-    /*! This signal is emitted when the user reqested information about a path. */
-    void requestedInformation(QString path);
-    /*! This signal is emitted when a path needs to be deleted. */
-    void requestedDelete(QString path);
-    /*! This signal is emitted when a new folder should be created. */
-    void requestedNewFolder(QString path);
-    /*! This signal is emitted when a file/folder is modified, moved or otherwise changed. */
-    void requestedPathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo);
-    /*! This signal is emitted when the user has entered search terms to find files on the server. */
-    void requestedFileSearch(QString searchTerm);
-    /*! This signal is emitted when a file/folder should be downloaded. */
-    void requestedDownload(QwcFileInfo info);
-    /*! This signal is emitted when a file/folder should be uploaded. */
-    void requestedUpload(QwcFileInfo info);
 
 private slots:
     void on_btnBack_clicked();
@@ -76,12 +65,16 @@ private slots:
 
 
 private:
+    /*! The currently used socket to send data to the server. */
+    QwcSocket *m_socket;
     /*! This member is true if the browser is expecting more list items. */
-    bool waitingForListItems;
+    bool m_waitingForListItems;
     /*! This contains the amount of free space on the remote server. */
-    qlonglong freeRemoteSpace;
+    qlonglong m_freeRemoteSpace;
     /*! This contains the total amount of data for all listed items. */
-    qlonglong totalUsedSpace;
+    qlonglong m_totalUsedSpace;
+    /*! The path to the current directory on the remote server. */
+    QString m_remotePath;
 
 public slots:
     void handleFilesListItem(QwcFileInfo item);
