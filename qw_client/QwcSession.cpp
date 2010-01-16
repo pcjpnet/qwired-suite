@@ -792,22 +792,6 @@ void QwcSession::onConnectAborted()
 { m_socket->disconnectFromServer(); }
 
 
-/*! This method handles the modification of files and folders. This is conencted to the
-    \a requestedPathChanged() signal of the file browser and dispatches further handling to
-    the socket.
-*/
-void QwcSession::handlePathChange(QwcFileInfo oldInfo, QwcFileInfo newInfo)
-{
-    if (oldInfo.comment != newInfo.comment) {
-        qDebug() << "Setting new file comment on" << oldInfo.path;
-        m_socket->setFileComment(newInfo.path, newInfo.comment);
-    }
-
-    if (oldInfo.path != newInfo.path) {
-        qDebug() << "Moveing from" << oldInfo.path << "to" << newInfo.path;
-        m_socket->moveFile(oldInfo.path, newInfo.path);
-    }
-}
 
 
 /*! A file transfer is complete.
@@ -980,48 +964,20 @@ void QwcSession::doActionBroadcast()
 */
 void QwcSession::doActionFiles(QString initialPath)
 {
+    // Create a new file browser if needed
     if (!mainFileWidget) {
-        mainFileWidget = new QwcFileBrowserWidget();
-        mainFileWidget->resetForListing();
-        mainFileWidget->remotePath = initialPath;
+        mainFileWidget = new QwcFileBrowserWidget;
+        mainFileWidget->setSocket(m_socket);
         mainFileWidget->setUserInformation(m_socket->sessionUser);
-
-        connect(mainFileWidget, SIGNAL(requestedRefresh(QString)),
-                m_socket, SLOT(getFileList(QString)));
-        connect(mainFileWidget, SIGNAL(requestedInformation(QString)),
-                m_socket, SLOT(statFile(QString)));
-        connect(mainFileWidget, SIGNAL(requestedDelete(QString)),
-                m_socket, SLOT(deleteFile(QString)));
-        connect(mainFileWidget, SIGNAL(requestedNewFolder(QString)),
-                m_socket, SLOT(createFolder(QString)));
-        connect(mainFileWidget, SIGNAL(requestedPathChange(QwcFileInfo,QwcFileInfo)),
-                this, SLOT(handlePathChange(QwcFileInfo,QwcFileInfo)));
-        connect(mainFileWidget, SIGNAL(requestedFileSearch(QString)),
-                m_socket, SLOT(searchFiles(QString)));
-        connect(mainFileWidget, SIGNAL(requestedDownload(QwcFileInfo)),
-                m_socket, SLOT(downloadFileOrFolder(QwcFileInfo)));
-        connect(mainFileWidget, SIGNAL(requestedUpload(QwcFileInfo)),
-                m_socket, SLOT(uploadFileOrFolder(QwcFileInfo)));
-
-
-        connect(m_socket, SIGNAL(onFilesListItem(QwcFileInfo)),
-                mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));
-        connect(m_socket, SIGNAL(onFilesListDone(QString,qlonglong)),
-                mainFileWidget, SLOT(handleFilesListDone(QString,qlonglong)));
-
-        connect(m_socket, SIGNAL(fileSearchResultListItem(QwcFileInfo)),
-                mainFileWidget, SLOT(handleFilesListItem(QwcFileInfo)));
-        connect(m_socket, SIGNAL(fileSearchResultListDone()),
-                mainFileWidget, SLOT(handleSearchResultListDone()));
-
-        m_socket->getFileList(initialPath);
+        mainFileWidget->resetForListing();
+        mainFileWidget->setRemotePath(initialPath);
     }
 
+    // Show the browser in a tab
     if (connectionTabWidget->indexOf(mainFileWidget) == -1) {
         connectionTabWidget->addTab(mainFileWidget, tr("Files"));
         mainFileWidget->stackedWidget->setCurrentWidget(mainFileWidget->pageBrowser);
     }
-
     connectionTabWidget->setCurrentWidget(mainFileWidget);
 }
 
