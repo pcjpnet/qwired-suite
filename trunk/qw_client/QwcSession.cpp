@@ -26,13 +26,15 @@
 #include <QtCore/QDir>
 #include <QtGui/QPixmap>
 
-QwcSession::QwcSession(QObject *parent) : QObject(parent)
+QwcSession::QwcSession(QObject *parent) :
+        QObject(parent)
 {
     initWiredSocket();
     initMainWindow();
     setConnectionToolButtonsEnabled(false);
     reloadPreferences();
 }
+
 
 QwcSession::~QwcSession()
 {
@@ -217,9 +219,9 @@ void QwcSession::initMainWindow()
     m_publicChat->setSession(this);
 
     // Messenger
-    privateMessager = new QwcPrivateMessager(m_mainWindow);
-    privateMessager->setWindowFlags(Qt::Window);
-
+    m_privateMessagerWidget = new QwcPrivateMessager();
+    m_privateMessagerWidget->setParent(m_mainWindow, Qt::Window);
+    m_privateMessagerWidget->setSocket(m_socket);
 
     setupConnections();
     m_mainWindow->show();
@@ -239,15 +241,15 @@ void QwcSession::onUserlistComplete(int chatId)
 */
 void QwcSession::handlePrivateMessage(QwcUserInfo sender, QString text)
 {
-    privateMessager->handleNewMessage(sender, text);
-    if (connectionTabWidget->indexOf(privateMessager) > -1) {
-        if (connectionTabWidget->currentWidget() != privateMessager) {
-            connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(privateMessager),
+    m_privateMessagerWidget->handleNewMessage(sender, text);
+    if (connectionTabWidget->indexOf(m_privateMessagerWidget) > -1) {
+        if (connectionTabWidget->currentWidget() != m_privateMessagerWidget) {
+            connectionTabWidget->setTabIcon(connectionTabWidget->indexOf(m_privateMessagerWidget),
                                             QIcon(":/icons/tab-content.png"));
         }
     } else {
         showMessagerForUser(sender);
-        privateMessager->handleNewMessage(sender, text);
+        m_privateMessagerWidget->handleNewMessage(sender, text);
     }
 }
 
@@ -266,12 +268,12 @@ void QwcSession::onTabBarCloseButtonClicked()
 void QwcSession::onTabBarCurrentChanged(int index)
 {
     // Icon removal for private chats
-    QWidget *tmpWid = connectionTabWidget->widget(index);
-    QwcChatWidget *tmpChat = qobject_cast<QwcChatWidget*>(tmpWid);
-    if (tmpChat && tmpChat->pChatID != 1) {
+    QWidget *widget = connectionTabWidget->widget(index);
+    QwcChatWidget *chatWidget = qobject_cast<QwcChatWidget*>(widget);
+    if (chatWidget && chatWidget->pChatID != 1) {
         connectionTabWidget->setTabIcon(index, QIcon(":/icons/tab-idle.png"));
     }
-    if (tmpWid == privateMessager) {
+    if (widget == m_privateMessagerWidget) {
         connectionTabWidget->setTabIcon(index, QIcon(":/icons/tab-idle.png"));
     }
 }
@@ -307,27 +309,19 @@ void QwcSession::setupConnections()
     connect(m_socket, SIGNAL(protocolError(Qw::ProtocolError)),
             this, SLOT(handleProtocolError(Qw::ProtocolError)));
 
-
     // Messager
     //
-
     connect(m_socket, SIGNAL(privateMessage(QwcUserInfo,QString)),
             this, SLOT(handlePrivateMessage(QwcUserInfo,QString)));
-
-    connect(privateMessager, SIGNAL(enteredNewMessage(int,QString)),
-            m_socket, SLOT(sendPrivateMessage(int,QString)));
     connect(m_publicChat, SIGNAL(userDoubleClicked(const QwcUserInfo)),
             this, SLOT(showMessagerForUser(const QwcUserInfo)));
-    connect(m_socket, SIGNAL(userChanged(QwcUserInfo, QwcUserInfo)),
-            privateMessager, SLOT(handleUserChanged(QwcUserInfo, QwcUserInfo)) );
-    connect(m_socket, SIGNAL(userLeftRoom(int, QwcUserInfo)),
-            privateMessager, SLOT(handleUserLeft(int, QwcUserInfo)));
 
     // Session/User management
     connect(m_socket, SIGNAL(receivedUserPrivileges(QwcUserInfo)),
             this, SLOT(onSocketPrivileges(QwcUserInfo)) );
 
-    connect(m_socket, SIGNAL(receivedChatMessage(int,int,QString,bool)), this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
+    connect(m_socket, SIGNAL(receivedChatMessage(int,int,QString,bool)),
+            this, SLOT(do_handle_chat_message(int,int,QString,bool)) );
 
     connect(m_socket, SIGNAL(onChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)),
             this,   SLOT(handleChatTopic(int, QString, QString, QHostAddress, QDateTime, QString)) );
@@ -339,8 +333,10 @@ void QwcSession::setupConnections()
     connect(m_socket, SIGNAL(userInformation(QwcUserInfo)),
             this, SLOT(handleUserInformation(QwcUserInfo)));
 
-    connect(m_socket, SIGNAL(privateChatInvitation(int,QwcUserInfo)), this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
-    connect(m_socket, SIGNAL(privateChatCreated(int)), this, SLOT(doCreateNewChat(int)) );
+    connect(m_socket, SIGNAL(privateChatInvitation(int,QwcUserInfo)),
+            this, SLOT(doHandlePrivateChatInvitation(int,QwcUserInfo)) );
+    connect(m_socket, SIGNAL(privateChatCreated(int)),
+            this, SLOT(doCreateNewChat(int)) );
 
     connect(m_socket, SIGNAL(onServerInformation()),
             this, SLOT(handleServerInformation()) );
@@ -351,9 +347,12 @@ void QwcSession::setupConnections()
     connect(m_socket, SIGNAL(broadcastMessage(QwcUserInfo, QString)),
             this, SLOT(handleBroadcastMessage(QwcUserInfo,QString)));
 
-    connect(m_socket, SIGNAL(userJoinedRoom(int,QwcUserInfo)), this, SLOT(userJoined(int,QwcUserInfo)) );
-    connect(m_socket, SIGNAL(userLeftRoom(int,QwcUserInfo)), this, SLOT(userLeft(int,QwcUserInfo)) );
-    connect(m_socket, SIGNAL(userChanged(QwcUserInfo,QwcUserInfo)), this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
+    connect(m_socket, SIGNAL(userJoinedRoom(int,QwcUserInfo)),
+            this, SLOT(userJoined(int,QwcUserInfo)) );
+    connect(m_socket, SIGNAL(userLeftRoom(int,QwcUserInfo)),
+            this, SLOT(userLeft(int,QwcUserInfo)) );
+    connect(m_socket, SIGNAL(userChanged(QwcUserInfo,QwcUserInfo)),
+            this, SLOT(userChanged(QwcUserInfo,QwcUserInfo)) );
 
     // News
     connect(m_socket, SIGNAL(newsPosted(QString,QDateTime,QString)),
@@ -898,14 +897,14 @@ void QwcSession::doActionNews()
 void QwcSession::doActionMessages()
 {
     // Display the widget if it is not in the tab widget
-    if (connectionTabWidget->indexOf(privateMessager) == -1) {
-        connectionTabWidget->addTab(privateMessager,
+    if (connectionTabWidget->indexOf(m_privateMessagerWidget) == -1) {
+        connectionTabWidget->addTab(m_privateMessagerWidget,
                                     QIcon(":/icons/tab-idle.png"),
                                     tr("Messages"));
     }
 
     // Ensure it is the currently visible widget
-    connectionTabWidget->setCurrentWidget(privateMessager);
+    connectionTabWidget->setCurrentWidget(m_privateMessagerWidget);
 }
 
 
@@ -1027,13 +1026,13 @@ void QwcSession::doActionTransfers()
 */
 void QwcSession::showMessagerForUser(const QwcUserInfo targetUser)
 {
-    if (!privateMessager) { return; }
-    if (connectionTabWidget->indexOf(privateMessager) == -1) {
-        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(privateMessager,
+    if (!m_privateMessagerWidget) { return; }
+    if (connectionTabWidget->indexOf(m_privateMessagerWidget) == -1) {
+        connectionTabWidget->setCurrentIndex(connectionTabWidget->addTab(m_privateMessagerWidget,
                                                                          QIcon(":/icons/tab-idle.png"),
                                                                          tr("Messages")));
     } else {
-        connectionTabWidget->setCurrentWidget(privateMessager);
+        connectionTabWidget->setCurrentWidget(m_privateMessagerWidget);
     }
-    privateMessager->handleNewMessage(targetUser, QString());
+    m_privateMessagerWidget->handleNewMessage(targetUser, QString());
 }
