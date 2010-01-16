@@ -11,6 +11,7 @@
 #include "QwcTrackerServerInfo.h"
 #include "QwcTransferSocket.h"
 
+#include "QwGlobals.h"
 #include <QTimerEvent>
 
 namespace Qwc {

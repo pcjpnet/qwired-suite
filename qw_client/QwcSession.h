@@ -1,22 +1,47 @@
 #ifndef QWCSESSION_H
 #define QWCSESSION_H
 
-#include <QObject>
-#include <QStackedLayout>
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
 
-#include "QwcChatWidget.h"
-#include "QwcConnectWidget.h"
-#include "QwcConnectionMainWindow.h"
-#include "QwcNewsWidget.h"
-#include "QwcPreferencesWidget.h"
-#include "QwcConnectWidget.h"
-#include "QwcFiletransferWidget.h"
-#include "QwcAccountsWidget.h"
-#include "QwcServerInfoWidget.h"
-#include "QwcPrivateMessager.h"
-#include "QwcUserInfoWidget.h"
+#include <QtGui/QTabWidget>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QMenu>
+
+#include <QtNetwork/QAbstractSocket>
+
+
+//#include <QtQStackedLayout>
+
+//#include "QwcChatWidget.h"
+//#include "QwcConnectWidget.h"
+//#include "QwcConnectionMainWindow.h"
+//#include "QwcNewsWidget.h"
+//#include "QwcPreferencesWidget.h"
+//#include "QwcConnectWidget.h"
+//#include "QwcFiletransferWidget.h"
+//#include "QwcAccountsWidget.h"
+//#include "QwcServerInfoWidget.h"
+//#include "QwcPrivateMessager.h"
+//#include "QwcUserInfoWidget.h"
 
 class QwcSocket;
+class QwcPrivateMessager;
+class QwcConnectionMainWindow;
+class QwcConnectWidget;
+class QwcChatWidget;
+class QwcNewsWidget;
+class QwcServerInfoWidget;
+class QwcPreferencesWidget;
+class QwcFiletransferWidget;
+class QwcAccountsWidget;
+class QwcUserInfoWidget;
+
+#include "QwGlobals.h"
+#include "QwcUserInfo.h"
+#include "QwcFileInfo.h"
+#include "QwcTransferInfo.h"
+
 
 namespace Qwired {
     enum Event { ServerConnected, ServerDisconnected, ServerError, UserJoined, UserChangedNick,
@@ -131,18 +156,12 @@ public slots:
     void doActionMessages();
     void doActionServerInfo();
     void doActionNewConnection();
-    void doActionBroadcast();
     void doActionFiles(QString initialPath="/");
     void doActionPublicChat();
 
     // Toolbar handlers
     void doActionPreferences();
     void doActionTransfers();
-
-
-    void search_download_file(QString);
-    void search_reveal_file(QString);
-
 
 
     // Connect window
@@ -158,7 +177,6 @@ public slots:
     void handleServerInformation();
     void onLoginSuccessful();
 
-    void setBannerView(const QPixmap banner);
 
 
 };

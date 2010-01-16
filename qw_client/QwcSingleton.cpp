@@ -1,5 +1,6 @@
 #include "QwcSession.h"
 #include "QwcSingleton.h"
+#include "QwcConnectWidget.h"
 
 #include <QtNetwork/QNetworkProxy>
 #include <QtGui/QApplication>
@@ -17,7 +18,8 @@
 void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
-QwcSingleton::QwcSingleton(QObject *parent) : QObject(parent)
+QwcSingleton::QwcSingleton(QObject *parent)
+    : QObject(parent)
 {
     pTrayMenu = new QMenu();
 }
