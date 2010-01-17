@@ -12,7 +12,7 @@ public:
     QwsUser();
 
     void appendPrivilegeFlagsForREADUSER(QwMessage &message);
-    void setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset);
+    void setPrivilegesFromEDITUSER(const QwMessage &message, int fieldOffset);
 
     void privilegesFlags(QwMessage &message) const;
 

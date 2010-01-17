@@ -364,7 +364,7 @@ void QwsServerController::acceptSessionSslConnection()
     clientSocket->serverInfo = &serverInfo;
     clientSocket->user.pUserID = ++sessionIdCounter;
     clientSocket->setSslSocket(newSocket);
-    clientSocket->user.userIpAddress = clientSocket->socket->peerAddress().toString();
+    clientSocket->user.userIpAddress = clientSocket->m_socket->peerAddress().toString();
     clientSocket->resolveHostname();
 
     qwLog(tr("[%1] Accepted new session connection from %2")
@@ -625,7 +625,7 @@ void QwsServerController::handleUserlistRequest(const int roomId)
         int itemId = i.next();
         if (sockets.contains(itemId)) {
             QwsClientSocket *itemSocket = sockets[itemId];
-            if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
+            if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
                 // Send a user list item
                 QwMessage reply("310");
                 reply.appendArg(QByteArray::number(roomId));
@@ -647,7 +647,7 @@ void QwsServerController::handleUserlistRequest(const int roomId)
             int itemId = i.next();
             if (sockets.contains(itemId)) {
                 QwsClientSocket *itemSocket = sockets[itemId];
-                if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
+                if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
                     // Send the delayed image data
                     QwMessage reply("340");
                     reply.appendArg(QByteArray::number(itemId));
@@ -692,7 +692,7 @@ void QwsServerController::relayChatToRoom(const int roomId, const QString text, 
         int itemId = i.next();
         if (sockets.contains(itemId)) {
             QwsClientSocket *itemSocket = sockets[itemId];
-            if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
+            if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
                 itemSocket->sendMessage(reply);
             }
         }
@@ -745,7 +745,7 @@ void QwsServerController::broadcastMessage(const QwMessage message, const int ro
         int itemId = i.next();
         if (!sockets.contains(itemId)) { continue; }
         QwsClientSocket *itemSocket = sockets[itemId];
-        if (itemSocket && itemSocket->sessionState == Qws::StateActive) {
+        if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
             if (sendToSelf || itemSocket != user) {
                 itemSocket->sendMessage(message);
             }
@@ -1012,9 +1012,9 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
 
     // Add it to the temporary banlist
     if (isBan) {
-        banList.append(qMakePair(user->socket->peerAddress().toString(),
+        banList.append(qMakePair(user->m_socket->peerAddress().toString(),
                                  QDateTime::currentDateTime().addSecs(60 * 30))); // 30 minutes
-        qDebug() << this << "Adding address to banlist:" << user->socket->peerAddress().toString() << "till" << QDateTime::currentDateTime().addSecs(60);
+        qDebug() << this << "Adding address to banlist:" << user->m_socket->peerAddress().toString() << "till" << QDateTime::currentDateTime().addSecs(60);
     }
 
     // Now do the justice

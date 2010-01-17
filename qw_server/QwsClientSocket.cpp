@@ -29,11 +29,8 @@ QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
 {
     qRegisterMetaType<QwMessage>();
 
-    connect(this, SIGNAL(messageReceived(QwMessage)),
-            this, SLOT(handleIncomingMessage(QwMessage)), Qt::QueuedConnection);
-
     // A new socket is always in teh inactive state.
-    sessionState = Qws::StateInactive;
+    m_sessionState = Qws::StateInactive;
 
     serverInfo = NULL;
 
@@ -117,9 +114,8 @@ void QwsClientSocket::handleHostLookupResult(QHostInfo hostInfo)
     to emit a simple signal. This makes it easier to implement command checks and other things
     later on.
 */
-void QwsClientSocket::handleIncomingMessage(QwMessage message)
+void QwsClientSocket::handleMessageReceived(const QwMessage &message)
 {
-     qDebug() << "RECEIVED:" << message.commandName << message.arguments;
 
      // Handshaking/Protocol
      if (message.commandName == "HELLO") {             handleMessageHELLO(message);
@@ -184,19 +180,19 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
  /*! HELLO command (Handshake request)
  */
- void QwsClientSocket::handleMessageHELLO(QwMessage &message)
+ void QwsClientSocket::handleMessageHELLO(const QwMessage &message)
  {
      Q_UNUSED(message);
      qDebug() << this << "Received a HELLO handshake request.";
-     sessionState = Qws::StateConnected;
-     emit sessionStateChanged(sessionState);
+     m_sessionState = Qws::StateConnected;
+     emit sessionStateChanged(m_sessionState);
      sendServerInfo();
  }
 
 
  /*! CLIENT command (Client software version and name)
  */
- void QwsClientSocket::handleMessageCLIENT(QwMessage &message)
+ void QwsClientSocket::handleMessageCLIENT(const QwMessage &message)
  {
      qDebug() << this << "Received client information.";
      user.pClientVersion = message.stringArg(0);
@@ -205,12 +201,12 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
  /*! NICK command (User nickname)
  */
- void QwsClientSocket::handleMessageNICK(QwMessage &message)
+ void QwsClientSocket::handleMessageNICK(const QwMessage &message)
  {
      resetIdleTimer();
      qDebug() << this << "Received user nickname.";
      user.userNickname = message.stringArg(0);
-     if (sessionState == Qws::StateActive) {
+     if (m_sessionState == Qws::StateActive) {
          emit userStatusChanged();
      }
 
@@ -221,9 +217,9 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
      authentication and causes the server to check the password and login, also load the specific
      account information from the database and tell all other clients that a user has logged in.
  */
- void QwsClientSocket::handleMessagePASS(QwMessage &message)
+ void QwsClientSocket::handleMessagePASS(const QwMessage &message)
  {
-     if (sessionState == Qws::StateConnected && !user.userNickname.isEmpty()) {
+     if (m_sessionState == Qws::StateConnected && !user.userNickname.isEmpty()) {
          // We need a handshake first and a nickname. Send the client the session id of its own
          // session and proceed.
          user.pPassword = message.stringArg(0);
@@ -250,8 +246,8 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
                  QwMessage reply("201");
                  reply.appendArg(QString::number(user.pUserID));
                  sendMessage(reply);
-                 sessionState = Qws::StateActive;
-                 emit sessionStateChanged(sessionState);
+                 m_sessionState = Qws::StateActive;
+                 emit sessionStateChanged(m_sessionState);
                  emit requestedRoomTopic(1);
                  return;
              }
@@ -267,7 +263,7 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
  /*! USER command (User login name)
  */
- void QwsClientSocket::handleMessageUSER(QwMessage &message)
+ void QwsClientSocket::handleMessageUSER(const QwMessage &message)
  {
      user.name = message.stringArg(0);
      if (user.name.isEmpty()) {
@@ -280,7 +276,7 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
  /*! PING command (Keep-alive request)
  */
- void QwsClientSocket::handleMessagePING(QwMessage &message)
+ void QwsClientSocket::handleMessagePING(const QwMessage &message)
  {
      Q_UNUSED(message);
      sendMessage(QwMessage("202 Pong"));
@@ -289,12 +285,12 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
  /*! STATUS command (Keep-alive request)
  */
- void QwsClientSocket::handleMessageSTATUS(QwMessage &message)
+ void QwsClientSocket::handleMessageSTATUS(const QwMessage &message)
  {
      resetIdleTimer();
      qDebug() << this << "Received user status:" << message.stringArg(0);
      user.userStatus = message.stringArg(0);
-     if (sessionState == Qws::StateActive) {
+     if (m_sessionState == Qws::StateActive) {
          emit userStatusChanged();
      }
  }
@@ -302,7 +298,7 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
  /*! WHO command (User list request)
  */
- void QwsClientSocket::handleMessageWHO(QwMessage &message)
+ void QwsClientSocket::handleMessageWHO(const QwMessage &message)
  {
      int roomId = message.stringArg(0).toInt();
      qDebug() << this << "Requested user list for room #" << roomId;
@@ -312,13 +308,13 @@ void QwsClientSocket::handleIncomingMessage(QwMessage message)
 
 /*! ICON command (Set user icon)
 */
-void QwsClientSocket::handleMessageICON(QwMessage &message)
+void QwsClientSocket::handleMessageICON(const QwMessage &message)
 {
     resetIdleTimer();
     qDebug() << this << "Received icon and image";
     if (user.pIcon != message.stringArg(0).toInt()) {
         user.pIcon = message.stringArg(0).toInt();
-        if (sessionState == Qws::StateActive) {
+        if (m_sessionState == Qws::StateActive) {
             emit userStatusChanged();
         }
     }
@@ -329,7 +325,7 @@ void QwsClientSocket::handleMessageICON(QwMessage &message)
         QwMessage reply("340");
         reply.appendArg(QString::number(user.pUserID));
         reply.appendArg(message.arguments.value(1));
-        if (sessionState == Qws::StateActive) {
+        if (m_sessionState == Qws::StateActive) {
             emit broadcastedMessage(reply, 1, true);
         }
     }
@@ -339,7 +335,7 @@ void QwsClientSocket::handleMessageICON(QwMessage &message)
 
 /*! BANNER command (banner data request)
 */
-void QwsClientSocket::handleMessageBANNER(QwMessage &message)
+void QwsClientSocket::handleMessageBANNER(const QwMessage &message)
 {
     Q_UNUSED(message);
     QSqlQuery query("SELECT conf_value FROM qws_config WHERE conf_key='server/banner'");
@@ -358,7 +354,7 @@ void QwsClientSocket::handleMessageBANNER(QwMessage &message)
 
 /*! INFO command (Get user info)
 */
-void QwsClientSocket::handleMessageINFO(QwMessage &message)
+void QwsClientSocket::handleMessageINFO(const QwMessage &message)
 {
     if (!user.privileges().testFlag(Qws::PrivilegeGetUserInfo)) { sendError(Qw::ErrorPermissionDenied); return; }
     emit receivedMessageINFO(message.stringArg(0).toInt());
@@ -367,7 +363,7 @@ void QwsClientSocket::handleMessageINFO(QwMessage &message)
 
 /*! PRIVILEGES command (get privileges mask)
 */
-void QwsClientSocket::handleMessagePRIVILEGES(QwMessage &message)
+void QwsClientSocket::handleMessagePRIVILEGES(const QwMessage &message)
 {
     Q_UNUSED(message);
     QwMessage reply("602");
@@ -381,7 +377,7 @@ void QwsClientSocket::handleMessagePRIVILEGES(QwMessage &message)
 
 /*! SAY command (Relay chat to room)
 */
-void QwsClientSocket::handleMessageSAY(QwMessage &message)
+void QwsClientSocket::handleMessageSAY(const QwMessage &message)
 {
     resetIdleTimer();
     emit requestedChatRelay(message.stringArg(0).toInt(), message.stringArg(1), false);
@@ -390,7 +386,7 @@ void QwsClientSocket::handleMessageSAY(QwMessage &message)
 
 /*! ME command (Relay chat to room as emote)
 */
- void QwsClientSocket::handleMessageME(QwMessage &message)
+ void QwsClientSocket::handleMessageME(const QwMessage &message)
 {
      resetIdleTimer();
      emit requestedChatRelay(message.stringArg(0).toInt(), message.stringArg(1), true);
@@ -399,7 +395,7 @@ void QwsClientSocket::handleMessageSAY(QwMessage &message)
 
 /*! MSG command (Relay private message to other user)
 */
-void QwsClientSocket::handleMessageMSG(QwMessage &message)
+void QwsClientSocket::handleMessageMSG(const QwMessage &message)
 {
     resetIdleTimer();
     emit requestedMessageRelay(message.stringArg(0).toInt(), message.stringArg(1));
@@ -408,7 +404,7 @@ void QwsClientSocket::handleMessageMSG(QwMessage &message)
 
 /*! BROADCAST command (Relay broadcast message to other users)
 */
-void QwsClientSocket::handleMessageBROADCAST(QwMessage &message)
+void QwsClientSocket::handleMessageBROADCAST(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeSendBroadcast)) {
@@ -422,7 +418,7 @@ void QwsClientSocket::handleMessageBROADCAST(QwMessage &message)
 
 /*! TOPIC command (Change topic of chat)
 */
-void QwsClientSocket::handleMessageTOPIC(QwMessage &message)
+void QwsClientSocket::handleMessageTOPIC(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeChangeChatTopic)) {
@@ -433,7 +429,7 @@ void QwsClientSocket::handleMessageTOPIC(QwMessage &message)
 
 /*! PRIVCHAT command (Create a new chat room)
 */
-void QwsClientSocket::handleMessagePRIVCHAT(QwMessage &message)
+void QwsClientSocket::handleMessagePRIVCHAT(const QwMessage &message)
 {
     Q_UNUSED(message);
     qDebug() << this << "Requested new chat room";
@@ -447,7 +443,7 @@ void QwsClientSocket::handleMessagePRIVCHAT(QwMessage &message)
     and automatically adds the inviting user to the room. After that it returns the ID of the
     new room and expects the user to send an INVITE command for another user(s).
 */
-void QwsClientSocket::handleMessageINVITE(QwMessage &message)
+void QwsClientSocket::handleMessageINVITE(const QwMessage &message)
 {
     qDebug() << this << "Invited user to chat room" << message.stringArg(0);
     resetIdleTimer();
@@ -458,7 +454,7 @@ void QwsClientSocket::handleMessageINVITE(QwMessage &message)
 
 /*! JOIN command (Join a previously invited room)
 */
-void QwsClientSocket::handleMessageJOIN(QwMessage &message)
+void QwsClientSocket::handleMessageJOIN(const QwMessage &message)
 {
     qDebug() << this << "Joining chat room" << message.stringArg(0);
     resetIdleTimer();
@@ -468,7 +464,7 @@ void QwsClientSocket::handleMessageJOIN(QwMessage &message)
 
 /*! The user has declined an invitation to a private chat (0).
 */
-void QwsClientSocket::handleMessageDECLINE(QwMessage &message)
+void QwsClientSocket::handleMessageDECLINE(const QwMessage &message)
 {
     qDebug() << this << "Declined room invitation" << message.stringArg(0);
     resetIdleTimer();
@@ -478,7 +474,7 @@ void QwsClientSocket::handleMessageDECLINE(QwMessage &message)
 
 /*! The user has left a chat room.
 */
-void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
+void QwsClientSocket::handleMessageLEAVE(const QwMessage &message)
 {
     qDebug() << this << "Left room" << message.stringArg(0);
     resetIdleTimer();
@@ -490,7 +486,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 
  /*! NEWS command (News list request)
  */
- void QwsClientSocket::handleMessageNEWS(QwMessage &message)
+ void QwsClientSocket::handleMessageNEWS(const QwMessage &message)
  {
      Q_UNUSED(message);
      qDebug() << this << "Requested news";
@@ -515,7 +511,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 
  /*! POST command (News list request)
  */
- void QwsClientSocket::handleMessagePOST(QwMessage &message)
+ void QwsClientSocket::handleMessagePOST(const QwMessage &message)
  {
      resetIdleTimer();
      if (!user.privileges().testFlag(Qws::PrivilegePostNews)) {
@@ -546,7 +542,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 
  /*! CLEARNEWS command (clear news list request)
  */
- void QwsClientSocket::handleMessageCLEARNEWS(QwMessage &message)
+ void QwsClientSocket::handleMessageCLEARNEWS(const QwMessage &message)
  {
      Q_UNUSED(message);
      resetIdleTimer();
@@ -568,7 +564,7 @@ void QwsClientSocket::handleMessageLEAVE(QwMessage &message)
 
 /*! BAN (ban user from server)
 */
-void QwsClientSocket::handleMessageBAN(QwMessage &message)
+void QwsClientSocket::handleMessageBAN(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeBanUsers)) {
@@ -580,7 +576,7 @@ void QwsClientSocket::handleMessageBAN(QwMessage &message)
 
 /*! KICK (user from server) - same as ban without the ban
 */
-void QwsClientSocket::handleMessageKICK(QwMessage &message)
+void QwsClientSocket::handleMessageKICK(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeKickUsers)) {
@@ -592,7 +588,7 @@ void QwsClientSocket::handleMessageKICK(QwMessage &message)
 
 /*! USERS (list user accounts)
 */
-void QwsClientSocket::handleMessageUSERS(QwMessage &message)
+void QwsClientSocket::handleMessageUSERS(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
@@ -624,7 +620,7 @@ void QwsClientSocket::handleMessageUSERS(QwMessage &message)
 
 /*! GROUPS (list user accounts)
 */
-void QwsClientSocket::handleMessageGROUPS(QwMessage &message)
+void QwsClientSocket::handleMessageGROUPS(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
@@ -656,7 +652,7 @@ void QwsClientSocket::handleMessageGROUPS(QwMessage &message)
 
 /*! READUSER (requested details of user account)
 */
-void QwsClientSocket::handleMessageREADUSER(QwMessage &message)
+void QwsClientSocket::handleMessageREADUSER(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
@@ -680,7 +676,7 @@ void QwsClientSocket::handleMessageREADUSER(QwMessage &message)
 
 /*! EDITUSER (write changes to user account)
 */
-void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
+void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
@@ -708,7 +704,7 @@ void QwsClientSocket::handleMessageEDITUSER(QwMessage &message)
 
 /*! CREATEUSER (create a new account)
 */
-void QwsClientSocket::handleMessageCREATEUSER(QwMessage &message)
+void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeCreateAccounts)) {
@@ -737,7 +733,7 @@ void QwsClientSocket::handleMessageCREATEUSER(QwMessage &message)
 
 /*! DELETEUSER (delete user account)
 */
-void QwsClientSocket::handleMessageDELETEUSER(QwMessage &message)
+void QwsClientSocket::handleMessageDELETEUSER(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
@@ -754,7 +750,7 @@ void QwsClientSocket::handleMessageDELETEUSER(QwMessage &message)
 
 /*! READGROUP (requested details of user group)
 */
-void QwsClientSocket::handleMessageREADGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageREADGROUP(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
@@ -777,7 +773,7 @@ void QwsClientSocket::handleMessageREADGROUP(QwMessage &message)
 
 /*! CREATEGROUP (create a new group)
 */
-void QwsClientSocket::handleMessageCREATEGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageCREATEGROUP(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeCreateAccounts)) {
@@ -807,7 +803,7 @@ void QwsClientSocket::handleMessageCREATEGROUP(QwMessage &message)
 
 /*! EDITGROUP (write changes to user group)
 */
-void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageEDITGROUP(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
@@ -831,7 +827,7 @@ void QwsClientSocket::handleMessageEDITGROUP(QwMessage &message)
 
 /*! DELETEGROUP (delete user group)
 */
-void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
+void QwsClientSocket::handleMessageDELETEGROUP(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
@@ -850,7 +846,7 @@ void QwsClientSocket::handleMessageDELETEGROUP(QwMessage &message)
 
 /*! LIST (list files)
 */
-void QwsClientSocket::handleMessageLIST(QwMessage &message)
+void QwsClientSocket::handleMessageLIST(const QwMessage &message)
 {
     resetIdleTimer();
 
@@ -919,7 +915,7 @@ void QwsClientSocket::handleMessageLIST(QwMessage &message)
 
 /*! LISTRECURSIVE (list files recursively)
 */
-void QwsClientSocket::handleMessageLISTRECURSIVE(QwMessage &message)
+void QwsClientSocket::handleMessageLISTRECURSIVE(const QwMessage &message)
 {
     resetIdleTimer();
     QwsFile targetDirectory;
@@ -990,7 +986,7 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(QwMessage &message)
 
 /*! STAT (return file/dir information)
 */
-void QwsClientSocket::handleMessageSTAT(QwMessage &message)
+void QwsClientSocket::handleMessageSTAT(const QwMessage &message)
 {
     QwsFile targetFile;
     targetFile.localFilesRoot = filesRootPath;
@@ -1019,7 +1015,7 @@ void QwsClientSocket::handleMessageSTAT(QwMessage &message)
 
 /*! FOLDER (create a directory/folder)
 */
-void QwsClientSocket::handleMessageFOLDER(QwMessage &message)
+void QwsClientSocket::handleMessageFOLDER(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeCreateFolders)) {
@@ -1050,7 +1046,7 @@ void QwsClientSocket::handleMessageFOLDER(QwMessage &message)
 
 /*! DELETE (delete a file/folder)
 */
-void QwsClientSocket::handleMessageDELETE(QwMessage &message)
+void QwsClientSocket::handleMessageDELETE(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeDeleteFiles)) {
@@ -1123,7 +1119,7 @@ void QwsClientSocket::deleteDirRecursive(QString pathToDir)
 
 /*! MOVE - move a file or directory to another directory
 */
-void QwsClientSocket::handleMessageMOVE(QwMessage &message)
+void QwsClientSocket::handleMessageMOVE(const QwMessage &message)
 {
     resetIdleTimer();
 
@@ -1166,7 +1162,7 @@ void QwsClientSocket::handleMessageMOVE(QwMessage &message)
 
 /*! GET - Download file from server
 */
-void QwsClientSocket::handleMessageGET(QwMessage &message)
+void QwsClientSocket::handleMessageGET(const QwMessage &message)
 {
     QwsFile targetFile;
     targetFile.localFilesRoot = filesRootPath;
@@ -1182,7 +1178,7 @@ void QwsClientSocket::handleMessageGET(QwMessage &message)
 
 /*! PUT - Upload a file to the server
 */
-void QwsClientSocket::handleMessagePUT(QwMessage &message)
+void QwsClientSocket::handleMessagePUT(const QwMessage &message)
 {
     QString targetFileName = message.stringArg(0);
     qint64 targetFileSize = message.stringArg(1).toLongLong();
@@ -1261,7 +1257,7 @@ void QwsClientSocket::handleMessagePUT(QwMessage &message)
 
 /*! SEARCH - Search for files on the server.
 */
-void QwsClientSocket::handleMessageSEARCH(QwMessage &message)
+void QwsClientSocket::handleMessageSEARCH(const QwMessage &message)
 {
     QString searchTerm = message.stringArg(0);
     searchTerm.remove("%");
@@ -1298,7 +1294,7 @@ void QwsClientSocket::handleMessageSEARCH(QwMessage &message)
 
 /*! COMMENT - Set a comment on a file or directory
 */
-void QwsClientSocket::handleMessageCOMMENT(QwMessage &message)
+void QwsClientSocket::handleMessageCOMMENT(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeAlterFiles)) {
@@ -1322,7 +1318,7 @@ void QwsClientSocket::handleMessageCOMMENT(QwMessage &message)
 
 /*! TYPE - Set the type of a file (more commonly of a directory)
 */
-void QwsClientSocket::handleMessageTYPE(QwMessage &message)
+void QwsClientSocket::handleMessageTYPE(const QwMessage &message)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeAlterFiles)) {

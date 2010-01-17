@@ -1,22 +1,13 @@
 #include "QwcSocket.h"
 #include "QwcGlobals.h"
 
-#include <QProcess>
-#include <QBuffer>
-#include <QDirIterator>
+#include <QtCore/QBuffer>
+#include <QtCore/QProcess>
 
 
-/*! \class QwcSocket
-    \author Bastian Bense <bastibense@gmail.com>
-    \date 2009-03-06
-    \brief This class implements the basic protocol and state handling for the client.
-*/
-
-QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
+QwcSocket::QwcSocket(QObject *parent) :
+        QwSocket(parent)
 {
-    connect(this, SIGNAL(messageReceived(QwMessage)),
-            this, SLOT(handleMessageReceived(QwMessage)));
-
     // Initialize the SSL socket
     QSslSocket *newSocket = new QSslSocket(this);
     newSocket->setProtocol(QSsl::TlsV1);
@@ -36,12 +27,6 @@ QwcSocket::QwcSocket(QObject *parent) : QwSocket(parent)
     m_invitedUserId = 0;
 
     pingTimerId = startTimer(60000); // 1 minute
-
-    // Set the default download directory.
-    defaultDownloadDirectory = QDir::homePath();
-#ifdef Q_WS_MAC
-    defaultDownloadDirectory = QDir::home().absoluteFilePath("Downloads");
-#endif
 
 }
 
@@ -730,9 +715,9 @@ void QwcSocket::handleMessage421(const QwMessage &message)
 void QwcSocket::handleMessage5xx(const int &errorId)
 {
     if (errorId == Qw::ErrorLoginFailed) {
-        socket->disconnectFromHost();
+        m_socket->disconnectFromHost();
     } else if (errorId == Qw::ErrorBanned) {
-        socket->disconnectFromHost();
+        m_socket->disconnectFromHost();
     }
     emit protocolError((Qw::ProtocolError)errorId);
 }
@@ -827,7 +812,7 @@ void QwcSocket::connectToServer(const QString &hostName, int port)
         m_serverPort = port;
         m_serverAddress = hostName;
     }
-    socket->connectToHostEncrypted(m_serverAddress, m_serverPort);
+    m_socket->connectToHostEncrypted(m_serverAddress, m_serverPort);
 }
 
 
@@ -835,7 +820,7 @@ void QwcSocket::connectToServer(const QString &hostName, int port)
 */
 void QwcSocket::disconnectFromServer()
 {
-    socket->disconnectFromHost();
+    m_socket->disconnectFromHost();
     m_groupListingCache.clear();
     m_accountListingCache.clear();
     m_invitedUserId = 0;
@@ -911,7 +896,7 @@ void QwcSocket::handleSocketConnected()
 void QwcSocket::handleSocketConnectionLost()
 {
     disconnectFromServer();
-    socket->disconnectFromHost();
+    m_socket->disconnectFromHost();
 }
 
 
@@ -1412,18 +1397,6 @@ void QwcSocket::checkTransferQueue()
 }
 
 
-/*! Clear all transfers and stop them. */
-void QwcSocket::cleanTransfers()
-{
-    foreach (QwcTransferSocket *transfer, m_transfers) {
-        if (!transfer) { continue; }
-        transfer->stopTransfer();
-        transfer->deleteLater();
-    }
-    m_transfers.clear();
-}
-
-
 /*! We'z got to tranzlate that crap. */
 QString QwcSocket::tranzlate(QString theText)
 {
@@ -1507,7 +1480,7 @@ void QwcSocket::timerEvent(QTimerEvent *event)
 {
     if (!event) { return; }
     if (event->timerId() == pingTimerId
-        && socket->state() == QAbstractSocket::ConnectedState) {
+        && m_socket->state() == QAbstractSocket::ConnectedState) {
         sendPing();
     }
 }

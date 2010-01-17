@@ -316,7 +316,7 @@ void QwsUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
 
 /*! This method sets the user privilege flags from the contents of the EDITUSER message.
 */
-void QwsUser::setPrivilegesFromEDITUSER(QwMessage &message, int fieldOffset)
+void QwsUser::setPrivilegesFromEDITUSER(const QwMessage &message, int fieldOffset)
 {
     // About fieldOffset:
     //    For EDITUSER we should skip 3 fields
