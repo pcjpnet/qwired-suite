@@ -91,8 +91,8 @@ void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
     infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
     infoSize->setText(tr("%1 (%2)").arg(QwcFileInfo::humanReadableSize(file.size)).arg(file.size));
     infoPath->setText(file.path);
-    infoModified->setText(file.modified.toString());
-    infoCreated->setText(file.created.toString());
+    infoModified->setText(file.modified.toString(Qt::SystemLocaleShortDate));
+    infoCreated->setText(file.created.toString(Qt::SystemLocaleShortDate));
     infoChecksum->setText(file.checksum);
     infoComment->setText(file.comment);
 
@@ -143,7 +143,7 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     columns << newItem;
 
     newItem = new QStandardItem(); // Date
-    newItem->setText(item.modified.toString());
+    newItem->setText(item.modified.toString(Qt::SystemLocaleShortDate));
     newItem->setData(item.modified, Qt::UserRole + 1); // sort role
     columns << newItem;
 
