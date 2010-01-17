@@ -14,6 +14,7 @@
 #include "QwcFiletransferWidget.h"
 
 #include <QtGui/QMessageBox>
+#include <QtGui/QSound>
 #include <QtCore/QProcess>
 
 QwcSession::QwcSession(QObject *parent) :
@@ -560,9 +561,9 @@ void QwcSession::triggerEvent(QString event, QStringList params)
     }
 
     // Play sound
-//    if(conf.contains(QString("events/%1/sound").arg(event)) ) {
-//        QSound::play(conf.value(QString("events/%1/sound").arg(event)).toString());
-//    }
+    if(conf.contains(QString("events/%1/sound").arg(event)) ) {
+        QSound::play(conf.value(QString("events/%1/sound").arg(event)).toString());
+    }
 
     // Execute a system command
     if(conf.value(QString("events/%1/syscmd_enabled").arg(event), false).toBool()) {
