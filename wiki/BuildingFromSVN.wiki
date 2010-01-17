@@ -3,14 +3,14 @@
 
 =Building the latest Qwired Snapshot from SVN=
 
-*If you just want to test the latest changes and features, you can simply downloads a pre-compiled nightly build for your platform at [http://qwired.neo.de/nightlies/]!*
+==If you just want to test the latest changes and features, you can simply downloads a pre-compiled nightly build for your platform at [http://qwired.neo.de/nightlies/]!==
 
 ----
 
 ==Installing SVN and Checking out Qwired==
-In order to compile Qwired, you have to check out the latest source code from the Subversion/SVN tree. This might look rather complex at first but really is the most easy way to stay up to date.
+In order to compile Qwired, you have to check out the latest source code from the Subversion/SVN tree.
 
-===Linux/Ubuntu 7.10, 8.04, 8.10, 9.04, 9.10===
+===Linux/Ubuntu===
 
 Subversion is provided in the standard repositories.
 
@@ -40,7 +40,7 @@ To check out the source under Windows, you have to install a small SVN client. T
  # Right click on the new folder and select "SVN Checkout..." from the context menu.
  # In the check out window enter the URL: `http://qwired-suite.googlecode.com/svn/trunk/`
  # Click "OK"
- # If you do not have OpenSSL installed already (Microsoft thought it would be a good idea to NOT ship it with Windows), download and install it (around 1MB) from http://www.slproweb.com/download/Win32OpenSSL_Light-0_9_8g.exe
+ # If you do not have OpenSSL installed already (Microsoft thought it would be a good idea to NOT ship it with Windows), download and install it (around 1MB) from http://www.slproweb.com/download/Win32OpenSSL_Light-0_9_8l.exe
 
 The checkout process might take a short while because it has to download all the sources from the SVN server. The checkout has to be done only once.
 
@@ -63,11 +63,12 @@ Checking out the source code will take some time, get yourself a bowl of milk an
 ----
 
 ==Compiling==
-===Linux/Ubuntu 7.10 (or later)===
-Installation on Ubuntu is trivial, most tools required to build Qwired are provided by the package repositories.
+===Linux (Ubuntu >=9.10)===
+Installation on Ubuntu is trivial, most tools required to build Qwired are provided by the package repositories. We need libgstreamer in order to build in support for media (notification sounds, etc.).
+
+Unfortunately Ubuntu 9.10 does not ship with Qt 4.6. You have to build it yourself (with Phonon and WebKit support).
 
  # Open a terminal and execute:
- # `apt-get install libqt4-core libqt4-gui subversion`
  # See Installing SVN and Checking out Qwired
  # `cd ~/qwired-suite/`
  # `qmake`
