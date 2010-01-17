@@ -35,13 +35,6 @@ public:
     const QHash<int, QwRoom> & chatRooms() const;
     const QHash<int, QwcUserInfo> & users() const;
 
-
-
-
-
-    /*! Contains the default directory where downloads should go to. (Default: ~) */
-    QString defaultDownloadDirectory;
-
     // User Information
     void setNickname(QString);
     void setUserAccount(QString, QString);
@@ -121,11 +114,6 @@ private slots:
     // Connection
     void handleSocketConnected();
     void handleSocketConnectionLost();
-
-
-
-
-    void cleanTransfers();
 
 
 

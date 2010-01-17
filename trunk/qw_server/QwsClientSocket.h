@@ -112,73 +112,75 @@ private slots:
 
     // TCP/IP/SSL
     void handleHostLookupResult(QHostInfo hostInfo);
-    void handleIncomingMessage(QwMessage message);
 
     // Protocol
-    void handleMessageHELLO(QwMessage &message);
-    void handleMessageCLIENT(QwMessage &message);
-    void handleMessageNICK(QwMessage &message);
-    void handleMessagePASS(QwMessage &message);
-    void handleMessageUSER(QwMessage &message);
-    void handleMessagePING(QwMessage &message);
-    void handleMessageSTATUS(QwMessage &message);
-    void handleMessageWHO(QwMessage &message);
-    void handleMessageICON(QwMessage &message);
-    void handleMessageBANNER(QwMessage &message);
-    void handleMessageINFO(QwMessage &message);
-    void handleMessagePRIVILEGES(QwMessage &message);
+    void handleMessageHELLO(const QwMessage &message);
+    void handleMessageCLIENT(const QwMessage &message);
+    void handleMessageNICK(const QwMessage &message);
+    void handleMessagePASS(const QwMessage &message);
+    void handleMessageUSER(const QwMessage &message);
+    void handleMessagePING(const QwMessage &message);
+    void handleMessageSTATUS(const QwMessage &message);
+    void handleMessageWHO(const QwMessage &message);
+    void handleMessageICON(const QwMessage &message);
+    void handleMessageBANNER(const QwMessage &message);
+    void handleMessageINFO(const QwMessage &message);
+    void handleMessagePRIVILEGES(const QwMessage &message);
 
     // Communication
-    void handleMessageSAY(QwMessage &message);
-    void handleMessageME(QwMessage &message);
-    void handleMessageMSG(QwMessage &message);
-    void handleMessageBROADCAST(QwMessage &message);
-    void handleMessageTOPIC(QwMessage &message);
-    void handleMessagePRIVCHAT(QwMessage &message);
-    void handleMessageINVITE(QwMessage &message);
-    void handleMessageJOIN(QwMessage &message);
-    void handleMessageDECLINE(QwMessage &message);
-    void handleMessageLEAVE(QwMessage &message);
+    void handleMessageSAY(const QwMessage &message);
+    void handleMessageME(const QwMessage &message);
+    void handleMessageMSG(const QwMessage &message);
+    void handleMessageBROADCAST(const QwMessage &message);
+    void handleMessageTOPIC(const QwMessage &message);
+    void handleMessagePRIVCHAT(const QwMessage &message);
+    void handleMessageINVITE(const QwMessage &message);
+    void handleMessageJOIN(const QwMessage &message);
+    void handleMessageDECLINE(const QwMessage &message);
+    void handleMessageLEAVE(const QwMessage &message);
 
     // News
-    void handleMessageNEWS(QwMessage &message);
-    void handleMessagePOST(QwMessage &message);
-    void handleMessageCLEARNEWS(QwMessage &message);
+    void handleMessageNEWS(const QwMessage &message);
+    void handleMessagePOST(const QwMessage &message);
+    void handleMessageCLEARNEWS(const QwMessage &message);
 
     // Administration
-    void handleMessageKICK(QwMessage &message);
-    void handleMessageBAN(QwMessage &message);
-    void handleMessageUSERS(QwMessage &message);
-    void handleMessageGROUPS(QwMessage &message);
-    void handleMessageREADUSER(QwMessage &message);
-    void handleMessageEDITUSER(QwMessage &message);
-    void handleMessageCREATEUSER(QwMessage &message);
-    void handleMessageDELETEUSER(QwMessage &message);
-    void handleMessageREADGROUP(QwMessage &message);
-    void handleMessageCREATEGROUP(QwMessage &message);
-    void handleMessageEDITGROUP(QwMessage &message);
-    void handleMessageDELETEGROUP(QwMessage &message);
+    void handleMessageKICK(const QwMessage &message);
+    void handleMessageBAN(const QwMessage &message);
+    void handleMessageUSERS(const QwMessage &message);
+    void handleMessageGROUPS(const QwMessage &message);
+    void handleMessageREADUSER(const QwMessage &message);
+    void handleMessageEDITUSER(const QwMessage &message);
+    void handleMessageCREATEUSER(const QwMessage &message);
+    void handleMessageDELETEUSER(const QwMessage &message);
+    void handleMessageREADGROUP(const QwMessage &message);
+    void handleMessageCREATEGROUP(const QwMessage &message);
+    void handleMessageEDITGROUP(const QwMessage &message);
+    void handleMessageDELETEGROUP(const QwMessage &message);
 
     // Files
-    void handleMessageLIST(QwMessage &message);
-    void handleMessageLISTRECURSIVE(QwMessage &message);
-    void handleMessageSTAT(QwMessage &message);
-    void handleMessageFOLDER(QwMessage &message);
-    void handleMessageDELETE(QwMessage &message);
-    void handleMessageMOVE(QwMessage &message);
-    void handleMessageGET(QwMessage &message);
-    void handleMessagePUT(QwMessage &message);
-    void handleMessageSEARCH(QwMessage &message);
-    void handleMessageCOMMENT(QwMessage &message);
-    void handleMessageTYPE(QwMessage &message);
+    void handleMessageLIST(const QwMessage &message);
+    void handleMessageLISTRECURSIVE(const QwMessage &message);
+    void handleMessageSTAT(const QwMessage &message);
+    void handleMessageFOLDER(const QwMessage &message);
+    void handleMessageDELETE(const QwMessage &message);
+    void handleMessageMOVE(const QwMessage &message);
+    void handleMessageGET(const QwMessage &message);
+    void handleMessagePUT(const QwMessage &message);
+    void handleMessageSEARCH(const QwMessage &message);
+    void handleMessageCOMMENT(const QwMessage &message);
+    void handleMessageTYPE(const QwMessage &message);
 
     void on_socket_sslErrors(const QList<QSslError> & errors);
     void on_socket_error();
 
 
-private:
+protected:
+    /*! Re-implemented from QwSocket */
+    void handleMessageReceived(const QwMessage &message);
+
     /*! Defines the current state of the session/socket. */
-    Qws::SessionState sessionState;
+    Qws::SessionState m_sessionState;
 
 
     void deleteDirRecursive(QString pathToDir);

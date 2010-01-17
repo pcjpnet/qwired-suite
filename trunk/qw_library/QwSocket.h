@@ -32,7 +32,9 @@ public:
 protected:
     /*! This property holds a pointer to the responsible (SSL) socket over which all data is to be
         sent or received. */
-    QSslSocket *socket;
+    QSslSocket *m_socket;
+
+    virtual void handleMessageReceived(const QwMessage &message) = 0;
 
 private:
     QByteArray tcpBuffer;
@@ -41,8 +43,6 @@ private slots:
     void socketDataReceived();
 
 signals:
-    /*! This signal is emitted when a new message frame has been received. */
-    void messageReceived(const QwMessage &message);
     /*! This signal is emitted when the connection to the remote peer is lost. */
     void connectionLost();
 ;

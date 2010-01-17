@@ -75,7 +75,7 @@ void QwTrackerClientSocket::handleSocketConnected()
 void QwTrackerClientSocket::handleSocketError(QAbstractSocket::SocketError error)
 {
     Q_UNUSED(error);
-    qDebug() << this << "Socket error:" << socket->errorString();
+    qDebug() << this << "Socket error:" << m_socket->errorString();
     emit socketError(error);
 }
 
@@ -88,7 +88,7 @@ void QwTrackerClientSocket::connectToTracker(const QString host, const int port)
     serverListingBuffer.clear();
 
     qDebug() << this << "Connecting to remote tracker at:" << host << port;
-    socket->connectToHostEncrypted(trackerHost, trackerPort);
+    m_socket->connectToHostEncrypted(trackerHost, trackerPort);
 }
 
 
@@ -141,7 +141,7 @@ void QwTrackerClientSocket::handleMessage700(const QwMessage &message)
     qDebug() << this << "Registration OK:" << localServerInfo->registrationHash;
     emit receivedRegistrationHash(localServerInfo->registrationHash);
 
-    socket->disconnectFromHost();
+    m_socket->disconnectFromHost();
 }
 
 /*! 710 Category Listing
@@ -194,7 +194,7 @@ void QwTrackerClientSocket::handleMessage721(const QwMessage &message)
 
     // Automatically disconnect in auto-mode
     if (autoCommand == Qw::TrackerClientAutoCommandSERVERS) {
-        socket->disconnectFromHost();
+        m_socket->disconnectFromHost();
     }
 
 }

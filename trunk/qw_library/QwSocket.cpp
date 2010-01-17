@@ -9,7 +9,7 @@
 QwSocket::QwSocket(QObject *parent) :
         QObject(parent)
 {
-    socket = NULL;
+    m_socket = NULL;
 }
 
 QwSocket::~QwSocket()
@@ -20,23 +20,20 @@ QwSocket::~QwSocket()
 */
 void QwSocket::sendMessage(const QwMessage &message)
 {
-    if (!socket) { return; }
-    if (!socket->isOpen()) { return; }
+    if (!m_socket) { return; }
+    if (!m_socket->isOpen()) { return; }
     QByteArray buffer;
     QDataStream stream(&buffer, QIODevice::WriteOnly);
     buffer += message.generateFrame();
     buffer.append('\x04');
-    socket->write(buffer);
-    socket->flush();
+    m_socket->write(buffer);
+    m_socket->flush();
 }
 
 
-/*! Return a const pointer to the underlying SSL-socket.
-*/
+/*! Return a const pointer to the underlying SSL-socket. */
 const QSslSocket* QwSocket::sslSocket() const
-{
-    return socket;
-}
+{ return m_socket; }
 
 
 /*! Attach the provided QSslSocket and connect required signals to make use of the socket. This
@@ -45,7 +42,7 @@ const QSslSocket* QwSocket::sslSocket() const
 void QwSocket::setSslSocket(QSslSocket *socket)
 {
     if (!socket) return;
-    this->socket = socket;
+    this->m_socket = socket;
     socket->setParent(this);
     connect(socket, SIGNAL(readyRead()),
             this, SLOT(socketDataReceived()), Qt::QueuedConnection );
@@ -59,11 +56,11 @@ void QwSocket::setSslSocket(QSslSocket *socket)
 */
 void QwSocket::socketDataReceived()
 {
-    tcpBuffer += socket->readAll();
+    tcpBuffer += m_socket->readAll();
 
     if ( tcpBuffer.size() > (1024 * 1024) )  {
         // Limit frame size to 1 MB
-        socket->close();
+        m_socket->close();
     }
 
     int eotIndex = tcpBuffer.indexOf('\x04');
@@ -72,7 +69,7 @@ void QwSocket::socketDataReceived()
     while (eotIndex > -1) {
         QByteArray frameData(tcpBuffer.left(eotIndex));
         tcpBuffer = tcpBuffer.mid(eotIndex+1);
-        emit messageReceived(QwMessage(frameData));
+        handleMessageReceived(QwMessage(frameData));
         eotIndex = tcpBuffer.indexOf('\x04');
     }
 }
