@@ -65,6 +65,14 @@ const QImage & QwcSocket::serverBanner() const
 int QwcSocket::pingLatency() const
 { return m_pingLatency; }
 
+/*! Returns a const reference to the list of currently used chat rooms. */
+const QHash<int, QwRoom> & QwcSocket::chatRooms() const
+{ return m_chatRooms; }
+
+/*! Returns a const reference to the list of users connected to the remote server. */
+const QHash<int, QwcUserInfo> & QwcSocket::users() const
+{ return m_users; }
+
 /*! A transfer socket has finished. Remove the socket from the list of sockets.
 */
 void QwcSocket::handleTransferDone(QwcTransferSocket *transferSocket)
@@ -281,11 +289,11 @@ void QwcSocket::handleMessage302(const QwMessage &message)
     int roomId = message.stringArg(0).toInt();
     QwcUserInfo newUser = QwcUserInfo::fromMessage310(&message);
     if (roomId == 1) {
-        users[newUser.pUserID] = newUser;
-        rooms[1].pUsers.append(newUser.pUserID);
+        m_users[newUser.pUserID] = newUser;
+        m_chatRooms[1].pUsers.append(newUser.pUserID);
     } else {
-        if (!rooms.contains(roomId)) { return; }
-        rooms[roomId].pUsers.append(newUser.pUserID);
+        if (!m_chatRooms.contains(roomId)) { return; }
+        m_chatRooms[roomId].pUsers.append(newUser.pUserID);
     }
     emit userJoinedRoom(roomId, newUser);
 }
@@ -298,11 +306,11 @@ void QwcSocket::handleMessage303(const QwMessage &message)
 {
     int roomId = message.stringArg(0).toInt();
     int userId = message.stringArg(1).toInt();
-    QwcUserInfo targetUser = users.value(userId);
-    if (!rooms.contains(roomId)) { return; }
+    QwcUserInfo targetUser = m_users.value(userId);
+    if (!m_chatRooms.contains(roomId)) { return; }
     if (roomId == 1) {
         // If the client leaves room 1, it has disconnected and should be removed from all rooms.
-        QMutableHashIterator<int, QwRoom> i(rooms);
+        QMutableHashIterator<int, QwRoom> i(m_chatRooms);
         while (i.hasNext()) {
             i.next();
             i.value().pUsers.removeAll(userId);
@@ -310,7 +318,7 @@ void QwcSocket::handleMessage303(const QwMessage &message)
         }
     } else {
         // Remove the user from a single room
-        QwRoom &targetRoom = rooms[roomId];
+        QwRoom &targetRoom = m_chatRooms[roomId];
         if (targetRoom.pUsers.contains(userId)) {
             targetRoom.pUsers.removeAll(userId);
             emit userLeftRoom(roomId, targetUser);
@@ -325,9 +333,9 @@ void QwcSocket::handleMessage303(const QwMessage &message)
 void QwcSocket::handleMessage304(const QwMessage &message)
 {
     int userId = message.stringArg(0).toInt();
-    if (!users.contains(userId)) { return; }
-    QwcUserInfo targetUserOld = users[userId];
-    QwcUserInfo &targetUser = users[userId];
+    if (!m_users.contains(userId)) { return; }
+    QwcUserInfo targetUserOld = m_users[userId];
+    QwcUserInfo &targetUser = m_users[userId];
     targetUser.pIdle = message.stringArg(1).toInt();
     targetUser.pAdmin = message.stringArg(2).toInt();
     targetUser.pIcon = message.stringArg(3).toInt();
@@ -342,7 +350,7 @@ void QwcSocket::handleMessage304(const QwMessage &message)
 */
 void QwcSocket::handleMessage305(const QwMessage &message)
 {
-    QwcUserInfo senderUser = users[message.stringArg(0).toInt()];
+    QwcUserInfo senderUser = m_users[message.stringArg(0).toInt()];
     QString text = message.stringArg(1);
     emit privateMessage(senderUser, text);
 }
@@ -353,8 +361,8 @@ void QwcSocket::handleMessage305(const QwMessage &message)
 */
 void QwcSocket::handleMessage306(const QwMessage &message)
 {
-    QwcUserInfo victim = users[message.stringArg(0).toInt()];
-    QwcUserInfo killer = users[message.stringArg(1).toInt()];
+    QwcUserInfo victim = m_users[message.stringArg(0).toInt()];
+    QwcUserInfo killer = m_users[message.stringArg(1).toInt()];
     QString reason = message.stringArg(2);
 
     // User message handler for 303 Client Left to remove the user
@@ -369,8 +377,8 @@ void QwcSocket::handleMessage306(const QwMessage &message)
 */
 void QwcSocket::handleMessage307(const QwMessage &message)
 {
-    QwcUserInfo victim = users[message.stringArg(0).toInt()];
-    QwcUserInfo killer = users[message.stringArg(1).toInt()];
+    QwcUserInfo victim = m_users[message.stringArg(0).toInt()];
+    QwcUserInfo killer = m_users[message.stringArg(1).toInt()];
     QString reason = message.stringArg(2);
 
     // User message handler for 303 Client Left to remove the user
@@ -389,7 +397,7 @@ void QwcSocket::handleMessage308(const QwMessage &message)
     A administrator sent a broadcast message. */
 void QwcSocket::handleMessage309(const QwMessage &message)
 {
-    QwcUserInfo senderUser = users[message.stringArg(0).toInt()];
+    QwcUserInfo senderUser = m_users[message.stringArg(0).toInt()];
     emit broadcastMessage(senderUser, message.stringArg(1));
 }
 
@@ -402,9 +410,9 @@ void QwcSocket::handleMessage310(const QwMessage &message)
     int roomId = message.stringArg(0).toInt();
     QwcUserInfo targetUser = QwcUserInfo::fromMessage310(&message);
     if (roomId == 1) {
-        users[targetUser.pUserID] = targetUser;
+        m_users[targetUser.pUserID] = targetUser;
     }
-    rooms[roomId].pUsers.append(targetUser.pUserID);
+    m_chatRooms[roomId].pUsers.append(targetUser.pUserID);
 }
 
 
@@ -460,7 +468,7 @@ void QwcSocket::handleMessage330(const QwMessage &message)
 
     QwRoom newRoom;
     newRoom.pChatId = roomId;
-    rooms[roomId] = newRoom;
+    m_chatRooms[roomId] = newRoom;
 
     emit privateChatCreated(roomId);
 
@@ -476,7 +484,7 @@ void QwcSocket::handleMessage330(const QwMessage &message)
 */
 void QwcSocket::handleMessage331(const QwMessage &message)
 {
-    QwcUserInfo senderUser = users[message.stringArg(1).toInt()];
+    QwcUserInfo senderUser = m_users[message.stringArg(1).toInt()];
     emit privateChatInvitation(message.stringArg(0).toInt(), senderUser);
 }
 
@@ -485,7 +493,7 @@ void QwcSocket::handleMessage331(const QwMessage &message)
 */
 void QwcSocket::handleMessage332(const QwMessage &message)
 {
-    QwcUserInfo senderUser = users[message.stringArg(1).toInt()];
+    QwcUserInfo senderUser = m_users[message.stringArg(1).toInt()];
     emit privateChatDeclined(message.stringArg(0).toInt(), senderUser);
 }
 
@@ -496,10 +504,10 @@ void QwcSocket::handleMessage332(const QwMessage &message)
 void QwcSocket::handleMessage340(const QwMessage &message)
 {
     int userId = message.stringArg(0).toInt();
-    if (!users.contains(userId)) { return; }
-    QwcUserInfo targetUserOld = users[userId];
-    users[userId].setImageFromData(QByteArray::fromBase64(message.stringArg(1).toAscii()));
-    emit userChanged(targetUserOld, users[userId]);
+    if (!m_users.contains(userId)) { return; }
+    QwcUserInfo targetUserOld = m_users[userId];
+    m_users[userId].setImageFromData(QByteArray::fromBase64(message.stringArg(1).toAscii()));
+    emit userChanged(targetUserOld, m_users[userId]);
 }
 
 
@@ -812,14 +820,14 @@ void QwcSocket::connectToServer(const QString &hostName, int port)
 {
     if (hostName.contains(":")) {
         // Port specified
-        serverAddress = hostName.section(":",0,0);
-        serverPort = hostName.section(":",1,1).toInt();
+        m_serverAddress = hostName.section(":",0,0);
+        m_serverPort = hostName.section(":",1,1).toInt();
     } else {
         // No port defined
-        serverPort = port;
-        serverAddress = hostName;
+        m_serverPort = port;
+        m_serverAddress = hostName;
     }
-    socket->connectToHostEncrypted(serverAddress, serverPort);
+    socket->connectToHostEncrypted(m_serverAddress, m_serverPort);
 }
 
 
@@ -831,8 +839,8 @@ void QwcSocket::disconnectFromServer()
     m_groupListingCache.clear();
     m_accountListingCache.clear();
     m_invitedUserId = 0;
-    users.clear();
-    rooms.clear();
+    m_users.clear();
+    m_chatRooms.clear();
 
     QMutableListIterator<QwcTransferSocket*> i(m_transfers);
     while(i.hasNext()) {
@@ -930,8 +938,8 @@ void QwcSocket::sendPrivateMessage(int userId, QString message)
 void QwcSocket::leaveChat(int roomId)
 {
     sendMessage(QwMessage("LEAVE").appendArg(QString::number(roomId)));
-    if (rooms.contains(roomId)) {
-        rooms.remove(roomId);
+    if (m_chatRooms.contains(roomId)) {
+        m_chatRooms.remove(roomId);
     }
 }
 
@@ -1103,7 +1111,7 @@ void QwcSocket::downloadFileOrFolder(QwcFileInfo fileInfo)
     connect(transferSocket, SIGNAL(fileTransferStatus(QwcTransferSocket*)),
             this, SLOT(handleTransferStatus(QwcTransferSocket*)));
 
-    transferSocket->setServer(serverAddress, serverPort);
+    transferSocket->setServer(m_serverAddress, m_serverPort);
 
     if (fileInfo.type == Qw::FileTypeDropBox
         || fileInfo.type == Qw::FileTypeFolder
@@ -1138,7 +1146,7 @@ void QwcSocket::uploadFileOrFolder(QwcFileInfo fileInfo)
             this, SLOT(handleTransferStarted(QwcTransferSocket*)));
     connect(transferSocket, SIGNAL(fileTransferStatus(QwcTransferSocket*)),
             this, SLOT(handleTransferStatus(QwcTransferSocket*)));
-    transferSocket->setServer(serverAddress, serverPort);
+    transferSocket->setServer(m_serverAddress, m_serverPort);
 
     if (fileInfo.type == Qw::FileTypeFolder) {
         transferSocket->transferInfo.folder = fileInfo;

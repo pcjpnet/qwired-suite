@@ -128,13 +128,13 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
                 }
 
                 // Get information about the current room from the socket
-                QwRoom currentRoom = m_socket->rooms[m_chatId];
+                const QwRoom &currentRoom = m_socket->chatRooms()[m_chatId];
                 QListIterator<int> i(currentRoom.pUsers);
                 while (i.hasNext()) {
                     // Now run through all user IDs registered in this room and get the proper
                     // QwcUserInfo from the socket.
                     int itemUserId = i.next();
-                    QwcUserInfo targetUser = m_socket->users[itemUserId];
+                    const QwcUserInfo &targetUser = m_socket->users()[itemUserId];
                     // Check if the nickname starts with the entered seach terms and auto-complete.
                     if (targetUser.userNickname.startsWith(searchTerm, Qt::CaseInsensitive)) {
                         if (textCursor.selectionStart() == 0) {
@@ -181,7 +181,7 @@ void QwcChatWidget::handleSocketChatMessage(int chatId, int userId, const QStrin
 {
     Q_ASSERT(m_socket);
     if (chatId != m_chatId) { return; }
-    QwcUserInfo sender = m_socket->users[userId];
+    const QwcUserInfo &sender = m_socket->users()[userId];
     writeTextToChat(sender, text, isEmote);
 }
 
@@ -336,10 +336,10 @@ void QwcChatWidget::on_btnInvite_clicked()
 {
     QMenu menu;
 
-    QwRoom publicRoom = m_socket->rooms[Qwc::PUBLIC_CHAT];
+    const QwRoom &publicRoom = m_socket->chatRooms()[Qwc::PUBLIC_CHAT];
     foreach (int id, publicRoom.pUsers) {
-        QAction *action = menu.addAction(m_socket->users[id].userNickname);
-        action->setIcon(QPixmap::fromImage(m_socket->users[id].userImage()));
+        QAction *action = menu.addAction(m_socket->users()[id].userNickname);
+        action->setIcon(QPixmap::fromImage(m_socket->users()[id].userImage()));
         action->setData(id);
     }
 

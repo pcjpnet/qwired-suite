@@ -50,7 +50,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                                 const QModelIndex &index) const
 {
     if (!index.isValid()) { return; }
-    QwcUserInfo user = m_socket->users[index.data(Qt::UserRole).toInt()];
+    const QwcUserInfo &user = m_socket->users()[index.data(Qt::UserRole).toInt()];
 
     /// Display mode: 0 = normal chat user icons, 1 = private messenger user icons with unread count
     int displayMode = 0;

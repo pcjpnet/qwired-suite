@@ -428,7 +428,7 @@ void QwcSession::handleFileInformation(QwcFileInfo file)
 */
 void QwcSession::handleSocketChatMessage(int chatId, int userId, const QString &text, bool isEmote)
 {
-    QwcUserInfo sender = m_socket->users[userId]; //socket->getUserByID(theUserID); // Find the user
+    const QwcUserInfo &sender = m_socket->users()[userId]; //socket->getUserByID(theUserID); // Find the user
 
     // Trigger the event
     QStringList eventParams;

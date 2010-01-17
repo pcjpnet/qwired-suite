@@ -1,7 +1,8 @@
 #include "QwcTransferSocket.h"
 #include <QSettings>
 
-QwcTransferSocket::QwcTransferSocket(QObject *parent) : QObject(parent)
+QwcTransferSocket::QwcTransferSocket(QObject *parent) :
+        QObject(parent)
 {
     sslSocket = NULL;
 }

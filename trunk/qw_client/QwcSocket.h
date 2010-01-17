@@ -30,21 +30,12 @@ public:
     const QwcUserInfo & sessionUser() const;
     const QwServerInfo & serverInformation() const;
     const QImage & serverBanner() const;
-
-
-
-    /*! This contains all users registered for the public user list (1). */
-    QHash<int, QwcUserInfo> users;
-    /*! A list of all currently used chat rooms. Chat rooms contain user lists and refer to them by
-        their user ID. */
-    QHash<int, QwRoom> rooms;
-
-    /*! The user entered host name of the server. */
-    QString serverAddress;
-    /*! The user entered server port. */
-    int serverPort;
-
     int pingLatency() const;
+
+    const QHash<int, QwRoom> & chatRooms() const;
+    const QHash<int, QwcUserInfo> & users() const;
+
+
 
 
 
@@ -245,6 +236,15 @@ protected:
     QImage m_serverBanner;
     QString m_clientName;
     QString m_clientVersion;
+    QString m_serverAddress;
+    int m_serverPort;
+
+    /*! A list of all currently used chat rooms. Chat rooms contain user lists and refer to them by
+        their user ID. */
+    QHash<int, QwRoom> m_chatRooms;
+
+    /*! This contains all users registered for the public user list (1). */
+    QHash<int, QwcUserInfo> m_users;
 
     // Message Handlers
     void handleMessage200(const QwMessage &message);
@@ -310,6 +310,8 @@ protected:
 
     /*! The ID of the last invited user. We have to cache this due to the lack of transactions. */
     int m_invitedUserId;
+
+
 
     /*! Contains the number of milliseconds between PING and reply commands. sendPing() has to be
         sent at least once before this value is valid.*/

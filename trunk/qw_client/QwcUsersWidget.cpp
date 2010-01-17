@@ -64,7 +64,7 @@ QList<QwcUserInfo> QwcUsersWidget::selectedUsers() const
     QList<QwcUserInfo> foundUsers;
     foreach (QListWidgetItem *item, selectedItems()) {
         if (!item) { continue; }
-        QwcUserInfo userInfo = m_socket->users[item->data(Qt::UserRole).toInt()];
+        const QwcUserInfo &userInfo = m_socket->users()[item->data(Qt::UserRole).toInt()];
         foundUsers << userInfo;
     }
     return foundUsers;
@@ -74,10 +74,10 @@ QList<QwcUserInfo> QwcUsersWidget::selectedUsers() const
 void QwcUsersWidget::updateUsers()
 {
     clear();
-    QwRoom targetRoom = m_socket->rooms[m_chatId];
+    const QwRoom &targetRoom = m_socket->chatRooms()[m_chatId];
 
     foreach (int userId, targetRoom.pUsers) {
-        QwcUserInfo userInfo = m_socket->users[userId];
+        const QwcUserInfo &userInfo = m_socket->users()[userId];
         QListWidgetItem *item = new QListWidgetItem(this);
         item->setData(Qt::UserRole, userInfo.pUserID);
     }
