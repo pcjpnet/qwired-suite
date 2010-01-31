@@ -163,9 +163,9 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
             paramItems << item->info().hash
                     << QString(item->info().type == Qw::TransferTypeDownload ? "D" : "U")
                     << QString::number(item->info().targetUserId)
-                    << item->info().file.path
+                    << item->info().file.remotePath()
                     << QString::number(item->info().bytesTransferred)
-                    << QString::number(item->info().file.size)
+                    << QString::number(item->info().file.size())
                     << QString::number(item->info().currentTransferSpeed);
             paramItems.replaceInStrings(";", ":");
             writeLine(paramItems.join(";").toUtf8());
@@ -178,9 +178,9 @@ void QwsConsoleSocket::handleClientCommand(const QString commandLine)
             QwsTransferInfo item = iq.next();
             writeLine(QString("Q;;%1;%2;%3;%4;%5")
                       .arg(item.targetUserId)
-                      .arg(item.file.path)
+                      .arg(item.file.remotePath())
                       .arg(item.bytesTransferred)
-                      .arg(item.file.size)
+                      .arg(item.file.size())
                       .arg(item.currentTransferSpeed)
                       .toUtf8());
         }

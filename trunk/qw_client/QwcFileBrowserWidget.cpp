@@ -89,8 +89,8 @@ void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
 {
     infoName->setText(file.fileName());
     infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
-    infoSize->setText(tr("%1 (%2)").arg(QwcFileInfo::humanReadableSize(file.size)).arg(file.size));
-    infoPath->setText(file.path);
+    infoSize->setText(tr("%1 (%2)").arg(QwcFileInfo::humanReadableSize(file.size())).arg(file.size()));
+    infoPath->setText(file.remotePath());
     infoModified->setText(file.modified.toString(Qt::SystemLocaleShortDate));
     infoCreated->setText(file.created.toString(Qt::SystemLocaleShortDate));
     infoChecksum->setText(file.checksum);
@@ -149,18 +149,18 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
 
     newItem = new QStandardItem(); // Size
     if (item.type == Qw::FileTypeRegular) {
-        newItem->setText(item.humanReadableSize(item.size));
+        newItem->setText(item.humanReadableSize(item.size()));
     } else {
-        newItem->setText(QString("%1 item(s)").arg(item.size));
+        newItem->setText(QString("%1 item(s)").arg(item.size()));
     }
-    newItem->setData(item.size, Qt::UserRole + 1); // sort role
+    newItem->setData(item.size(), Qt::UserRole + 1); // sort role
     columns << newItem;
 
     m_model->appendRow(columns);
 
 
     if (item.type == Qw::FileTypeRegular) {
-        m_totalUsedSpace += item.size;
+        m_totalUsedSpace += item.size();
     }
 }
 
@@ -183,9 +183,9 @@ void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace
     fList->resizeColumnToContents(0);
 
     // Set the root information as we don't get this from previous requests.
-    if (m_remotePath == "/") {
+    if (remotePath() == "/") {
         currentFolderInfo = QwcFileInfo();
-        currentFolderInfo.path = "/";
+        currentFolderInfo.setRemotePath("/");
         currentFolderInfo.type = Qw::FileTypeFolder;
     }
 
@@ -258,7 +258,7 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
         QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
         if (!firstColumnItem) { continue; }
         QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
-        m_socket->deleteFile(fileInfo.path);
+        m_socket->deleteFile(fileInfo.remotePath());
     }
 
     // Reset the file browser
@@ -352,12 +352,12 @@ void QwcFileBrowserWidget::on_btnUpload_clicked()
         QFileInfo itemInfo(itemFile);
         QwcFileInfo targetInfo;
         targetInfo.localAbsolutePath = itemFile;
-        targetInfo.path = QDir::cleanPath(currentFolderInfo.path + "/" + itemInfo.fileName());
+        targetInfo.setRemotePath(QDir::cleanPath(currentFolderInfo.remotePath() + "/" + itemInfo.fileName()));
         if (itemInfo.isDir()) {
             targetInfo.type = Qw::FileTypeFolder;
         } else {
             targetInfo.type = Qw::FileTypeRegular;
-            targetInfo.size = itemInfo.size();
+            targetInfo.setSize(itemInfo.size());
             targetInfo.updateLocalChecksum();
         }
         m_socket->uploadFileOrFolder(targetInfo);
@@ -392,9 +392,9 @@ void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
         || fileInfo.type == Qw::FileTypeFolder
         || fileInfo.type == Qw::FileTypeUploadsFolder)
     {
-        m_remotePath = fileInfo.path;
+        m_remotePath = fileInfo.remotePath();
         currentFolderInfo = fileInfo;
-        setRemotePath(fileInfo.path);
+        setRemotePath(fileInfo.remotePath());
     }
 }
 
@@ -421,7 +421,8 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
         if (!firstColumnItem) { continue; }
         QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
 
-        QDir downloadFolder(settings.value("files/download_dir", QDir::homePath()).toString());
+        QDir downloadFolder(settings.value("general/downloadLocation",
+                                           QDir::home().absoluteFilePath("Downloads")).toString());
         fileInfo.localAbsolutePath = QString("%1/%2")
                                      .arg(downloadFolder.absolutePath())
                                      .arg(fileInfo.fileName());
@@ -457,7 +458,7 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
     if (!clickedItem) { return; }
     currentFileInfo = clickedItem->data(Qt::UserRole).value<QwcFileInfo>();
 
-    m_socket->getFileInformation(currentFileInfo.path);
+    m_socket->getFileInformation(currentFileInfo.remotePath());
     stackedWidget->setCurrentWidget(pageInfo);
     pageInfo->setEnabled(false);
 }
@@ -503,18 +504,18 @@ void QwcFileBrowserWidget::on_btnInfoApply_clicked()
     newInfo.comment = infoComment->toPlainText();
 
     // Replace all slashes to prevent corrupted names
-    newInfo.path = currentFileInfo.directoryPath() + infoName->text().replace("/", "_");
+    newInfo.setRemotePath(currentFileInfo.directoryPath() + infoName->text().replace("/", "_"));
 
     if (currentFileInfo.comment != newInfo.comment) {
-        m_socket->setFileComment(newInfo.path, newInfo.comment);
+        m_socket->setFileComment(newInfo.remotePath(), newInfo.comment);
     }
 
-    if (currentFileInfo.path != newInfo.path) {
-        m_socket->moveFile(currentFileInfo.path, newInfo.path);
+    if (currentFileInfo.remotePath() != newInfo.remotePath()) {
+        m_socket->moveFile(currentFileInfo.remotePath(), newInfo.remotePath());
     }
 
     resetForListing();
-    m_socket->getFileList(currentFolderInfo.path);
+    m_socket->getFileList(currentFolderInfo.remotePath());
     stackedWidget->setCurrentWidget(pageBrowser);
 }
 

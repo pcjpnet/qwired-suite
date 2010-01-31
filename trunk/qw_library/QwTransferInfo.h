@@ -24,7 +24,7 @@ namespace Qw {
         TransferInfoStateQueued,
         /*! The transfer info is waiting to be accepted by the client (waiting for transfer connection).
             On the client this means that a STAT has been requested. */
-        TransferInfoStateWaiting,
+        TransferInfoStateRequested,
         /*! The transfer is active and running. (not used in the server!)
             This might indicate that the client is receiving a recursive listing of files.
             \todo Use this state in server mode, too - currently we are using a separate socket state there. */

@@ -4,7 +4,7 @@
 QwcTransferSocket::QwcTransferSocket(QObject *parent) :
         QObject(parent)
 {
-    sslSocket = NULL;
+    m_socket = NULL;
 }
 
 
@@ -19,16 +19,16 @@ QwcTransferSocket::~QwcTransferSocket()
 void QwcTransferSocket::createNewSocket()
 {
     qDebug() << this << "Creating new SSL socket for transfer.";
-    if (sslSocket) {
-        sslSocket->deleteLater();
+    if (m_socket) {
+        m_socket->deleteLater();
     }
 
-    sslSocket = new QSslSocket(this);
-    sslSocket->setProtocol(QSsl::TlsV1);
-    sslSocket->setPeerVerifyMode(QSslSocket::QueryPeer);
-    connect(sslSocket, SIGNAL(encrypted()),
+    m_socket = new QSslSocket(this);
+    m_socket->setProtocol(QSsl::TlsV1);
+    m_socket->setPeerVerifyMode(QSslSocket::QueryPeer);
+    connect(m_socket, SIGNAL(encrypted()),
             this, SLOT(handleSocketEncrypted()));
-    connect(&transferTimer, SIGNAL(timeout()),
+    connect(&m_transferTimer, SIGNAL(timeout()),
             this, SLOT(transmitFileChunk()));
 }
 
@@ -42,14 +42,14 @@ void QwcTransferSocket::beginTransfer()
 
     emit fileTransferStarted(this);
 
-    qDebug() << this << "Connecting to remote host at" << serverHost << "port" << serverPort;
-    sslSocket->abort();
-    sslSocket->connectToHostEncrypted(serverHost, serverPort);
+    qDebug() << this << "Connecting to remote host at" << m_serverHost << "port" << m_serverPort;
+    m_socket->abort();
+    m_socket->connectToHostEncrypted(m_serverHost, m_serverPort);
 
     // Set the read buffer size to limit download speed
     if ((transferInfo.type == Qw::TransferTypeDownload || transferInfo.type == Qw::TransferTypeFolderDownload)
         && transferInfo.transferSpeedLimit > 0) {
-        sslSocket->setReadBufferSize(transferInfo.transferSpeedLimit * (float(transferTimerInterval)/1000));
+        m_socket->setReadBufferSize(transferInfo.transferSpeedLimit * (float(transferTimerInterval)/1000));
     }
 
 }
@@ -63,44 +63,44 @@ void QwcTransferSocket::handleSocketEncrypted()
 
     // First we send the TRANSFER message with the secret hash. After that data transfer immediately
     // begins.
-    sslSocket->write(QString("TRANSFER %1\x04").arg(transferInfo.hash).toAscii());
-    sslSocket->flush();
+    m_socket->write(QString("TRANSFER %1\x04").arg(transferInfo.hash).toAscii());
+    m_socket->flush();
 
     // Start the transfer timer which is responsible for sending chunks of data
     if (transferInfo.type == Qw::TransferTypeDownload || transferInfo.type == Qw::TransferTypeFolderDownload) {
-        fileReader.setFileName(transferInfo.file.localAbsolutePath);
+        m_fileReader.setFileName(transferInfo.file.localAbsolutePath);
 
         bool ok;
         if (transferInfo.bytesTransferred) {
-            ok = fileReader.open(QIODevice::WriteOnly | QIODevice::Append);
+            ok = m_fileReader.open(QIODevice::WriteOnly | QIODevice::Append);
         } else {
-            ok = fileReader.open(QIODevice::WriteOnly);
+            ok = m_fileReader.open(QIODevice::WriteOnly);
         }
 
         if (!ok) {
-            qDebug() << this << "Unable to open file for writing:" << fileReader.errorString();
+            qDebug() << this << "Unable to open file for writing:" << m_fileReader.errorString();
             stopTransfer();
             emit fileTransferError(this);
             return;
         }
 
-        transferTimer.start(transferTimerInterval);
+        m_transferTimer.start(transferTimerInterval);
 
     } else if (transferInfo.type == Qw::TransferTypeUpload
                || transferInfo.type == Qw::TransferTypeFolderUpload)
     {
-        fileReader.setFileName(transferInfo.file.localAbsolutePath);
-        if (!fileReader.open(QIODevice::ReadOnly)) {
-            qDebug() << this << "Unable to open file for reading:" << fileReader.errorString();
+        m_fileReader.setFileName(transferInfo.file.localAbsolutePath);
+        if (!m_fileReader.open(QIODevice::ReadOnly)) {
+            qDebug() << this << "Unable to open file for reading:" << m_fileReader.errorString();
             stopTransfer();
             emit fileTransferError(this);
             return;
         }
 
         // Skip to the first byte behind the already uploaded amount of data
-        fileReader.seek(transferInfo.bytesTransferred);
+        m_fileReader.seek(transferInfo.bytesTransferred);
         // Connect the signal to allow transmission of further data after a chunk is complete.
-        connect(sslSocket, SIGNAL(encryptedBytesWritten(qint64)),
+        connect(m_socket, SIGNAL(encryptedBytesWritten(qint64)),
                 this, SLOT(transmitFileChunk()));
         // Now start the transfer by calling this manually
         transmitFileChunk();
@@ -125,23 +125,23 @@ void QwcTransferSocket::transmitFileChunk()
 
 
         QByteArray dataBuffer;
-        dataBuffer.resize(sslSocket->bytesAvailable());
-        int readBytes = sslSocket->read(dataBuffer.data(), sslSocket->bytesAvailable());
+        dataBuffer.resize(m_socket->bytesAvailable());
+        int readBytes = m_socket->read(dataBuffer.data(), m_socket->bytesAvailable());
         transferInfo.bytesTransferred += readBytes;
 
-        fileReader.write(dataBuffer);
+        m_fileReader.write(dataBuffer);
 
         // Emit a update signal if we received data, or if 4 seconds have passed
-        if (readBytes > 0 || currentSpeedTimer.elapsed() > 4000) {
-            transferInfo.currentTransferSpeed = 1000.0/float(currentSpeedTimer.restart()) * readBytes;
+        if (readBytes > 0 || m_transferSpeedTimer.elapsed() > 4000) {
+            transferInfo.currentTransferSpeed = 1000.0/float(m_transferSpeedTimer.restart()) * readBytes;
             emit fileTransferStatus(this);
             qDebug() << "Downloaded" << readBytes << "bytes." << transferInfo.bytesTransferred
-                    << "of" << transferInfo.file.size << "at" << transferInfo.currentTransferSpeed;
+                    << "of" << transferInfo.file.size() << "at" << transferInfo.currentTransferSpeed;
         }
 
-        if (sslSocket->state() == QAbstractSocket::UnconnectedState) {
+        if (m_socket->state() == QAbstractSocket::UnconnectedState) {
             qDebug() << this << "Lost transfer socket connection.";
-            if (transferInfo.bytesTransferred == transferInfo.file.size) {
+            if (transferInfo.bytesTransferred == transferInfo.file.size()) {
                 qDebug() << this << "Completed download.";
                 finishTransfer();
                 return;
@@ -157,20 +157,20 @@ void QwcTransferSocket::transmitFileChunk()
     {
 
         // Return if not all data hase been written yet
-        if (sslSocket->encryptedBytesToWrite() > 0) {
+        if (m_socket->encryptedBytesToWrite() > 0) {
 //            qDebug() << this << "Returning because encryptedBytesToWrite() > 0";
             return;
         }
 
         // Also return when we have transmitted all data, but call finishTransfer() to clean up
-        if (fileReader.atEnd()) {
+        if (m_fileReader.atEnd()) {
 //            qDebug() << this << "fileReader.atEnd() toWrite:" << sslSocket->bytesToWrite() << "encToWrite:" << sslSocket->encryptedBytesToWrite();
             finishTransfer();
             return;
         }
 
         // Also return when the connection dropped or another TCP error has occurred
-        if (sslSocket->state() == QAbstractSocket::UnconnectedState) {
+        if (m_socket->state() == QAbstractSocket::UnconnectedState) {
             qDebug() << this << "Transfer socket lost connection";
             stopTransfer();
             emit fileTransferError(this);
@@ -179,13 +179,13 @@ void QwcTransferSocket::transmitFileChunk()
 
         // Otherwise we simply keep transferring more data
         QByteArray dataBuffer;
-        dataBuffer = fileReader.read(chunkSize * 2);
+        dataBuffer = m_fileReader.read(chunkSize * 2);
 
 //        qDebug() << "Transferring" << chunkSize << "(" << dataBuffer.size() << ")" << "from" << fileReader.pos();
 
-        sslSocket->write(dataBuffer);
+        m_socket->write(dataBuffer);
 
-        transferInfo.currentTransferSpeed = float(1000/qMax(1,currentSpeedTimer.restart())) * chunkSize;
+        transferInfo.currentTransferSpeed = float(1000/qMax(1,m_transferSpeedTimer.restart())) * chunkSize;
         transferInfo.bytesTransferred += dataBuffer.size();
 
 //        qDebug() << "Transferred" << transferInfo.bytesTransferred << "of" << fileReader.size();
@@ -200,8 +200,8 @@ void QwcTransferSocket::transmitFileChunk()
 void QwcTransferSocket::stopTransfer()
 {
     qDebug() << this << "Halting transfer.";
-    transferTimer.stop();
-    sslSocket->close();
+    m_transferTimer.stop();
+    m_socket->close();
 //    emit fileTransferError(this);
 }
 
@@ -213,8 +213,8 @@ void QwcTransferSocket::stopTransfer()
 */
 bool QwcTransferSocket::prepareNextFile()
 {
-    sslSocket->close();
-    fileReader.close();
+    m_socket->close();
+    m_fileReader.close();
     if (transferInfo.recursiveFiles.isEmpty()) {
         // No more files remaining
         return false;
@@ -231,23 +231,23 @@ bool QwcTransferSocket::prepareNextFile()
 void QwcTransferSocket::finishTransfer()
 {
     qDebug() << this << "Finishing transfer.";
-    fileReader.close();
+    m_fileReader.close();
 
     // Remove the suffix from the finished file
     if (transferInfo.type == Qw::TransferTypeDownload
         || transferInfo.type == Qw::TransferTypeFolderDownload) {
-        if (fileReader.fileName().endsWith(".WiredTransfer")) {
-            QString newFileName = fileReader.fileName();
+        if (m_fileReader.fileName().endsWith(".WiredTransfer")) {
+            QString newFileName = m_fileReader.fileName();
             newFileName.chop(14);
-            fileReader.rename(newFileName);
+            m_fileReader.rename(newFileName);
             transferInfo.file.localAbsolutePath.chop(14);
         }
     }
 
-    sslSocket->flush();
-    sslSocket->disconnectFromHost();
-    sslSocket->waitForDisconnected();
-    transferTimer.stop();
+    m_socket->flush();
+    m_socket->disconnectFromHost();
+    m_socket->waitForDisconnected();
+    m_transferTimer.stop();
     transferInfo.state = Qw::TransferInfoStateNone;
     emit fileTransferDone(this);
 }
@@ -259,8 +259,8 @@ void QwcTransferSocket::finishTransfer()
 */
 void QwcTransferSocket::setServer(QString host, int port)
 {
-    serverHost = host;
-    serverPort = port+1; // n+1 for file transfers
+    m_serverHost = host;
+    m_serverPort = port+1; // n+1 for file transfers
 }
 
 

@@ -55,9 +55,9 @@ void QwcFiletransferModel::updateTransfers(const QwcTransferInfo &transfer)
         QwcTransferInfo existingTransfer = data(itemIndex, Qt::UserRole).value<QwcTransferInfo>();
 
         bool isFolderTransferAndValid = ((transfer.type == Qw::TransferTypeFolderDownload || transfer.type == Qw::TransferTypeFolderUpload)
-                                         && transfer.folder.path == existingTransfer.folder.path);
+                                         && transfer.folder.remotePath() == existingTransfer.folder.remotePath());
         bool isNormalTransferAndValid = ((transfer.type == Qw::TransferTypeDownload || transfer.type == Qw::TransferTypeUpload)
-                                         && transfer.file.path == existingTransfer.file.path);
+                                         && transfer.file.remotePath() == existingTransfer.file.remotePath());
 
         if (isFolderTransferAndValid || isNormalTransferAndValid) {
             emit dataChanged(itemIndex, itemIndex);

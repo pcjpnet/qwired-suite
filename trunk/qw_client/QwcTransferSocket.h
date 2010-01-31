@@ -39,19 +39,18 @@ private slots:
 private:
     void createNewSocket();
 
-
     /*! The real host name of the remote server. */
-    QString serverHost;
+    QString m_serverHost;
     /*! The real port of the remote server. */
-    int serverPort;
+    int m_serverPort;
     /*! A timer used to schedule the chunk transfer. */
-    QTimer transferTimer;
+    QTimer m_transferTimer;
     /*! A timer used to measure the time between data chunks. */
-    QTime currentSpeedTimer;
+    QTime m_transferSpeedTimer;
     /*! The low-level socket for data transmission. */
-    QSslSocket *sslSocket;
+    QSslSocket *m_socket;
     /*! The file writer/reader. */
-    QFile fileReader;
+    QFile m_fileReader;
 
 signals:
     /*! The connection was established and the data transfer begins. */

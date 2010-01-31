@@ -53,8 +53,8 @@ protected:
     QPointer<QwcConnectionMainWindow> m_mainWindow;
     QPointer<QwcConnectWidget> m_connectWidget;
     QPointer<QwcChatWidget> m_publicChat;
-    QPointer<QTabWidget> connectionTabWidget;
-    QPointer<QStackedWidget> connectionStackedWidget;
+    QPointer<QTabWidget> m_connectionTabWidget;
+    QPointer<QStackedWidget> m_connectionStackedWidget;
     QPointer<QwcPrivateMessager> m_privateMessagerWidget;
 
     QPointer<QwcNewsWidget> m_newsWidget;
@@ -86,7 +86,6 @@ private slots:
 
 
     void handleSocketUserlistComplete(int chatId);
-    void handlePrivateMessage(QwcUserInfo sender, QString text);
 
     void handleFileInformation(QwcFileInfo file);
 

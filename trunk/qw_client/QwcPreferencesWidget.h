@@ -29,6 +29,7 @@ private slots:
     // General
     void on_btnGeneralSetIcon_clicked();
     void on_btnGeneralDefaultIcon_clicked();
+    void on_btnTransferDownloadLocation_clicked();
 
 
     // Interface

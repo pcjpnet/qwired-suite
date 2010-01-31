@@ -6,7 +6,7 @@
 
 QwFile::QwFile()
 {
-    size = 0;
+    m_size = 0;
 }
 
 
@@ -15,7 +15,7 @@ QwFile::QwFile()
 */
 QString QwFile::fileName() const
 {
-    return path.section("/", -1);
+    return m_remotePath.section("/", -1);
 }
 
 
@@ -23,7 +23,7 @@ QString QwFile::fileName() const
 */
 QString QwFile::directoryPath() const
 {
-    return path.section("/", 0, -2, QString::SectionIncludeLeadingSep | QString::SectionIncludeTrailingSep);
+    return m_remotePath.section("/", 0, -2, QString::SectionIncludeLeadingSep | QString::SectionIncludeTrailingSep);
 }
 
 
@@ -45,6 +45,18 @@ void QwFile::updateLocalChecksum()
     qDebug() << this << "Calculated hash for file" << this->localAbsolutePath << "Bytes =" << hashData.size() << "=" << this->checksum;
 }
 
+
+QString QwFile::remotePath() const
+{ return m_remotePath; }
+
+void QwFile::setRemotePath(const QString &path)
+{ m_remotePath = path; }
+
+qint64 QwFile::size() const
+{ return m_size; }
+
+void QwFile::setSize(qint64 size)
+{ m_size = size; }
 
 /*! Returns the file sizes (data amouont) as a human readable string in bytes, kilobytes, megabytes
     and so on.

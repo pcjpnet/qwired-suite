@@ -106,6 +106,7 @@ void QwcPreferencesWidget::savePreferences()
     settings.setValue("general/language", generalLanguage->itemData(
             generalLanguage->currentIndex()).toString() );
 
+
     settings.setValue("general/downloadLocation", transferDownloadLocation->text());
     settings.setValue("general/queueTransfers", transferQueue->isChecked());
 
@@ -285,6 +286,16 @@ void QwcPreferencesWidget::on_btnGeneralSetIcon_clicked()
 void QwcPreferencesWidget::on_btnGeneralDefaultIcon_clicked()
 {
     generalIcon->setPixmap(QPixmap(":/icons/qwired_logo_32.png"));
+}
+
+
+void QwcPreferencesWidget::on_btnTransferDownloadLocation_clicked()
+{
+    QString selectedDir = QFileDialog::getExistingDirectory(this, tr("Select Download Location"),
+                                            transferDownloadLocation->text(),
+                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (selectedDir.isEmpty()) { return; }
+    transferDownloadLocation->setText(selectedDir);
 }
 
 

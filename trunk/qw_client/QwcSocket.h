@@ -287,9 +287,9 @@ protected:
 
     /*! If this member is set to true, a LISTRECURSIVE command likely has been issued and results
         are collected. */
-    bool indexingFiles;
+    bool m_indexingFilesForTransfer;
     /*! This list contains all file information items returned during recursive listing. */
-    QList<QwcFileInfo> indexingResults;
+    QList<QwcFileInfo> m_fileListingBuffer;
 
     // Buffers while receiving the list of groups and users (admin mode)
     QStringList m_groupListingCache;

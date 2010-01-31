@@ -40,7 +40,7 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         statusText = tr("Locally queued");
         icon = QPixmap(":/icons/32x32/start-here.png");
 
-    } else if (transfer.state == Qw::TransferInfoStateWaiting) {
+    } else if (transfer.state == Qw::TransferInfoStateRequested) {
         statusText = tr("Waiting for server");
         icon = QPixmap(":/icons/32x32/network-server.png");
 
@@ -59,8 +59,8 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     } else if (transfer.state == Qw::TransferInfoStateActive) {
         statusText = tr("Active - %1 of %2 (%3%) - %4/s")
                      .arg(QwFile::humanReadableSize(transfer.bytesTransferred))
-                     .arg(QwFile::humanReadableSize(transfer.file.size))
-                     .arg(double(double(transfer.bytesTransferred)/double(transfer.file.size)*100), 0, 'f', 2)
+                     .arg(QwFile::humanReadableSize(transfer.file.size()))
+                     .arg(double(double(transfer.bytesTransferred)/double(transfer.file.size())*100), 0, 'f', 2)
                      .arg(QwFile::humanReadableSize(transfer.currentTransferSpeed));
 
         // Icon
@@ -118,7 +118,7 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
             barOption.progress = transfer.folder.folderCount - transfer.recursiveFiles.count();
         } else {
             barOption.maximum = 100;
-            barOption.progress = int(double(transfer.bytesTransferred)/double(transfer.file.size)*100);
+            barOption.progress = int(double(transfer.bytesTransferred)/double(transfer.file.size())*100);
         }
 
         barOption.rect.setLeft(0);
