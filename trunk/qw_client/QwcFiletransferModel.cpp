@@ -12,7 +12,7 @@ QwcFiletransferModel::QwcFiletransferModel(QObject *parent) : QAbstractListModel
 int QwcFiletransferModel::rowCount(const QModelIndex &) const
 {
     if (socket.isNull()) { return 0; }
-    return socket->m_transfers.count();
+    return socket->m_transferSockets.count();
 }
 
 
@@ -25,7 +25,7 @@ QVariant QwcFiletransferModel::data(const QModelIndex &index, int role) const
     if (role != Qt::UserRole) { return QVariant(); }
     if (index.row() >= rowCount()) { return QVariant(); }
 
-    QwcTransferSocket *transferSocket = socket->m_transfers[index.row()];
+    QwcTransferSocket *transferSocket = socket->m_transferSockets[index.row()];
     if (!transferSocket) { return QVariant(); }
 
     return QVariant::fromValue(transferSocket->transferInfo);

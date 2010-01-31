@@ -8,6 +8,7 @@
 #include "QwcUserInfo.h"
 #include "QwcTransferInfo.h"
 #include "QwcFileInfo.h"
+#include "QwcTransfer.h"
 #include "QwcTrackerServerInfo.h"
 #include "QwcTransferSocket.h"
 
@@ -17,6 +18,7 @@
 namespace Qwc {
     const int PUBLIC_CHAT = 1;
 }
+
 
 class QwcSocket
     : public QwSocket
@@ -40,7 +42,7 @@ public:
     void setUserAccount(QString, QString);
 
     /*! This member contains all active and locally queued transfer sockets. */
-    QList<QwcTransferSocket*> m_transfers;
+    QList<QwcTransferSocket*> m_transferSockets;
 
 
 
@@ -101,6 +103,8 @@ public slots:
     void getFileList(QString thePath);
     void getFileListRecusive(const QString &path);
     void moveFile(const QString &source, const QString &destination);
+
+    Qwc::TransferId downloadPath(const QString &remotePath, const QString &localPath);
 
 
 private slots:
@@ -226,6 +230,8 @@ protected:
     QString m_clientVersion;
     QString m_serverAddress;
     int m_serverPort;
+
+    QHash<Qwc::TransferId, QwcTransfer*> m_transfers;
 
     /*! A list of all currently used chat rooms. Chat rooms contain user lists and refer to them by
         their user ID. */

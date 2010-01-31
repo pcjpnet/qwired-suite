@@ -14,6 +14,11 @@ QwcTransferSocket::~QwcTransferSocket()
 }
 
 
+void QwcTransferSocket::reset()
+{
+
+}
+
 /*! Delete an old socket, or create a new one.
 */
 void QwcTransferSocket::createNewSocket()
