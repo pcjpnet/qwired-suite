@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout">
    <item>
-    <widget class="QListView" name="transferList">
+    <widget class="QListWidget" name="transferList">
      <property name="alternatingRowColors">
       <bool>true</bool>
      </property>
@@ -113,7 +113,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="application.qrc"/>
   <include location="application.qrc"/>
  </resources>
  <connections/>

@@ -42,7 +42,7 @@ void QwsTrackerController::addTrackerServer(QString address, int port)
 
 void QwsTrackerController::timerEvent(QTimerEvent *event)
 {
-    qDebug() << "Bing!";
+    Q_UNUSED(event);
     foreach (QwTrackerClientSocket *socket, trackerSockets) {
         qDebug() << this << "Registering tracker" << socket;
         socket->connectToTracker();

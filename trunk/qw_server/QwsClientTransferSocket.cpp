@@ -213,8 +213,8 @@ void QwsClientTransferSocket::handleSocketError(QAbstractSocket::SocketError soc
 
 bool QwsClientTransferSocket::openLocalFile()
 {
-    qDebug() << this << "Opening local file:" << transferInfo.file.localAbsolutePath;
-    fileReader.setFileName(transferInfo.file.localAbsolutePath);
+    qDebug() << this << "Opening local file:" << transferInfo.file.localPath();
+    fileReader.setFileName(transferInfo.file.localPath());
 
     if (transferInfo.type == Qw::TransferTypeDownload) {
         // We only need to read the file.
@@ -259,7 +259,7 @@ void QwsClientTransferSocket::finishTransfer()
 
     if (transferInfo.type == Qw::TransferTypeUpload) {
         // Rename the upload file
-        QFile targetFile(transferInfo.file.localAbsolutePath);
+        QFile targetFile(transferInfo.file.localPath());
         if (targetFile.fileName().endsWith(".WiredTransfer")) {
             QString newFileName = targetFile.fileName();
             targetFile.rename(newFileName.left(newFileName.length()-14));

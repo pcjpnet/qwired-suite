@@ -7,17 +7,13 @@
 #include <QFileInfo>
 #include <QDir>
 
-QwcFiletransferWidget::QwcFiletransferWidget(QWidget *parent) : QWidget(parent)
+QwcFiletransferWidget::QwcFiletransferWidget(QWidget *parent) :
+        QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setupUi(this);
-    transferList->setItemDelegate(new QwcFiletransferDelegate(transferList));
 
-    // Create the model
-    dataModel = new QwcFiletransferModel(transferList);
-    transferList->setModel(dataModel);
-    connect(transferList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(handleTransferListSelectionChanged(QItemSelection,QItemSelection)));
+    transferList->setItemDelegate(new QwcFiletransferDelegate(transferList));
 
 }
 
@@ -29,15 +25,15 @@ QwcFiletransferWidget::~QwcFiletransferWidget()
 
 void QwcFiletransferWidget::on_btnResume_clicked()
 {
-    QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
-    QListIterator<QModelIndex> i(selectedIndexes);
-    while (i.hasNext()) {
-        QModelIndex item = i.next();
-        if (!item.isValid()) { continue; }
-        if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
-        QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
-        emit transferResumed(transfer);
-    }
+//    QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
+//    QListIterator<QModelIndex> i(selectedIndexes);
+//    while (i.hasNext()) {
+//        QModelIndex item = i.next();
+//        if (!item.isValid()) { continue; }
+//        if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
+//        QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
+//        emit transferResumed(transfer);
+//    }
 
 }
 
@@ -46,15 +42,15 @@ void QwcFiletransferWidget::on_btnResume_clicked()
 */
 void QwcFiletransferWidget::on_btnStop_clicked()
 {
-    QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
-    QListIterator<QModelIndex> i(selectedIndexes);
-    while (i.hasNext()) {
-        QModelIndex item = i.next();
-        if (!item.isValid()) { continue; }
-        if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
-        QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
-        emit transferStopped(transfer);
-    }
+//    QModelIndexList selectedIndexes = transferList->selectionModel()->selectedIndexes();
+//    QListIterator<QModelIndex> i(selectedIndexes);
+//    while (i.hasNext()) {
+//        QModelIndex item = i.next();
+//        if (!item.isValid()) { continue; }
+//        if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
+//        QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
+//        emit transferStopped(transfer);
+//    }
 }
 
 
@@ -69,7 +65,7 @@ void QwcFiletransferWidget::on_btnReveal_clicked()
         if (!item.isValid()) { continue; }
         if (!item.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
         QwcTransferInfo transfer = item.data(Qt::UserRole).value<QwcTransferInfo>();
-        QFileInfo targetFile(transfer.file.localAbsolutePath);
+        QFileInfo targetFile(transfer.file.localPath());
         QDesktopServices::openUrl(QUrl::fromLocalFile(targetFile.dir().absolutePath()));
     }
 }

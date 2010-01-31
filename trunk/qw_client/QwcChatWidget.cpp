@@ -198,6 +198,8 @@ void QwcChatWidget::writeTextToChat(QwUser sender, QString text, bool emote)
 void QwcChatWidget::handleSocketChatTopic(int chatId, const QString &nickname, const QString &login,
                                           QHostAddress ip, QDateTime dateTime, const QString &topic)
 {
+    Q_UNUSED(login);
+    Q_UNUSED(ip);
     if (chatId != m_chatId) { return; }
     QwcMessageStyle::setTopicContents(chatView->page()->currentFrame(), topic, nickname, dateTime);
 }

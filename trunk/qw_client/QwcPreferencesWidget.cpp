@@ -167,7 +167,6 @@ void QwcPreferencesWidget::savePreferences()
 */
 void QwcPreferencesWidget::loadPreferences()
 {
-    QwcSingleton *singleton = &WSINGLETON::Instance();
     QSettings settings;
 
 
@@ -236,8 +235,6 @@ void QwcPreferencesWidget::loadPreferences()
     // INTERFACE TAB
     //
     QFont f;
-    bool tmpBool;
-    int tmpInt;
 
 
     // Trackers

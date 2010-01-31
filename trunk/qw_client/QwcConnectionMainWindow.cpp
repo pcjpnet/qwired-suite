@@ -74,6 +74,10 @@ void QwcConnectionMainWindow::toggleVisible()
 
 void QwcConnectionMainWindow::handleSocketNewsPosted(QString nickname, QDateTime time, QString post)
 {
+    Q_UNUSED(nickname);
+    Q_UNUSED(time);
+    Q_UNUSED(post);
+
     // Update the toolbar icon if the news are not currently visible
     QPixmap newIcon(":/icons/32x32/internet-news-reader.png");
     QPainter iconPainter(&newIcon);

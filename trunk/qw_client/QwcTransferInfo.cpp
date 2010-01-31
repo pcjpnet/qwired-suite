@@ -29,18 +29,18 @@ void QwcTransferInfo::applyNextFile()
             newLocalPath.remove(0, folder.remotePath().length());
 
             // Create the parent directory
-            newLocalPath = QDir::cleanPath(folder.localAbsolutePath + newLocalPath);
+            newLocalPath = QDir::cleanPath(folder.localPath() + newLocalPath);
             QDir newDir;
             newDir.mkpath(newLocalPath.section("/", 0, -2));
 
-            file.localAbsolutePath = newLocalPath;
-            qDebug() << this << "New local path:" << file.localAbsolutePath;
+            file.localPath() = newLocalPath;
+            qDebug() << this << "New local path:" << file.localPath();
         }
 
     } else if (this->type == Qw::TransferTypeFolderUpload) {
-        QString newRemotePath = file.localAbsolutePath;
-        if (newRemotePath.startsWith(folder.localAbsolutePath)) {
-            newRemotePath.remove(0, folder.localAbsolutePath.length());
+        QString newRemotePath = file.localPath();
+        if (newRemotePath.startsWith(folder.localPath())) {
+            newRemotePath.remove(0, folder.localPath().length());
             newRemotePath.prepend(folder.remotePath());
             qDebug() << "New remote path:" << newRemotePath;
             file.setRemotePath(newRemotePath);
@@ -77,7 +77,7 @@ void QwcTransferInfo::updateFolderTransferInfo()
 */
 bool QwcTransferInfo::prepareFolderUpload()
 {
-    QDir targetFolder(folder.localAbsolutePath);
+    QDir targetFolder(folder.localPath());
     if (!targetFolder.exists()) { return false; }
     QDirIterator i(targetFolder.absolutePath(),
                    QDir::AllEntries | QDir::NoDotAndDotDot,
@@ -92,7 +92,7 @@ bool QwcTransferInfo::prepareFolderUpload()
         QFileInfo itemInfo = i.fileInfo();
         if (!itemInfo.exists()) { continue; }
         QwcFileInfo fileInfo;
-        fileInfo.localAbsolutePath = itemInfo.absoluteFilePath();
+        fileInfo.setLocalPath(itemInfo.absoluteFilePath());
         fileInfo.type = itemInfo.isDir() ? Qw::FileTypeFolder : Qw::FileTypeRegular;
         fileInfo.setSize(itemInfo.size());
         fileInfo.modified = itemInfo.lastModified();

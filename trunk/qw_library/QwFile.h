@@ -33,8 +33,14 @@ public:
     QString remotePath() const;
     void setRemotePath(const QString &path);
 
+    QString localPath() const;
+    void setLocalPath(const QString &path);
+
     qint64 size() const;
     void setSize(qint64 size);
+
+    qint64 transferredSize() const;
+    void setTransferredSize(qint64 size);
 
 
 
@@ -52,7 +58,6 @@ public:
         or when reading and writing to the file. A target path can be set when using this class for
         download-transfers in client-mode. If it is empty, a path should be generated automatically.
     */
-    QString localAbsolutePath;
 
     static QString humanReadableSize(qint64 size);
 
@@ -60,9 +65,12 @@ public:
 protected:
     /*! The relative location of the file or directory in the server's [protocol] file system. */
     QString m_remotePath;
+    /*! The path to the file on the local file system. */
+    QString m_localPath;
     /*! The length of the complete file or directory. */
     qint64 m_size;
-
+    /*! The amount of bytes already transferred when used in a transfer context. */
+    qint64 m_transferredSize;
 };
 
 Q_DECLARE_METATYPE(QwFile);

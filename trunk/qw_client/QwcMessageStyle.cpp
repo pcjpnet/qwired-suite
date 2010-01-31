@@ -64,6 +64,7 @@ bool QwcMessageStyle::clearChat(QWebFrame *frame)
 
     QWebElement targetElement = frame->findFirstElement("#chat_items");
     targetElement.setInnerXml("");
+    return true;
 }
 
 
@@ -101,6 +102,7 @@ bool QwcMessageStyle::addChatMessage(QWebFrame *frame, const QwUser &user, const
     }
 
     targetElement.appendInside(chatItem);
+    return true;
 }
 
 
@@ -120,6 +122,7 @@ bool QwcMessageStyle::addStatusMessage(QWebFrame *frame, const QString &text)
     chatItem.findFirst(".chat_event_date").setInnerXml(QDate::currentDate()
                                                        .toString(Qt::SystemLocaleShortDate));
     targetElement.appendInside(chatItem);
+    return true;
 }
 
 
@@ -140,6 +143,7 @@ bool QwcMessageStyle::addBroadcastMessage(QWebFrame *frame, const QwUser &user, 
     chatItem.findFirst(".broadcast_date").setInnerXml(QDate::currentDate()
                                                            .toString(Qt::SystemLocaleShortDate));
     targetElement.appendInside(chatItem);
+    return true;
 }
 
 
@@ -156,6 +160,8 @@ bool QwcMessageStyle::setTopicContents(QWebFrame *frame, const QString &text, co
 
     QWebElement topicDateElement = frame->findFirstElement("#qw_topic_date");
     topicDateElement.setInnerXml(Qt::escape(dateTime.toString()));
+
+    return true;
 }
 
 

@@ -20,17 +20,18 @@ bool QwsFile::isWithinLocalRoot()
     QString localPath = this->localFilesRoot + "/" + this->m_remotePath;
     QFileInfo localFilesRootInfo(this->localFilesRoot);
     QFileInfo localPathInfo(localPath);
-    localAbsolutePath = localPathInfo.absoluteFilePath();
+    setLocalPath(localPathInfo.absoluteFilePath());
 
     // Check if the file is part of the files root
-    qDebug() << "LocalRoot:" << localFilesRoot << "---" << localAbsolutePath;
+    qDebug() << "LocalRoot:" << localFilesRoot << "---" << m_localPath;
     qDebug() << "LocalAbsoluteRoot:" << localFilesRootInfo.absoluteFilePath();
-    if (!localAbsolutePath.startsWith(localFilesRootInfo.absoluteFilePath())) {
+    if (!m_localPath.startsWith(localFilesRootInfo.absoluteFilePath())) {
         qDebug() << this << "Blocking access above files root:" << m_remotePath;
         return false;
     }
     return true;
 }
+
 
 
 /*! This method uses \a localFilesRoot and \a path to find a file on the local file system. If the
@@ -45,12 +46,12 @@ bool QwsFile::updateLocalPath(bool quickCheck)
     QString localPath = this->localFilesRoot + "/" + this->m_remotePath;
     QFileInfo localFilesRootInfo(this->localFilesRoot);
     QFileInfo localPathInfo(localPath);
-    localAbsolutePath = localPathInfo.absoluteFilePath();
+    setLocalPath(localPathInfo.absoluteFilePath());
 
 
     // Check if the file is part of the files root
 //    qDebug() << "LocalRoot:" << localFilesRootInfo.absoluteFilePath() << "---" << localAbsolutePath;
-    if (!localAbsolutePath.startsWith(localFilesRootInfo.absoluteFilePath())) {
+    if (!m_localPath.startsWith(localFilesRootInfo.absoluteFilePath())) {
         qDebug() << this << "Blocking access above files root:" << m_remotePath;
         return false;
     }
@@ -69,7 +70,7 @@ bool QwsFile::updateLocalPath(bool quickCheck)
 
     if (localPathInfo.isDir()) {
         // Read directory information
-        QDir localPathDir(localAbsolutePath);
+        QDir localPathDir(m_localPath);
         localPathDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
         this->type = Qw::FileTypeFolder;
         this->m_size = localPathDir.count();
