@@ -4,7 +4,6 @@
 #include <QtCore/QBuffer>
 #include <QtCore/QProcess>
 
-
 QwcSocket::QwcSocket(QObject *parent) :
         QwSocket(parent)
 {
@@ -85,9 +84,9 @@ void QwcSocket::handleTransferDone(QwcTransferSocket *transferSocket)
     }
 
     // Delete the socket/transfer
-    if (m_transfers.contains(transferSocket)) {
+    if (m_transferSockets.contains(transferSocket)) {
         qDebug() << this << "Deleting transfer socket" << transferSocket;
-        m_transfers.removeOne(transferSocket);
+        m_transferSockets.removeOne(transferSocket);
         emit fileTransferQueueChanged();
         transferSocket->deleteLater();
     }
@@ -104,9 +103,9 @@ void QwcSocket::handleTransferError(QwcTransferSocket *transferSocket)
 {
     if (!transferSocket) { return; }
     // Delete the socket/transfer
-    if (m_transfers.contains(transferSocket)) {
+    if (m_transferSockets.contains(transferSocket)) {
         qDebug() << this << "Deleting transfer socket" << transferSocket;
-        m_transfers.removeOne(transferSocket);
+        m_transferSockets.removeOne(transferSocket);
         emit fileTransferQueueChanged();
         emit fileTransferError(transferSocket->transferInfo);
         transferSocket->deleteLater();
@@ -519,7 +518,7 @@ void QwcSocket::handleMessage400(const QwMessage &message)
     qint64 transferOffset = message.stringArg(1).toLongLong();
     QString transferHash = message.stringArg(2);
 
-    QListIterator<QwcTransferSocket*> i(m_transfers);
+    QListIterator<QwcTransferSocket*> i(m_transferSockets);
     while (i.hasNext()) {
         QwcTransferSocket *item = i.next();
         if (!item) { continue; }
@@ -548,7 +547,7 @@ void QwcSocket::handleMessage401(const QwMessage &message)
     int queuePosition = message.stringArg(1).toInt();
     qDebug() << this << "Got transfer queued update for" << filePath << "position" << queuePosition;
 
-    QListIterator<QwcTransferSocket*> i(m_transfers);
+    QListIterator<QwcTransferSocket*> i(m_transferSockets);
     while (i.hasNext()) {
         QwcTransferSocket *item = i.next();
         if (!item) { continue; }
@@ -572,7 +571,7 @@ void QwcSocket::handleMessage402(const QwMessage &message)
     QwcFileInfo fileInfo;
     fileInfo.setFromMessage402(message);
 
-    QListIterator<QwcTransferSocket*> i(m_transfers);
+    QListIterator<QwcTransferSocket*> i(m_transferSockets);
     while (i.hasNext()) {
         QwcTransferSocket *item = i.next();
         if (!item) { continue; }
@@ -657,7 +656,7 @@ void QwcSocket::handleMessage411(const QwMessage &message)
         qDebug() << this << "Recursive listing of" << remotePath << ", items:" << m_fileListingBuffer.count();
 
 
-        foreach (QwcTransferSocket *transfer, m_transfers) {
+        foreach (QwcTransferSocket *transfer, m_transferSockets) {
             if (!transfer) { continue; }
             if (transfer->transferInfo.type == Qw::TransferTypeFolderDownload
                 && transfer->transferInfo.folder.remotePath() == remotePath
@@ -825,7 +824,7 @@ void QwcSocket::disconnectFromServer()
     m_users.clear();
     m_chatRooms.clear();
 
-    QMutableListIterator<QwcTransferSocket*> i(m_transfers);
+    QMutableListIterator<QwcTransferSocket*> i(m_transferSockets);
     while(i.hasNext()) {
         QwcTransferSocket *p = i.next();
         p->deleteLater();
@@ -1107,7 +1106,7 @@ void QwcSocket::downloadFileOrFolder(QwcFileInfo fileInfo)
         transferSocket->transferInfo.file = fileInfo;
     }
 
-    m_transfers.append(transferSocket);
+    m_transferSockets.append(transferSocket);
     emit fileTransferQueueChanged();
     checkTransferQueue();
 }
@@ -1142,9 +1141,32 @@ void QwcSocket::uploadFileOrFolder(QwcFileInfo fileInfo)
         transferSocket->transferInfo.type = Qw::TransferTypeUpload;
     }
 
-    m_transfers.append(transferSocket);
+    m_transferSockets.append(transferSocket);
     emit fileTransferQueueChanged();
     checkTransferQueue();
+}
+
+
+/*! Creates a transfer for this connection. If \e remotePath ends with a slash (/), the transfer is
+    considered to be a folder transfer, otherwise it's considered to
+    \returns Returns a unique ID which identifies this transfer for this connection
+*/
+Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString &localPath)
+{
+    Qwc::TransferType transferType;
+    if (remotePath.endsWith("/")) {
+        transferType = Qwc::TransferTypeFolderDownload;
+    } else {
+        transferType = Qwc::TransferTypeFileDownload;
+    }
+    QwcTransfer *newTransfer = new QwcTransfer(transferType);
+
+
+    newTransfer->setRemotePath(remotePath);
+    newTransfer->setLocalPath(localPath);
+
+    m_transfers[newTransfer->id()] = newTransfer;
+    return newTransfer->id();
 }
 
 
@@ -1304,12 +1326,14 @@ void QwcSocket::sendMessageINFO()
 */
 void QwcSocket::checkTransferQueue()
 {
-    int maximumTransfers = 2;
+
+
+    /*int maximumTransfers = 2;
 
     // Count the waiting transfers
     int activeTransferCount = 0;
 
-    foreach (QwcTransferSocket *transfer, m_transfers) {
+    foreach (QwcTransferSocket *transfer, m_transferSockets) {
         if (!transfer) { continue; }
         if (transfer->transferInfo.state == Qw::TransferInfoStateRequested
             || transfer->transferInfo.state == Qw::TransferInfoStateIndexing
@@ -1329,7 +1353,7 @@ void QwcSocket::checkTransferQueue()
     // procedure.
 
 
-    foreach (QwcTransferSocket *transfer, m_transfers) {
+    foreach (QwcTransferSocket *transfer, m_transferSockets) {
         if (!transfer) { continue; }
         if (transfer->transferInfo.state != Qw::TransferInfoStateNone) { continue; }
 
@@ -1387,7 +1411,7 @@ void QwcSocket::checkTransferQueue()
             break;
 
         }
-    }
+    }*/
 }
 
 
@@ -1418,7 +1442,7 @@ QString QwcSocket::tranzlate(QString theText)
 */
 void QwcSocket::pauseTransfer(const QwcTransferInfo &transfer)
 {
-    QMutableListIterator<QwcTransferSocket*> i(m_transfers);
+    QMutableListIterator<QwcTransferSocket*> i(m_transferSockets);
     while (i.hasNext()) {
         QwcTransferSocket *item = i.next();
         if (!item) { continue; }
@@ -1444,7 +1468,7 @@ void QwcSocket::pauseTransfer(const QwcTransferInfo &transfer)
 */
 void QwcSocket::resumeTransfer(const QwcTransferInfo &transfer)
 {
-    QMutableListIterator<QwcTransferSocket*> i(m_transfers);
+    QMutableListIterator<QwcTransferSocket*> i(m_transferSockets);
     while (i.hasNext()) {
         QwcTransferSocket *item = i.next();
         if (!item) { continue; }

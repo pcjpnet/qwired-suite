@@ -23,6 +23,7 @@ public:
 
     void setServer(QString theServer, int thePort);
     void beginTransfer();
+    void reset();
 
     /*! Information about the current transfer. */
     QwcTransferInfo transferInfo;
