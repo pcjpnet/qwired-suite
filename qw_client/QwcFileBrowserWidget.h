@@ -73,7 +73,7 @@ protected:
 
 public slots:
     void handleFilesListItem(QwcFileInfo item);
-    void handleFilesListDone(QString path, qlonglong freeSpace);
+    void handleFilesListDone(const QString &path, qint64 freeSpace);
     void handleSearchResultListDone();
 
 };

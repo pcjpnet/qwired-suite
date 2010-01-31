@@ -1,16 +1,18 @@
 #ifndef QWCFILETRANSFERSOCKET_H
 #define QWCFILETRANSFERSOCKET_H
 
+#include "QwFile.h"
 
-#include "QwcTransferInfo.h"
+#include <QtNetwork/QSslSocket>
+#include <QtCore/QTimer>
+#include <QtCore/QFile>
 
-#include <QTime>
-#include <QString>
-#include <QSslSocket>
-#include <QFile>
-#include <QTimer>
-
-const int transferTimerInterval = 250;
+namespace Qwc {
+    enum TransferDirection {
+        TransferDirectionDownload,
+        TransferDirectionUpload
+    };
+}
 
 class QwcTransferSocket :
         public QObject
@@ -25,33 +27,56 @@ public:
     void beginTransfer();
     void reset();
 
-    /*! Information about the current transfer. */
-    QwcTransferInfo transferInfo;
+    void setFileInfo(const QwFile &file);
+    QwFile fileInfo() const;
+
+    void setTransferHash(const QString &hash);
+    QString transferHash() const;
+
+    void setTransferDirection(Qwc::TransferDirection direction);
+    Qwc::TransferDirection transferDirection() const;
+
+    void setTransferLimit(qint64 limit);
+    qint64 transferLimit() const;
+
+    qint64 currentTransferSpeed() const;
+
+
+
 
 public slots:
     void stopTransfer();
-    bool prepareNextFile();
 
 private slots:
     void handleSocketEncrypted();
     void transmitFileChunk();
     void finishTransfer();
     
-private:
+protected:
+    QString m_transferHash;
+    Qwc::TransferDirection m_transferDirection;
+    qint64 m_transferLimit;
+
     void createNewSocket();
 
+    /*! The timer responsible for sending and reading chunks of data from the connection. */
+    QTimer m_transferTimer;
     /*! The real host name of the remote server. */
     QString m_serverHost;
     /*! The real port of the remote server. */
     int m_serverPort;
-    /*! A timer used to schedule the chunk transfer. */
-    QTimer m_transferTimer;
     /*! A timer used to measure the time between data chunks. */
     QTime m_transferSpeedTimer;
     /*! The low-level socket for data transmission. */
     QSslSocket *m_socket;
     /*! The file writer/reader. */
     QFile m_fileReader;
+    /*! Information about the file being transferred. Also contains some information about the
+        transfer, such as already transferred bytes. */
+    QwFile m_fileInfo;
+
+    /*! The amount of data per second which is currently sent over the socket. */
+    qint64 m_currentTransferSpeed;
 
 signals:
     /*! The connection was established and the data transfer begins. */

@@ -20,8 +20,8 @@ public:
 
     /*! Contains the total number of all files to be transferred during a folder transfer. */
     quint64 folderCount;
-    /*! If true, the file should be opened in a preview window after the transfer. */
-    bool previewFileAfterTransfer;
+
+
 };
 
 Q_DECLARE_METATYPE(QwcFileInfo);

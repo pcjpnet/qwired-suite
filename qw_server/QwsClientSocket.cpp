@@ -867,15 +867,15 @@ void QwsClientSocket::handleMessageLIST(const QwMessage &message)
     }
 
 
-    qDebug() << this << "Trying to LIST" << targetDirectory.localAbsolutePath;
-    QDirIterator it(targetDirectory.localAbsolutePath,
+    qDebug() << this << "Trying to LIST" << targetDirectory.localPath();
+    QDirIterator it(targetDirectory.localPath(),
                     QDir::AllEntries | QDir::NoDotAndDotDot,
                     QDirIterator::FollowSymlinks);
     while (it.hasNext()) {
         it.next();
 
         QwsFile itemFile;
-        itemFile.localFilesRoot = targetDirectory.localAbsolutePath;
+        itemFile.localFilesRoot = targetDirectory.localPath();
         itemFile.setRemotePath(it.fileName());
 
         if (itemFile.updateLocalPath(true)) {
@@ -940,15 +940,16 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(const QwMessage &message)
         return;
     }
 
-    QDirIterator it(targetDirectory.localAbsolutePath,
+    QDirIterator it(targetDirectory.localPath(),
                     QDir::AllEntries | QDir::NoDotAndDotDot,
                     QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
     while (it.hasNext()) {
         it.next();
 
         QwsFile itemFile;
-        itemFile.localFilesRoot = targetDirectory.localAbsolutePath;
+        itemFile.localFilesRoot = targetDirectory.localPath();
         itemFile.setRemotePath(it.fileName());
+
 
         if (itemFile.updateLocalPath(true)) {
             QwMessage replyItem("410");
@@ -960,6 +961,7 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(const QwMessage &message)
             sendMessage(replyItem);
         }
     }
+
 
     // End of list
     QwMessage reply("411");
@@ -1033,7 +1035,7 @@ void QwsClientSocket::handleMessageFOLDER(const QwMessage &message)
         return;
     }
 
-    QDir localBaseDir(targetBaseFolder.localAbsolutePath);
+    QDir localBaseDir(targetBaseFolder.localPath());
     if (!localBaseDir.mkdir(folderBaseName)) {
         sendError(Qw::ErrorFileOrDirectoryExists);
         return;
@@ -1065,13 +1067,13 @@ void QwsClientSocket::handleMessageDELETE(const QwMessage &message)
         return;
     }
 
-    if (targetBase.localAbsolutePath == filesRootPath) {
+    if (targetBase.localPath() == filesRootPath) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
 
-    QFileInfo targetInfo(targetBase.localAbsolutePath);
-    QDir targetFolder(targetBase.localAbsolutePath);
+    QFileInfo targetInfo(targetBase.localPath());
+    QDir targetFolder(targetBase.localPath());
     if (targetInfo.isDir()) {
         // Directory
         qDebug() << "Deleting a directory.";
@@ -1079,13 +1081,13 @@ void QwsClientSocket::handleMessageDELETE(const QwMessage &message)
 
     } else {
         // File
-        QDir parentDir(targetBase.localAbsolutePath);
+        QDir parentDir(targetBase.localPath());
         if (!parentDir.cdUp()) {
             sendError(Qw::ErrorFileOrDirectoryNotFound);
             return;
         }
         if (!parentDir.remove(folderBaseName)) {
-            qDebug() << this << "Unable to delete file" << targetBase.localAbsolutePath;
+            qDebug() << this << "Unable to delete file" << targetBase.localPath();
             sendError(Qw::ErrorFileOrDirectoryNotFound);
             return;
         }
@@ -1132,7 +1134,7 @@ void QwsClientSocket::handleMessageMOVE(const QwMessage &message)
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
-    qDebug() << this << "Renaming source:" << sourceFile.localAbsolutePath;
+    qDebug() << this << "Renaming source:" << sourceFile.localPath();
 
     // Update the destination (dir or file)
     QwsFile destinationFile;
@@ -1151,9 +1153,9 @@ void QwsClientSocket::handleMessageMOVE(const QwMessage &message)
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
-    qDebug() << this << "Renaming target:" << destinationFile.localAbsolutePath;
-    QFile sourceItem(sourceFile.localAbsolutePath);
-    if (!sourceItem.rename(destinationFile.localAbsolutePath)) {
+    qDebug() << this << "Renaming target:" << destinationFile.localPath();
+    QFile sourceItem(sourceFile.localPath());
+    if (!sourceItem.rename(destinationFile.localPath())) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -1195,7 +1197,7 @@ void QwsClientSocket::handleMessagePUT(const QwMessage &message)
         return;
     }
 
-    QFileInfo targetFileInfo(localFile.localAbsolutePath);
+    QFileInfo targetFileInfo(localFile.localPath());
     if (targetFileInfo.exists()) {
         // The file exists - abort here.
         sendError(Qw::ErrorFileOrDirectoryExists);
@@ -1211,7 +1213,7 @@ void QwsClientSocket::handleMessagePUT(const QwMessage &message)
             return;
         }
 
-        targetFileInfo = QFileInfo(localFile.localAbsolutePath);
+        targetFileInfo = QFileInfo(localFile.localPath());
         if (targetFileInfo.exists()) {
             // Partial file exists - check if the checksum is the same.
             localFile.updateLocalChecksum();
@@ -1334,7 +1336,7 @@ void QwsClientSocket::handleMessageTYPE(const QwMessage &message)
         return;
     }
 
-    QFileInfo targetInfo(localFile.localAbsolutePath);
+    QFileInfo targetInfo(localFile.localPath());
     if (!targetInfo.isDir()) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;

@@ -31,9 +31,9 @@ QString QwFile::directoryPath() const
 */
 void QwFile::updateLocalChecksum()
 {
-    QFile targetFile(localAbsolutePath);
+    QFile targetFile(m_localPath);
     if (!targetFile.open(QIODevice::ReadOnly)) {
-        qDebug() << this << "Unable to calculate hash for file:" << localAbsolutePath << " - " << targetFile.error();
+        qDebug() << this << "Unable to calculate hash for file:" << localPath() << " - " << targetFile.error();
         this->checksum = "";
         return;
     }
@@ -42,21 +42,49 @@ void QwFile::updateLocalChecksum()
     QCryptographicHash hash(QCryptographicHash::Sha1);
     hash.addData(hashData);
     this->checksum = hash.result().toHex();
-    qDebug() << this << "Calculated hash for file" << this->localAbsolutePath << "Bytes =" << hashData.size() << "=" << this->checksum;
+    qDebug() << this << "Calculated hash for file" << this->localPath() << "Bytes =" << hashData.size() << "=" << this->checksum;
 }
 
 
 QString QwFile::remotePath() const
-{ return m_remotePath; }
+{
+    QString path(m_remotePath);
+
+    if (type == Qw::FileTypeFolder
+        || type == Qw::FileTypeDropBox
+        || type == Qw::FileTypeUploadsFolder)
+    {
+        if (!path.endsWith("/")) {
+            path.append("/");
+        }
+    }
+
+    return path;
+}
 
 void QwFile::setRemotePath(const QString &path)
 { m_remotePath = path; }
+
+QString QwFile::localPath() const
+{ return m_localPath; }
+
+void QwFile::setLocalPath(const QString &path)
+{ m_localPath = path; }
 
 qint64 QwFile::size() const
 { return m_size; }
 
 void QwFile::setSize(qint64 size)
 { m_size = size; }
+
+
+void QwFile::setTransferredSize(qint64 size)
+{ m_transferredSize = size; }
+
+qint64 QwFile::transferredSize() const
+{ return m_transferredSize; }
+
+
 
 /*! Returns the file sizes (data amouont) as a human readable string in bytes, kilobytes, megabytes
     and so on.

@@ -10,7 +10,7 @@
 #include "QwcFileInfo.h"
 #include "QwcTransfer.h"
 #include "QwcTrackerServerInfo.h"
-#include "QwcTransferSocket.h"
+
 
 #include "QwGlobals.h"
 #include <QTimerEvent>
@@ -40,9 +40,6 @@ public:
     // User Information
     void setNickname(QString);
     void setUserAccount(QString, QString);
-
-    /*! This member contains all active and locally queued transfer sockets. */
-    QList<QwcTransferSocket*> m_transferSockets;
 
 
 
@@ -89,30 +86,24 @@ public slots:
     void kickClient(int userId, const QString &reason);
     void banClient(int userId, const QString &reason);
 
-    // Files and Transfers
+    // Files
     //
     void createFolder(const QString &path);
     void deleteFile(const QString &path);
-    void pauseTransfer(const QwcTransferInfo &transfer);
-    void resumeTransfer(const QwcTransferInfo &transfer);
-    void setFileComment(QString path, QString comment);
+    void setFileComment(const QString &path, const QString &comment);
     void getFileInformation(const QString &path);
-    void downloadFileOrFolder(QwcFileInfo fileInfo);
-    void uploadFileOrFolder(QwcFileInfo fileInfo);
-    void searchFiles(const QString theSearch);
-    void getFileList(QString thePath);
+    void searchFiles(const QString &search);
+    void getFileList(const QString &path);
     void getFileListRecusive(const QString &path);
     void moveFile(const QString &source, const QString &destination);
 
+    void getFile(const QString &path, qint64 offset);
+
+    // Transfers
     Qwc::TransferId downloadPath(const QString &remotePath, const QString &localPath);
 
 
 private slots:
-    void handleTransferDone(QwcTransferSocket *transferSocket);
-    void handleTransferError(QwcTransferSocket *transferSocket);
-    void handleTransferStatus(QwcTransferSocket *transferSocket);
-    void handleTransferStarted(QwcTransferSocket *transferSocket);
-
     void handleMessageReceived(const QwMessage &message);
 
     // Connection
@@ -194,13 +185,13 @@ signals:
     void fileSearchResultListDone();
 
     /*! This signal is emitted when a new file list item has been received. */
-    void onFilesListItem(QwcFileInfo file);
+    void onFilesListItem(const QwcFileInfo &file);
     /*! This signal is emitted when the file listing is complete and also provides some information
         about the server. */
-    void onFilesListDone(QString thePath, qlonglong theFreeSpace);
+    void onFilesListDone(const QString &path, qint64 freeSpace);
     void onFilesListRecursiveDone(const QList<QwcFileInfo>);
-    void onServerFileTransferReady(QwcTransferInfo theTransfer);
-    void onServerFileTransferQueued(QwcTransferInfo theTransfer);
+    void transferReady(const QString &path, qint64 offset, const QString &hash);
+    void transferQueued(const QString &path, int position);
     void fileInformation(QwcFileInfo theFile);
 
 
@@ -290,12 +281,6 @@ protected:
     // No further comment on those, and, no, you can not has cheezburger.
     bool m_caturdayFlag;
     QString tranzlate(QString);
-
-    /*! If this member is set to true, a LISTRECURSIVE command likely has been issued and results
-        are collected. */
-    bool m_indexingFilesForTransfer;
-    /*! This list contains all file information items returned during recursive listing. */
-    QList<QwcFileInfo> m_fileListingBuffer;
 
     // Buffers while receiving the list of groups and users (admin mode)
     QStringList m_groupListingCache;

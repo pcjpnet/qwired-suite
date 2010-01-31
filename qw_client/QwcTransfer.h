@@ -5,6 +5,7 @@
 #include <QtCore/QList>
 #include "QwFile.h"
 
+class QwcFileInfo;
 
 namespace Qwc {
     enum TransferType {
@@ -21,8 +22,6 @@ namespace Qwc {
         TransferStateQueuedOnClient,
         /*! The transfer is queued on the remote server. */
         TransferStateQueuedOnServer,
-        /*! The transfer has been requested and is waiting for the server response. */
-        TransferStateWaitingForServer,
         /*! The transfer is active, thus transferring data to or from the server. */
         TransferStateActive,
         /*! The transfer is gathering a list of files from the remote server. */
@@ -35,6 +34,7 @@ namespace Qwc {
     typedef int TransferId;
 }
 
+class QwcSocket;
 class QwcTransferSocket;
 
 class QwcTransfer :
@@ -52,6 +52,9 @@ public:
     void start();
     void stop();
 
+    QwcSocket* socket();
+    void setSocket(QwcSocket *socket);
+
     QString localPath() const;
     void setLocalPath(const QString &path);
 
@@ -60,6 +63,11 @@ public:
 
     const QList<QwFile> & transferFiles() const;
     void setTransferFiles(const QList<QwFile> &files);
+
+private slots:
+    void handleFileListItem(const QwcFileInfo &file);
+    void handleFileListDone(const QString &path, qint64 freeSpace);
+    void handleTransferReady(const QString &path, qint64 offset, const QString &hash);
 
 protected:
     /*! The type of the transfer. */
@@ -76,6 +84,12 @@ protected:
     QList<QwFile> m_transferFiles;
     /*! The transfer socket. */
     QwcTransferSocket *m_transferSocket;
+    /*! The server connection socket. */
+    QwcSocket *m_socket;
+
+
+    void changeState(Qwc::TransferState newState);
+    bool prepareNextFile();
 
 signals:
     /*! The state of the transfer has changed. */

@@ -2,7 +2,6 @@
 #include "QwcSession.h"
 #include "QwcUserInfoWidget.h"
 #include "QwcConnectWidget.h"
-#include "QwcFiletransferModel.h"
 #include "QwcFileBrowserWidget.h"
 #include "QwcConnectionMainWindow.h"
 #include "QwcChatWidget.h"
@@ -360,14 +359,6 @@ void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction
     } else if (action == QwcConnectionMainWindow::TriggeredActionTransfers) {
         if (!m_transfersWidget) {
             m_transfersWidget = new QwcFiletransferWidget();
-            // Connect the signals
-            connect(m_transfersWidget, SIGNAL(transferStopped(QwcTransferInfo)),
-                    m_socket, SLOT(pauseTransfer(QwcTransferInfo)));
-            connect(m_transfersWidget, SIGNAL(transferResumed(QwcTransferInfo)),
-                    m_socket, SLOT(resumeTransfer(QwcTransferInfo)));
-
-            // Ensure that the model can access data from the socket, like the current list of transfers.
-            m_transfersWidget->transferModel()->setSocket(m_socket);
         }
         if (m_connectionTabWidget->indexOf(m_transfersWidget) == -1) {
             m_connectionTabWidget->addTab(m_transfersWidget, tr("Transfers"));

@@ -4,8 +4,9 @@
 QwcFileInfo::QwcFileInfo() : QwFile()
 {
     folderCount = 0;
-    previewFileAfterTransfer = false;
+    m_transferredSize = -1;
 }
+
 
 
 /*! Set the file info properties to values from the 402-type message.

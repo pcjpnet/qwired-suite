@@ -42,8 +42,8 @@ void QwcFileBrowserWidget::setSocket(QwcSocket *socket)
     m_socket = socket;
     connect(m_socket, SIGNAL(onFilesListItem(QwcFileInfo)),
             this, SLOT(handleFilesListItem(QwcFileInfo)));
-    connect(m_socket, SIGNAL(onFilesListDone(QString,qlonglong)),
-            this, SLOT(handleFilesListDone(QString,qlonglong)));
+    connect(m_socket, SIGNAL(onFilesListDone(QString,qint64)),
+            this, SLOT(handleFilesListDone(QString,qint64)));
 
     connect(m_socket, SIGNAL(fileSearchResultListItem(QwcFileInfo)),
             this, SLOT(handleFilesListItem(QwcFileInfo)));
@@ -167,7 +167,7 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
 
 /*! Handle the end of a file listing.
 */
-void QwcFileBrowserWidget::handleFilesListDone(QString path, qlonglong freeSpace)
+void QwcFileBrowserWidget::handleFilesListDone(const QString &path, qint64 freeSpace)
 {
     if (m_remotePath != path) { return; }
     if (!m_waitingForListItems) { return; }
@@ -267,43 +267,6 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
 }
 
 
-/*! The "Download" button has been clicked.
-*/
-//void QwcFileBrowserWidget::on_btnDownload_clicked()
-//{
-//    QSettings settings;
-//    QList<QTreeWidgetItem*> items = fList->selectedItems();
-//
-//    // Now delete the selected items
-//    QListIterator<QTreeWidgetItem*> i(items);
-//    while (i.hasNext()) {
-//        QTreeWidgetItem *item = i.next();
-//        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-//
-//        QDir downloadDirectory(settings.value("files/download_dir", QDir::homePath()).toString());
-//
-//        // Check if the target file already exists
-//        if (QFile::exists(downloadDirectory.absoluteFilePath(itemInfo.fileName()))) {
-//            if (QMessageBox::Cancel == QMessageBox::question(this,
-//                tr("File exists"),
-//                tr("The file or directory \"%1\" already exists. Do you want to overwrite it?").arg(itemInfo.fileName()),
-//                QMessageBox::Cancel | QMessageBox::Save,
-//                QMessageBox::Cancel))
-//            {
-//                return;
-//            }
-//        }
-//
-//        // Set the local path properly
-//        if (itemInfo.type == Qw::FileTypeRegular) {
-//            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
-//        } else {
-//            itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName());
-//        }
-//
-//        m_socket->downloadFileOrFolder(itemInfo);
-//    }
-//}
 
 
 /*! The "Preview" button has been clicked.
@@ -330,38 +293,38 @@ void QwcFileBrowserWidget::on_btnPreview_clicked()
 */
 void QwcFileBrowserWidget::on_btnUpload_clicked()
 {
-    QStringList targetFiles;
-
-    if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
-        // Select a directory when the alt-key is held
-        QString selectedFolder = QFileDialog::getExistingDirectory(this, tr("Upload folder"),
-                                                                   QDir::homePath());
-        if (selectedFolder.isEmpty()) { return; }
-        targetFiles << selectedFolder;
-    } else {
-        // By default we allow the user to select files
-        targetFiles = QFileDialog::getOpenFileNames(this, tr("Upload Files"),
-                                                    QDir::homePath(), tr("Any File (*.*)"));
-        if (targetFiles.isEmpty()) { return; }
-    }
-
-
-    QStringListIterator i(targetFiles);
-    while (i.hasNext()) {
-        QString itemFile = i.next();
-        QFileInfo itemInfo(itemFile);
-        QwcFileInfo targetInfo;
-        targetInfo.localAbsolutePath = itemFile;
-        targetInfo.setRemotePath(QDir::cleanPath(currentFolderInfo.remotePath() + "/" + itemInfo.fileName()));
-        if (itemInfo.isDir()) {
-            targetInfo.type = Qw::FileTypeFolder;
-        } else {
-            targetInfo.type = Qw::FileTypeRegular;
-            targetInfo.setSize(itemInfo.size());
-            targetInfo.updateLocalChecksum();
-        }
-        m_socket->uploadFileOrFolder(targetInfo);
-    }
+//    QStringList targetFiles;
+//
+//    if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+//        // Select a directory when the alt-key is held
+//        QString selectedFolder = QFileDialog::getExistingDirectory(this, tr("Upload folder"),
+//                                                                   QDir::homePath());
+//        if (selectedFolder.isEmpty()) { return; }
+//        targetFiles << selectedFolder;
+//    } else {
+//        // By default we allow the user to select files
+//        targetFiles = QFileDialog::getOpenFileNames(this, tr("Upload Files"),
+//                                                    QDir::homePath(), tr("Any File (*.*)"));
+//        if (targetFiles.isEmpty()) { return; }
+//    }
+//
+//
+//    QStringListIterator i(targetFiles);
+//    while (i.hasNext()) {
+//        QString itemFile = i.next();
+//        QFileInfo itemInfo(itemFile);
+//        QwcFileInfo targetInfo;
+//        targetInfo.localAbsolutePath = itemFile;
+//        targetInfo.setRemotePath(QDir::cleanPath(currentFolderInfo.remotePath() + "/" + itemInfo.fileName()));
+//        if (itemInfo.isDir()) {
+//            targetInfo.type = Qw::FileTypeFolder;
+//        } else {
+//            targetInfo.type = Qw::FileTypeRegular;
+//            targetInfo.setSize(itemInfo.size());
+//            targetInfo.updateLocalChecksum();
+//        }
+//        m_socket->uploadFileOrFolder(targetInfo);
+//    }
 }
 
 
@@ -423,10 +386,8 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
 
         QDir downloadFolder(settings.value("general/downloadLocation",
                                            QDir::home().absoluteFilePath("Downloads")).toString());
-        fileInfo.localAbsolutePath = QString("%1/%2")
-                                     .arg(downloadFolder.absolutePath())
-                                     .arg(fileInfo.fileName());
-        m_socket->downloadFileOrFolder(fileInfo);
+        m_socket->downloadPath(fileInfo.remotePath(),
+                               downloadFolder.absoluteFilePath(fileInfo.fileName()));
     }
 }
 
