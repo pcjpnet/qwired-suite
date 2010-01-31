@@ -135,7 +135,7 @@ void QwsClientTransferSocket::handleSocketReadyRead()
                 this->transferInfo = transferPool->takeTransferFromQueueWithHash(providedHash);
                 transferState = Qws::TransferSocketStatusTransferring;
 
-                qDebug() << "Found hash with file:" << transferInfo.file.path;
+                qDebug() << "Found hash with file:" << transferInfo.file.remotePath();
                 if (!this->openLocalFile()) {
                     qDebug() << this << "Unable to open local file.";
                     emit transferError(Qws::TransferSocketErrorFileOpen, transferInfo);
@@ -187,7 +187,7 @@ void QwsClientTransferSocket::handleSocketReadyRead()
 
             if (socket->state() == QAbstractSocket::UnconnectedState) {
                 qDebug() << "Closed: Got ->" << fileReader.size() << "IsOpen =" << socket->isOpen();
-                if (fileReader.size() == transferInfo.file.size) {
+                if (fileReader.size() == transferInfo.file.size()) {
                     qDebug() << "Done.";
                     finishTransfer();
                     return;

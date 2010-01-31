@@ -49,7 +49,8 @@ SOURCES += main.cpp \
     ../qw_server/QwsTrackerController.cpp \
     QwcMessageStyle.cpp \
     QwcUserInfo.cpp \
-    QwcUsersWidget.cpp
+    QwcUsersWidget.cpp \
+    QwcTransfer.cpp
 FORMS += QwcConnectionMainWindow.ui \
     QwcChatWidget.ui \
     QwcNewsWidget.ui \
@@ -90,4 +91,5 @@ HEADERS += QwcSession.h \
     QwcPrivateMessager.h \
     ../qw_server/QwsTrackerController.h \
     QwcMessageStyle.h \
-    QwcUsersWidget.h
+    QwcUsersWidget.h \
+    QwcTransfer.h

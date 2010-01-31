@@ -17,7 +17,7 @@ QwsFile::QwsFile() : QwFile()
 */
 bool QwsFile::isWithinLocalRoot()
 {
-    QString localPath = this->localFilesRoot + "/" + this->path;
+    QString localPath = this->localFilesRoot + "/" + this->m_remotePath;
     QFileInfo localFilesRootInfo(this->localFilesRoot);
     QFileInfo localPathInfo(localPath);
     localAbsolutePath = localPathInfo.absoluteFilePath();
@@ -26,7 +26,7 @@ bool QwsFile::isWithinLocalRoot()
     qDebug() << "LocalRoot:" << localFilesRoot << "---" << localAbsolutePath;
     qDebug() << "LocalAbsoluteRoot:" << localFilesRootInfo.absoluteFilePath();
     if (!localAbsolutePath.startsWith(localFilesRootInfo.absoluteFilePath())) {
-        qDebug() << this << "Blocking access above files root:" << path;
+        qDebug() << this << "Blocking access above files root:" << m_remotePath;
         return false;
     }
     return true;
@@ -42,7 +42,7 @@ bool QwsFile::isWithinLocalRoot()
 */
 bool QwsFile::updateLocalPath(bool quickCheck)
 {
-    QString localPath = this->localFilesRoot + "/" + this->path;
+    QString localPath = this->localFilesRoot + "/" + this->m_remotePath;
     QFileInfo localFilesRootInfo(this->localFilesRoot);
     QFileInfo localPathInfo(localPath);
     localAbsolutePath = localPathInfo.absoluteFilePath();
@@ -51,14 +51,14 @@ bool QwsFile::updateLocalPath(bool quickCheck)
     // Check if the file is part of the files root
 //    qDebug() << "LocalRoot:" << localFilesRootInfo.absoluteFilePath() << "---" << localAbsolutePath;
     if (!localAbsolutePath.startsWith(localFilesRootInfo.absoluteFilePath())) {
-        qDebug() << this << "Blocking access above files root:" << path;
+        qDebug() << this << "Blocking access above files root:" << m_remotePath;
         return false;
     }
 
     // Check if the local path exists
     if (!localPathInfo.exists() && !localPathInfo.isReadable()) {
         // The file does not exist
-        qDebug() << this << "Path is not readable:" << path;
+        qDebug() << this << "Path is not readable:" << m_remotePath;
         return false;
     }
 
@@ -72,12 +72,12 @@ bool QwsFile::updateLocalPath(bool quickCheck)
         QDir localPathDir(localAbsolutePath);
         localPathDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
         this->type = Qw::FileTypeFolder;
-        this->size = localPathDir.count();
+        this->m_size = localPathDir.count();
         this->checksum = "";
     } else {
         // Read regular file
         this->type = Qw::FileTypeRegular;
-        this->size = localPathInfo.size();
+        this->m_size = localPathInfo.size();
         if (!quickCheck) {
             updateLocalChecksum();
         }
@@ -96,10 +96,10 @@ bool QwsFile::loadMetaInformation()
     query.prepare("SELECT file_type, file_comment "
                   "FROM qws_files "
                   "WHERE file_path = :_path AND file_name = :_name");
-    query.bindValue(":_path", this->path.section("/", 0, -2).prepend("/") );
-    query.bindValue(":_name", this->path.section("/", -1, -1));
+    query.bindValue(":_path", this->m_remotePath.section("/", 0, -2).prepend("/") );
+    query.bindValue(":_name", this->m_remotePath.section("/", -1, -1));
 
-    qDebug() << this->path.section("/", 0, -2) << this->path.section("/", 1, -1);
+    qDebug() << this->m_remotePath.section("/", 0, -2) << this->m_remotePath.section("/", 1, -1);
 
     if (!query.exec()) {
         qDebug() << this << "Unable to load file info from database:" << query.lastError().text();
@@ -124,8 +124,8 @@ bool QwsFile::loadMetaInformation()
 bool QwsFile::saveMetaInformation()
 {
     qDebug() << this << "Write file information to database.";
-    QString fileDirPath = this->path.section("/", 0, -2).prepend("/");
-    QString fileName = this->path.section("/", -1, -1);
+    QString fileDirPath = this->m_remotePath.section("/", 0, -2).prepend("/");
+    QString fileName = this->m_remotePath.section("/", -1, -1);
 
     QSqlQuery query;
 
@@ -161,8 +161,8 @@ bool QwsFile::saveMetaInformation()
 bool QwsFile::clearMetaInformation()
 {
     qDebug() << this << "Remove file information from database.";
-    QString fileDirPath = this->path.section("/", 0, -2).prepend("/");
-    QString fileName = this->path.section("/", -1, -1);
+    QString fileDirPath = this->m_remotePath.section("/", 0, -2).prepend("/");
+    QString fileName = this->m_remotePath.section("/", -1, -1);
 
     QSqlQuery query;
 

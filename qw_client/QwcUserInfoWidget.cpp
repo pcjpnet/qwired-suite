@@ -45,7 +45,7 @@ void QwcUserInfoWidget::loadTransfers(const QwcUserInfo &theUser)
         transferItem->setText(0, transfer.file.fileName());
         transferItem->setText(1, tr("%1 of %2 at %3/s")
                               .arg(QwFile::humanReadableSize(transfer.bytesTransferred))
-                              .arg(QwFile::humanReadableSize(transfer.file.size))
+                              .arg(QwFile::humanReadableSize(transfer.file.size()))
                               .arg(QwFile::humanReadableSize(transfer.currentTransferSpeed)));
 
         switch (transfer.type) {

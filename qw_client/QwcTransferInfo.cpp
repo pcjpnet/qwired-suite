@@ -5,8 +5,15 @@
 QwcTransferInfo::QwcTransferInfo() : QwTransferInfo()
 {
     queuePosition = 0;
-    indexingComplete = false;
+    m_indexingCompleteFlag = false;
 }
+
+bool QwcTransferInfo::isIndexingComplete() const
+{ return m_indexingCompleteFlag; }
+
+void QwcTransferInfo::setIndexingComplete(bool complete)
+{ m_indexingCompleteFlag = complete; }
+
 
 
 /*! Apply the next queued file information to this object and reset the status.
@@ -17,9 +24,9 @@ void QwcTransferInfo::applyNextFile()
     file = recursiveFiles.takeFirst();
 
     if (this->type == Qw::TransferTypeFolderDownload) {
-        QString newLocalPath = file.path;
-        if (newLocalPath.startsWith(folder.path)) {
-            newLocalPath.remove(0, folder.path.length());
+        QString newLocalPath = file.remotePath();
+        if (newLocalPath.startsWith(folder.remotePath())) {
+            newLocalPath.remove(0, folder.remotePath().length());
 
             // Create the parent directory
             newLocalPath = QDir::cleanPath(folder.localAbsolutePath + newLocalPath);
@@ -34,9 +41,9 @@ void QwcTransferInfo::applyNextFile()
         QString newRemotePath = file.localAbsolutePath;
         if (newRemotePath.startsWith(folder.localAbsolutePath)) {
             newRemotePath.remove(0, folder.localAbsolutePath.length());
-            newRemotePath.prepend(folder.path);
+            newRemotePath.prepend(folder.remotePath());
             qDebug() << "New remote path:" << newRemotePath;
-            file.path = newRemotePath;
+            file.setRemotePath(newRemotePath);
         }
 
     }
@@ -54,11 +61,11 @@ void QwcTransferInfo::applyNextFile()
 void QwcTransferInfo::updateFolderTransferInfo()
 {
     // Calculate the total size of all files
-    folder.size = 0;
+    folder.setSize(0);
     QListIterator<QwcFileInfo> i(recursiveFiles);
     while (i.hasNext()) {
         const QwcFileInfo &item = i.next();
-        folder.size += item.size;
+        folder.setSize(folder.size() + item.size());
     }
     // Also store the total number of files
     folder.folderCount = recursiveFiles.count();
@@ -87,10 +94,10 @@ bool QwcTransferInfo::prepareFolderUpload()
         QwcFileInfo fileInfo;
         fileInfo.localAbsolutePath = itemInfo.absoluteFilePath();
         fileInfo.type = itemInfo.isDir() ? Qw::FileTypeFolder : Qw::FileTypeRegular;
-        fileInfo.size = itemInfo.size();
+        fileInfo.setSize(itemInfo.size());
         fileInfo.modified = itemInfo.lastModified();
         fileInfo.created = itemInfo.created();
-        folder.size += fileInfo.size;
+        folder.setSize(folder.size() + fileInfo.size());
         folder.folderCount += 1;
         recursiveFiles.append(fileInfo);
     }

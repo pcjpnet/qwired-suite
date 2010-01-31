@@ -529,9 +529,9 @@ void QwsServerController::handleMessageINFO(const int userId)
         }
 
         if (!transferInfo) { continue; }
-        transferInfo->append(item->info().file.path + "\x1E");
+        transferInfo->append(item->info().file.remotePath() + "\x1E");
         transferInfo->append(QString::number(item->info().bytesTransferred) + "\x1E");
-        transferInfo->append(QString::number(item->info().file.size) + "\x1E");
+        transferInfo->append(QString::number(item->info().file.size()) + "\x1E");
         transferInfo->append(QString::number(item->info().currentTransferSpeed) + "\x1E"); // current speed
 
         if (i.hasNext()) {
@@ -1128,7 +1128,7 @@ void QwsServerController::handleMessageGET(const QwsFile file)
 
     qwLog(tr("[%1] requested download of '%2' - assigned ID '%4'.")
           .arg(user->user.pUserID)
-          .arg(transfer.file.path).arg(transfer.hash));
+          .arg(transfer.file.remotePath()).arg(transfer.hash));
 
     checkTransferQueue(user->user.pUserID);
 
@@ -1155,7 +1155,7 @@ void QwsServerController::handleMessagePUT(const QwsFile file)
 
     qwLog(tr("[%1] requested upload of '%2' with ID '%3'.")
           .arg(user->user.pUserID)
-          .arg(transfer.file.path)
+          .arg(transfer.file.remotePath())
           .arg(transfer.hash));
 
     checkTransferQueue(user->user.pUserID);
@@ -1191,14 +1191,14 @@ void QwsServerController::checkTransferQueue(int userId)
         QwsTransferInfo nextTransfer = transferPool->firstTransferWithUserId(userId);
 
         // Update the state of the transfer
-        nextTransfer.state = Qw::TransferInfoStateWaiting;
+        nextTransfer.state = Qw::TransferInfoStateRequested;
         transferPool->appendTransferToQueue(nextTransfer);
 
         // Notify the client of the ready transfer.
         qDebug() << this << "Sending transfer ready for transfer" << nextTransfer.hash;
         QwMessage reply("400"); // 400 - transfer ready
 
-        QString effectiveFilePath = nextTransfer.file.path;
+        QString effectiveFilePath = nextTransfer.file.remotePath();
         if (nextTransfer.type == Qw::TransferTypeUpload && effectiveFilePath.endsWith(".WiredTransfer")) {
             // Remove the suffix so the remote client can identify the transfer properly.
             effectiveFilePath.chop(14);
@@ -1219,7 +1219,7 @@ void QwsServerController::checkTransferQueue(int userId)
         if (item.state != Qw::TransferInfoStateQueued) { continue; }
         QwMessage reply("401"); // 401 - transfer queued
 
-        QString effectiveFilePath = item.file.path;
+        QString effectiveFilePath = item.file.remotePath();
         if (item.type == Qw::TransferTypeUpload && effectiveFilePath.endsWith(".WiredTransfer")) {
             // Remove the suffix so the remote client can identify the transfer properly.
             effectiveFilePath.chop(14);
@@ -1242,7 +1242,7 @@ void QwsServerController::handleTransferDone(const QwsTransferInfo transfer)
 
     qwLog(tr("[%1] completed download of '%2'.")
           .arg(socket->info().targetUserId)
-          .arg(socket->info().file.path));
+          .arg(socket->info().file.remotePath()));
 
     if (transferSockets.contains(socket)) {
         // Update statistics
@@ -1268,7 +1268,7 @@ void QwsServerController::handleTransferError(Qws::TransferSocketError error, co
 
     qwLog(tr("[%1] failed transfer of '%2'.")
           .arg(socket->info().targetUserId)
-          .arg(socket->info().file.path));
+          .arg(socket->info().file.remotePath()));
 
     if (transferSockets.contains(socket)) {
         transferSockets.removeOne(socket);

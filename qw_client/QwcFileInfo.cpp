@@ -12,9 +12,9 @@ QwcFileInfo::QwcFileInfo() : QwFile()
 */
 void QwcFileInfo::setFromMessage402(const QwMessage &message)
 {
-    path = message.stringArg(0);
+    m_remotePath = message.stringArg(0);
     type = (Qw::FileType)message.stringArg(1).toInt();
-    size = message.stringArg(2).toInt();
+    m_size = message.stringArg(2).toInt();
     created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
     modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
     checksum = message.stringArg(5);
@@ -26,9 +26,9 @@ void QwcFileInfo::setFromMessage402(const QwMessage &message)
 */
 void QwcFileInfo::setFromMessage410(const QwMessage &message)
 {
-    path = message.stringArg(0);
+    m_remotePath = message.stringArg(0);
     type = (Qw::FileType)message.stringArg(1).toInt();
-    size = message.stringArg(2).toInt();
+    m_size = message.stringArg(2).toInt();
     created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
     modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
 }

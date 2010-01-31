@@ -80,9 +80,9 @@ void QwcUserInfo::parseTransfersFromData(const QByteArray &data, Qw::TransferTyp
         QList<QByteArray> fields = record.split('\x1E');
         QwTransferInfo transfer;
         transfer.type = type;
-        transfer.file.path = QString::fromUtf8(fields[0]);
+        transfer.file.setRemotePath(QString::fromUtf8(fields[0]));
         transfer.bytesTransferred = fields[1].toLongLong();
-        transfer.file.size = fields[2].toLongLong();
+        transfer.file.setSize(fields[2].toLongLong());
         transfer.currentTransferSpeed = fields[3].toLongLong();
         m_transfers << transfer;
     }

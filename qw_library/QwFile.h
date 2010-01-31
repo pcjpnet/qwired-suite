@@ -6,15 +6,16 @@
 #include <QString>
 
 namespace Qw {
-    enum FileType { /*! A regular file. */
-                    FileTypeRegular,
-                    /*! A regular folder/directory. */
-                    FileTypeFolder,
-                    /*! A folder where guest users can upload data to. */
-                    FileTypeUploadsFolder,
-                    /*! A folder where guest users can upload data to, but can't see contents. */
-                    FileTypeDropBox
-                };
+    enum FileType {
+        /*! A regular file. */
+        FileTypeRegular,
+        /*! A regular folder/directory. */
+        FileTypeFolder,
+        /*! A folder where guest users can upload data to. */
+        FileTypeUploadsFolder,
+        /*! A folder where guest users can upload data to, but can't see contents. */
+        FileTypeDropBox
+    };
 }
 
 
@@ -29,10 +30,14 @@ public:
 
     void updateLocalChecksum();
 
-    /*! The relative location of the file or directory in the server's [protocol] file system. */
-    QString path;
-    /*! The length of the complete file or directory. */
-    qint64 size;
+    QString remotePath() const;
+    void setRemotePath(const QString &path);
+
+    qint64 size() const;
+    void setSize(qint64 size);
+
+
+
     /*! The creation date for the file or directory. */
     QDateTime created;
     /*! The modification date for the file or directory. */
@@ -50,6 +55,13 @@ public:
     QString localAbsolutePath;
 
     static QString humanReadableSize(qint64 size);
+
+
+protected:
+    /*! The relative location of the file or directory in the server's [protocol] file system. */
+    QString m_remotePath;
+    /*! The length of the complete file or directory. */
+    qint64 m_size;
 
 };
 
