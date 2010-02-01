@@ -9,6 +9,7 @@ class QwcAboutWidget :
 {
     Q_OBJECT
 
+
 public:
     QwcAboutWidget(QWidget *parent=0);
 

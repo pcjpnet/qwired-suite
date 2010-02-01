@@ -21,7 +21,11 @@ QwcConnectionMainWindow::QwcConnectionMainWindow(QWidget *parent) :
         QMainWindow(parent)
 {
     setupUi(this);
-    setUnifiedTitleAndToolBarOnMac(true);
+
+    if (qApp->style()->objectName().startsWith("macintosh")) {
+        setUnifiedTitleAndToolBarOnMac(true);
+    }
+
     setWindowIcon(QIcon(":/icons/qwired_logo_32.png"));
     m_socket = NULL;
 

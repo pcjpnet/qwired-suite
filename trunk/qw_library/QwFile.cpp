@@ -7,6 +7,7 @@
 QwFile::QwFile()
 {
     m_size = 0;
+    m_transferredSize = 0;
 }
 
 
@@ -50,9 +51,7 @@ QString QwFile::remotePath() const
 {
     QString path(m_remotePath);
 
-    if (type == Qw::FileTypeFolder
-        || type == Qw::FileTypeDropBox
-        || type == Qw::FileTypeUploadsFolder)
+    if (type == Qw::FileTypeFolder || type == Qw::FileTypeDropBox || type == Qw::FileTypeUploadsFolder)
     {
         if (!path.endsWith("/")) {
             path.append("/");

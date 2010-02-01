@@ -8,7 +8,7 @@ QwcTransfer::QwcTransfer(Qwc::TransferType type, QObject *parent) :
     m_type = type;
     m_state = Qwc::TransferStateInactive;
     m_id = qrand();
-    m_transferSocket = new QwcTransferSocket(this);
+    m_transferSocket = NULL;
     m_socket = NULL;
 }
 
@@ -29,22 +29,17 @@ Qwc::TransferId QwcTransfer::id() const
 */
 void QwcTransfer::start()
 {
-    m_transferSocket->reset();
     if (m_type == Qwc::TransferTypeFolderDownload) {
         qDebug() << "Transfer requesting list of files from server";
         changeState(Qwc::TransferStateIndexing);
         m_socket->getFileListRecusive(remotePath());
     }
-
-
 }
 
 /*! Stops the running transfer.
 */
 void QwcTransfer::stop()
-{
-
-}
+{ }
 
 
 QwcSocket* QwcTransfer::socket()
@@ -60,13 +55,8 @@ void QwcTransfer::setSocket(QwcSocket *socket)
             this, SLOT(handleFileListItem(QwcFileInfo)));
     connect(m_socket, SIGNAL(onFilesListDone(QString,qint64)),
             this, SLOT(handleFileListDone(QString,qint64)));
-
     connect(m_socket, SIGNAL(transferReady(QString,qint64,QString)),
             this, SLOT(handleTransferReady(QString,qint64,QString)));
-
-    m_transferSocket->setServer(m_socket->sslSocket()->peerAddress().toString(),
-                                m_socket->sslSocket()->peerPort());
-
 }
 
 
@@ -127,13 +117,44 @@ void QwcTransfer::changeState(Qwc::TransferState newState)
 bool QwcTransfer::prepareNextFile()
 {
     if (m_transferFiles.isEmpty()) { return false; }
-    QwFile file = m_transferFiles.takeFirst();
-    qDebug() << "Loading next file:" << file.remotePath();
 
-    m_transferSocket->setTransferDirection(Qwc::TransferDirectionDownload);
-    m_transferSocket->setFileInfo(file);
-    m_socket->getFile(file.remotePath(), 0);
+    while (m_transferFiles.size()) {
+        QwFile file = m_transferFiles.takeFirst();
+        qDebug() << "------------------------------------ PREPARING FOR NEW FILE:" << file.remotePath();
+
+        if (file.type == Qw::FileTypeRegular) {
+
+            // Set up the transfer socket
+            if (m_transferSocket) { delete m_transferSocket; }
+            m_transferSocket = new QwcTransferSocket(this);
+            connect(m_transferSocket, SIGNAL(fileTransferFinished()),
+                    this, SLOT(handleFileTransferFinished()));
+
+            m_transferSocket->setServer(m_socket->sslSocket()->peerAddress().toString(),
+                                        m_socket->sslSocket()->peerPort());
+
+            QString localPathTest = file.remotePath();
+            localPathTest.remove(remotePath());
+            file.setLocalPath(QDir(m_localPath).absoluteFilePath(localPathTest));
+            m_transferSocket->setTransferDirection(Qwc::TransferDirectionDownload);
+            m_transferSocket->setFileInfo(file);
+            m_socket->getFile(file.remotePath(), 0);
+            return true;
+        }
+    }
+
+    qDebug() << "------------------------------------ COMPLETED";
+
+    m_state = Qwc::TransferStateComplete;
+    emit finished();
+    return false;
+}
 
 
-    return true;
+/*! File transfer socket has successfully finished a file transfer. Call \e prepareNextFile() to
+    check if there are more files to be transferred.
+*/
+void QwcTransfer::handleFileTransferFinished()
+{
+    prepareNextFile();
 }

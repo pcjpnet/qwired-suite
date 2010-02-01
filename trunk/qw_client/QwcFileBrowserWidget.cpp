@@ -140,6 +140,8 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     newItem->setIcon(item.fileIcon());
     newItem->setData(QVariant::fromValue(item), Qt::UserRole); // file information
     newItem->setData(item.fileName(), Qt::UserRole + 1); // sort role
+    QFontMetrics fontMetrics(newItem->font());
+    newItem->setSizeHint(QSize(fontMetrics.width(item.fileName()) + 40, 18));
     columns << newItem;
 
     newItem = new QStandardItem(); // Date
@@ -402,7 +404,7 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
 */
 void QwcFileBrowserWidget::on_btnBack_clicked()
 {
-    m_remotePath = m_remotePath.section("/", 0, -2);
+    m_remotePath = m_remotePath.section("/", 0, -2, QString::SectionSkipEmpty);
     if (!m_remotePath.startsWith("/")) {
         m_remotePath = m_remotePath.prepend("/");
     }

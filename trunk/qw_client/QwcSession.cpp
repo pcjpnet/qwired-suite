@@ -103,8 +103,8 @@ void QwcSession::initializeMainWindow()
     // Create the tab bar for the normal program use
     m_connectionTabWidget = new QTabWidget(m_connectionStackedWidget);
     m_connectionTabWidget->setMovable(true);
-#if Q_WS_MAC
-    connectionTabWidget->setDocumentMode(true);
+#ifdef Q_WS_MAC
+    m_connectionTabWidget->setDocumentMode(true);
 #endif
     m_connectionTabWidget->setTabsClosable(true);
     connect(m_connectionTabWidget, SIGNAL(tabCloseRequested(int)),
