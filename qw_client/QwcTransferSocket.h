@@ -25,7 +25,6 @@ public:
 
     void setServer(QString theServer, int thePort);
     void beginTransfer();
-    void reset();
 
     void setFileInfo(const QwFile &file);
     QwFile fileInfo() const;
@@ -40,6 +39,7 @@ public:
     qint64 transferLimit() const;
 
     qint64 currentTransferSpeed() const;
+
 
 
 
@@ -87,8 +87,9 @@ signals:
     void fileTransferStatus(QwcTransferSocket *transferSocket);
     /*! A connection-level error occoured. The socket can be deleted. */
     void fileTransferSocketError(QAbstractSocket::SocketError error);
+
     /*! The transfer was successfully completed and the socket can be deleted. */
-    void fileTransferDone(QwcTransferSocket *transferSocket);
+    void fileTransferFinished();
 };
 
 #endif

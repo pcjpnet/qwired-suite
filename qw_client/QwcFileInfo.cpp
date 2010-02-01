@@ -1,10 +1,10 @@
 #include "QwcFileInfo.h"
 #include <QHash>
 
-QwcFileInfo::QwcFileInfo() : QwFile()
+QwcFileInfo::QwcFileInfo() :
+        QwFile()
 {
     folderCount = 0;
-    m_transferredSize = -1;
 }
 
 

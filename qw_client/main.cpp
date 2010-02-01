@@ -22,7 +22,11 @@ int main (int argc, char *argv[])
 
     QSettings settings;
 
-
+#ifdef Q_WS_MAC
+    if (!app.style()->objectName().startsWith("macintosh")) {
+        app.setStyleSheet("* {font-size: 11px;} QWidget { background-color: #DDD; }");
+    }
+#endif
 
     // Basic first-time initialization
     if (settings.allKeys().isEmpty()) {

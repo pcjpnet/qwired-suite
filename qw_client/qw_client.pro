@@ -3,7 +3,6 @@ CONFIG += warn_on \
     thread \
     qt \
     silent
-CONFIG -= warnings
 macx:TARGET = "Qwired Client"
 !macx:TARGET = qwired
 RESOURCES = application.qrc

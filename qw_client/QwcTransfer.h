@@ -27,7 +27,11 @@ namespace Qwc {
         /*! The transfer is gathering a list of files from the remote server. */
         TransferStateIndexing,
         /*! The transfer is manually paused/stopped. */
-        TransferStatePaused
+        TransferStatePaused,
+        /*! The transfer is complete. */
+        TransferStateComplete,
+        /*! The transfer is stopped due to an error. */
+        TransferStateError
     };
 
     /*! A unique ID to identify transfers. */
@@ -69,6 +73,8 @@ private slots:
     void handleFileListDone(const QString &path, qint64 freeSpace);
     void handleTransferReady(const QString &path, qint64 offset, const QString &hash);
 
+    void handleFileTransferFinished();
+
 protected:
     /*! The type of the transfer. */
     Qwc::TransferType m_type;
@@ -76,7 +82,8 @@ protected:
     Qwc::TransferState m_state;
     /*! The path to the file or directory being transferred on the client system. */
     QString m_localPath;
-    /*! The path to the file or directory being transferred on the server system. */
+    /*! The path to the file or directory being transferred on the server system. This is not the
+        file currently being transmitted, but the path to the topmost directory. */
     QString m_remotePath;
     /*! The unique ID for this transfer. */
     Qwc::TransferId m_id;
@@ -94,6 +101,9 @@ protected:
 signals:
     /*! The state of the transfer has changed. */
     void stateChanged(Qwc::TransferState newState);
+
+    /*! The transfer has successfully completed. */
+    void finished();
 
 
 };

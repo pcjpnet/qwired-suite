@@ -19,7 +19,7 @@ public:
     QIcon fileIcon() const;
 
     /*! Contains the total number of all files to be transferred during a folder transfer. */
-    quint64 folderCount;
+    qint64 folderCount;
 
 
 };

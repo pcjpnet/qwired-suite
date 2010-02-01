@@ -609,7 +609,7 @@ void QwcSocket::handleMessage410(const QwMessage &message)
 void QwcSocket::handleMessage411(const QwMessage &message)
 {
     QString remotePath = message.stringArg(0);
-    quint64 freeSpace = message.stringArg(1).toLongLong();
+    qint64 freeSpace = message.stringArg(1).toLongLong();
 
 //    if (!m_indexingFilesForTransfer) {
         // If we are not indexing for a recursive folder transfer, we should hand off the new item
@@ -1218,7 +1218,7 @@ void QwcSocket::checkTransferQueue()
     foreach (QwcTransfer *transfer, m_transfers) {
         if (!transfer) { continue; }
         if (transfer->state() == Qwc::TransferStateInactive) {
-            qDebug() << "Starting transfer" << transfer;
+            qDebug() << "Locally de-queueing transfer" << transfer;
             transfer->start();
         }
     }
