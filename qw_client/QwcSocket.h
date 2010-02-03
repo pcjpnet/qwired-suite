@@ -101,6 +101,8 @@ public slots:
     // Transfers
     Qwc::TransferId downloadPath(const QString &remotePath, const QString &localPath);
 
+    bool removeTransfer(QwcTransfer *transfer);
+
     void handleTransferChanged();
 
 

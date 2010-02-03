@@ -44,13 +44,13 @@ public:
 
 
 
-public slots:
-    void stopTransfer();
+
 
 private slots:
     void handleSocketEncrypted();
     void transmitFileChunk();
     void finishTransfer();
+    void haltTransfer();
     
 protected:
     QString m_transferHash;
@@ -75,14 +75,16 @@ protected:
         transfer, such as already transferred bytes. */
     QwFile m_fileInfo;
 
+    /*! The text of the last error which occurred. */
+    QString m_errorString;
+
     /*! The amount of data per second which is currently sent over the socket. */
     qint64 m_currentTransferSpeed;
 
 signals:
     /*! The connection was established and the data transfer begins. */
     void fileTransferStarted(QwcTransferSocket *transferSocket);
-    /*! The transfer was not successfully completed and the socket can be deleted. */
-    void fileTransferError(QwcTransferSocket *transferSocket);
+
     /*! The transfer has made progress and this can be displayed to the user. */
     void fileTransferStatus(QwcTransferSocket *transferSocket);
     /*! A connection-level error occoured. The socket can be deleted. */
@@ -90,6 +92,8 @@ signals:
 
     /*! The transfer was successfully completed and the socket can be deleted. */
     void fileTransferFinished();
+    /*! The transfer was not successfully completed and the socket can be deleted. */
+    void fileTransferError();
 };
 
 #endif

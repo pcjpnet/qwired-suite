@@ -53,7 +53,13 @@ private slots:
     void on_fList_doubleClicked(const QModelIndex &index);
     void handleListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
-    void handleSocketTransferCreated(QwcTransfer *transfer);
+    void handleTransferListSelectionChanged(const QItemSelection &selected,
+                                            const QItemSelection &deselected);
+    void on_pauseTransfer_clicked();
+    void on_resumeTransfer_clicked();
+    void on_cancelTransfer_clicked();
+
+    void handleSocketTransfersChanged(QwcTransfer *transfer);
     void handleSocketTransferChanged(QwcTransfer *transfer);
 
     // Info page
