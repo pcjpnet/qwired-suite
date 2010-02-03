@@ -10,6 +10,7 @@
 #include <QtGui/QFileIconProvider>
 #include <QtCore/QSettings>
 #include <math.h>
+#include "QwcFiletransferDelegate.h"
 
 QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
         QWidget(parent)
@@ -24,12 +25,15 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
     m_freeRemoteSpace = 0;
     labelCurrentPath->setText("/");
 
-    m_model = new QStandardItemModel(this);
-    m_model->setSortRole(Qt::UserRole + 1);
-    fList->setModel(m_model);
+    m_fileListModel = new QStandardItemModel(this);
+    m_fileListModel->setSortRole(Qt::UserRole + 1);
+    fList->setModel(m_fileListModel);
     connect(fList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(handleListSelectionChanged(QItemSelection,QItemSelection)));
 
+    m_fileTransferModel = new QStandardItemModel(this);
+    transferList->setModel(m_fileTransferModel);
+    transferList->setItemDelegate(new QwcFiletransferDelegate);
 
     stackedWidget->setCurrentWidget(pageBrowser);
 }
@@ -49,6 +53,11 @@ void QwcFileBrowserWidget::setSocket(QwcSocket *socket)
             this, SLOT(handleFilesListItem(QwcFileInfo)));
     connect(m_socket, SIGNAL(fileSearchResultListDone()),
             this, SLOT(handleSearchResultListDone()));
+
+    connect(m_socket, SIGNAL(transferCreated(QwcTransfer*)),
+            this, SLOT(handleSocketTransferCreated(QwcTransfer*)));
+    connect(m_socket, SIGNAL(transferChanged(QwcTransfer*)),
+            this, SLOT(handleSocketTransferChanged(QwcTransfer*)));
 
     setRemotePath("/");
 }
@@ -73,8 +82,8 @@ void QwcFileBrowserWidget::setRemotePath(const QString &path)
 */
 void QwcFileBrowserWidget::resetForListing()
 {
-    m_model->clear();
-    m_model->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Modified") << tr("Size"));
+    m_fileListModel->clear();
+    m_fileListModel->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Modified") << tr("Size"));
     labelCurrentPath->setText(m_remotePath);
     m_totalUsedSpace = 0;
     m_freeRemoteSpace = 0;
@@ -140,6 +149,7 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     newItem->setIcon(item.fileIcon());
     newItem->setData(QVariant::fromValue(item), Qt::UserRole); // file information
     newItem->setData(item.fileName(), Qt::UserRole + 1); // sort role
+
     QFontMetrics fontMetrics(newItem->font());
     newItem->setSizeHint(QSize(fontMetrics.width(item.fileName()) + 40, 18));
     columns << newItem;
@@ -158,7 +168,7 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     newItem->setData(item.size(), Qt::UserRole + 1); // sort role
     columns << newItem;
 
-    m_model->appendRow(columns);
+    m_fileListModel->appendRow(columns);
 
 
     if (item.type == Qw::FileTypeRegular) {
@@ -177,7 +187,7 @@ void QwcFileBrowserWidget::handleFilesListDone(const QString &path, qint64 freeS
     m_waitingForListItems = false;
     m_freeRemoteSpace = freeSpace;
     fStats->setText(tr("%1 items, %2 total, %3 available")
-                    .arg(m_model->rowCount())
+                    .arg(m_fileListModel->rowCount())
                     .arg(QwFile::humanReadableSize(m_totalUsedSpace))
                     .arg(QwFile::humanReadableSize(m_freeRemoteSpace)));
     this->setEnabled(true);
@@ -185,7 +195,7 @@ void QwcFileBrowserWidget::handleFilesListDone(const QString &path, qint64 freeS
     fList->resizeColumnToContents(0);
 
     // Set the root information as we don't get this from previous requests.
-    if (remotePath() == "/") {
+    if (m_remotePath == "/") {
         currentFolderInfo = QwcFileInfo();
         currentFolderInfo.setRemotePath("/");
         currentFolderInfo.type = Qw::FileTypeFolder;
@@ -214,11 +224,10 @@ void QwcFileBrowserWidget::handleSearchResultListDone()
 {
 
     if (!m_waitingForListItems) { return; }
-    qDebug() << "DONE";
     m_waitingForListItems = false;
     m_freeRemoteSpace = 0;
     fStats->setText(tr("%1 results for \"%2\"")
-                    .arg(m_model->rowCount())
+                    .arg(m_fileListModel->rowCount())
                     .arg(findFilter->text()));
     this->setEnabled(true);
     fList->resizeColumnToContents(0);
@@ -255,9 +264,9 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
     if (button == QMessageBox::No) { return; }
 
     foreach (QModelIndex index, fList->selectionModel()->selectedRows(0)) {
-        QStandardItem *clickedItem = m_model->itemFromIndex(index);
+        QStandardItem *clickedItem = m_fileListModel->itemFromIndex(index);
         if (!clickedItem) { continue; }
-        QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
+        QStandardItem *firstColumnItem = m_fileListModel->item(index.row(), 0);
         if (!firstColumnItem) { continue; }
         QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
         m_socket->deleteFile(fileInfo.remotePath());
@@ -346,9 +355,9 @@ void QwcFileBrowserWidget::on_findFilter_returnPressed()
 
 void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
 {
-    QStandardItem *clickedItem = m_model->itemFromIndex(index);
+    QStandardItem *clickedItem = m_fileListModel->itemFromIndex(index);
     if (!clickedItem) { return; }
-    QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
+    QStandardItem *firstColumnItem = m_fileListModel->item(index.row(), 0);
     if (!firstColumnItem) { return; }
 
     QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
@@ -359,18 +368,41 @@ void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
     {
         m_remotePath = fileInfo.remotePath();
         currentFolderInfo = fileInfo;
-        setRemotePath(fileInfo.remotePath());
+        setRemotePath(fileInfo.remotePath().section("/", 0, -1, QString::SectionSkipEmpty));
     }
 }
 
 
-void QwcFileBrowserWidget::handleListSelectionChanged(const QItemSelection &,
-                                                      const QItemSelection &)
+void QwcFileBrowserWidget::handleListSelectionChanged(const QItemSelection &, const QItemSelection &)
 {
     const bool &hasSelection = fList->selectionModel()->hasSelection();
     btnDownload->setEnabled(hasSelection);
     btnDelete->setEnabled(hasSelection && m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeDeleteFiles));
     btnInfo->setEnabled(hasSelection);
+}
+
+
+/*! A transfer task was created.
+*/
+void QwcFileBrowserWidget::handleSocketTransferCreated(QwcTransfer *transfer)
+{
+    QStandardItem *item = new QStandardItem;
+    item->setData(qVariantFromValue(transfer), Qt::UserRole);
+    m_fileTransferModel->appendRow(item);
+}
+
+
+/*! A transfer task was created.
+*/
+void QwcFileBrowserWidget::handleSocketTransferChanged(QwcTransfer *transfer)
+{
+    for (int i = 0; i < m_fileTransferModel->rowCount(); i++) {
+        if (m_fileTransferModel->item(i,0)->data(Qt::UserRole).value<QwcTransfer*>() == transfer) {
+            transferList->update(m_fileTransferModel->item(i,0)->index());
+            return;
+        }
+
+    }
 }
 
 
@@ -380,9 +412,9 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
     QSettings settings;
 
     foreach (QModelIndex index, fList->selectionModel()->selectedRows(0)) {
-        QStandardItem *clickedItem = m_model->itemFromIndex(index);
+        QStandardItem *clickedItem = m_fileListModel->itemFromIndex(index);
         if (!clickedItem) { continue; }
-        QStandardItem *firstColumnItem = m_model->item(index.row(), 0);
+        QStandardItem *firstColumnItem = m_fileListModel->item(index.row(), 0);
         if (!firstColumnItem) { continue; }
         QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
 
@@ -417,7 +449,7 @@ void QwcFileBrowserWidget::on_btnBack_clicked()
 */
 void QwcFileBrowserWidget::on_btnInfo_clicked()
 {
-    QStandardItem *clickedItem = m_model->itemFromIndex(fList->selectionModel()->selectedRows(0).first());
+    QStandardItem *clickedItem = m_fileListModel->itemFromIndex(fList->selectionModel()->selectedRows(0).first());
     if (!clickedItem) { return; }
     currentFileInfo = clickedItem->data(Qt::UserRole).value<QwcFileInfo>();
 

@@ -12,6 +12,7 @@
 
 class QStandardItemModel;
 class QwcSocket;
+class QwcTransfer;
 
 class QwcFileBrowserWidget :
         public QWidget,
@@ -52,6 +53,9 @@ private slots:
     void on_fList_doubleClicked(const QModelIndex &index);
     void handleListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
+    void handleSocketTransferCreated(QwcTransfer *transfer);
+    void handleSocketTransferChanged(QwcTransfer *transfer);
+
     // Info page
     void on_btnInfoCancel_clicked();
     void on_btnInfoApply_clicked();
@@ -59,7 +63,7 @@ private slots:
 
 protected:
     /*! The model for the file list view. */
-    QStandardItemModel *m_model;
+    QStandardItemModel *m_fileListModel;
     /*! The currently used socket to send data to the server. */
     QwcSocket *m_socket;
     /*! This member is true if the browser is expecting more list items. */
@@ -70,6 +74,9 @@ protected:
     qlonglong m_totalUsedSpace;
     /*! The path to the current directory on the remote server. */
     QString m_remotePath;
+
+    /*! The model for the file transfer view. */
+    QStandardItemModel *m_fileTransferModel;
 
 public slots:
     void handleFilesListItem(QwcFileInfo item);

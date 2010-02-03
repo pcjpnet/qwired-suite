@@ -68,6 +68,9 @@ public:
     const QList<QwFile> & transferFiles() const;
     void setTransferFiles(const QList<QwFile> &files);
 
+    qint64 completedTransferSize() const;
+    qint64 totalTransferSize() const;
+
 private slots:
     void handleFileListItem(const QwcFileInfo &file);
     void handleFileListDone(const QString &path, qint64 freeSpace);
@@ -94,18 +97,29 @@ protected:
     /*! The server connection socket. */
     QwcSocket *m_socket;
 
+    /*! The ID of the timer, which regulary informs about the current progress for active transfers. */
+    int m_updateTimerId;
+
+    /*! The total amount of data to be transferred (for informational purposes!). */
+    qint64 m_totalTransferSize;
+    /*! The amount of data transferred so far (for informational purposes!). */
+    qint64 m_completedTransferSize;
 
     void changeState(Qwc::TransferState newState);
     bool prepareNextFile();
+    void timerEvent(QTimerEvent *event);
 
 signals:
-    /*! The state of the transfer has changed. */
-    void stateChanged(Qwc::TransferState newState);
+
+    /*! The transfer has changed. */
+    void transferChanged();
 
     /*! The transfer has successfully completed. */
     void finished();
 
 
 };
+
+Q_DECLARE_METATYPE(QwcTransfer*);
 
 #endif

@@ -1,144 +1,116 @@
+
 #include "QwcFiletransferDelegate.h"
-#include "QwcTransferInfo.h"
-#include "QwcFileInfo.h"
+#include "QwcTransfer.h"
 
-#include <QFont>
-#include <QPainter>
-#include <QDebug>
-#include <QApplication>
+#include <QtCore/QDebug>
+#include <QtGui/QPainter>
+#include <QtGui/QApplication>
 
-QwcFiletransferDelegate::QwcFiletransferDelegate(QObject *parent) : QAbstractItemDelegate(parent)
+QwcFiletransferDelegate::QwcFiletransferDelegate(QObject *parent) :
+        QAbstractItemDelegate(parent)
 {
 }
 
 
-QSize QwcFiletransferDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize QwcFiletransferDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                        const QModelIndex &index) const
 {
     Q_UNUSED(index);
-    return QSize(option.rect.width(), 50);
+    return QSize(option.rect.width(), 60);
 }
 
 
-void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                                    const QModelIndex &index) const
 {
     if (!index.isValid()) { return; }
+
+
     if (option.state & QStyle::State_Selected) {
+        // Selected items
         painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
     }
 
-    if (!index.data(Qt::UserRole).canConvert<QwcTransferInfo>()) { return; }
-    QwcTransferInfo transfer = index.data(Qt::UserRole).value<QwcTransferInfo>();
-
-    painter->save();
     painter->translate(option.rect.topLeft());
 
-    // Status Text
-    QString statusText;
-    QPixmap icon;
-
-    if (transfer.state == Qw::TransferInfoStateNone) {
-        statusText = tr("Locally queued");
-        icon = QPixmap(":/icons/32x32/start-here.png");
-
-    } else if (transfer.state == Qw::TransferInfoStateRequested) {
-        statusText = tr("Waiting for server");
-        icon = QPixmap(":/icons/32x32/network-server.png");
-
-    } else if (transfer.state == Qw::TransferInfoStateIndexing) {
-        statusText = tr("Indexing");
-        icon = QPixmap(":/icons/32x32/network-server.png");
-
-    } else if (transfer.state == Qw::TransferInfoStatePaused) {
-        statusText = tr("Stopped");
-        icon = QPixmap(":/icons/32x32/media-playback-pause.png");
-
-    } else if (transfer.state == Qw::TransferInfoStateQueued) {
-        statusText = tr("Remotely queued (position %1)").arg(transfer.queuePosition);
-        icon = QPixmap(":icons/32x32/start-here.png");
-
-    } else if (transfer.state == Qw::TransferInfoStateActive) {
-        statusText = tr("Active - %1 of %2 (%3%) - %4/s")
-                     .arg(QwFile::humanReadableSize(transfer.bytesTransferred))
-                     .arg(QwFile::humanReadableSize(transfer.file.size()))
-                     .arg(double(double(transfer.bytesTransferred)/double(transfer.file.size())*100), 0, 'f', 2)
-                     .arg(QwFile::humanReadableSize(transfer.currentTransferSpeed));
-
-        // Icon
-        if (transfer.type == Qw::TransferTypeDownload || transfer.type == Qw::TransferTypeFolderDownload) {
-            icon = QPixmap(":icons/32x32/go-down.png");
-        } else if (transfer.type == Qw::TransferTypeUpload || transfer.type == Qw::TransferTypeFolderUpload) {
-            icon = QPixmap(":icons/32x32/go-up.png");
-        }
-    }
-
-    // Add a small folder icon when we are having a folder transfer
-    if (transfer.type == Qw::TransferTypeFolderDownload || transfer.type == Qw::TransferTypeFolderUpload) {
-        QPainter painter(&icon);
-        painter.drawPixmap(32-16, 32-16, QPixmap(":icons/files/files-folder.png"));
-        painter.end();
-    }
-    painter->drawPixmap(9, 9, icon);
-
-    QFont currentFont(painter->font());
-
-    painter->translate(50, 0);
-
-    // File Name
-    currentFont.setPixelSize(12);
-    currentFont.setBold(true);
-    painter->setFont(currentFont);
-
-    if (transfer.type == Qw::TransferTypeFolderDownload
-        || transfer.type == Qw::TransferTypeFolderUpload)
-    {
-        painter->drawText(0, painter->fontMetrics().ascent()+1, QString("%1 (%2)")
-                          .arg(transfer.folder.fileName())
-                          .arg(transfer.file.fileName()));
-    } else {
-        painter->drawText(0, painter->fontMetrics().ascent()+1, transfer.file.fileName());
-    }
-
-    // Status Bar
-    currentFont.setPixelSize(9);
-    currentFont.setBold(false);
-    painter->setFont(currentFont);
-    painter->translate(0, 18);
-    painter->drawText(0, painter->fontMetrics().ascent()-1, statusText);
-
-
-    // Progress Bar
-    if (transfer.state == Qw::TransferInfoStateActive) {
-        QStyleOptionProgressBarV2 barOption;
-        barOption.state = QStyle::State_Enabled;
-        barOption.direction = QApplication::layoutDirection();
-        barOption.minimum = 0;
-
-        if (transfer.type == Qw::TransferTypeFolderDownload) {
-            barOption.maximum = transfer.folder.folderCount;
-            barOption.progress = transfer.folder.folderCount - transfer.recursiveFiles.count();
-        } else {
-            barOption.maximum = 100;
-            barOption.progress = int(double(transfer.bytesTransferred)/double(transfer.file.size())*100);
-        }
-
-        barOption.rect.setLeft(0);
-        barOption.rect.setTop(0);
-        barOption.rect.setHeight(16);
-        barOption.rect.setWidth(option.rect.width()-painter->matrix().dx()-9);
-        painter->translate(0, 12);
-        QApplication::style()->drawControl(QStyle::CE_ProgressBar, &barOption, painter);
-
-    }
-    painter->restore();
-
     // Draw bottom line
-    painter->save();
     QPen pen(painter->pen());
     pen.setColor(Qt::gray);
     pen.setWidth(1);
     painter->setPen(pen);
     painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
-    painter->restore();
+
+    QwcTransfer *transfer = index.data(Qt::UserRole).value<QwcTransfer*>();
+    if (!transfer) { return; }
+
+    painter->setPen(Qt::black);
+
+    // Status Text
+    QString statusText;
+    if (transfer->state() == Qwc::TransferStateActive) {
+        statusText = tr("Active (%1 of %2)")
+                     .arg(QwFile::humanReadableSize(transfer->completedTransferSize()))
+                     .arg(QwFile::humanReadableSize(transfer->totalTransferSize()));
+    } else if (transfer->state() == Qwc::TransferStateComplete) {
+        statusText = tr("Complete");
+    } else if (transfer->state() == Qwc::TransferStateError) {
+        statusText = tr("Error");
+    } else if (transfer->state() == Qwc::TransferStateInactive) {
+        statusText = tr("Inactive?");
+    } else if (transfer->state() == Qwc::TransferStateIndexing) {
+        statusText = tr("Indexing");
+    } else if (transfer->state() == Qwc::TransferStatePaused) {
+        statusText = tr("Paused");
+    }
+
+    QFont currentFont(painter->font());
+
+    const int cellPadding = 4;
+    painter->translate(cellPadding, cellPadding);
+
+    // File Name
+    currentFont.setPixelSize(12);
+    currentFont.setBold(true);
+    painter->setFont(currentFont);
+    painter->drawText(QPoint(0, painter->fontMetrics().ascent()),
+                      transfer->remotePath().section("/", -1, -1, QString::SectionSkipEmpty));
+    painter->translate(0, painter->fontMetrics().height());
+
+//    if (transfer->type() == Qwc::TransferTypeFolderUpload
+//        || transfer->type() == Qwc::TransferTypeFolderDownload)
+//    {
+//        painter->drawText(0, painter->fontMetrics().ascent()+1, QString("%1 (%2)")
+//                          .arg(transfer.folder.fileName())
+//                          .arg(transfer.file.fileName()));
+//    } else {
+//        painter->drawText(0, painter->fontMetrics().ascent()+1, transfer->transferFiles().fileName());
+//    }
+
+    // Status Bar
+    currentFont.setPixelSize(currentFont.pixelSize() * 0.8);
+    currentFont.setBold(false);
+    painter->setFont(currentFont);
+    painter->drawText(QPoint(0, painter->fontMetrics().ascent()), statusText);
+    painter->translate(0, painter->fontMetrics().height());
+
+
+    // Progress Bar
+    QStyleOptionProgressBarV2 barOption;
+    barOption.state = QStyle::State_Enabled;
+    barOption.direction = QApplication::layoutDirection();
+    barOption.minimum = 0;
+    barOption.maximum = 100;
+
+    if (transfer->totalTransferSize() > 0) {
+        barOption.progress = (qreal(transfer->completedTransferSize()) / qreal(transfer->totalTransferSize())) * 100;
+    }
+
+    barOption.rect.setLeft(0);
+    barOption.rect.setTop(0);
+    barOption.rect.setHeight(16);
+    barOption.rect.setWidth(option.rect.width()-painter->matrix().dx()-9);
+    QApplication::style()->drawControl(QStyle::CE_ProgressBar, &barOption, painter);
+
 
 }
 

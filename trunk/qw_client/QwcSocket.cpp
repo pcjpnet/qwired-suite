@@ -610,38 +610,7 @@ void QwcSocket::handleMessage411(const QwMessage &message)
 {
     QString remotePath = message.stringArg(0);
     qint64 freeSpace = message.stringArg(1).toLongLong();
-
-//    if (!m_indexingFilesForTransfer) {
-        // If we are not indexing for a recursive folder transfer, we should hand off the new item
-        // using a signal to the rest of the application.
-        emit onFilesListDone(remotePath, freeSpace);
-
-//    } else {
-//        // Otherwise we simply add the result to the transfer information.
-//        qDebug() << this << "Recursive listing of" << remotePath << ", items:" << m_fileListingBuffer.count();
-//
-//
-//        foreach (QwcTransferSocket *transfer, m_transferSockets) {
-//            if (!transfer) { continue; }
-//            if (transfer->transferInfo.type == Qw::TransferTypeFolderDownload
-//                && transfer->transferInfo.folder.remotePath() == remotePath
-//                && transfer->transferInfo.state == Qw::TransferInfoStateIndexing)
-//            {
-//                qDebug() << this << "Updated transfer information for listing";
-//                transfer->transferInfo.setIndexingComplete(true);
-//                transfer->transferInfo.recursiveFiles = m_fileListingBuffer;
-//                transfer->transferInfo.state = Qw::TransferInfoStateNone;
-//                transfer->transferInfo.updateFolderTransferInfo();
-//                transfer->transferInfo.applyNextFile();
-//            }
-//
-//        }
-//
-//        m_indexingFilesForTransfer = false;
-//        m_fileListingBuffer.clear();
-//
-//        checkTransferQueue();
-//    }
+    emit onFilesListDone(remotePath, freeSpace);
 }
 
 
@@ -1045,11 +1014,9 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
     newTransfer->setLocalPath(localPath);
 
     m_transfers[newTransfer->id()] = newTransfer;
-
+    emit transferCreated(newTransfer);
     checkTransferQueue();
-
     return newTransfer->id();
-
 }
 
 
@@ -1071,6 +1038,14 @@ void QwcSocket::moveFile(const QString &source, const QString &destination)
 void QwcSocket::getFile(const QString &path, qint64 offset)
 { sendMessage(QwMessage("GET").appendArg(path).appendArg(offset)); }
 
+/*! A transfer has changed. We emit a signal from here to notify the rest of the application code.
+*/
+void QwcSocket::handleTransferChanged()
+{
+    QwcTransfer *transfer = dynamic_cast<QwcTransfer*>(sender());
+    if (!transfer) { return; }
+    emit transferChanged(transfer);
+}
 
 /*! Delete a file or directory from the server. */
 void QwcSocket::deleteFile(const QString &path)

@@ -10,6 +10,9 @@ QwcTransfer::QwcTransfer(Qwc::TransferType type, QObject *parent) :
     m_id = qrand();
     m_transferSocket = NULL;
     m_socket = NULL;
+    m_totalTransferSize = 0;
+    m_completedTransferSize = 0;
+    m_updateTimerId = -1;
 }
 
 
@@ -57,6 +60,9 @@ void QwcTransfer::setSocket(QwcSocket *socket)
             this, SLOT(handleFileListDone(QString,qint64)));
     connect(m_socket, SIGNAL(transferReady(QString,qint64,QString)),
             this, SLOT(handleTransferReady(QString,qint64,QString)));
+
+    connect(this, SIGNAL(transferChanged()),
+            m_socket, SLOT(handleTransferChanged()));
 }
 
 
@@ -80,11 +86,18 @@ void QwcTransfer::setTransferFiles(const QList<QwFile> &files)
 { m_transferFiles = files; }
 
 
+qint64 QwcTransfer::completedTransferSize() const
+{ return m_completedTransferSize; }
+
+qint64 QwcTransfer::totalTransferSize() const
+{ return m_totalTransferSize; }
+
+
 void QwcTransfer::handleFileListItem(const QwcFileInfo &file)
 {
     if (m_state == Qwc::TransferStateIndexing) {
-        qDebug() << this << "Received file listing item" << file.remotePath();
         m_transferFiles << file;
+        m_totalTransferSize += file.size();
     }
 }
 
@@ -92,10 +105,11 @@ void QwcTransfer::handleFileListDone(const QString &path, qint64 freeSpace)
 {
     Q_UNUSED(freeSpace);
     if (m_state == Qwc::TransferStateIndexing) {
-        qDebug() << this << "Remote indexing complete for path:" << path;
+        changeState(Qwc::TransferStateActive);
         prepareNextFile();
     }
 }
+
 
 void QwcTransfer::handleTransferReady(const QString &path, qint64 offset, const QString &hash)
 {
@@ -110,7 +124,14 @@ void QwcTransfer::handleTransferReady(const QString &path, qint64 offset, const 
 void QwcTransfer::changeState(Qwc::TransferState newState)
 {
     m_state = newState;
-    emit stateChanged(newState);
+    emit transferChanged();
+
+    if (newState == Qwc::TransferStateActive) {
+        m_updateTimerId = startTimer(100);
+    } else if (m_updateTimerId > -1) {
+        killTimer(m_updateTimerId);
+        m_updateTimerId = -1;
+    }
 }
 
 
@@ -145,7 +166,7 @@ bool QwcTransfer::prepareNextFile()
 
     qDebug() << "------------------------------------ COMPLETED";
 
-    m_state = Qwc::TransferStateComplete;
+    changeState(Qwc::TransferStateComplete);
     emit finished();
     return false;
 }
@@ -156,5 +177,18 @@ bool QwcTransfer::prepareNextFile()
 */
 void QwcTransfer::handleFileTransferFinished()
 {
+    // Update the amount of data transferred
+    QwcTransferSocket *transferSocket = dynamic_cast<QwcTransferSocket*>(sender());
+    if (transferSocket) {
+        m_completedTransferSize += transferSocket->fileInfo().size();
+        emit transferChanged();
+    }
+
     prepareNextFile();
+}
+
+
+void QwcTransfer::timerEvent(QTimerEvent *event)
+{
+    emit transferChanged();
 }
