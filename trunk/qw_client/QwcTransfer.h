@@ -77,6 +77,7 @@ private slots:
     void handleTransferReady(const QString &path, qint64 offset, const QString &hash);
 
     void handleFileTransferFinished();
+    void handleFileTransferError();
 
 protected:
     /*! The type of the transfer. */

@@ -35,6 +35,9 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
     transferList->setModel(m_fileTransferModel);
     transferList->setItemDelegate(new QwcFiletransferDelegate);
 
+    connect(transferList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(handleTransferListSelectionChanged(QItemSelection,QItemSelection)));
+
     stackedWidget->setCurrentWidget(pageBrowser);
 }
 
@@ -55,7 +58,9 @@ void QwcFileBrowserWidget::setSocket(QwcSocket *socket)
             this, SLOT(handleSearchResultListDone()));
 
     connect(m_socket, SIGNAL(transferCreated(QwcTransfer*)),
-            this, SLOT(handleSocketTransferCreated(QwcTransfer*)));
+            this, SLOT(handleSocketTransfersChanged(QwcTransfer*)));
+    connect(m_socket, SIGNAL(transferRemoved(QwcTransfer*)),
+            this, SLOT(handleSocketTransfersChanged(QwcTransfer*)));
     connect(m_socket, SIGNAL(transferChanged(QwcTransfer*)),
             this, SLOT(handleSocketTransferChanged(QwcTransfer*)));
 
@@ -382,9 +387,53 @@ void QwcFileBrowserWidget::handleListSelectionChanged(const QItemSelection &, co
 }
 
 
+void QwcFileBrowserWidget::handleTransferListSelectionChanged(const QItemSelection &selected,
+                                                              const QItemSelection &deselected)
+{
+    if (transferList->selectionModel()->hasSelection()) {        
+        pauseTransfer->setEnabled(true);
+        resumeTransfer->setEnabled(true);
+        cancelTransfer->setEnabled(true);
+    } else {
+        pauseTransfer->setEnabled(false);
+        resumeTransfer->setEnabled(false);
+        cancelTransfer->setEnabled(false);
+    }
+}
+
+void QwcFileBrowserWidget::on_pauseTransfer_clicked()
+{
+    foreach (QModelIndex index, transferList->selectionModel()->selectedRows(0)) {
+        if (!index.isValid()) { continue; }
+        QwcTransfer *transfer = index.data(Qt::UserRole).value<QwcTransfer*>();
+        if (!transfer) { continue; }
+        transfer->stop();
+    }
+}
+
+void QwcFileBrowserWidget::on_resumeTransfer_clicked()
+{
+    foreach (QModelIndex index, transferList->selectionModel()->selectedRows(0)) {
+        if (!index.isValid()) { continue; }
+        QwcTransfer *transfer = index.data(Qt::UserRole).value<QwcTransfer*>();
+        if (!transfer) { continue; }
+        transfer->start();
+    }
+}
+
+void QwcFileBrowserWidget::on_cancelTransfer_clicked()
+{
+    foreach (QModelIndex index, transferList->selectionModel()->selectedRows(0)) {
+        if (!index.isValid()) { continue; }
+        QwcTransfer *transfer = index.data(Qt::UserRole).value<QwcTransfer*>();
+        if (!transfer) { continue; }
+        m_socket->removeTransfer(transfer);
+    }
+}
+
 /*! A transfer task was created.
 */
-void QwcFileBrowserWidget::handleSocketTransferCreated(QwcTransfer *transfer)
+void QwcFileBrowserWidget::handleSocketTransfersChanged(QwcTransfer *transfer)
 {
     QStandardItem *item = new QStandardItem;
     item->setData(qVariantFromValue(transfer), Qt::UserRole);

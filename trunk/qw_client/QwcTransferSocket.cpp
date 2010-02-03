@@ -116,17 +116,15 @@ void QwcTransferSocket::handleSocketEncrypted()
     if (transferDirection() == Qwc::TransferDirectionDownload) {
         bool ok;
         if (m_fileInfo.transferredSize() > -1) {
-            qDebug() << "Continuing..";
             ok = m_fileReader.open(QIODevice::WriteOnly | QIODevice::Append);
         } else {
-            qDebug() << "Creating new file..";
             ok = m_fileReader.open(QIODevice::WriteOnly);
         }
 
         if (!ok) {
-            qDebug() << this << "Unable to open file for writing:" << m_fileReader.errorString();
-            stopTransfer();
-            emit fileTransferError(this);
+            m_errorString = tr("Unable to open file for writing: %1").arg(m_fileReader.errorString());
+            haltTransfer();
+            emit fileTransferError();
             return;
         }
 
@@ -183,8 +181,6 @@ void QwcTransferSocket::transmitFileChunk()
         if (readBytes > 0 || m_transferSpeedTimer.elapsed() > 4000) {
             m_currentTransferSpeed = 1000.0 / float(m_transferSpeedTimer.restart()) * readBytes;
             emit fileTransferStatus(this);
-            qDebug() << "Downloaded" << readBytes << "bytes of" << m_fileInfo.size() <<
-                    "@" << m_currentTransferSpeed << "/s";
         }
 
         if (m_socket->state() == QAbstractSocket::UnconnectedState) {
@@ -196,10 +192,9 @@ void QwcTransferSocket::transmitFileChunk()
 
             qDebug() << this << "Transfer incomplete:" << m_fileInfo.transferredSize()
                     <<"of" << m_fileInfo.size();
-            if (m_fileInfo.transferredSize() == 0) {
-                qDebug();
-            }
-            stopTransfer();
+
+            haltTransfer();
+            emit fileTransferError();
         }
 
 
@@ -237,12 +232,12 @@ void QwcTransferSocket::transmitFileChunk()
 
 /*! Stop an active transfer and halt data transmission.
 */
-void QwcTransferSocket::stopTransfer()
+void QwcTransferSocket::haltTransfer()
 {
     qDebug() << this << "Halting transfer.";
     m_transferTimer.stop();
     m_socket->close();
-//    emit fileTransferError(this);
+    m_fileReader.close();
 }
 
 

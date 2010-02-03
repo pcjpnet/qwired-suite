@@ -32,17 +32,31 @@ Qwc::TransferId QwcTransfer::id() const
 */
 void QwcTransfer::start()
 {
-    if (m_type == Qwc::TransferTypeFolderDownload) {
-        qDebug() << "Transfer requesting list of files from server";
-        changeState(Qwc::TransferStateIndexing);
-        m_socket->getFileListRecusive(remotePath());
+    if (m_state == Qwc::TransferStatePaused) {
+        changeState(Qwc::TransferStateActive);
+        prepareNextFile();
+    } else if (m_state == Qwc::TransferStateActive) {
+        // Do nothing
+        return;
+    } else {
+        if (m_type == Qwc::TransferTypeFolderDownload) {
+            qDebug() << "Transfer requesting list of files from server";
+            changeState(Qwc::TransferStateIndexing);
+            m_socket->getFileListRecusive(remotePath());
+        }
     }
 }
 
 /*! Stops the running transfer.
 */
 void QwcTransfer::stop()
-{ }
+{
+    if (m_state == Qwc::TransferStateActive) {
+        m_transferSocket->disconnect();
+        m_transferFiles.prepend(m_transferSocket->fileInfo());
+    }
+    changeState(Qwc::TransferStatePaused);
+}
 
 
 QwcSocket* QwcTransfer::socket()
@@ -87,7 +101,7 @@ void QwcTransfer::setTransferFiles(const QList<QwFile> &files)
 
 
 qint64 QwcTransfer::completedTransferSize() const
-{ return m_completedTransferSize; }
+{ return m_completedTransferSize + m_transferSocket->fileInfo().transferredSize(); }
 
 qint64 QwcTransfer::totalTransferSize() const
 { return m_totalTransferSize; }
@@ -123,22 +137,21 @@ void QwcTransfer::handleTransferReady(const QString &path, qint64 offset, const 
 
 void QwcTransfer::changeState(Qwc::TransferState newState)
 {
-    m_state = newState;
-    emit transferChanged();
 
     if (newState == Qwc::TransferStateActive) {
-        m_updateTimerId = startTimer(100);
+        m_updateTimerId = startTimer(50);
     } else if (m_updateTimerId > -1) {
         killTimer(m_updateTimerId);
         m_updateTimerId = -1;
     }
+
+    m_state = newState;
+    emit transferChanged();
 }
 
 
 bool QwcTransfer::prepareNextFile()
 {
-    if (m_transferFiles.isEmpty()) { return false; }
-
     while (m_transferFiles.size()) {
         QwFile file = m_transferFiles.takeFirst();
         qDebug() << "------------------------------------ PREPARING FOR NEW FILE:" << file.remotePath();
@@ -150,6 +163,8 @@ bool QwcTransfer::prepareNextFile()
             m_transferSocket = new QwcTransferSocket(this);
             connect(m_transferSocket, SIGNAL(fileTransferFinished()),
                     this, SLOT(handleFileTransferFinished()));
+            connect(m_transferSocket, SIGNAL(fileTransferError()),
+                    this, SLOT(handleFileTransferError()));
 
             m_transferSocket->setServer(m_socket->sslSocket()->peerAddress().toString(),
                                         m_socket->sslSocket()->peerPort());
@@ -187,6 +202,11 @@ void QwcTransfer::handleFileTransferFinished()
     prepareNextFile();
 }
 
+
+void QwcTransfer::handleFileTransferError()
+{
+    changeState(Qwc::TransferStateError);
+}
 
 void QwcTransfer::timerEvent(QTimerEvent *event)
 {

@@ -1020,6 +1020,22 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
 }
 
 
+/*! Remove a transfer from the internal list of transfer tasks, automatically stop it and notify
+    other parts about this using the \e transferRemoved() signal. The transfer task object will be
+    automatically deleted. Will return true if successful.
+*/
+bool QwcSocket::removeTransfer(QwcTransfer *transfer)
+{
+    if (!transfer) { return false; }
+    if (!m_transfers.contains(transfer->id())) { return false; }
+
+    transfer->stop();
+    m_transfers.remove(transfer->id());
+    emit transferRemoved(transfer);
+    delete transfer;
+    return true;
+}
+
 
 /*! Create a folder at the specified path. */
 void QwcSocket::createFolder(const QString &path)
