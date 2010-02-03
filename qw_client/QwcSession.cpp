@@ -10,7 +10,6 @@
 #include "QwcAccountsWidget.h"
 #include "QwcServerInfoWidget.h"
 #include "QwcPreferencesWidget.h"
-#include "QwcFiletransferWidget.h"
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QSound>
@@ -354,16 +353,6 @@ void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction
             m_connectionTabWidget->addTab(m_publicChat, tr("Chat"));
         }
         m_connectionTabWidget->setCurrentWidget(m_publicChat);
-
-
-    } else if (action == QwcConnectionMainWindow::TriggeredActionTransfers) {
-        if (!m_transfersWidget) {
-            m_transfersWidget = new QwcFiletransferWidget();
-        }
-        if (m_connectionTabWidget->indexOf(m_transfersWidget) == -1) {
-            m_connectionTabWidget->addTab(m_transfersWidget, tr("Transfers"));
-        }
-        m_connectionTabWidget->setCurrentWidget(m_transfersWidget);
 
 
     } else if (action == QwcConnectionMainWindow::TriggeredActionNewConnection) {

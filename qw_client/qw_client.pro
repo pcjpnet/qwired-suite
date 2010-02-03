@@ -33,7 +33,6 @@ SOURCES += main.cpp \
     QwcFileInfo.cpp \
     QwcPreferencesWidget.cpp \
     QwcTransferSocket.cpp \
-    QwcFiletransferWidget.cpp \
     QwcFiletransferDelegate.cpp \
     QwcAccountsWidget.cpp \
     QwcSingleton.cpp \
@@ -57,7 +56,6 @@ FORMS += QwcConnectionMainWindow.ui \
     QwcFileBrowserWidget.ui \
     QwcPreferencesWidget.ui \
     QwcConnectWidget.ui \
-    QwcFiletransferWidget.ui \
     QwcAccountsWidget.ui \
     QwcAboutWidget.ui \
     QwcPrivateMessager.ui
@@ -76,7 +74,6 @@ HEADERS += QwcSession.h \
     QwcConnectWidget.h \
     QwcTransferInfo.h \
     QwcTransferSocket.h \
-    QwcFiletransferWidget.h \
     QwcGlobals.h \
     QwcFiletransferDelegate.h \
     QwcSingleton.h \

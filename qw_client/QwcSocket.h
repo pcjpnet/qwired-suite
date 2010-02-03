@@ -96,11 +96,12 @@ public slots:
     void getFileList(const QString &path);
     void getFileListRecusive(const QString &path);
     void moveFile(const QString &source, const QString &destination);
-
     void getFile(const QString &path, qint64 offset);
 
     // Transfers
     Qwc::TransferId downloadPath(const QString &remotePath, const QString &localPath);
+
+    void handleTransferChanged();
 
 
 private slots:
@@ -128,16 +129,25 @@ signals:
     // Signals for file transfers
     // These should be used by the main application (non Qwired-code).
 
-    /*! Relay signal which origns from the transfer socket of any active transfer. */
-    void fileTransferDone(const QwcTransferInfo &transfer);
-    /*! Relay signal which origns from the transfer socket of any active transfer. */
-    void fileTransferError(const QwcTransferInfo &transfer);
-    /*! Relay signal which origns from the transfer socket of any active transfer. */
-    void fileTransferStarted(const QwcTransferInfo &transfer);
-    /*! Relay signal which origns from the transfer socket of any active transfer. */
-    void fileTransferStatus(const QwcTransferInfo &transfer);
-    /*! Signal which is emitted after the transfer queue has changed (added or removed a transfer). */
+    /*! A transfer task was created by \e downloadPath() or \e uploadPath(). A transfer is the
+        "transfer task", for instance, a folder download and not the transfer of a single file. */
+    void transferCreated(QwcTransfer *transfer);
+    /*! A transfer task was removed from the internal structure. */
+    void transferRemoved(QwcTransfer *transfer);
+
+//    /*! Relay signal which origns from the transfer socket of any active transfer. */
+//    void fileTransferDone(const QwcTransferInfo &transfer);
+//    /*! Relay signal which origns from the transfer socket of any active transfer. */
+//    void fileTransferError(const QwcTransferInfo &transfer);
+//    /*! Relay signal which origns from the transfer socket of any active transfer. */
+//    void fileTransferStarted(const QwcTransferInfo &transfer);
+//    /*! Relay signal which origns from the transfer socket of any active transfer. */
+//    void fileTransferStatus(const QwcTransferInfo &transfer);
+//    /*! Signal which is emitted after the transfer queue has changed (added or removed a transfer). */
     void fileTransferQueueChanged();
+
+    /*! A transfer changed. */
+    void transferChanged(QwcTransfer *transfer);
 
 
     /*! A news item was received from the server and should be added to the list of news. A series
