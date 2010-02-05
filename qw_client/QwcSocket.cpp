@@ -542,7 +542,7 @@ void QwcSocket::handleMessage402(const QwMessage &message)
     fileInfo.setSize(message.stringArg(2).toLongLong());
     fileInfo.created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
     fileInfo.modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
-    fileInfo.checksum = message.stringArg(5);
+    fileInfo.setChecksum(message.stringArg(5));
     fileInfo.comment = message.stringArg(6);
     emit fileInformation(fileInfo);
 }

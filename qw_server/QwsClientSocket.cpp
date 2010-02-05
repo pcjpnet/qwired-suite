@@ -855,7 +855,7 @@ void QwsClientSocket::handleMessageLIST(const QwMessage &message)
     targetDirectory.setRemotePath(message.stringArg(0));
 
     // Check if target is valid
-    if (!targetDirectory.updateLocalPath(false)) {
+    if (!targetDirectory.loadFromLocalPath(false)) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -878,7 +878,7 @@ void QwsClientSocket::handleMessageLIST(const QwMessage &message)
         itemFile.localFilesRoot = targetDirectory.localPath();
         itemFile.setRemotePath(it.fileName());
 
-        if (itemFile.updateLocalPath(true)) {
+        if (itemFile.loadFromLocalPath(true)) {
             QwMessage replyItem("410");
             replyItem.appendArg(QDir::cleanPath(targetDirectory.remotePath() + "/" + itemFile.remotePath()));
             replyItem.appendArg(QString::number(itemFile.type));
@@ -929,7 +929,7 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(const QwMessage &message)
     }
 
     // Check if target is valid
-    if (!targetDirectory.updateLocalPath(false)) {
+    if (!targetDirectory.loadFromLocalPath(false)) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -951,7 +951,7 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(const QwMessage &message)
         itemFile.setRemotePath(it.fileName());
 
 
-        if (itemFile.updateLocalPath(true)) {
+        if (itemFile.loadFromLocalPath(true)) {
             QwMessage replyItem("410");
             replyItem.appendArg(QDir::cleanPath(targetDirectory.remotePath() + "/" + itemFile.remotePath()));
             replyItem.appendArg(QString::number(itemFile.type));
@@ -994,7 +994,7 @@ void QwsClientSocket::handleMessageSTAT(const QwMessage &message)
     targetFile.localFilesRoot = filesRootPath;
     targetFile.setRemotePath(message.stringArg(0));
 
-    if (!targetFile.updateLocalPath()) {
+    if (!targetFile.loadFromLocalPath()) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -1009,7 +1009,7 @@ void QwsClientSocket::handleMessageSTAT(const QwMessage &message)
     reply.appendArg(QString::number(targetFile.size()));
     reply.appendArg(targetFile.created.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(targetFile.modified.toUTC().toString(Qt::ISODate)+"+00:00");
-    reply.appendArg(targetFile.checksum);
+    reply.appendArg(targetFile.checksum());
     reply.appendArg(targetFile.comment);
     sendMessage(reply);
 }
@@ -1030,7 +1030,7 @@ void QwsClientSocket::handleMessageFOLDER(const QwMessage &message)
     targetBaseFolder.setRemotePath(folderBasePath);
     targetBaseFolder.localFilesRoot = filesRootPath;
 
-    if (!targetBaseFolder.updateLocalPath(true)) {
+    if (!targetBaseFolder.loadFromLocalPath(true)) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -1062,7 +1062,7 @@ void QwsClientSocket::handleMessageDELETE(const QwMessage &message)
     QwsFile targetBase;
     targetBase.setRemotePath(message.stringArg(0));
     targetBase.localFilesRoot = filesRootPath;
-    if (!targetBase.updateLocalPath(true)) {
+    if (!targetBase.loadFromLocalPath(true)) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -1129,7 +1129,7 @@ void QwsClientSocket::handleMessageMOVE(const QwMessage &message)
     QwsFile sourceFile;
     sourceFile.localFilesRoot = filesRootPath;
     sourceFile.setRemotePath(message.stringArg(0));
-    if (!sourceFile.updateLocalPath()) {
+    if (!sourceFile.loadFromLocalPath()) {
         // Check if the file to move exists
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
@@ -1149,7 +1149,7 @@ void QwsClientSocket::handleMessageMOVE(const QwMessage &message)
     }
 
     // Check if the target already exists
-    if (destinationFile.updateLocalPath()) {
+    if (destinationFile.loadFromLocalPath()) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -1170,7 +1170,7 @@ void QwsClientSocket::handleMessageGET(const QwMessage &message)
     targetFile.localFilesRoot = filesRootPath;
     targetFile.setRemotePath(message.stringArg(0));
     targetFile.offset = message.stringArg(1).toLongLong();
-    if (!targetFile.updateLocalPath()) {
+    if (!targetFile.loadFromLocalPath()) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -1216,10 +1216,10 @@ void QwsClientSocket::handleMessagePUT(const QwMessage &message)
         targetFileInfo = QFileInfo(localFile.localPath());
         if (targetFileInfo.exists()) {
             // Partial file exists - check if the checksum is the same.
-            localFile.updateLocalChecksum();
+            localFile.calculateLocalChecksum();
 
-            if (localFile.checksum != targetFileChecksum) {
-                qDebug() << "Checksum mismatch - local =" << localFile.checksum << "expected = " << targetFileChecksum;
+            if (localFile.checksum() != targetFileChecksum) {
+                qDebug() << "Checksum mismatch - local =" << localFile.checksum() << "expected = " << targetFileChecksum;
                 sendError(Qw::ErrorChecksumMismatch);
                 return;
             }
@@ -1238,7 +1238,7 @@ void QwsClientSocket::handleMessagePUT(const QwMessage &message)
 
             localFile.offset = targetFileInfo.size();
             localFile.setSize(targetFileSize);
-            localFile.checksum = targetFileChecksum;
+            localFile.setChecksum(targetFileChecksum);
             emit receivedMessagePUT(localFile);
 
         } else {
@@ -1250,7 +1250,7 @@ void QwsClientSocket::handleMessagePUT(const QwMessage &message)
             }
             qDebug() << this << "Receiving new file:" << targetFileInfo.absoluteFilePath();
             localFile.offset = 0;
-            localFile.checksum = targetFileChecksum;
+            localFile.setChecksum(targetFileChecksum);
             localFile.setSize(targetFileSize);
             emit receivedMessagePUT(localFile);
         }
@@ -1305,7 +1305,7 @@ void QwsClientSocket::handleMessageCOMMENT(const QwMessage &message)
     QwsFile localFile;
     localFile.localFilesRoot = this->filesRootPath;
     localFile.setRemotePath(message.stringArg(0));
-    if (!localFile.updateLocalPath(true)) {
+    if (!localFile.loadFromLocalPath(true)) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -1331,7 +1331,7 @@ void QwsClientSocket::handleMessageTYPE(const QwMessage &message)
     QwsFile localFile;
     localFile.localFilesRoot = this->filesRootPath;
     localFile.setRemotePath(message.stringArg(0));
-    if (!localFile.updateLocalPath(true)) {
+    if (!localFile.loadFromLocalPath(true)) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }

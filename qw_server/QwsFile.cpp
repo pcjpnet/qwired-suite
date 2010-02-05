@@ -41,7 +41,7 @@ bool QwsFile::isWithinLocalRoot()
     \a localFilesRoot path.
     If \a quickCheck is true, no checksum will be calculated for the file.
 */
-bool QwsFile::updateLocalPath(bool quickCheck)
+bool QwsFile::loadFromLocalPath(bool quickCheck)
 {
     QString localPath = this->localFilesRoot + "/" + this->m_remotePath;
     QFileInfo localFilesRootInfo(this->localFilesRoot);
@@ -74,13 +74,13 @@ bool QwsFile::updateLocalPath(bool quickCheck)
         localPathDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
         this->type = Qw::FileTypeFolder;
         this->m_size = localPathDir.count();
-        this->checksum = "";
+        this->m_checksum = "";
     } else {
         // Read regular file
         this->type = Qw::FileTypeRegular;
         this->m_size = localPathInfo.size();
         if (!quickCheck) {
-            updateLocalChecksum();
+            this->m_checksum = calculateLocalChecksum();
         }
     }
 

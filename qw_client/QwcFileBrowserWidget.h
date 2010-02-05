@@ -59,7 +59,8 @@ private slots:
     void on_resumeTransfer_clicked();
     void on_cancelTransfer_clicked();
 
-    void handleSocketTransfersChanged(QwcTransfer *transfer);
+    void handleSocketTransferCreated(QwcTransfer *transfer);
+    void handleSocketTransferRemoved(QwcTransfer *transfer);
     void handleSocketTransferChanged(QwcTransfer *transfer);
 
     // Info page
