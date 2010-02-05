@@ -513,6 +513,7 @@ void QwcSocket::handleMessage341(const QwMessage &message)
 */
 void QwcSocket::handleMessage400(const QwMessage &message)
 {
+    qDebug() << "MESSAGE 400 TRANSFER READY";
     emit transferReady(message.stringArg(0),
                        message.stringArg(1).toLongLong(),
                        message.stringArg(2));
@@ -534,52 +535,15 @@ void QwcSocket::handleMessage401(const QwMessage &message)
 */
 void QwcSocket::handleMessage402(const QwMessage &message)
 {
-    QwcFileInfo fileInfo;
-    fileInfo.setFromMessage402(message);
-
-//    QListIterator<QwcTransferSocket*> i(m_transferSockets);
-//    while (i.hasNext()) {
-//        QwcTransferSocket *item = i.next();
-//        if (!item) { continue; }
-//
-//        // Check if we are expecting a STAT response for a file transfer.
-//        // If this is not the case, we simply emit a signal for the rest of the application to handle.
-//
-//        if (item->transferInfo.state == Qw::TransferInfoStateRequested
-//            && (item->transferInfo.type == Qw::TransferTypeDownload
-//                || item->transferInfo.type == Qw::TransferTypeFolderDownload)
-//            && (item->transferInfo.file.remotePath() == fileInfo.remotePath()))
-//        {
-//            qDebug() << this << "Received STAT response for transfer" << item;
-//
-//            // Backport some local information about the file and replace the file information
-//            // with the one received from the server.
-//            fileInfo.localAbsolutePath = item->transferInfo.file.localAbsolutePath;
-//            item->transferInfo.file = fileInfo;
-//
-//            // Check if the file already exists locally
-//            QFileInfo localFile(item->transferInfo.file.localAbsolutePath);
-//            if (localFile.exists()) {
-//                item->transferInfo.bytesTransferred = localFile.size();
-//                qDebug() << this << item << "Resuming partial file at" << localFile.size();
-//
-//                if (localFile.size() == item->transferInfo.file.size()) {
-//                    qDebug() << this << "Skipping complete file" << localFile.fileName();
-//                    handleTransferDone(item);
-//                }
-//
-//            }
-//
-//            // Request a download slot
-//            sendMessage(QwMessage("GET")
-//                        .appendArg(item->transferInfo.file.remotePath())
-//                        .appendArg(QString::number(item->transferInfo.bytesTransferred)));
-//
-//            return;
-//        }
-//    }
-
-    // This was not a response to a download.
+    qDebug() << "GOT FILE INFORMATION";
+    QwFile fileInfo;
+    fileInfo.setRemotePath(message.stringArg(0));
+    fileInfo.type = (Qw::FileType)message.stringArg(1).toInt();
+    fileInfo.setSize(message.stringArg(2).toLongLong());
+    fileInfo.created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
+    fileInfo.modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
+    fileInfo.checksum = message.stringArg(5);
+    fileInfo.comment = message.stringArg(6);
     emit fileInformation(fileInfo);
 }
 
@@ -1003,7 +967,6 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
     qDebug() << this << "downloadPath():" << remotePath << "=>" << localPath;
     Qwc::TransferType transferType;
     if (remotePath.endsWith("/")) {
-        qDebug() << "Folder download";
         transferType = Qwc::TransferTypeFolderDownload;
     } else {
         transferType = Qwc::TransferTypeFileDownload;
@@ -1013,6 +976,7 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
     newTransfer->setRemotePath(remotePath);
     newTransfer->setLocalPath(localPath);
 
+    qDebug() << "new transfer with id" << newTransfer->id();
     m_transfers[newTransfer->id()] = newTransfer;
     emit transferCreated(newTransfer);
     checkTransferQueue();

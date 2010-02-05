@@ -9,20 +9,6 @@ QwcFileInfo::QwcFileInfo() :
 
 
 
-/*! Set the file info properties to values from the 402-type message.
-*/
-void QwcFileInfo::setFromMessage402(const QwMessage &message)
-{
-    m_remotePath = message.stringArg(0);
-    type = (Qw::FileType)message.stringArg(1).toInt();
-    m_size = message.stringArg(2).toInt();
-    created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
-    modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
-    checksum = message.stringArg(5);
-    comment = message.stringArg(6);
-}
-
-
 /*! Set the file info properties to values from the 410-type message.
 */
 void QwcFileInfo::setFromMessage410(const QwMessage &message)

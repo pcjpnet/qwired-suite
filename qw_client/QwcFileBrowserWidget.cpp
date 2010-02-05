@@ -99,10 +99,10 @@ void QwcFileBrowserWidget::resetForListing()
 
 /*! Set the information about a file on the info display page.
 */
-void QwcFileBrowserWidget::setFileInformation(QwcFileInfo file)
+void QwcFileBrowserWidget::setFileInformation(const QwFile &file)
 {
     infoName->setText(file.fileName());
-    infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
+//    infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
     infoSize->setText(tr("%1 (%2)").arg(QwcFileInfo::humanReadableSize(file.size())).arg(file.size()));
     infoPath->setText(file.remotePath());
     infoModified->setText(file.modified.toString(Qt::SystemLocaleShortDate));

@@ -143,8 +143,7 @@ signals:
 //    void fileTransferError(const QwcTransferInfo &transfer);
 //    /*! Relay signal which origns from the transfer socket of any active transfer. */
 //    void fileTransferStarted(const QwcTransferInfo &transfer);
-//    /*! Relay signal which origns from the transfer socket of any active transfer. */
-//    void fileTransferStatus(const QwcTransferInfo &transfer);
+
 //    /*! Signal which is emitted after the transfer queue has changed (added or removed a transfer). */
     void fileTransferQueueChanged();
 
@@ -204,7 +203,9 @@ signals:
     void onFilesListRecursiveDone(const QList<QwcFileInfo>);
     void transferReady(const QString &path, qint64 offset, const QString &hash);
     void transferQueued(const QString &path, int position);
-    void fileInformation(QwcFileInfo theFile);
+
+    /*! Emitted when a response to the STAT command is received (get file information). */
+    void fileInformation(const QwFile &information);
 
 
 

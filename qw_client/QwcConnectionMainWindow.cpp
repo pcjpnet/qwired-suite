@@ -122,7 +122,6 @@ void QwcConnectionMainWindow::handleSocketDisconnected()
     actionServerInfo->setEnabled(false);
     actionNews->setEnabled(false);
     actionMessages->setEnabled(false);
-    actionTransfers->setEnabled(false);
     actionChat->setEnabled(false);
 
     actionAccounts->setEnabled(false);
@@ -136,7 +135,6 @@ void QwcConnectionMainWindow::handleSocketLoginSuccessful()
     actionServerInfo->setEnabled(true);
     actionNews->setEnabled(true);
     actionMessages->setEnabled(true);
-    actionTransfers->setEnabled(true);
     actionChat->setEnabled(true);
     setWindowTitle(tr("%1 - Qwired").arg(m_socket->serverInformation().name));
 }

@@ -3,7 +3,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 
-const int transferTimerInterval = 250;
+const int transferTimerInterval = 2; // seconds
 
 QwcTransferSocket::QwcTransferSocket(QObject *parent) :
         QObject(parent)
@@ -11,14 +11,14 @@ QwcTransferSocket::QwcTransferSocket(QObject *parent) :
     m_socket = NULL;
     m_transferLimit = 0;
     m_currentTransferSpeed = 0;
+    m_lastTransferSpeedProgress = 0;
+
+    startTimer(transferTimerInterval * 1000);
 }
 
 
 QwcTransferSocket::~QwcTransferSocket()
 { }
-
-
-
 
 
 void QwcTransferSocket::setFileInfo(const QwFile &file)
@@ -60,8 +60,24 @@ qint64 QwcTransferSocket::transferLimit() const
 { return m_transferLimit; }
 
 
+/*! Returns the number of bytes which are currently transmitted from or to the server in average
+    per second. */
 qint64 QwcTransferSocket::currentTransferSpeed() const
 { return m_currentTransferSpeed; }
+
+
+/*! A simple timer, which allows us to measure the progress and transfer speed.
+*/
+void QwcTransferSocket::timerEvent(QTimerEvent *event)
+{
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        m_currentTransferSpeed = -1;
+        return;
+    }
+    qint64 transferredSinceLastTime = m_fileInfo.transferredSize() - m_lastTransferSpeedProgress;
+    m_currentTransferSpeed = transferredSinceLastTime / transferTimerInterval;
+    m_lastTransferSpeedProgress = m_fileInfo.transferredSize();
+}
 
 
 /*! Delete an old socket, or create a new one.
@@ -155,7 +171,7 @@ void QwcTransferSocket::handleSocketEncrypted()
     }
 
 
-    emit fileTransferStatus(this);
+//    emit fileTransferStatus(this);
 }
 
 
@@ -176,14 +192,9 @@ void QwcTransferSocket::transmitFileChunk()
         m_fileInfo.setTransferredSize(m_fileInfo.transferredSize() + readBytes);
         m_fileReader.write(dataBuffer);
 
-
-        // Emit a update signal if we received data, or if 4 seconds have passed
-        if (readBytes > 0 || m_transferSpeedTimer.elapsed() > 4000) {
-            m_currentTransferSpeed = 1000.0 / float(m_transferSpeedTimer.restart()) * readBytes;
-            emit fileTransferStatus(this);
-        }
-
         if (m_socket->state() == QAbstractSocket::UnconnectedState) {
+            qDebug() << "Lost connection to transfer server socket:" << m_socket->errorString();
+
             if (m_fileInfo.transferredSize() == m_fileInfo.size()) {
                 qDebug() << this << "Completed download.";
                 finishTransfer();

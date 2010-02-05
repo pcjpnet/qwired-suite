@@ -87,7 +87,7 @@ private slots:
 
     void handleSocketUserlistComplete(int chatId);
 
-    void handleFileInformation(QwcFileInfo file);
+    void handleFileInformation(const QwFile &file);
 
     void userJoined(int theChat, QwcUserInfo theUser);
     void userLeft(int theChat, QwcUserInfo theUser);

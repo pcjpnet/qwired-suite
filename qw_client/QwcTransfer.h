@@ -15,6 +15,7 @@ namespace Qwc {
         TransferTypeFolderUpload
     };
 
+    /*! This is the state of a the transfer task visible to the outside of the transfer itself. */
     enum TransferState {
         /*! The transfer is not configured completely yet. */
         TransferStateInactive,
@@ -24,14 +25,23 @@ namespace Qwc {
         TransferStateQueuedOnServer,
         /*! The transfer is active, thus transferring data to or from the server. */
         TransferStateActive,
-        /*! The transfer is gathering a list of files from the remote server. */
-        TransferStateIndexing,
         /*! The transfer is manually paused/stopped. */
         TransferStatePaused,
         /*! The transfer is complete. */
         TransferStateComplete,
         /*! The transfer is stopped due to an error. */
         TransferStateError
+    };
+
+    /*! This is the internal state of the transfer task. It is used to make sure that we say in
+        synchronization with the server. */
+    enum TransferInternalState {
+        /*! The transfer is running (socket is transferring data). */
+        TransferInternalStateActive,
+        /*! We are receiving the list of files for a file transfer. */
+        TransferInternalStateWaitingForFileInformation,
+        /*! We are waiting for a response to a STAT command when downloading files. */
+        TransferInternalStateWaitingForFileListing
     };
 
     /*! A unique ID to identify transfers. */
@@ -70,11 +80,13 @@ public:
 
     qint64 completedTransferSize() const;
     qint64 totalTransferSize() const;
+    qint64 currentTransferSpeed() const;
 
 private slots:
     void handleFileListItem(const QwcFileInfo &file);
     void handleFileListDone(const QString &path, qint64 freeSpace);
     void handleTransferReady(const QString &path, qint64 offset, const QString &hash);
+    void handleFileInformation(const QwFile &file);
 
     void handleFileTransferFinished();
     void handleFileTransferError();
@@ -101,10 +113,16 @@ protected:
     /*! The ID of the timer, which regulary informs about the current progress for active transfers. */
     int m_updateTimerId;
 
+    /*! The internal state of the transfer task. We use this to ensure that we stay in-sync with
+        the server. */
+    Qwc::TransferInternalState m_internalState;
+
     /*! The total amount of data to be transferred (for informational purposes!). */
     qint64 m_totalTransferSize;
     /*! The amount of data transferred so far (for informational purposes!). */
     qint64 m_completedTransferSize;
+
+
 
     void changeState(Qwc::TransferState newState);
     bool prepareNextFile();

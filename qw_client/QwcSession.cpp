@@ -66,8 +66,8 @@ void QwcSession::initializeSocket()
             this, SLOT(handleSocketChatInvitation(int,QwcUserInfo)) );
     connect(m_socket, SIGNAL(privateChatCreated(int)),
             this, SLOT(createChatWidget(int)));
-    connect(m_socket, SIGNAL(fileInformation(QwcFileInfo)),
-            this, SLOT(handleFileInformation(QwcFileInfo)));
+    connect(m_socket, SIGNAL(fileInformation(QwFile)),
+            this, SLOT(handleFileInformation(QwFile)));
 
 }
 
@@ -382,7 +382,7 @@ void QwcSession::handleMainWindowAction(QwcConnectionMainWindow::TriggeredAction
 /*! Handle file information (STAT) returned from the server.
     Normally this is passed to a file browser, which then displays the information about a file.
 */
-void QwcSession::handleFileInformation(QwcFileInfo file)
+void QwcSession::handleFileInformation(const QwFile &file)
 {
     if (!m_fileBrowserWidget) { return; }
     m_fileBrowserWidget->setFileInformation(file);

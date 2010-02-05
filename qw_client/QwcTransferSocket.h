@@ -57,6 +57,7 @@ protected:
     Qwc::TransferDirection m_transferDirection;
     qint64 m_transferLimit;
 
+    void timerEvent(QTimerEvent *event);
     void createNewSocket();
 
     /*! The timer responsible for sending and reading chunks of data from the connection. */
@@ -80,13 +81,15 @@ protected:
 
     /*! The amount of data per second which is currently sent over the socket. */
     qint64 m_currentTransferSpeed;
+    /*! The amount of data transferred when the timerEvent() was fired the last time. */
+    qint64 m_lastTransferSpeedProgress;
 
 signals:
     /*! The connection was established and the data transfer begins. */
     void fileTransferStarted(QwcTransferSocket *transferSocket);
 
     /*! The transfer has made progress and this can be displayed to the user. */
-    void fileTransferStatus(QwcTransferSocket *transferSocket);
+//    void fileTransferStatus(QwcTransferSocket *transferSocket);
     /*! A connection-level error occoured. The socket can be deleted. */
     void fileTransferSocketError(QAbstractSocket::SocketError error);
 
