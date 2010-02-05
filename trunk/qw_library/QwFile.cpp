@@ -28,22 +28,24 @@ QString QwFile::directoryPath() const
 }
 
 
-/*! Calculate the checksum of the local path.
+/*! Calculate the checksum of the local path and return it. Please note that you need to use
+    setLocalPath() before calling this function. If the file could not be read, a Null-QString is
+    returned.
 */
-void QwFile::updateLocalChecksum()
+QString QwFile::calculateLocalChecksum() const
 {
     QFile targetFile(m_localPath);
     if (!targetFile.open(QIODevice::ReadOnly)) {
         qDebug() << this << "Unable to calculate hash for file:" << localPath() << " - " << targetFile.error();
-        this->checksum = "";
-        return;
+        return QString();
     }
     targetFile.seek(0);
     QByteArray hashData = targetFile.read(1024*1024);
     QCryptographicHash hash(QCryptographicHash::Sha1);
     hash.addData(hashData);
-    this->checksum = hash.result().toHex();
-    qDebug() << this << "Calculated hash for file" << this->localPath() << "Bytes =" << hashData.size() << "=" << this->checksum;
+    qDebug() << this << "Calculated hash for file" << this->localPath()
+            << "Bytes =" << hashData.size() << "=" << hash.result().toHex();
+    return hash.result().toHex();
 }
 
 
@@ -83,6 +85,11 @@ void QwFile::setTransferredSize(qint64 size)
 qint64 QwFile::transferredSize() const
 { return m_transferredSize; }
 
+QString QwFile::checksum() const
+{ return m_checksum; }
+
+void QwFile::setChecksum(const QString &checksum)
+{ m_checksum = checksum; }
 
 
 /*! Returns the file sizes (data amouont) as a human readable string in bytes, kilobytes, megabytes

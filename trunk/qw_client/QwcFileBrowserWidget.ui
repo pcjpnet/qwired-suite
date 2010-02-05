@@ -814,7 +814,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string/>
+          <string>Pause Transfer</string>
          </property>
          <property name="icon">
           <iconset resource="application.qrc">
@@ -837,7 +837,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string/>
+          <string>Resume Paused Transfer</string>
          </property>
          <property name="icon">
           <iconset resource="application.qrc">
@@ -860,7 +860,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string/>
+          <string>Cancel Transfer</string>
          </property>
          <property name="icon">
           <iconset resource="application.qrc">

@@ -15,7 +15,7 @@ public:
     QwsFile();
     
     bool isWithinLocalRoot();
-    bool updateLocalPath(bool quickCheck=false);
+    bool loadFromLocalPath(bool quickCheck=false);
 
     // Database access
     bool loadMetaInformation();

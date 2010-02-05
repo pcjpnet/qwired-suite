@@ -28,7 +28,7 @@ public:
     QString fileName() const;
     QString directoryPath() const;
 
-    void updateLocalChecksum();
+    QString calculateLocalChecksum() const;
 
     QString remotePath() const;
     void setRemotePath(const QString &path);
@@ -42,14 +42,15 @@ public:
     qint64 transferredSize() const;
     void setTransferredSize(qint64 size);
 
+    QString checksum() const;
+    void setChecksum(const QString &checksum);
 
 
     /*! The creation date for the file or directory. */
     QDateTime created;
     /*! The modification date for the file or directory. */
     QDateTime modified;
-    /*! The SHA-1 checksum of the first Megabyte of the file contents. */
-    QString checksum;
+
     /*! A user-defined comment about the file. */
     QString comment;
     /*! The type of the file. See \a Qw::FileType for more information. */
@@ -71,6 +72,8 @@ protected:
     qint64 m_size;
     /*! The amount of bytes already transferred when used in a transfer context. */
     qint64 m_transferredSize;
+    /*! The SHA-1 checksum of the first Megabyte of the file contents. */
+    QString m_checksum;
 };
 
 Q_DECLARE_METATYPE(QwFile);

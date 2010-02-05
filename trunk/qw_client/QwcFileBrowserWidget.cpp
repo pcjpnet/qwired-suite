@@ -58,9 +58,9 @@ void QwcFileBrowserWidget::setSocket(QwcSocket *socket)
             this, SLOT(handleSearchResultListDone()));
 
     connect(m_socket, SIGNAL(transferCreated(QwcTransfer*)),
-            this, SLOT(handleSocketTransfersChanged(QwcTransfer*)));
+            this, SLOT(handleSocketTransferCreated(QwcTransfer*)));
     connect(m_socket, SIGNAL(transferRemoved(QwcTransfer*)),
-            this, SLOT(handleSocketTransfersChanged(QwcTransfer*)));
+            this, SLOT(handleSocketTransferRemoved(QwcTransfer*)));
     connect(m_socket, SIGNAL(transferChanged(QwcTransfer*)),
             this, SLOT(handleSocketTransferChanged(QwcTransfer*)));
 
@@ -93,7 +93,6 @@ void QwcFileBrowserWidget::resetForListing()
     m_totalUsedSpace = 0;
     m_freeRemoteSpace = 0;
     m_waitingForListItems = true;
-    this->setEnabled(false);
 }
 
 
@@ -107,7 +106,7 @@ void QwcFileBrowserWidget::setFileInformation(const QwFile &file)
     infoPath->setText(file.remotePath());
     infoModified->setText(file.modified.toString(Qt::SystemLocaleShortDate));
     infoCreated->setText(file.created.toString(Qt::SystemLocaleShortDate));
-    infoChecksum->setText(file.checksum);
+    infoChecksum->setText(file.checksum());
     infoComment->setText(file.comment);
 
     switch (file.type) {
@@ -118,7 +117,6 @@ void QwcFileBrowserWidget::setFileInformation(const QwFile &file)
     default: infoKind->setText(tr("n/a")); break;
     }
 
-    pageInfo->setEnabled(true);
 }
 
 
@@ -195,7 +193,7 @@ void QwcFileBrowserWidget::handleFilesListDone(const QString &path, qint64 freeS
                     .arg(m_fileListModel->rowCount())
                     .arg(QwFile::humanReadableSize(m_totalUsedSpace))
                     .arg(QwFile::humanReadableSize(m_freeRemoteSpace)));
-    this->setEnabled(true);
+
     btnBack->setEnabled(m_remotePath != "/");
     fList->resizeColumnToContents(0);
 
@@ -234,7 +232,6 @@ void QwcFileBrowserWidget::handleSearchResultListDone()
     fStats->setText(tr("%1 results for \"%2\"")
                     .arg(m_fileListModel->rowCount())
                     .arg(findFilter->text()));
-    this->setEnabled(true);
     fList->resizeColumnToContents(0);
     currentFolderInfo = QwcFileInfo();
     btnUpload->setEnabled(false);
@@ -350,7 +347,6 @@ void QwcFileBrowserWidget::on_findFilter_returnPressed()
 {
     resetForListing();
     if (!findFilter->text().isEmpty()) {
-        this->setEnabled(false);
         m_socket->searchFiles(findFilter->text());
     } else {
         m_socket->getFileList("/");
@@ -433,11 +429,23 @@ void QwcFileBrowserWidget::on_cancelTransfer_clicked()
 
 /*! A transfer task was created.
 */
-void QwcFileBrowserWidget::handleSocketTransfersChanged(QwcTransfer *transfer)
+void QwcFileBrowserWidget::handleSocketTransferCreated(QwcTransfer *transfer)
 {
     QStandardItem *item = new QStandardItem;
     item->setData(qVariantFromValue(transfer), Qt::UserRole);
     m_fileTransferModel->appendRow(item);
+}
+
+/*! A transfer task was removed.
+*/
+void QwcFileBrowserWidget::handleSocketTransferRemoved(QwcTransfer *transfer)
+{
+    for (int i = 0; i < m_fileTransferModel->rowCount(); i++) {
+        if (m_fileTransferModel->item(i,0)->data(Qt::UserRole).value<QwcTransfer*>() == transfer) {
+            m_fileTransferModel->takeRow(i);
+            return;
+        }
+    }
 }
 
 
