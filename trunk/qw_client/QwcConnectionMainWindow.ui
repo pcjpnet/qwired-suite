@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQwired">
@@ -37,7 +37,6 @@
     <addaction name="actionNews"/>
     <addaction name="actionMessages"/>
     <addaction name="actionFiles"/>
-    <addaction name="actionTransfers"/>
     <addaction name="separator"/>
     <addaction name="actionAccounts"/>
     <addaction name="actionBroadcast"/>
@@ -72,7 +71,6 @@
    <addaction name="actionNews"/>
    <addaction name="actionMessages"/>
    <addaction name="actionFiles"/>
-   <addaction name="actionTransfers"/>
    <addaction name="actionAccounts"/>
    <addaction name="separator"/>
    <addaction name="actionDisconnect"/>
@@ -190,24 +188,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
-   </property>
-  </action>
-  <action name="actionTransfers">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="application.qrc">
-     <normaloff>:/icons/transfers.png</normaloff>:/icons/transfers.png</iconset>
-   </property>
-   <property name="text">
-    <string>Transfers</string>
-   </property>
-   <property name="toolTip">
-    <string>Show active and queued transfers</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionAccounts">

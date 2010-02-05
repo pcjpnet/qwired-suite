@@ -37,7 +37,7 @@ public:
     QwcUserInfo userInfo;
 
     void resetForListing();
-    void setFileInformation(QwcFileInfo file);
+    void setFileInformation(const QwFile &file);
     void setUserInformation(QwcUserInfo info);
 
 private slots:

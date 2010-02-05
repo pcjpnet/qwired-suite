@@ -54,9 +54,15 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     QString statusText;
     QPixmap statusIcon;
     if (transfer->state() == Qwc::TransferStateActive) {
-        statusText = tr("Active (%1 of %2)")
+        QString currentSpeedText("-");
+        if (transfer->currentTransferSpeed() > -1) {
+            currentSpeedText = QwFile::humanReadableSize(transfer->currentTransferSpeed());
+        }
+
+        statusText = tr("Active (%1 of %2 at %3/s)")
                      .arg(QwFile::humanReadableSize(transfer->completedTransferSize()))
-                     .arg(QwFile::humanReadableSize(transfer->totalTransferSize()));
+                     .arg(QwFile::humanReadableSize(transfer->totalTransferSize()))
+                     .arg(currentSpeedText);
 
         if (transfer->type() == Qwc::TransferTypeFileDownload
             || transfer->type() == Qwc::TransferTypeFolderDownload) {
@@ -76,9 +82,6 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     } else if (transfer->state() == Qwc::TransferStateInactive) {
         statusText = tr("Inactive?");
 
-    } else if (transfer->state() == Qwc::TransferStateIndexing) {
-        statusText = tr("Indexing");
-        statusIcon = QPixmap(":/icons/emotes/face-glasses.png");
 
     } else if (transfer->state() == Qwc::TransferStatePaused) {
         statusText = tr("Paused");
@@ -123,11 +126,8 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     barOption.rect.setHeight(14);
     barOption.rect.setWidth(option.rect.width()-painter->matrix().dx()-9);
 
-    if (transfer->state() == Qwc::TransferStateIndexing) {
-        barOption.maximum = 0;
-        QApplication::style()->drawControl(QStyle::CE_ProgressBar, &barOption, painter);
-
-    } else if (transfer->state() == Qwc::TransferStateActive && transfer->totalTransferSize() > 0) {
+     if (transfer->state() == Qwc::TransferStateActive
+         && transfer->totalTransferSize() > 0) {
         barOption.progress = (qreal(transfer->completedTransferSize()) / qreal(transfer->totalTransferSize())) * 100;
         QApplication::style()->drawControl(QStyle::CE_ProgressBar, &barOption, painter);
 

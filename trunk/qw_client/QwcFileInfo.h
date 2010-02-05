@@ -13,7 +13,6 @@ class QwcFileInfo :
 public:
     QwcFileInfo();
 
-    void setFromMessage402(const QwMessage &message);
     void setFromMessage410(const QwMessage &message);
 
     QIcon fileIcon() const;
