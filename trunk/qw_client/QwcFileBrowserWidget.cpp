@@ -38,6 +38,10 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
     connect(transferList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(handleTransferListSelectionChanged(QItemSelection,QItemSelection)));
 
+    labelCurrentPath->setAttribute(Qt::WA_MacSmallSize);
+    fStats->setAttribute(Qt::WA_MacSmallSize);
+    fList->setAttribute(Qt::WA_MacSmallSize);
+
     stackedWidget->setCurrentWidget(pageBrowser);
 }
 
