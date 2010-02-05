@@ -5,6 +5,7 @@
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>
 #include <QtGui/QApplication>
+#include <QtGui/QProgressBar>
 
 QwcFiletransferDelegate::QwcFiletransferDelegate(QObject *parent) :
         QAbstractItemDelegate(parent)
@@ -89,7 +90,6 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     }
 
     QFont currentFont(painter->font());
-
     const int cellPadding = 4;
     painter->translate(cellPadding, cellPadding);
 
@@ -117,17 +117,16 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     // Progress Bar
     QStyleOptionProgressBarV2 barOption;
-    barOption.state = QStyle::State_Enabled;
+    barOption.state = QStyle::State_Enabled | QStyle::State_Active | QStyle::State_Mini;
     barOption.direction = QApplication::layoutDirection();
     barOption.minimum = 0;
     barOption.maximum = 100;
     barOption.rect.setLeft(0);
-    barOption.rect.setTop(0);
-    barOption.rect.setHeight(14);
-    barOption.rect.setWidth(option.rect.width()-painter->matrix().dx()-9);
+    barOption.rect.setTop(2);
+    barOption.rect.setHeight(12);
+    barOption.rect.setWidth(option.rect.width() - painter->matrix().dx() - 9);
 
-     if (transfer->state() == Qwc::TransferStateActive
-         && transfer->totalTransferSize() > 0) {
+     if (transfer->state() == Qwc::TransferStateActive && transfer->totalTransferSize() > 0) {
         barOption.progress = (qreal(transfer->completedTransferSize()) / qreal(transfer->totalTransferSize())) * 100;
         QApplication::style()->drawControl(QStyle::CE_ProgressBar, &barOption, painter);
 
