@@ -820,7 +820,7 @@ void QwcSocket::setFileComment(const QString &path, const QString &comment)
     considered to be a folder transfer, otherwise it's considered to be a file transfer.
     \returns Returns a unique ID which identifies this transfer for this connection
 */
-Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString &localPath)
+QwcTransfer* QwcSocket::downloadPath(const QString &remotePath, const QString &localPath)
 {
     Qwc::TransferType transferType;
     if (remotePath.endsWith("/")) {
@@ -838,17 +838,17 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
     connect(newTransfer, SIGNAL(transferChanged()),
             this, SLOT(handleTransferChanged()));
 
-    m_transfers[newTransfer->id()] = newTransfer;
+    m_transfers << newTransfer;
     emit transferCreated(newTransfer);
     checkTransferQueue();
-    return newTransfer->id();
+    return newTransfer;
 }
 
 /*! Creates a transfer for this connection. If \e localPath ends with a slash (/), the transfer is
     considered to be a folder transfer, otherwise it's considered to be a file transfer.
     \returns Returns a unique ID which identifies this transfer for this connection
 */
-Qwc::TransferId QwcSocket::uploadPath(const QString &localPath, const QString &remotePath)
+QwcTransfer* QwcSocket::uploadPath(const QString &localPath, const QString &remotePath)
 {
     Qwc::TransferType transferType;
     if (remotePath.endsWith("/")) {
@@ -866,10 +866,10 @@ Qwc::TransferId QwcSocket::uploadPath(const QString &localPath, const QString &r
     connect(newTransfer, SIGNAL(transferChanged()),
             this, SLOT(handleTransferChanged()));
 
-    m_transfers[newTransfer->id()] = newTransfer;
+    m_transfers << newTransfer;
     emit transferCreated(newTransfer);
     checkTransferQueue();
-    return newTransfer->id();
+    return newTransfer;
 }
 
 
@@ -880,10 +880,10 @@ Qwc::TransferId QwcSocket::uploadPath(const QString &localPath, const QString &r
 bool QwcSocket::removeTransfer(QwcTransfer *transfer)
 {
     if (!transfer) { return false; }
-    if (!m_transfers.contains(transfer->id())) { return false; }
+    if (!m_transfers.contains(transfer)) { return false; }
 
     transfer->stop();
-    m_transfers.remove(transfer->id());
+    m_transfers.removeOne(transfer);
     emit transferRemoved(transfer);
     delete transfer;
     return true;

@@ -11,7 +11,6 @@ QwcTransfer::QwcTransfer(Qwc::TransferType type, QObject *parent) :
 {
     m_type = type;
     m_state = Qwc::TransferStateQueuedOnClient;
-    m_id = qrand();
     m_transferSocket = NULL;
     m_socket = NULL;
     m_totalTransferSize = 0;
@@ -33,9 +32,7 @@ Qwc::TransferType QwcTransfer::type() const
 Qwc::TransferState QwcTransfer::state() const
 { return m_state; }
 
-/*! Returns the unique ID for this transfer. */
-Qwc::TransferId QwcTransfer::id() const
-{ return m_id; }
+
 
 /*! Starts the transfer.
 */
@@ -116,10 +113,10 @@ void QwcTransfer::start()
 void QwcTransfer::stop()
 {
     if (m_state == Qwc::TransferStateRunning) {
-        m_transferSocket->stopTransfer();
+        changeState(Qwc::TransferStatePaused);
+        m_transferSocket->haltTransfer();
         m_transferFiles.prepend(m_transferSocket->fileInfo());
     }
-    changeState(Qwc::TransferStatePaused);
 }
 
 
@@ -186,6 +183,8 @@ qint64 QwcTransfer::currentTransferSpeed() const
 
 void QwcTransfer::handleFileListItem(const QwcFileInfo &file)
 {
+    if (m_state != Qwc::TransferStateRunning) { return; }
+
     if (m_internalState == Qwc::TransferInternalStateWaitingForFileListing) {
         m_transferFiles << file;
         m_totalTransferSize += file.size();
@@ -195,6 +194,8 @@ void QwcTransfer::handleFileListItem(const QwcFileInfo &file)
 
 void QwcTransfer::handleFileListDone(const QString &path, qint64 freeSpace)
 {
+    if (m_state != Qwc::TransferStateRunning) { return; }
+
     Q_UNUSED(freeSpace);
     if (m_internalState == Qwc::TransferInternalStateWaitingForFileListing
         && QDir::cleanPath(m_remotePath) == QDir::cleanPath(path)) {
@@ -206,9 +207,12 @@ void QwcTransfer::handleFileListDone(const QString &path, qint64 freeSpace)
 void QwcTransfer::handleTransferQueued(const QString &path, int position)
 {
     if (!m_transferSocket) { return; }
-    if (QDir::cleanPath(path) == QDir::cleanPath(m_transferSocket->fileInfo().remotePath())) {
-        m_serverQueuePosition = position;
-        changeState(Qwc::TransferStateQueuedOnServer);
+    if (m_state == Qwc::TransferStateRunning || m_state == Qwc::TransferStateQueuedOnServer) {
+
+        if (QDir::cleanPath(path) == QDir::cleanPath(m_transferSocket->fileInfo().remotePath())) {
+            m_serverQueuePosition = position;
+            changeState(Qwc::TransferStateQueuedOnServer);
+        }
     }
 }
 
@@ -216,21 +220,22 @@ void QwcTransfer::handleTransferQueued(const QString &path, int position)
 void QwcTransfer::handleTransferReady(const QString &path, qint64 offset, const QString &hash)
 {
     if (!m_transferSocket) { return; }
+    if (m_state == Qwc::TransferStateRunning || m_state == Qwc::TransferStateQueuedOnServer) {
+        if (QDir::cleanPath(path) == QDir::cleanPath(m_transferSocket->fileInfo().remotePath())) {
+            qDebug() << "Comp:" << QDir::cleanPath(path) << QDir::cleanPath(m_transferSocket->fileInfo().remotePath());
+            if (m_type == Qwc::TransferTypeFolderUpload || m_type == Qwc::TransferTypeFileUpload) {
+                // Update the offset as the file might be partially trasnferred already.
+                QwFile transferFile = m_transferSocket->fileInfo();
+                transferFile.setTransferredSize(offset);
+                m_transferSocket->setFileInfo(transferFile);
+            }
 
-    if (QDir::cleanPath(path) == QDir::cleanPath(m_transferSocket->fileInfo().remotePath())) {
-
-        if (m_type == Qwc::TransferTypeFolderUpload || m_type == Qwc::TransferTypeFileUpload) {
-            // Update the offset as the file might be partially trasnferred already.
-            QwFile transferFile = m_transferSocket->fileInfo();
-            transferFile.setTransferredSize(offset);
-            m_transferSocket->setFileInfo(transferFile);
+            // Start the transfer
+            m_serverQueuePosition = 0;
+            changeState(Qwc::TransferStateRunning);
+            m_transferSocket->setTransferHash(hash);
+            m_transferSocket->beginTransfer();
         }
-
-        // Start the transfer
-        m_serverQueuePosition = 0;
-        changeState(Qwc::TransferStateRunning);
-        m_transferSocket->setTransferHash(hash);
-        m_transferSocket->beginTransfer();
     }
 }
 
@@ -356,7 +361,11 @@ void QwcTransfer::handleFileTransferFinished()
 
 
 void QwcTransfer::handleFileTransferError()
-{ changeState(Qwc::TransferStateError); }
+{
+    if (m_state == Qwc::TransferStateRunning) {
+        changeState(Qwc::TransferStateError);
+    }
+}
 
 
 void QwcTransfer::handleUpdateTimerFired()

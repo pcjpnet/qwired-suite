@@ -104,8 +104,6 @@ protected:
     /*! The path to the file or directory being transferred on the server system. This is not the
         file currently being transmitted, but the path to the topmost directory. */
     QString m_remotePath;
-    /*! The unique ID for this transfer. */
-    Qwc::TransferId m_id;
     /*! The list of files associated with this transfer. */
     QList<QwFile> m_transferFiles;
     /*! The transfer socket. */

@@ -103,8 +103,8 @@ public slots:
     void setFolderType(const QString &path, Qw::FileType type);
 
     // Transfers
-    Qwc::TransferId downloadPath(const QString &remotePath, const QString &localPath);
-    Qwc::TransferId uploadPath(const QString &localPath, const QString &remotePath);
+    QwcTransfer* downloadPath(const QString &remotePath, const QString &localPath);
+    QwcTransfer* uploadPath(const QString &localPath, const QString &remotePath);
 
     bool removeTransfer(QwcTransfer *transfer);
 
@@ -234,7 +234,7 @@ protected:
     int m_serverPort;
     bool m_localTransferQueueEnabled;
 
-    QHash<Qwc::TransferId, QwcTransfer*> m_transfers;
+    QList<QwcTransfer*> m_transfers;
 
     /*! A list of all currently used chat rooms. Chat rooms contain user lists and refer to them by
         their user ID. */
