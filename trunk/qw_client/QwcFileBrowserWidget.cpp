@@ -115,8 +115,9 @@ void QwcFileBrowserWidget::resetForListing()
 */
 void QwcFileBrowserWidget::setFileInformation(const QwFile &file)
 {
+    if (stackedWidget->currentWidget() != pageInfo) { return; }
+
     infoName->setText(file.fileName());
-//    infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
     infoSize->setText(tr("%1 (%2)").arg(QwcFileInfo::humanReadableSize(file.size())).arg(file.size()));
     infoPath->setText(file.remotePath());
     infoModified->setText(file.modified().toString(Qt::SystemLocaleShortDate));
@@ -491,7 +492,6 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
 
     m_socket->getFileInformation(m_currentFileInfo.remotePath());
     stackedWidget->setCurrentWidget(pageInfo);
-    pageInfo->setEnabled(false);
 }
 
 
