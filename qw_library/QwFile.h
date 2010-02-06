@@ -8,13 +8,13 @@
 namespace Qw {
     enum FileType {
         /*! A regular file. */
-        FileTypeRegular,
+        FileTypeRegular = 0,
         /*! A regular folder/directory. */
-        FileTypeFolder,
+        FileTypeFolder = 1,
         /*! A folder where guest users can upload data to. */
-        FileTypeUploadsFolder,
+        FileTypeUploadsFolder = 2,
         /*! A folder where guest users can upload data to, but can't see contents. */
-        FileTypeDropBox
+        FileTypeDropBox = 3
     };
 }
 
@@ -25,10 +25,11 @@ class QwFile
 public:
     QwFile();
 
+    bool loadFromLocalFile();
+    QString calculateLocalChecksum() const;
+
     QString fileName() const;
     QString directoryPath() const;
-
-    QString calculateLocalChecksum() const;
 
     QString remotePath() const;
     void setRemotePath(const QString &path);
@@ -45,20 +46,17 @@ public:
     QString checksum() const;
     void setChecksum(const QString &checksum);
 
+    void setComment(const QString &comment);
+    QString comment() const;
 
-    /*! The creation date for the file or directory. */
-    QDateTime created;
-    /*! The modification date for the file or directory. */
-    QDateTime modified;
+    void setCreated(QDateTime created);
+    QDateTime created() const;
 
-    /*! A user-defined comment about the file. */
-    QString comment;
-    /*! The type of the file. See \a Qw::FileType for more information. */
-    Qw::FileType type;
-    /*! The path to the file or directory on the local disk. This is used when generating checksums
-        or when reading and writing to the file. A target path can be set when using this class for
-        download-transfers in client-mode. If it is empty, a path should be generated automatically.
-    */
+    void setModified(QDateTime modified);
+    QDateTime modified() const;
+
+    Qw::FileType type() const;
+    void setType(Qw::FileType type);
 
     static QString humanReadableSize(qint64 size);
 
@@ -74,6 +72,15 @@ protected:
     qint64 m_transferredSize;
     /*! The SHA-1 checksum of the first Megabyte of the file contents. */
     QString m_checksum;
+    /*! The type of the file. See \a Qw::FileType for more information. */
+    Qw::FileType m_type;
+    /*! A user-defined comment about the file. */
+    QString m_comment;
+    /*! The creation date for the file or directory. */
+    QDateTime m_created;
+    /*! The modification date for the file or directory. */
+    QDateTime m_modified;
+
 };
 
 Q_DECLARE_METATYPE(QwFile);

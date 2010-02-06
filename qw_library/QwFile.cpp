@@ -1,30 +1,63 @@
 #include "QwFile.h"
 
-#include <QtDebug>
-#include <QCryptographicHash>
-#include <QFile>
+#include <QtCore/QDebug>
+#include <QtCore/QCryptographicHash>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 QwFile::QwFile()
 {
     m_size = 0;
     m_transferredSize = 0;
+    m_type = Qw::FileTypeRegular;
 }
 
 
-
-/*! Returns the base name of the file (last element of path).
+/* Read file information from a local file. You need to use setLocalPath() before trying to call
+   this function.
 */
+bool QwFile::loadFromLocalFile()
+{
+    QFileInfo localInfo(m_localPath);
+
+    if (localInfo.exists()) {
+        this->setModified(localInfo.lastModified());
+        this->setCreated(localInfo.created());
+
+        if (localInfo.isDir()) {
+            // Read directory information
+            QDir localPathDir(m_localPath);
+            localPathDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+            this->m_size = localPathDir.count();
+            this->setType(Qw::FileTypeFolder);
+            this->setChecksum(QString());
+        } else {
+            // Read regular file
+            this->setType(Qw::FileTypeRegular);
+            this->m_size = localInfo.size();
+            this->m_checksum = calculateLocalChecksum();
+        }
+        return true;
+    }
+    return false;
+}
+
+/*! Returns the base name of the file (last element of the remotePath()). */
 QString QwFile::fileName() const
 {
-    return m_remotePath.section("/", -1);
+    return m_remotePath.section("/", -1, -1, QString::SectionSkipEmpty);
 }
 
 
-/*! Returns the path to the containing directory of this file/folder.
+/*! Returns the path to the containing directory of this file/folder of the remotePath() (basename).
 */
 QString QwFile::directoryPath() const
 {
-    return m_remotePath.section("/", 0, -2, QString::SectionIncludeLeadingSep | QString::SectionIncludeTrailingSep);
+    return m_remotePath.section("/", 0, -2,
+                                QString::SectionIncludeLeadingSep
+                                | QString::SectionIncludeTrailingSep
+                                | QString::SectionSkipEmpty);
 }
 
 
@@ -53,7 +86,7 @@ QString QwFile::remotePath() const
 {
     QString path(m_remotePath);
 
-    if (type == Qw::FileTypeFolder || type == Qw::FileTypeDropBox || type == Qw::FileTypeUploadsFolder)
+    if (m_type == Qw::FileTypeFolder || m_type == Qw::FileTypeDropBox || m_type == Qw::FileTypeUploadsFolder)
     {
         if (!path.endsWith("/")) {
             path.append("/");
@@ -91,14 +124,37 @@ QString QwFile::checksum() const
 void QwFile::setChecksum(const QString &checksum)
 { m_checksum = checksum; }
 
+void QwFile::setComment(const QString &comment)
+{ m_comment = comment; }
+
+QString QwFile::comment() const
+{ return m_comment; }
+
+void QwFile::setCreated(QDateTime created)
+{ m_created = created; }
+
+QDateTime QwFile::created() const
+{ return m_created; }
+
+void QwFile::setModified(QDateTime modified)
+{ m_modified = modified; }
+
+QDateTime QwFile::modified() const
+{ return m_modified; }
+
+Qw::FileType QwFile::type() const
+{ return m_type; }
+
+void QwFile::setType(Qw::FileType type)
+{ m_type = type; }
 
 /*! Returns the file sizes (data amouont) as a human readable string in bytes, kilobytes, megabytes
     and so on.
 */
 QString QwFile::humanReadableSize(qint64 size)
 {
-    qint64 a=1024;
-    float b=1024;
+    qint64 a=1000;
+    float b=1000;
 
     if (size<0) {
         return QString("-");

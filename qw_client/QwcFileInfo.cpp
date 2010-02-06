@@ -14,10 +14,10 @@ QwcFileInfo::QwcFileInfo() :
 void QwcFileInfo::setFromMessage410(const QwMessage &message)
 {
     m_remotePath = message.stringArg(0);
-    type = (Qw::FileType)message.stringArg(1).toInt();
+    m_type = (Qw::FileType)message.stringArg(1).toInt();
     m_size = message.stringArg(2).toInt();
-    created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
-    modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
+    m_created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
+    m_modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
 }
 
 
@@ -79,7 +79,7 @@ QIcon QwcFileInfo::fileIcon() const
     tmpTypes["jar"] = ":/icons/files/files-executable.png";
 
     QString tmpSuffix = this->fileName().section(".",-1,-1);
-    switch(this->type) {
+    switch(this->type()) {
         case Qw::FileTypeFolder: return QIcon(":/icons/files/files-folder.png"); break;
         case Qw::FileTypeDropBox: return QIcon(":/icons/files/files-dropbox.png"); break;
         case Qw::FileTypeUploadsFolder: return QIcon(":/icons/files/files-uploads.png"); break;

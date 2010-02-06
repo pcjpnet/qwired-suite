@@ -38,9 +38,16 @@ QwcFileBrowserWidget::QwcFileBrowserWidget(QWidget *parent) :
     connect(transferList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(handleTransferListSelectionChanged(QItemSelection,QItemSelection)));
 
+#ifdef Q_WS_MACX
     labelCurrentPath->setAttribute(Qt::WA_MacSmallSize);
     fStats->setAttribute(Qt::WA_MacSmallSize);
     fList->setAttribute(Qt::WA_MacSmallSize);
+#else
+    QFont smallerFont = fStats->font();
+    smallerFont.setPointSizeF(smallerFont.pointSizeF() * 0.8);
+    fStats->setFont(smallerFont);
+    labelCurrentPath->setFont(smallerFont);
+#endif
 
     stackedWidget->setCurrentWidget(pageBrowser);
 }
@@ -108,12 +115,12 @@ void QwcFileBrowserWidget::setFileInformation(const QwFile &file)
 //    infoIcon->setPixmap(file.fileIcon().pixmap(16,16));
     infoSize->setText(tr("%1 (%2)").arg(QwcFileInfo::humanReadableSize(file.size())).arg(file.size()));
     infoPath->setText(file.remotePath());
-    infoModified->setText(file.modified.toString(Qt::SystemLocaleShortDate));
-    infoCreated->setText(file.created.toString(Qt::SystemLocaleShortDate));
+    infoModified->setText(file.modified().toString(Qt::SystemLocaleShortDate));
+    infoCreated->setText(file.created().toString(Qt::SystemLocaleShortDate));
     infoChecksum->setText(file.checksum());
-    infoComment->setText(file.comment);
+    infoComment->setText(file.comment());
 
-    switch (file.type) {
+    switch (file.type()) {
     case Qw::FileTypeDropBox: infoKind->setText(tr("Drop Box")); break;
     case Qw::FileTypeFolder: infoKind->setText(tr("Folder")); break;
     case Qw::FileTypeRegular: infoKind->setText(tr("File")); break;
@@ -151,6 +158,8 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     QList<QStandardItem*> columns;
     QStandardItem *newItem;
 
+    qDebug() << "Name:" << item.fileName() << "Path:" << item.remotePath();
+
     newItem = new QStandardItem(); // File name
     newItem->setText(item.fileName());
     newItem->setIcon(item.fileIcon());
@@ -162,12 +171,12 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     columns << newItem;
 
     newItem = new QStandardItem(); // Date
-    newItem->setText(item.modified.toString(Qt::SystemLocaleShortDate));
-    newItem->setData(item.modified, Qt::UserRole + 1); // sort role
+    newItem->setText(item.modified().toString(Qt::SystemLocaleShortDate));
+    newItem->setData(item.modified(), Qt::UserRole + 1); // sort role
     columns << newItem;
 
     newItem = new QStandardItem(); // Size
-    if (item.type == Qw::FileTypeRegular) {
+    if (item.type() == Qw::FileTypeRegular) {
         newItem->setText(item.humanReadableSize(item.size()));
     } else {
         newItem->setText(QString("%1 item(s)").arg(item.size()));
@@ -178,7 +187,7 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     m_fileListModel->appendRow(columns);
 
 
-    if (item.type == Qw::FileTypeRegular) {
+    if (item.type() == Qw::FileTypeRegular) {
         m_totalUsedSpace += item.size();
     }
 }
@@ -205,15 +214,15 @@ void QwcFileBrowserWidget::handleFilesListDone(const QString &path, qint64 freeS
     if (m_remotePath == "/") {
         currentFolderInfo = QwcFileInfo();
         currentFolderInfo.setRemotePath("/");
-        currentFolderInfo.type = Qw::FileTypeFolder;
+        currentFolderInfo.setType(Qw::FileTypeFolder);
     }
 
     // Enable/disable upload/download as needed
     btnUpload->setEnabled(
             (userInfo.privileges().testFlag(Qws::PrivilegeUploadAnywhere))
-            || (currentFolderInfo.type == Qw::FileTypeUploadsFolder
+            || (currentFolderInfo.type() == Qw::FileTypeUploadsFolder
                 && userInfo.privileges().testFlag(Qws::PrivilegeUpload))
-            || (currentFolderInfo.type == Qw::FileTypeDropBox
+            || (currentFolderInfo.type() == Qw::FileTypeDropBox
                 && userInfo.privileges().testFlag(Qws::PrivilegeUpload)) );
 
 
@@ -310,38 +319,32 @@ void QwcFileBrowserWidget::on_btnPreview_clicked()
 */
 void QwcFileBrowserWidget::on_btnUpload_clicked()
 {
-//    QStringList targetFiles;
-//
-//    if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
-//        // Select a directory when the alt-key is held
-//        QString selectedFolder = QFileDialog::getExistingDirectory(this, tr("Upload folder"),
-//                                                                   QDir::homePath());
-//        if (selectedFolder.isEmpty()) { return; }
-//        targetFiles << selectedFolder;
-//    } else {
-//        // By default we allow the user to select files
-//        targetFiles = QFileDialog::getOpenFileNames(this, tr("Upload Files"),
-//                                                    QDir::homePath(), tr("Any File (*.*)"));
-//        if (targetFiles.isEmpty()) { return; }
-//    }
-//
-//
-//    QStringListIterator i(targetFiles);
-//    while (i.hasNext()) {
-//        QString itemFile = i.next();
-//        QFileInfo itemInfo(itemFile);
-//        QwcFileInfo targetInfo;
-//        targetInfo.localAbsolutePath = itemFile;
-//        targetInfo.setRemotePath(QDir::cleanPath(currentFolderInfo.remotePath() + "/" + itemInfo.fileName()));
-//        if (itemInfo.isDir()) {
-//            targetInfo.type = Qw::FileTypeFolder;
-//        } else {
-//            targetInfo.type = Qw::FileTypeRegular;
-//            targetInfo.setSize(itemInfo.size());
-//            targetInfo.updateLocalChecksum();
-//        }
-//        m_socket->uploadFileOrFolder(targetInfo);
-//    }
+    QStringList targetFiles;
+
+    if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+        // Select a directory when the alt-key is held
+        QString selectedFolder = QFileDialog::getExistingDirectory(this, tr("Upload Folder"),
+                                                                   QDir::homePath());
+        if (selectedFolder.isEmpty()) { return; }
+        targetFiles << selectedFolder;
+    } else {
+        // By default we allow the user to select files
+        targetFiles = QFileDialog::getOpenFileNames(this, tr("Upload Files"),
+                                                    QDir::homePath(), tr("Any File (*.*)"));
+        if (targetFiles.isEmpty()) { return; }
+    }
+
+    foreach (const QString &file, targetFiles) {
+        QFileInfo fileInfo(file);
+        QString remoteFilePath = QDir::cleanPath(currentFolderInfo.remotePath()
+                                                 + "/" + fileInfo.fileName());
+
+        if (fileInfo.isDir()) {
+            remoteFilePath.append("/");
+        }
+
+        m_socket->uploadPath(file, remoteFilePath);
+    }
 }
 
 
@@ -367,9 +370,9 @@ void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
 
     QwcFileInfo fileInfo = firstColumnItem->data(Qt::UserRole).value<QwcFileInfo>();
 
-    if (fileInfo.type == Qw::FileTypeDropBox
-        || fileInfo.type == Qw::FileTypeFolder
-        || fileInfo.type == Qw::FileTypeUploadsFolder)
+    if (fileInfo.type() == Qw::FileTypeDropBox
+        || fileInfo.type() == Qw::FileTypeFolder
+        || fileInfo.type() == Qw::FileTypeUploadsFolder)
     {
         m_remotePath = fileInfo.remotePath();
         currentFolderInfo = fileInfo;
@@ -390,6 +393,8 @@ void QwcFileBrowserWidget::handleListSelectionChanged(const QItemSelection &, co
 void QwcFileBrowserWidget::handleTransferListSelectionChanged(const QItemSelection &selected,
                                                               const QItemSelection &deselected)
 {
+    Q_UNUSED(selected);
+    Q_UNUSED(deselected);
     if (transferList->selectionModel()->hasSelection()) {        
         pauseTransfer->setEnabled(true);
         resumeTransfer->setEnabled(true);
@@ -557,13 +562,13 @@ void QwcFileBrowserWidget::on_btnInfoCancel_clicked()
 void QwcFileBrowserWidget::on_btnInfoApply_clicked()
 {
     QwcFileInfo newInfo = currentFileInfo;
-    newInfo.comment = infoComment->toPlainText();
+    newInfo.setComment(infoComment->toPlainText());
 
     // Replace all slashes to prevent corrupted names
     newInfo.setRemotePath(currentFileInfo.directoryPath() + infoName->text().replace("/", "_"));
 
-    if (currentFileInfo.comment != newInfo.comment) {
-        m_socket->setFileComment(newInfo.remotePath(), newInfo.comment);
+    if (currentFileInfo.comment() != newInfo.comment()) {
+        m_socket->setFileComment(newInfo.remotePath(), newInfo.comment());
     }
 
     if (currentFileInfo.remotePath() != newInfo.remotePath()) {

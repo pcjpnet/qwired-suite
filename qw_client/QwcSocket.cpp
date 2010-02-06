@@ -538,12 +538,12 @@ void QwcSocket::handleMessage402(const QwMessage &message)
     qDebug() << "GOT FILE INFORMATION";
     QwFile fileInfo;
     fileInfo.setRemotePath(message.stringArg(0));
-    fileInfo.type = (Qw::FileType)message.stringArg(1).toInt();
+    fileInfo.setType((Qw::FileType)message.stringArg(1).toInt());
     fileInfo.setSize(message.stringArg(2).toLongLong());
-    fileInfo.created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
-    fileInfo.modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
+    fileInfo.setCreated(QDateTime::fromString(message.stringArg(3), Qt::ISODate));
+    fileInfo.setModified(QDateTime::fromString(message.stringArg(4), Qt::ISODate));
     fileInfo.setChecksum(message.stringArg(5));
-    fileInfo.comment = message.stringArg(6);
+    fileInfo.setComment(message.stringArg(6));
     emit fileInformation(fileInfo);
 }
 
@@ -585,10 +585,10 @@ void QwcSocket::handleMessage420(const QwMessage &message)
 {
     QwcFileInfo newInfo;
     newInfo.setRemotePath(message.stringArg(0));
-    newInfo.type = (Qw::FileType)message.stringArg(1).toInt();
+    newInfo.setType((Qw::FileType)message.stringArg(1).toInt());
     newInfo.setSize(message.stringArg(2).toLongLong());
-    newInfo.created = QDateTime::fromString(message.stringArg(3), Qt::ISODate );
-    newInfo.modified = QDateTime::fromString(message.stringArg(4), Qt::ISODate );
+    newInfo.setCreated(QDateTime::fromString(message.stringArg(3), Qt::ISODate));
+    newInfo.setModified(QDateTime::fromString(message.stringArg(4), Qt::ISODate));
     emit fileSearchResultListItem(newInfo);
 }
 
@@ -959,7 +959,7 @@ void QwcSocket::setFileComment(const QString &path, const QString &comment)
 
 
 /*! Creates a transfer for this connection. If \e remotePath ends with a slash (/), the transfer is
-    considered to be a folder transfer, otherwise it's considered to
+    considered to be a folder transfer, otherwise it's considered to be a file transfer.
     \returns Returns a unique ID which identifies this transfer for this connection
 */
 Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString &localPath)
@@ -976,7 +976,32 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
     newTransfer->setRemotePath(remotePath);
     newTransfer->setLocalPath(localPath);
 
-    qDebug() << "new transfer with id" << newTransfer->id();
+    qDebug() << "new download transfer with id" << newTransfer->id();
+    m_transfers[newTransfer->id()] = newTransfer;
+    emit transferCreated(newTransfer);
+    checkTransferQueue();
+    return newTransfer->id();
+}
+
+/*! Creates a transfer for this connection. If \e localPath ends with a slash (/), the transfer is
+    considered to be a folder transfer, otherwise it's considered to be a file transfer.
+    \returns Returns a unique ID which identifies this transfer for this connection
+*/
+Qwc::TransferId QwcSocket::uploadPath(const QString &localPath, const QString &remotePath)
+{
+    qDebug() << this << "uploadPath():" << localPath << "=>" << remotePath;
+    Qwc::TransferType transferType;
+    if (remotePath.endsWith("/")) {
+        transferType = Qwc::TransferTypeFolderUpload;
+    } else {
+        transferType = Qwc::TransferTypeFileUpload;
+    }
+    QwcTransfer *newTransfer = new QwcTransfer(transferType, this);
+    newTransfer->setSocket(this);
+    newTransfer->setRemotePath(remotePath);
+    newTransfer->setLocalPath(localPath);
+
+    qDebug() << "new upload transfer with id" << newTransfer->id();
     m_transfers[newTransfer->id()] = newTransfer;
     emit transferCreated(newTransfer);
     checkTransferQueue();
@@ -1017,6 +1042,15 @@ void QwcSocket::moveFile(const QString &source, const QString &destination)
 /*! Request a download transfer slot for the remote file at \e path. */
 void QwcSocket::getFile(const QString &path, qint64 offset)
 { sendMessage(QwMessage("GET").appendArg(path).appendArg(offset)); }
+
+/*! Request a upload transfer slot for a file, with a given \e size and the data \e checksum. */
+void QwcSocket::putFile(const QString &path, qint64 size, const QString &checksum)
+{ sendMessage(QwMessage("PUT").appendArg(path).appendArg(size).appendArg(checksum)); }
+
+/*! Set the type of a folder.
+    \warning Please note that you can not use the type \e FileTypeRegular for this command. */
+void QwcSocket::setFolderType(const QString &path, Qw::FileType type)
+{ sendMessage(QwMessage("TYPE").appendArg(path).appendArg((int)type)); }
 
 /*! A transfer has changed. We emit a signal from here to notify the rest of the application code.
 */
