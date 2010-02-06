@@ -861,7 +861,7 @@ void QwsClientSocket::handleMessageLIST(const QwMessage &message)
     }
 
     // Check if the target is a directory
-    if (!targetDirectory.type > Qw::FileTypeRegular) {
+    if (!targetDirectory.type() > Qw::FileTypeRegular) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -881,10 +881,10 @@ void QwsClientSocket::handleMessageLIST(const QwMessage &message)
         if (itemFile.loadFromLocalPath(true)) {
             QwMessage replyItem("410");
             replyItem.appendArg(QDir::cleanPath(targetDirectory.remotePath() + "/" + itemFile.remotePath()));
-            replyItem.appendArg(QString::number(itemFile.type));
+            replyItem.appendArg(QString::number(itemFile.type()));
             replyItem.appendArg(QString::number(itemFile.size()));
-            replyItem.appendArg(itemFile.created.toUTC().toString(Qt::ISODate)+"+00:00");
-            replyItem.appendArg(itemFile.modified.toUTC().toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.created().toUTC().toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.modified().toUTC().toString(Qt::ISODate)+"+00:00");
             sendMessage(replyItem);
         }
     }
@@ -935,7 +935,7 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(const QwMessage &message)
     }
 
     // Check if the target is a directory
-    if (!targetDirectory.type > Qw::FileTypeRegular) {
+    if (!targetDirectory.type() > Qw::FileTypeRegular) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
     }
@@ -954,10 +954,10 @@ void QwsClientSocket::handleMessageLISTRECURSIVE(const QwMessage &message)
         if (itemFile.loadFromLocalPath(true)) {
             QwMessage replyItem("410");
             replyItem.appendArg(QDir::cleanPath(targetDirectory.remotePath() + "/" + itemFile.remotePath()));
-            replyItem.appendArg(QString::number(itemFile.type));
+            replyItem.appendArg(QString::number(itemFile.type()));
             replyItem.appendArg(QString::number(itemFile.size()));
-            replyItem.appendArg(itemFile.created.toUTC().toString(Qt::ISODate)+"+00:00");
-            replyItem.appendArg(itemFile.modified.toUTC().toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.created().toUTC().toString(Qt::ISODate)+"+00:00");
+            replyItem.appendArg(itemFile.modified().toUTC().toString(Qt::ISODate)+"+00:00");
             sendMessage(replyItem);
         }
     }
@@ -1005,12 +1005,12 @@ void QwsClientSocket::handleMessageSTAT(const QwMessage &message)
     // Send file info reply
     QwMessage reply("402");
     reply.appendArg(targetFile.remotePath());
-    reply.appendArg(QString::number(targetFile.type));
+    reply.appendArg(QString::number(targetFile.type()));
     reply.appendArg(QString::number(targetFile.size()));
-    reply.appendArg(targetFile.created.toUTC().toString(Qt::ISODate)+"+00:00");
-    reply.appendArg(targetFile.modified.toUTC().toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetFile.created().toUTC().toString(Qt::ISODate)+"+00:00");
+    reply.appendArg(targetFile.modified().toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(targetFile.checksum());
-    reply.appendArg(targetFile.comment);
+    reply.appendArg(targetFile.comment());
     sendMessage(reply);
 }
 
@@ -1310,7 +1310,7 @@ void QwsClientSocket::handleMessageCOMMENT(const QwMessage &message)
         return;
     }
 
-    localFile.comment = message.stringArg(1);
+    localFile.setComment(message.stringArg(1));
     if (!localFile.saveMetaInformation()) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;
@@ -1349,7 +1349,7 @@ void QwsClientSocket::handleMessageTYPE(const QwMessage &message)
     }
 
     localFile.loadMetaInformation();
-    localFile.type = targetType;
+    localFile.setType(targetType);
     if (!localFile.saveMetaInformation()) {
         sendError(Qw::ErrorFileOrDirectoryNotFound);
         return;

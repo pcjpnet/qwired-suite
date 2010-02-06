@@ -2,6 +2,8 @@
 #include "QwcTransferSocket.h"
 #include "QwcSocket.h"
 
+#include <QtCore/QDirIterator>
+
 QwcTransfer::QwcTransfer(Qwc::TransferType type, QObject *parent) :
     QObject(parent)
 {
@@ -43,20 +45,65 @@ void QwcTransfer::start()
 
     } else {
         if (m_type == Qwc::TransferTypeFolderDownload) {
-            qDebug() << "Transfer requesting list of files from server";
             changeState(Qwc::TransferStateActive);
             m_internalState = Qwc::TransferInternalStateWaitingForFileListing;
-            qDebug() << "Listing:" << remotePath();
             m_socket->getFileListRecusive(remotePath());
 
         } else if (m_type == Qwc::TransferTypeFileDownload) {
             changeState(Qwc::TransferStateActive);
             m_internalState = Qwc::TransferInternalStateActive;
+
             QwFile newFile;
             newFile.setRemotePath(m_remotePath);
             newFile.setLocalPath(m_localPath);
-            newFile.type = Qw::FileTypeRegular;
+            newFile.setType(Qw::FileTypeRegular);
             m_transferFiles << newFile;
+
+            prepareNextFile();
+
+        } else if (m_type == Qwc::TransferTypeFileUpload) {
+            changeState(Qwc::TransferStateActive);
+            m_internalState = Qwc::TransferInternalStateActive;
+
+            QwFile newFile;
+            newFile.setRemotePath(m_remotePath);
+            newFile.setLocalPath(m_localPath);
+            newFile.setType(Qw::FileTypeRegular);
+            newFile.loadFromLocalFile();
+            m_transferFiles << newFile;
+            m_totalTransferSize = newFile.size();
+
+            prepareNextFile();
+
+        } else if (m_type == Qwc::TransferTypeFolderUpload) {
+            changeState(Qwc::TransferStateActive);
+            m_internalState = Qwc::TransferInternalStateActive;
+
+            // First, ensure the root folder exists
+            m_socket->createFolder(remotePath());
+
+            QDirIterator i(m_localPath, QStringList(),
+                           QDir::NoDotAndDotDot | QDir::AllEntries | QDir::NoSymLinks,
+                           QDirIterator::Subdirectories);
+            while (i.hasNext()) {
+                i.next();
+                QFileInfo fileInfo = i.fileInfo();
+                QString compactPath = fileInfo.absoluteFilePath().remove(m_localPath);
+
+                QwFile newFile;
+                newFile.setRemotePath(QDir::cleanPath(remotePath() + "/" + compactPath));
+                newFile.setLocalPath(fileInfo.absoluteFilePath());
+
+                if (fileInfo.isDir()) {
+                    newFile.setType(Qw::FileTypeFolder);
+                } else {
+                    newFile.loadFromLocalFile();
+                    newFile.setType(Qw::FileTypeRegular);
+                    m_totalTransferSize += newFile.size();
+                }
+
+                m_transferFiles << newFile;
+            }
             prepareNextFile();
         }
     }
@@ -67,7 +114,7 @@ void QwcTransfer::start()
 void QwcTransfer::stop()
 {
     if (m_state == Qwc::TransferStateActive) {
-        m_transferSocket->disconnect();
+        m_transferSocket->stopTransfer();
         m_transferFiles.prepend(m_transferSocket->fileInfo());
     }
     changeState(Qwc::TransferStatePaused);
@@ -154,8 +201,15 @@ void QwcTransfer::handleFileListDone(const QString &path, qint64 freeSpace)
 
 void QwcTransfer::handleTransferReady(const QString &path, qint64 offset, const QString &hash)
 {
+    if (m_type == Qwc::TransferTypeFolderUpload
+        || m_type == Qwc::TransferTypeFileUpload) {
+        // Update the offset as the file might be partially trasnferred already.
+        QwFile transferFile = m_transferSocket->fileInfo();
+        transferFile.setTransferredSize(offset);
+        m_transferSocket->setFileInfo(transferFile);
+    }
+
     if (path == m_transferSocket->fileInfo().remotePath()) {
-        qDebug() << "Transfer is ready:" << path << offset << hash;
         m_transferSocket->setTransferHash(hash);
         m_transferSocket->beginTransfer();
     }
@@ -167,23 +221,24 @@ void QwcTransfer::handleFileInformation(const QwFile &file)
     if (m_internalState != Qwc::TransferInternalStateWaitingForFileInformation) { return; }
     m_internalState = Qwc::TransferInternalStateActive;
 
-    qDebug() << "got file information for" << file.remotePath();
     QwFile newFile = file;
+
     if (m_type == Qwc::TransferTypeFolderDownload) {
         // For folder transfers we need to append to the folder path locally
         QString localPathTest = file.remotePath();
         localPathTest.remove(m_remotePath);
         newFile.setLocalPath(QDir(m_localPath).absoluteFilePath(localPathTest));
+
     } else if (m_type == Qwc::TransferTypeFileDownload) {
         // Files have a direct path set
         newFile.setLocalPath(m_localPath);
+        m_totalTransferSize = newFile.size();
     }
 
     QFileInfo localFileInfo(newFile.localPath());
     if (newFile.size() == localFileInfo.size()
         && newFile.checksum() == newFile.calculateLocalChecksum()) {
         // Skip - the file is complete already
-        qDebug() << "Skipping file: already complete and checksums match";
         m_completedTransferSize += localFileInfo.size();
         prepareNextFile();
     } else {
@@ -192,7 +247,6 @@ void QwcTransfer::handleFileInformation(const QwFile &file)
             // The file is not complete, nor does it match the checksum - delete it.
             QFile::remove(file.localPath());
         }
-        qDebug() << "Requesting file" << newFile.remotePath() << "off:" << localFileInfo.size();
         newFile.setTransferredSize(localFileInfo.size());
         m_transferSocket->setFileInfo(newFile);
         m_socket->getFile(newFile.remotePath(), localFileInfo.size());
@@ -221,8 +275,7 @@ bool QwcTransfer::prepareNextFile()
         QwFile file = m_transferFiles.takeFirst();
         qDebug() << "------------------------------------ PREPARING FOR NEW FILE:" << file.remotePath();
 
-        if (file.type == Qw::FileTypeRegular) {
-
+        if (file.type() == Qw::FileTypeRegular) {
             // Set up the transfer socket
             if (m_transferSocket) { delete m_transferSocket; }
             m_transferSocket = new QwcTransferSocket(this);
@@ -234,13 +287,33 @@ bool QwcTransfer::prepareNextFile()
             m_transferSocket->setServer(m_socket->sslSocket()->peerAddress().toString(),
                                         m_socket->sslSocket()->peerPort());
 
+            if (m_type == Qwc::TransferTypeFileDownload
+                || m_type == Qwc::TransferTypeFolderDownload) {
+                // For downloads we first must STAT the target file to get some more details
+                // about it.
+                m_transferSocket->setTransferDirection(Qwc::TransferDirectionDownload);
+                m_internalState = Qwc::TransferInternalStateWaitingForFileInformation;
+                m_socket->getFileInformation(file.remotePath());
 
-            m_transferSocket->setTransferDirection(Qwc::TransferDirectionDownload);
+            } else if (m_type == Qwc::TransferTypeFileUpload
+                       || m_type == Qwc::TransferTypeFolderUpload) {
+                // File uploads can happen directly. We assume that the target file does not exist
+                // or is at least incomplete.
+                m_transferSocket->setTransferDirection(Qwc::TransferDirectionUpload);
+                m_transferSocket->setFileInfo(file);
+                m_socket->putFile(file.remotePath(), file.size(), file.checksum());
+            }
 
-            m_internalState = Qwc::TransferInternalStateWaitingForFileInformation;
-            m_socket->getFileInformation(file.remotePath());
-            qDebug() << "r'ing" << file.remotePath();
             return true;
+
+        } else if (file.type() == Qw::FileTypeFolder) {
+            // Create folders if needed
+            if (m_type == Qwc::TransferTypeFileUpload
+                || m_type == Qwc::TransferTypeFolderUpload) {
+                m_socket->createFolder(file.remotePath());
+                m_socket->setFolderType(file.remotePath(), file.type());
+                continue;
+            }
         }
     }
 
@@ -266,7 +339,6 @@ void QwcTransfer::handleFileTransferFinished()
         m_completedTransferSize += transferSocket->fileInfo().size();
         emit transferChanged();
     }
-
     prepareNextFile();
 }
 

@@ -12,8 +12,12 @@ QT += gui \
 DESTDIR = ../bin/
 ICON = qwired.icns
 RC_FILE = qwired.rc
+
 LIBS += ../bin/libqwlibrary.a
+
 INCLUDEPATH += ../qw_library
+
+
 TRANSLATIONS += lang/lang_de.ts \
     lang/lang_pt.ts \
     lang/lang_it.ts \

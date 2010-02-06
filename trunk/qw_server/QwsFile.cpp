@@ -65,19 +65,19 @@ bool QwsFile::loadFromLocalPath(bool quickCheck)
 
     // Exists - now read some info
 
-    this->modified = localPathInfo.lastModified();
-    this->created = localPathInfo.created();
+    this->setModified(localPathInfo.lastModified());
+    this->setCreated(localPathInfo.created());
 
     if (localPathInfo.isDir()) {
         // Read directory information
         QDir localPathDir(m_localPath);
         localPathDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-        this->type = Qw::FileTypeFolder;
+        this->m_type = Qw::FileTypeFolder;
         this->m_size = localPathDir.count();
         this->m_checksum = "";
     } else {
         // Read regular file
-        this->type = Qw::FileTypeRegular;
+        this->m_type = Qw::FileTypeRegular;
         this->m_size = localPathInfo.size();
         if (!quickCheck) {
             this->m_checksum = calculateLocalChecksum();
@@ -113,8 +113,8 @@ bool QwsFile::loadMetaInformation()
         return false;
     }
 
-    this->comment = query.value(1).toString();
-    this->type = (Qw::FileType)query.value(0).toInt();
+    this->m_comment = query.value(1).toString();
+    this->m_type = (Qw::FileType)query.value(0).toInt();
     return true;
 }
 
@@ -146,8 +146,8 @@ bool QwsFile::saveMetaInformation()
                   "VALUES (:_path, :_name, :_type, :_comment)");
     query.bindValue(":_path", fileDirPath);
     query.bindValue(":_name", fileName);
-    query.bindValue(":_type", this->type);
-    query.bindValue(":_comment", this->comment);
+    query.bindValue(":_type", this->type());
+    query.bindValue(":_comment", this->comment());
     if (!query.exec()) {
         qDebug() << this << "Unable to write file info to database: " << query.lastError().text();
         return false;

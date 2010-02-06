@@ -9,10 +9,8 @@ QwcTransferSocket::QwcTransferSocket(QObject *parent) :
         QObject(parent)
 {
     m_socket = NULL;
-    m_transferLimit = 0;
     m_currentTransferSpeed = 0;
     m_lastTransferSpeedProgress = 0;
-
     startTimer(transferTimerInterval * 1000);
 }
 
@@ -31,13 +29,12 @@ void QwcTransferSocket::setFileInfo(const QwFile &file)
     m_fileReader.setFileName(file.localPath());
     m_fileInfo = file;
 
-    qDebug() << "Set file info with size of" << file.size();
+//    qDebug() << "Set file info with size of" << file.size();
 }
 
 
 QwFile QwcTransferSocket::fileInfo() const
 { return m_fileInfo; }
-
 
 void QwcTransferSocket::setTransferHash(const QString &hash)
 { m_transferHash = hash; }
@@ -45,19 +42,11 @@ void QwcTransferSocket::setTransferHash(const QString &hash)
 QString QwcTransferSocket::transferHash() const
 { return m_transferHash; }
 
-
 void QwcTransferSocket::setTransferDirection(Qwc::TransferDirection direction)
 { m_transferDirection = direction; }
 
 Qwc::TransferDirection QwcTransferSocket::transferDirection() const
 { return m_transferDirection; }
-
-
-void QwcTransferSocket::setTransferLimit(qint64 limit)
-{ m_transferLimit = limit; }
-
-qint64 QwcTransferSocket::transferLimit() const
-{ return m_transferLimit; }
 
 
 /*! Returns the number of bytes which are currently transmitted from or to the server in average
@@ -68,7 +57,7 @@ qint64 QwcTransferSocket::currentTransferSpeed() const
 
 /*! A simple timer, which allows us to measure the progress and transfer speed.
 */
-void QwcTransferSocket::timerEvent(QTimerEvent *event)
+void QwcTransferSocket::timerEvent(QTimerEvent *)
 {
     if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
         m_currentTransferSpeed = -1;
@@ -84,7 +73,7 @@ void QwcTransferSocket::timerEvent(QTimerEvent *event)
 */
 void QwcTransferSocket::createNewSocket()
 {
-    qDebug() << this << "Creating new SSL socket for transfer.";
+//    qDebug() << this << "Creating new SSL socket for transfer.";
     if (m_socket) {
         delete m_socket;
     }
@@ -103,17 +92,16 @@ void QwcTransferSocket::createNewSocket()
 void QwcTransferSocket::beginTransfer()
 {
     createNewSocket();
-
     emit fileTransferStarted(this);
-
-    qDebug() << this << "Connecting to remote host at" << m_serverHost << "port" << m_serverPort;
     m_socket->abort();
     m_socket->connectToHostEncrypted(m_serverHost, m_serverPort);
+}
 
-    // Set the read buffer size to limit download speed
-    if (transferDirection() == Qwc::TransferDirectionDownload && m_transferLimit > 0) {
-        m_socket->setReadBufferSize(m_transferLimit * (float(transferTimerInterval)/1000));
-    }
+/*! Stop the transfer and close the socket connection.
+*/
+void QwcTransferSocket::stopTransfer()
+{
+    haltTransfer();
 }
 
 
@@ -121,7 +109,7 @@ void QwcTransferSocket::beginTransfer()
 */
 void QwcTransferSocket::handleSocketEncrypted()
 {
-    qDebug() << this << "Transfer socket connected, sending handshake with hash" << m_transferHash;
+//    qDebug() << this << "Transfer socket connected, sending handshake with hash" << m_transferHash;
 
     // First we send the TRANSFER message with the secret hash. After that data transfer immediately
     // begins.
@@ -130,15 +118,13 @@ void QwcTransferSocket::handleSocketEncrypted()
 
     // Start the transfer timer which is responsible for sending chunks of data
     if (transferDirection() == Qwc::TransferDirectionDownload) {
-        bool ok;
-        if (m_fileInfo.transferredSize() > -1) {
-            ok = m_fileReader.open(QIODevice::WriteOnly | QIODevice::Append);
-        } else {
-            ok = m_fileReader.open(QIODevice::WriteOnly);
-        }
+        QIODevice::OpenMode openMode = m_fileInfo.transferredSize() > -1
+                                       ? QIODevice::WriteOnly | QIODevice::Append
+                                           : QIODevice::WriteOnly;
 
-        if (!ok) {
-            m_errorString = tr("Unable to open file for writing: %1").arg(m_fileReader.errorString());
+        if (!m_fileReader.open(openMode)) {
+            m_errorString = tr("Unable to open file for writing: %1")
+                            .arg(m_fileReader.errorString());
             haltTransfer();
             emit fileTransferError();
             return;
@@ -150,42 +136,44 @@ void QwcTransferSocket::handleSocketEncrypted()
 
 
     } else if (transferDirection() == Qwc::TransferDirectionUpload) {
-//        qDebug() << "-UPLOAD-";
-//        if (!m_fileReader.open(QIODevice::ReadOnly)) {
-//            qDebug() << this << "Unable to open file for reading:" << m_fileReader.errorString();
-//            stopTransfer();
-//            emit fileTransferError(this);
-//            return;
-//        }
-//
-//        // Skip to the first byte behind the already uploaded amount of data
-//
-//        m_fileReader.seek(m_fileInfo.transferredSize());
-//
-//        // Connect the signal to allow transmission of further data after a chunk is complete.
-//        connect(m_socket, SIGNAL(encryptedBytesWritten(qint64)),
-//                this, SLOT(transmitFileChunk()));
-//
-//        // Now start the transfer by calling this manually
-//        transmitFileChunk();
+        if (!m_fileReader.open(QIODevice::ReadOnly)) {
+            m_errorString = tr("Unable to open file for reading: %1")
+                            .arg(m_fileReader.errorString());
+            haltTransfer();
+            emit fileTransferError();
+            return;
+        }
+
+        if (!m_fileReader.seek(m_fileInfo.transferredSize())) {
+            m_errorString = tr("Unable to seek to position %1: %2")
+                            .arg(m_fileInfo.transferredSize())
+                            .arg(m_fileReader.errorString());
+            haltTransfer();
+            emit fileTransferError();
+            return;
+        }
+
+        // Connect the signal to allow transmission of further data after a chunk is complete.
+        connect(m_socket, SIGNAL(encryptedBytesWritten(qint64)),
+                this, SLOT(transmitFileChunk(qint64)));
+        transmitFileChunk();
     }
 
-
-//    emit fileTransferStatus(this);
 }
 
 
 
 
 /*! Transfer a single chunk of data to the server or back.
-    \todo Fix current speed calculation.
+    \param[in] amountWritten This argument is used for uploads only and its value is provided by the
+                             bytesWritten() signal of the socket. It allows us to update the amount
+                             of transferred bytes more smoothly.
 */
-void QwcTransferSocket::transmitFileChunk()
+void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
 {    
-//    qint64 chunkSize = 64 * 1000;
+    qint64 chunkSize = 512 * 1000;
 
     if (m_transferDirection == Qwc::TransferDirectionDownload) {
-
         QByteArray dataBuffer;
         dataBuffer.resize(m_socket->bytesAvailable());
         qint64 readBytes = m_socket->read(dataBuffer.data(), m_socket->bytesAvailable());
@@ -193,50 +181,54 @@ void QwcTransferSocket::transmitFileChunk()
         m_fileReader.write(dataBuffer);
 
         if (m_socket->state() == QAbstractSocket::UnconnectedState) {
-            qDebug() << "Lost connection to transfer server socket:" << m_socket->errorString();
-
+            // Check if the file is complete
             if (m_fileInfo.transferredSize() == m_fileInfo.size()) {
-                qDebug() << this << "Completed download.";
+//                qDebug() << this << "Completed download.";
                 finishTransfer();
                 return;
             }
 
-            qDebug() << this << "Transfer incomplete:" << m_fileInfo.transferredSize()
-                    <<"of" << m_fileInfo.size();
-
+            // Handle a premature end of the file
+            m_errorString = tr("Premature loss of transfer connection, local file remains "
+                               "incomplete (%1 of %2 bytes transferred)")
+                            .arg(m_fileInfo.transferredSize())
+                            .arg(m_fileInfo.size());
             haltTransfer();
             emit fileTransferError();
+            return;
         }
 
 
     } else if (m_transferDirection == Qwc::TransferDirectionUpload) {
-//
-//        // Return if not all data hase been written yet
-//        if (m_socket->encryptedBytesToWrite() > 0) { return; }
-//
-//        // Also return when we have transmitted all data, but call finishTransfer() to clean up
-//        if (m_fileReader.atEnd()) {
-//            finishTransfer();
-//            return;
-//        }
-//
-//        // Also return when the connection dropped or another TCP error has occurred
-//        if (m_socket->state() == QAbstractSocket::UnconnectedState) {
-//            qDebug() << this << "Transfer socket lost connection";
-//            stopTransfer();
-//            emit fileTransferError(this);
-//            return;
-//        }
-//
-//        // Otherwise we simply keep transferring more data
-//        QByteArray dataBuffer;
-//        dataBuffer = m_fileReader.read(chunkSize * 2);
-//        m_socket->write(dataBuffer);
-//
-//        m_currentTransferSpeed = float(1000/qMax(1,m_transferSpeedTimer.restart())) * chunkSize;
-//        m_fileInfo.setTransferredSize(m_fileInfo.transferredSize() + dataBuffer.size());
-//
-//        emit fileTransferStatus(this);
+//        qDebug() << "Sending data chunk" << amountWritten << "written:" << m_fileInfo.transferredSize();
+
+        // Update the amount of data written
+        m_fileInfo.setTransferredSize(m_fileInfo.transferredSize() + amountWritten);
+
+        // Return if not all data has been written yet
+        if (m_socket->encryptedBytesToWrite() > 0) { return; }
+
+        // Also return when we have transmitted all data, but call finishTransfer() to clean up
+        if (m_fileReader.atEnd()) {
+            finishTransfer();
+            return;
+        }
+
+        // Also return when the connection dropped or another TCP error has occurred
+        if (m_socket->state() == QAbstractSocket::UnconnectedState) {
+            // Handle a premature end of the file
+            m_errorString = tr("Premature loss of transfer connection, remote file remains "
+                               "incomplete (%1 of %2 bytes transferred)")
+                            .arg(m_fileInfo.transferredSize())
+                            .arg(m_fileInfo.size());
+
+            haltTransfer();
+            emit fileTransferError();
+            return;
+        }
+
+        // Otherwise we simply keep transferring more data
+        m_socket->write(m_fileReader.read(chunkSize));
     }
 }
 
@@ -245,9 +237,9 @@ void QwcTransferSocket::transmitFileChunk()
 */
 void QwcTransferSocket::haltTransfer()
 {
-    qDebug() << this << "Halting transfer.";
+    qWarning() << this << "Halting transfer:" << m_errorString;
     m_transferTimer.stop();
-    m_socket->close();
+    m_socket->disconnectFromHost();
     m_fileReader.close();
 }
 
@@ -261,7 +253,7 @@ void QwcTransferSocket::haltTransfer()
 */
 void QwcTransferSocket::finishTransfer()
 {
-    qDebug() << this << "Finishing transfer.";
+//    qDebug() << this << "Finishing transfer.";
     m_fileReader.close();
 
 //    // Remove the suffix from the finished file

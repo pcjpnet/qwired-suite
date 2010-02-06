@@ -93,10 +93,10 @@ bool QwcTransferInfo::prepareFolderUpload()
         if (!itemInfo.exists()) { continue; }
         QwcFileInfo fileInfo;
         fileInfo.setLocalPath(itemInfo.absoluteFilePath());
-        fileInfo.type = itemInfo.isDir() ? Qw::FileTypeFolder : Qw::FileTypeRegular;
+        fileInfo.setType(itemInfo.isDir() ? Qw::FileTypeFolder : Qw::FileTypeRegular);
         fileInfo.setSize(itemInfo.size());
-        fileInfo.modified = itemInfo.lastModified();
-        fileInfo.created = itemInfo.created();
+        fileInfo.setModified(itemInfo.lastModified());
+        fileInfo.setCreated(itemInfo.created());
         folder.setSize(folder.size() + fileInfo.size());
         folder.folderCount += 1;
         recursiveFiles.append(fileInfo);

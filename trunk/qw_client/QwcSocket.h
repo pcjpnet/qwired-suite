@@ -97,9 +97,12 @@ public slots:
     void getFileListRecusive(const QString &path);
     void moveFile(const QString &source, const QString &destination);
     void getFile(const QString &path, qint64 offset);
+    void putFile(const QString &path, qint64 size, const QString &checksum);
+    void setFolderType(const QString &path, Qw::FileType type);
 
     // Transfers
     Qwc::TransferId downloadPath(const QString &remotePath, const QString &localPath);
+    Qwc::TransferId uploadPath(const QString &localPath, const QString &remotePath);
 
     bool removeTransfer(QwcTransfer *transfer);
 
