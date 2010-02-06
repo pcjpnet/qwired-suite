@@ -92,13 +92,6 @@ void QwcTransferSocket::beginTransfer()
     m_socket->connectToHostEncrypted(m_serverHost, m_serverPort);
 }
 
-/*! Stop the transfer and close the socket connection.
-*/
-void QwcTransferSocket::stopTransfer()
-{
-    haltTransfer();
-}
-
 
 /*! Called by the SSL socket when the connection has been established.
 */
@@ -166,7 +159,7 @@ void QwcTransferSocket::handleSocketEncrypted()
 */
 void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
 {    
-    qint64 chunkSize = 512 * 1000;
+    qint64 chunkSize = 64 * 1000;
 
     if (m_transferDirection == Qwc::TransferDirectionDownload) {
         QByteArray dataBuffer;
@@ -229,7 +222,9 @@ void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
 */
 void QwcTransferSocket::haltTransfer()
 {
+    m_transferTimer.stop();
     m_socket->disconnectFromHost();
+    m_fileReader.close();
 }
 
 /*! This slot is called when the file transfer has finished successfully. It can be used to do some

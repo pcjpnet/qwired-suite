@@ -25,7 +25,7 @@ public:
 
     void setServer(QString theServer, int thePort);
     void beginTransfer();
-    void stopTransfer();
+    void haltTransfer();
 
     void setFileInfo(const QwFile &file);
     QwFile fileInfo() const;
@@ -42,7 +42,7 @@ private slots:
     void handleSocketEncrypted();
     void transmitFileChunk(qint64 amountWritten = -1);
     void finishTransfer();
-    void haltTransfer();
+
     
 protected:
     /*! The transfer hash which is required for the \c TRANSFER command.
