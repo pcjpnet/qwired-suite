@@ -204,7 +204,12 @@ signals:
         about the server. */
     void onFilesListDone(const QString &path, qint64 freeSpace);
     void onFilesListRecursiveDone(const QList<QwcFileInfo>);
+
+    /*! In response to a GET or PUT command. Indicates that a transfer is ready. */
     void transferReady(const QString &path, qint64 offset, const QString &hash);
+
+    /*! In response to a GET or PUT command. Indicates that the transfer is queued on the server
+        at \e position. */
     void transferQueued(const QString &path, int position);
 
     /*! Emitted when a response to the STAT command is received (get file information). */

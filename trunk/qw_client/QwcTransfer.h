@@ -78,6 +78,7 @@ public:
     const QList<QwFile> & transferFiles() const;
     void setTransferFiles(const QList<QwFile> &files);
 
+    int serverQueuePosition() const;
     qint64 completedTransferSize() const;
     qint64 totalTransferSize() const;
     qint64 currentTransferSpeed() const;
@@ -85,6 +86,7 @@ public:
 private slots:
     void handleFileListItem(const QwcFileInfo &file);
     void handleFileListDone(const QString &path, qint64 freeSpace);
+    void handleTransferQueued(const QString &path, int position);
     void handleTransferReady(const QString &path, qint64 offset, const QString &hash);
     void handleFileInformation(const QwFile &file);
 
@@ -121,6 +123,8 @@ protected:
     qint64 m_totalTransferSize;
     /*! The amount of data transferred so far (for informational purposes!). */
     qint64 m_completedTransferSize;
+    /*! The position for the transfer in the server's queue. */
+    int m_serverQueuePosition;
 
 
 

@@ -35,16 +35,12 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     painter->setPen(pen);
     painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
 
-
-
     if (option.state & QStyle::State_Selected) {
         // Selected items
         painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
     }
 
     painter->translate(option.rect.topLeft());
-
-
 
     QwcTransfer *transfer = index.data(Qt::UserRole).value<QwcTransfer*>();
     if (!transfer) { return; }
@@ -87,6 +83,15 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     } else if (transfer->state() == Qwc::TransferStatePaused) {
         statusText = tr("Paused");
         statusIcon = QPixmap(":/icons/16x16/media-playback-stop.png");
+
+    } else if (transfer->state() == Qwc::TransferStateQueuedOnServer) {
+        statusText = tr("Queued on Server (Position %1)").arg(transfer->serverQueuePosition());
+        if (transfer->type() == Qwc::TransferTypeFileDownload
+            || transfer->type() == Qwc::TransferTypeFolderDownload) {
+            statusIcon = QPixmap(":/icons/16x16/go-down.png");
+        } else {
+            statusIcon = QPixmap(":/icons/16x16/go-up.png");
+        }
     }
 
     QFont currentFont(painter->font());

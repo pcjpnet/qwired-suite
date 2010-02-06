@@ -56,80 +56,6 @@ const QHash<int, QwRoom> & QwcSocket::chatRooms() const
 const QHash<int, QwcUserInfo> & QwcSocket::users() const
 { return m_users; }
 
-/*! A transfer socket has finished. Remove the socket from the list of sockets.
-*/
-//void QwcSocket::handleTransferDone(QwcTransferSocket *transferSocket)
-//{
-//    if (!transferSocket) { return; }
-//
-//    QwcTransferInfo &info = transferSocket->transferInfo;
-//
-//    if (info.type == Qw::TransferTypeFolderDownload) {
-//        // If we are having a folder transfer, we should prepend the transfer info to the queue
-//        // again in order to load up the next file.
-//        if (transferSocket->prepareNextFile()) {
-//            checkTransferQueue();
-//            return;
-//        }
-//
-//
-//    } else if (info.type == Qw::TransferTypeFolderUpload) {
-//        qDebug() << this << "Handling transfer done:" << info.file.remotePath();
-//        if (info.hasNextFile()) {
-//            info.applyNextFile();
-//            checkTransferQueue();
-//            return;
-//        }
-//    }
-//
-//    // Delete the socket/transfer
-//    if (m_transferSockets.contains(transferSocket)) {
-//        qDebug() << this << "Deleting transfer socket" << transferSocket;
-//        m_transferSockets.removeOne(transferSocket);
-//        emit fileTransferQueueChanged();
-//        transferSocket->deleteLater();
-//    }
-//
-//    checkTransferQueue();
-//
-//    emit fileTransferDone(info);
-//}
-
-
-///*! A transfer socket has failed. Remove the socket from the list of sockets.
-//*/
-//void QwcSocket::handleTransferError(QwcTransferSocket *transferSocket)
-//{
-//    if (!transferSocket) { return; }
-//    // Delete the socket/transfer
-//    if (m_transferSockets.contains(transferSocket)) {
-//        qDebug() << this << "Deleting transfer socket" << transferSocket;
-//        m_transferSockets.removeOne(transferSocket);
-//        emit fileTransferQueueChanged();
-//        emit fileTransferError(transferSocket->transferInfo);
-//        transferSocket->deleteLater();
-//    }
-//}
-
-
-///*! A transfer has started.
-//*/
-//void QwcSocket::handleTransferStarted(QwcTransferSocket *transferSocket)
-//{
-//    if (!transferSocket) { return; }
-//    emit fileTransferStarted(transferSocket->transferInfo);
-//}
-
-
-///*! A transfer has new information available.
-//*/
-//void QwcSocket::handleTransferStatus(QwcTransferSocket *transferSocket)
-//{
-//    if (!transferSocket) { return; }
-//    emit fileTransferStatus(transferSocket->transferInfo);
-//}
-
-
 void QwcSocket::handleMessageReceived(const QwMessage &message)
 {
     int commandId = message.commandName.toInt();
@@ -1203,99 +1129,12 @@ void QwcSocket::sendMessageINFO()
 */
 void QwcSocket::checkTransferQueue()
 {
-
     foreach (QwcTransfer *transfer, m_transfers) {
         if (!transfer) { continue; }
         if (transfer->state() == Qwc::TransferStateInactive) {
-            qDebug() << "Locally de-queueing transfer" << transfer;
             transfer->start();
         }
     }
-
-    /*int maximumTransfers = 2;
-
-    // Count the waiting transfers
-    int activeTransferCount = 0;
-
-    foreach (QwcTransferSocket *transfer, m_transferSockets) {
-        if (!transfer) { continue; }
-        if (transfer->transferInfo.state == Qw::TransferInfoStateRequested
-            || transfer->transferInfo.state == Qw::TransferInfoStateIndexing
-            || transfer->transferInfo.state == Qw::TransferInfoStateActive
-            || transfer->transferInfo.state == Qw::TransferInfoStateQueued)
-        {
-            activeTransferCount += 1;
-        }
-    }
-
-    // Return if there are more waiting+active transfers than allowed.
-    if (activeTransferCount >= maximumTransfers) { return; }
-
-    // Start a new transfer:
-    // Find the first transfer in the queue with the status Qw::TransferInfoStateNone (locally
-    // queued) and update it. Afterwards send a command to the server to kick off the transfer
-    // procedure.
-
-
-    foreach (QwcTransferSocket *transfer, m_transferSockets) {
-        if (!transfer) { continue; }
-        if (transfer->transferInfo.state != Qw::TransferInfoStateNone) { continue; }
-
-        qDebug() << this << "Starting new waiting transfer from queue:" << transfer << transfer->transferInfo.file.remotePath();
-
-        if (transfer->transferInfo.type == Qw::TransferTypeDownload
-            || (transfer->transferInfo.type == Qw::TransferTypeFolderDownload
-                && transfer->transferInfo.isIndexingComplete()))
-        {
-            // We can directly request a STAT for normal transfers. This is when we are having a
-            // normal transfer, or a folder transfer which's indexing is complete.
-            transfer->transferInfo.state = Qw::TransferInfoStateRequested; // waiting for STAT/hash
-            sendMessage(QwMessage("STAT").appendArg(transfer->transferInfo.file.remotePath()));
-            qDebug() << this << "Sending STAT command:" << transfer->transferInfo.file.remotePath();
-            emit fileTransferStatus(transfer->transferInfo);
-            break;
-
-        } else if (transfer->transferInfo.type == Qw::TransferTypeFolderDownload
-                   && !transfer->transferInfo.isIndexingComplete()) {
-            // If we have a folder transfer, and the indexing is not complete yet, we should do
-            // that by issuing a LISTRECURSIVE command.
-            transfer->transferInfo.state = Qw::TransferInfoStateIndexing; // waiting for recursive listing
-            m_indexingFilesForTransfer = true;
-            getFileListRecusive(transfer->transferInfo.folder.remotePath());
-            qDebug() << this << "Sending LISTRECURSIVE:" << transfer->transferInfo.folder.remotePath();
-            emit fileTransferStatus(transfer->transferInfo);
-            break;
-
-        } else if (transfer->transferInfo.type == Qw::TransferTypeUpload
-                   || transfer->transferInfo.type == Qw::TransferTypeFolderUpload) {
-
-
-            // Create folders if neccessary
-            while (transfer->transferInfo.file.type == Qw::FileTypeFolder) {
-                sendMessage(QwMessage("FOLDER").appendArg(transfer->transferInfo.file.remotePath()));
-                qDebug() << this << "Sending FOLDER command for" << transfer->transferInfo.file.remotePath();
-                if (!transfer->transferInfo.hasNextFile()) {
-                    qDebug() << this << "No remaining files for upload in FOLDER loop";
-                    handleTransferDone(transfer);
-                    return;
-                }
-                transfer->transferInfo.applyNextFile();
-                emit fileTransferStatus(transfer->transferInfo);
-            }
-
-            // Or upload the file normally
-            // For uploads we first have to issue a PUT command
-            qDebug() << this << "Sending PUT command for" << transfer->transferInfo.file.remotePath();
-            transfer->transferInfo.state = Qw::TransferInfoStateRequested; // waiting for STAT/hash
-            transfer->transferInfo.file.updateLocalChecksum();
-            sendMessage(QwMessage("PUT").appendArg(transfer->transferInfo.file.remotePath())
-                        .appendArg(QString::number(transfer->transferInfo.file.size()))
-                        .appendArg(transfer->transferInfo.file.checksum));
-            emit fileTransferStatus(transfer->transferInfo);
-            break;
-
-        }
-    }*/
 }
 
 

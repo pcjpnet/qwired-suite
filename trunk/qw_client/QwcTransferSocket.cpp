@@ -73,17 +73,12 @@ void QwcTransferSocket::timerEvent(QTimerEvent *)
 */
 void QwcTransferSocket::createNewSocket()
 {
-//    qDebug() << this << "Creating new SSL socket for transfer.";
-    if (m_socket) {
-        delete m_socket;
-    }
-
+    if (m_socket) { delete m_socket; }
     m_socket = new QSslSocket(this);
     m_socket->setProtocol(QSsl::TlsV1);
     m_socket->setPeerVerifyMode(QSslSocket::QueryPeer);
     connect(m_socket, SIGNAL(encrypted()),
             this, SLOT(handleSocketEncrypted()));
-
 }
 
 

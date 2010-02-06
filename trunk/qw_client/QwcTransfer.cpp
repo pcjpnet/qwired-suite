@@ -16,6 +16,7 @@ QwcTransfer::QwcTransfer(Qwc::TransferType type, QObject *parent) :
     m_completedTransferSize = 0;
     m_updateTimerId = -1;
     m_internalState = Qwc::TransferInternalStateActive;
+    m_serverQueuePosition = 0;
 }
 
 
@@ -134,6 +135,8 @@ void QwcTransfer::setSocket(QwcSocket *socket)
             this, SLOT(handleFileListItem(QwcFileInfo)));
     connect(m_socket, SIGNAL(onFilesListDone(QString,qint64)),
             this, SLOT(handleFileListDone(QString,qint64)));
+    connect(m_socket, SIGNAL(transferQueued(QString,int)),
+            this, SLOT(handleTransferQueued(QString,int)));
     connect(m_socket, SIGNAL(transferReady(QString,qint64,QString)),
             this, SLOT(handleTransferReady(QString,qint64,QString)));
     connect(m_socket, SIGNAL(fileInformation(QwFile)),
@@ -163,6 +166,8 @@ const QList<QwFile> & QwcTransfer::transferFiles() const
 void QwcTransfer::setTransferFiles(const QList<QwFile> &files)
 { m_transferFiles = files; }
 
+int QwcTransfer::serverQueuePosition() const
+{ return m_serverQueuePosition; }
 
 qint64 QwcTransfer::completedTransferSize() const
 {
@@ -199,6 +204,16 @@ void QwcTransfer::handleFileListDone(const QString &path, qint64 freeSpace)
 }
 
 
+void QwcTransfer::handleTransferQueued(const QString &path, int position)
+{
+    if (!m_transferSocket) { return; }
+    if (QDir::cleanPath(path) == QDir::cleanPath(m_transferSocket->fileInfo().remotePath())) {
+        m_serverQueuePosition = position;
+        changeState(Qwc::TransferStateQueuedOnServer);
+    }
+}
+
+
 void QwcTransfer::handleTransferReady(const QString &path, qint64 offset, const QString &hash)
 {
     if (m_type == Qwc::TransferTypeFolderUpload
@@ -209,7 +224,9 @@ void QwcTransfer::handleTransferReady(const QString &path, qint64 offset, const 
         m_transferSocket->setFileInfo(transferFile);
     }
 
-    if (path == m_transferSocket->fileInfo().remotePath()) {
+    if (QDir::cleanPath(path) == QDir::cleanPath(m_transferSocket->fileInfo().remotePath())) {
+        m_serverQueuePosition = 0;
+        changeState(Qwc::TransferStateActive);
         m_transferSocket->setTransferHash(hash);
         m_transferSocket->beginTransfer();
     }
