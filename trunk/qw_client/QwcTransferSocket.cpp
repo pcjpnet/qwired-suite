@@ -3,7 +3,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 
-const int transferTimerInterval = 2; // seconds
+const int transferTimerInterval = 50; // msecs
+const int transferSpeedTimerInterval = 2; // seconds
 
 QwcTransferSocket::QwcTransferSocket(QObject *parent) :
         QObject(parent)
@@ -11,7 +12,7 @@ QwcTransferSocket::QwcTransferSocket(QObject *parent) :
     m_socket = NULL;
     m_currentTransferSpeed = 0;
     m_lastTransferSpeedProgress = 0;
-    startTimer(transferTimerInterval * 1000);
+    startTimer(transferSpeedTimerInterval * 1000);
 }
 
 
@@ -28,8 +29,6 @@ void QwcTransferSocket::setFileInfo(const QwFile &file)
 
     m_fileReader.setFileName(file.localPath());
     m_fileInfo = file;
-
-//    qDebug() << "Set file info with size of" << file.size();
 }
 
 
@@ -64,7 +63,7 @@ void QwcTransferSocket::timerEvent(QTimerEvent *)
         return;
     }
     qint64 transferredSinceLastTime = m_fileInfo.transferredSize() - m_lastTransferSpeedProgress;
-    m_currentTransferSpeed = transferredSinceLastTime / transferTimerInterval;
+    m_currentTransferSpeed = transferredSinceLastTime / transferSpeedTimerInterval;
     m_lastTransferSpeedProgress = m_fileInfo.transferredSize();
 }
 
@@ -123,6 +122,7 @@ void QwcTransferSocket::handleSocketEncrypted()
                 this, SLOT(transmitFileChunk()));
 
 
+
     } else if (transferDirection() == Qwc::TransferDirectionUpload) {
         if (!m_fileReader.open(QIODevice::ReadOnly)) {
             m_errorString = tr("Unable to open file for reading: %1")
@@ -142,8 +142,10 @@ void QwcTransferSocket::handleSocketEncrypted()
         }
 
         // Connect the signal to allow transmission of further data after a chunk is complete.
-        connect(m_socket, SIGNAL(encryptedBytesWritten(qint64)),
-                this, SLOT(transmitFileChunk(qint64)));
+        m_transferTimer.start(transferTimerInterval);
+        connect(&m_transferTimer, SIGNAL(timeout()),
+                this, SLOT(transmitFileChunk()));
+
         transmitFileChunk();
     }
 
@@ -159,9 +161,12 @@ void QwcTransferSocket::handleSocketEncrypted()
 */
 void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
 {    
-    qint64 chunkSize = 64 * 1000;
+    qint64 chunkSize = 128 * 1000;
 
     if (m_transferDirection == Qwc::TransferDirectionDownload) {
+
+        if (!m_socket->bytesAvailable()) { return; }
+
         QByteArray dataBuffer;
         dataBuffer.resize(m_socket->bytesAvailable());
         qint64 readBytes = m_socket->read(dataBuffer.data(), m_socket->bytesAvailable());
@@ -222,6 +227,7 @@ void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
 */
 void QwcTransferSocket::haltTransfer()
 {
+    m_transferSpeedTimer.stop();
     m_transferTimer.stop();
     m_socket->disconnectFromHost();
     m_fileReader.close();
@@ -247,6 +253,7 @@ void QwcTransferSocket::finishTransfer()
 
 
     m_transferTimer.stop();
+    m_transferSpeedTimer.stop();
     m_socket->flush();
     m_socket->disconnectFromHost();
     if (m_socket->state() != QAbstractSocket::UnconnectedState) {
