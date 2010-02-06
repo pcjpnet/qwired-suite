@@ -58,7 +58,7 @@ protected:
     /*! The real port of the remote server. */
     int m_serverPort;
     /*! A timer used to measure the time between data chunks. */
-    QTime m_transferSpeedTimer;
+    QTimer m_transferSpeedTimer;
     /*! The low-level socket for data transmission. */
     QSslSocket *m_socket;
     /*! The file writer/reader. */
