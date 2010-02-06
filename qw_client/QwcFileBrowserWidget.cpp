@@ -75,6 +75,10 @@ void QwcFileBrowserWidget::setSocket(QwcSocket *socket)
     connect(m_socket, SIGNAL(transferChanged(QwcTransfer*)),
             this, SLOT(handleSocketTransferChanged(QwcTransfer*)));
 
+    connect(m_socket, SIGNAL(receivedUserPrivileges()),
+            this, SLOT(handlePrivilegesChanged()));
+    handlePrivilegesChanged();
+
     setRemotePath("/");
 }
 
@@ -131,21 +135,18 @@ void QwcFileBrowserWidget::setFileInformation(const QwFile &file)
 }
 
 
-/*! Set the user information for the current session. This will enable/disable features based on the
-    set of privileges the user has.
+/*! The user's privileges changed. Disable/Enable some controls depending on their privileges.
 */
-void QwcFileBrowserWidget::setUserInformation(QwcUserInfo info)
+void QwcFileBrowserWidget::handlePrivilegesChanged()
 {
-    userInfo = info;
-
     // Browser page
-    btnDelete->setVisible(info.privileges().testFlag(Qws::PrivilegeDeleteFiles));
-    btnNewFolder->setVisible(info.privileges().testFlag(Qws::PrivilegeCreateFolders));
+    btnDelete->setVisible(m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeDeleteFiles));
+    btnNewFolder->setVisible(m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeCreateFolders));
 
     // Info page
-    btnInfoApply->setEnabled(info.privileges().testFlag(Qws::PrivilegeAlterFiles));
-    infoName->setEnabled(info.privileges().testFlag(Qws::PrivilegeAlterFiles));
-    infoComment->setReadOnly(!info.privileges().testFlag(Qws::PrivilegeAlterFiles));
+    btnInfoApply->setEnabled(m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeAlterFiles));
+    infoName->setEnabled(m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeAlterFiles));
+    infoComment->setReadOnly(!m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeAlterFiles));
 }
 
 
@@ -157,8 +158,6 @@ void QwcFileBrowserWidget::handleFilesListItem(QwcFileInfo item)
     if (!m_waitingForListItems) { return; }
     QList<QStandardItem*> columns;
     QStandardItem *newItem;
-
-    qDebug() << "Name:" << item.fileName() << "Path:" << item.remotePath();
 
     newItem = new QStandardItem(); // File name
     newItem->setText(item.fileName());
@@ -212,18 +211,18 @@ void QwcFileBrowserWidget::handleFilesListDone(const QString &path, qint64 freeS
 
     // Set the root information as we don't get this from previous requests.
     if (m_remotePath == "/") {
-        currentFolderInfo = QwcFileInfo();
-        currentFolderInfo.setRemotePath("/");
-        currentFolderInfo.setType(Qw::FileTypeFolder);
+        m_currentFolderInfo = QwcFileInfo();
+        m_currentFolderInfo.setRemotePath("/");
+        m_currentFolderInfo.setType(Qw::FileTypeFolder);
     }
 
     // Enable/disable upload/download as needed
     btnUpload->setEnabled(
-            (userInfo.privileges().testFlag(Qws::PrivilegeUploadAnywhere))
-            || (currentFolderInfo.type() == Qw::FileTypeUploadsFolder
-                && userInfo.privileges().testFlag(Qws::PrivilegeUpload))
-            || (currentFolderInfo.type() == Qw::FileTypeDropBox
-                && userInfo.privileges().testFlag(Qws::PrivilegeUpload)) );
+            (m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeUploadAnywhere))
+            || (m_currentFolderInfo.type() == Qw::FileTypeUploadsFolder
+                && m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeUpload))
+            || (m_currentFolderInfo.type() == Qw::FileTypeDropBox
+                && m_socket->sessionUser().privileges().testFlag(Qws::PrivilegeUpload)) );
 
 
     // Disable some controls if we are in "search mode"
@@ -246,7 +245,7 @@ void QwcFileBrowserWidget::handleSearchResultListDone()
                     .arg(m_fileListModel->rowCount())
                     .arg(findFilter->text()));
     fList->resizeColumnToContents(0);
-    currentFolderInfo = QwcFileInfo();
+    m_currentFolderInfo = QwcFileInfo();
     btnUpload->setEnabled(false);
     btnRefresh->setEnabled(false);
     labelCurrentPath->clear();
@@ -293,28 +292,6 @@ void QwcFileBrowserWidget::on_btnDelete_clicked()
 }
 
 
-
-
-/*! The "Preview" button has been clicked.
-*/
-void QwcFileBrowserWidget::on_btnPreview_clicked()
-{
-//    QSettings settings;
-//    QList<QTreeWidgetItem*> items = fList->selectedItems();
-//
-//    // Now delete the selected items
-//    QListIterator<QTreeWidgetItem*> i(items);
-//    while (i.hasNext()) {
-//        QTreeWidgetItem *item = i.next();
-//        QwcFileInfo itemInfo = item->data(0, Qt::UserRole).value<QwcFileInfo>();
-//        QDir downloadDirectory = QDir::temp();
-//        itemInfo.localAbsolutePath = downloadDirectory.absoluteFilePath(itemInfo.fileName() + ".WiredTransfer");
-//        itemInfo.previewFileAfterTransfer = true;
-//        m_socket->downloadFileOrFolder(itemInfo);
-//    }
-}
-
-
 /*! The "Upload" button has been clicked.
 */
 void QwcFileBrowserWidget::on_btnUpload_clicked()
@@ -336,7 +313,7 @@ void QwcFileBrowserWidget::on_btnUpload_clicked()
 
     foreach (const QString &file, targetFiles) {
         QFileInfo fileInfo(file);
-        QString remoteFilePath = QDir::cleanPath(currentFolderInfo.remotePath()
+        QString remoteFilePath = QDir::cleanPath(m_currentFolderInfo.remotePath()
                                                  + "/" + fileInfo.fileName());
 
         if (fileInfo.isDir()) {
@@ -375,7 +352,7 @@ void QwcFileBrowserWidget::on_fList_doubleClicked(const QModelIndex &index)
         || fileInfo.type() == Qw::FileTypeUploadsFolder)
     {
         m_remotePath = fileInfo.remotePath();
-        currentFolderInfo = fileInfo;
+        m_currentFolderInfo = fileInfo;
         setRemotePath(fileInfo.remotePath().section("/", 0, -1, QString::SectionSkipEmpty));
     }
 }
@@ -467,7 +444,6 @@ void QwcFileBrowserWidget::handleSocketTransferChanged(QwcTransfer *transfer)
             transferList->update(m_fileTransferModel->item(i,0)->index());
             return;
         }
-
     }
 }
 
@@ -492,12 +468,6 @@ void QwcFileBrowserWidget::on_btnDownload_clicked()
 }
 
 
-
-
-
-
-
-
 /*! The "Back" button has been clicked.
 */
 void QwcFileBrowserWidget::on_btnBack_clicked()
@@ -517,9 +487,9 @@ void QwcFileBrowserWidget::on_btnInfo_clicked()
 {
     QStandardItem *clickedItem = m_fileListModel->itemFromIndex(fList->selectionModel()->selectedRows(0).first());
     if (!clickedItem) { return; }
-    currentFileInfo = clickedItem->data(Qt::UserRole).value<QwcFileInfo>();
+    m_currentFileInfo = clickedItem->data(Qt::UserRole).value<QwcFileInfo>();
 
-    m_socket->getFileInformation(currentFileInfo.remotePath());
+    m_socket->getFileInformation(m_currentFileInfo.remotePath());
     stackedWidget->setCurrentWidget(pageInfo);
     pageInfo->setEnabled(false);
 }
@@ -542,7 +512,7 @@ void QwcFileBrowserWidget::on_btnNewFolder_clicked()
     }
 
     folderName = folderName.replace("/","_");
-    m_socket->createFolder(QString("%1/%2").arg(m_remotePath).arg(folderName));
+    m_socket->createFolder(QDir::cleanPath(QString("%1/%2").arg(m_remotePath).arg(folderName)));
     resetForListing();
     m_socket->getFileList(m_remotePath);
 }
@@ -561,22 +531,22 @@ void QwcFileBrowserWidget::on_btnInfoCancel_clicked()
 */
 void QwcFileBrowserWidget::on_btnInfoApply_clicked()
 {
-    QwcFileInfo newInfo = currentFileInfo;
+    QwcFileInfo newInfo = m_currentFileInfo;
     newInfo.setComment(infoComment->toPlainText());
 
     // Replace all slashes to prevent corrupted names
-    newInfo.setRemotePath(currentFileInfo.directoryPath() + infoName->text().replace("/", "_"));
+    newInfo.setRemotePath(m_currentFileInfo.directoryPath() + infoName->text().replace("/", "_"));
 
-    if (currentFileInfo.comment() != newInfo.comment()) {
+    if (m_currentFileInfo.comment() != newInfo.comment()) {
         m_socket->setFileComment(newInfo.remotePath(), newInfo.comment());
     }
 
-    if (currentFileInfo.remotePath() != newInfo.remotePath()) {
-        m_socket->moveFile(currentFileInfo.remotePath(), newInfo.remotePath());
+    if (m_currentFileInfo.remotePath() != newInfo.remotePath()) {
+        m_socket->moveFile(m_currentFileInfo.remotePath(), newInfo.remotePath());
     }
 
     resetForListing();
-    m_socket->getFileList(currentFolderInfo.remotePath());
+    m_socket->getFileList(m_currentFolderInfo.remotePath());
     stackedWidget->setCurrentWidget(pageBrowser);
 }
 

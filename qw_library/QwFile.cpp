@@ -69,15 +69,13 @@ QString QwFile::calculateLocalChecksum() const
 {
     QFile targetFile(m_localPath);
     if (!targetFile.open(QIODevice::ReadOnly)) {
-        qDebug() << this << "Unable to calculate hash for file:" << localPath() << " - " << targetFile.error();
+        qWarning() << "Unable to calculate hash for file:" << localPath() << " - " << targetFile.error();
         return QString();
     }
     targetFile.seek(0);
     QByteArray hashData = targetFile.read(1024*1024);
     QCryptographicHash hash(QCryptographicHash::Sha1);
     hash.addData(hashData);
-    qDebug() << this << "Calculated hash for file" << this->localPath()
-            << "Bytes =" << hashData.size() << "=" << hash.result().toHex();
     return hash.result().toHex();
 }
 

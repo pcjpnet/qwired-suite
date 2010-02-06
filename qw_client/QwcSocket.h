@@ -41,6 +41,8 @@ public:
     void setNickname(QString);
     void setUserAccount(QString, QString);
 
+    void setLocalTransferQueueEnabled(bool enabled);
+    bool localTransferQueueEnabled() const;
 
 
 public slots:
@@ -61,7 +63,7 @@ public slots:
     void getNews();
     void postNews(const QString &text);
     void leaveChat(int theChatID);
-    void rejectChat(int theChatID);
+    void declineChatInvitation(int theChatID);
     void createChatWithClient(int firstInvitedUser = 0);
     void setChatTopic(int chatId, QString topic);
     void sendPrivateMessage(int userId, QString message);
@@ -107,6 +109,7 @@ public slots:
     bool removeTransfer(QwcTransfer *transfer);
 
     void handleTransferChanged();
+    void handleTransferEnded();
 
 
 private slots:
@@ -139,17 +142,6 @@ signals:
     void transferCreated(QwcTransfer *transfer);
     /*! A transfer task was removed from the internal structure. */
     void transferRemoved(QwcTransfer *transfer);
-
-//    /*! Relay signal which origns from the transfer socket of any active transfer. */
-//    void fileTransferDone(const QwcTransferInfo &transfer);
-//    /*! Relay signal which origns from the transfer socket of any active transfer. */
-//    void fileTransferError(const QwcTransferInfo &transfer);
-//    /*! Relay signal which origns from the transfer socket of any active transfer. */
-//    void fileTransferStarted(const QwcTransferInfo &transfer);
-
-//    /*! Signal which is emitted after the transfer queue has changed (added or removed a transfer). */
-    void fileTransferQueueChanged();
-
     /*! A transfer changed. */
     void transferChanged(QwcTransfer *transfer);
 
@@ -164,9 +156,7 @@ signals:
     void newsPosted(QString nickname, QDateTime time, QString text);
 
 
-
     void receivedUserlist(int theChatID);
-
 
     void onServerInformation();
 
@@ -242,6 +232,7 @@ protected:
     QString m_clientVersion;
     QString m_serverAddress;
     int m_serverPort;
+    bool m_localTransferQueueEnabled;
 
     QHash<Qwc::TransferId, QwcTransfer*> m_transfers;
 

@@ -178,7 +178,6 @@ void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
         if (m_socket->state() == QAbstractSocket::UnconnectedState) {
             // Check if the file is complete
             if (m_fileInfo.transferredSize() == m_fileInfo.size()) {
-//                qDebug() << this << "Completed download.";
                 finishTransfer();
                 return;
             }
@@ -195,8 +194,6 @@ void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
 
 
     } else if (m_transferDirection == Qwc::TransferDirectionUpload) {
-//        qDebug() << "Sending data chunk" << amountWritten << "written:" << m_fileInfo.transferredSize();
-
         // Update the amount of data written
         m_fileInfo.setTransferredSize(m_fileInfo.transferredSize() + amountWritten);
 
@@ -232,23 +229,15 @@ void QwcTransferSocket::transmitFileChunk(qint64 amountWritten)
 */
 void QwcTransferSocket::haltTransfer()
 {
-    qWarning() << this << "Halting transfer:" << m_errorString;
-    m_transferTimer.stop();
     m_socket->disconnectFromHost();
-    m_fileReader.close();
 }
-
-
-
-
-
 
 /*! This slot is called when the file transfer has finished successfully. It can be used to do some
     clean-up work and rename the transfer file afterwards.
+    \todo remove suffix from file name (.part)
 */
 void QwcTransferSocket::finishTransfer()
 {
-//    qDebug() << this << "Finishing transfer.";
     m_fileReader.close();
 
 //    // Remove the suffix from the finished file
