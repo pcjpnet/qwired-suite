@@ -50,23 +50,24 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     // Status Text
     QString statusText;
     QPixmap statusIcon;
-    if (transfer->state() == Qwc::TransferStateActive) {
+
+    // Default icon
+    if (transfer->type() == Qwc::TransferTypeFileDownload
+        || transfer->type() == Qwc::TransferTypeFolderDownload) {
+        statusIcon = QPixmap(":/icons/16x16/go-down.png");
+    } else {
+        statusIcon = QPixmap(":/icons/16x16/go-up.png");
+    }
+
+    if (transfer->state() == Qwc::TransferStateRunning) {
         QString currentSpeedText("-");
         if (transfer->currentTransferSpeed() > -1) {
             currentSpeedText = QwFile::humanReadableSize(transfer->currentTransferSpeed());
         }
-
         statusText = tr("Active (%1 of %2 at %3/s)")
                      .arg(QwFile::humanReadableSize(transfer->completedTransferSize()))
                      .arg(QwFile::humanReadableSize(transfer->totalTransferSize()))
                      .arg(currentSpeedText);
-
-        if (transfer->type() == Qwc::TransferTypeFileDownload
-            || transfer->type() == Qwc::TransferTypeFolderDownload) {
-            statusIcon = QPixmap(":/icons/16x16/go-down.png");
-        } else {
-            statusIcon = QPixmap(":/icons/16x16/go-up.png");
-        }
 
     } else if (transfer->state() == Qwc::TransferStateComplete) {
         statusText = tr("Complete (%1)").arg(QwFile::humanReadableSize(transfer->totalTransferSize()));
@@ -76,9 +77,8 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         statusText = tr("Error");
         statusIcon = QPixmap(":/icons/emotes/face-sad.png");
 
-    } else if (transfer->state() == Qwc::TransferStateInactive) {
-        statusText = tr("Inactive?");
-
+    } else if (transfer->state() == Qwc::TransferStateQueuedOnClient) {
+        statusText = tr("Queued Locally");
 
     } else if (transfer->state() == Qwc::TransferStatePaused) {
         statusText = tr("Paused");
@@ -86,12 +86,6 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     } else if (transfer->state() == Qwc::TransferStateQueuedOnServer) {
         statusText = tr("Queued on Server (Position %1)").arg(transfer->serverQueuePosition());
-        if (transfer->type() == Qwc::TransferTypeFileDownload
-            || transfer->type() == Qwc::TransferTypeFolderDownload) {
-            statusIcon = QPixmap(":/icons/16x16/go-down.png");
-        } else {
-            statusIcon = QPixmap(":/icons/16x16/go-up.png");
-        }
     }
 
     QFont currentFont(painter->font());
@@ -131,7 +125,7 @@ void QwcFiletransferDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     barOption.rect.setHeight(12);
     barOption.rect.setWidth(option.rect.width() - painter->matrix().dx() - 9);
 
-     if (transfer->state() == Qwc::TransferStateActive && transfer->totalTransferSize() > 0) {
+     if (transfer->state() == Qwc::TransferStateRunning && transfer->totalTransferSize() > 0) {
         barOption.progress = (qreal(transfer->completedTransferSize()) / qreal(transfer->totalTransferSize())) * 100;
         QApplication::style()->drawControl(QStyle::CE_ProgressBar, &barOption, painter);
 

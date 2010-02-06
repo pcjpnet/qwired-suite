@@ -461,7 +461,7 @@ void QwcSession::handleSocketChatInvitation(int chatId, QwcUserInfo inviter)
         m_socket->joinChat(chatId);
     } else if( messageBox.clickedButton() == rejectButton ) {
         // Reject the chat.
-        m_socket->rejectChat(chatId);
+        m_socket->declineChatInvitation(chatId);
     }
 }
 
@@ -599,6 +599,8 @@ void QwcSession::reloadPreferences()
     }
     QPixmap newIcon = settings.value("general/icon", QPixmap(":/icons/qwired_logo_32.png")).value<QPixmap>();
     m_socket->setUserIcon(newIcon.toImage());
+
+    m_socket->setLocalTransferQueueEnabled(settings.value("general/queueTransfers", false).toBool());
 }
 
 

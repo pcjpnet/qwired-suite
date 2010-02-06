@@ -21,6 +21,7 @@ QwcSocket::QwcSocket(QObject *parent) :
     m_clientName = "Qwired SVN";
     m_clientVersion = QWIRED_VERSION;
     m_caturdayFlag = false;
+    m_localTransferQueueEnabled = false;
 
     m_invitedUserId = 0;
 
@@ -183,10 +184,8 @@ void QwcSocket::handleMessage300(const QwMessage &message)
 */
 void QwcSocket::handleMessage301(const QwMessage &message)
 {
-    emit receivedChatMessage(message.stringArg(0).toInt(),
-                             message.stringArg(1).toInt(),
-                             message.stringArg(2),
-                             true);
+    emit receivedChatMessage(message.stringArg(0).toInt(), message.stringArg(1).toInt(),
+                             message.stringArg(2), true);
 }
 
 
@@ -342,25 +341,17 @@ void QwcSocket::handleMessage311(const QwMessage &message)
 */
 void QwcSocket::handleMessage320(const QwMessage &message)
 {
-    qDebug() << message.stringArg(1);
     QDateTime date = QDateTime::fromString(message.stringArg(1), Qt::ISODate);
     emit newsListingItem(message.stringArg(0), date, message.stringArg(2));
 }
 
 
-/*! \brief 321 News Done
-    Received after a list of 320 News messages.
-*/
-void QwcSocket::handleMessage321(const QwMessage &message)
-{
-    Q_UNUSED(message);
-    emit newsListingDone();
-}
+/*! 321 News Done */
+void QwcSocket::handleMessage321(const QwMessage &)
+{ emit newsListingDone(); }
 
 
-/*! \brief 322 News Posted
-    A user has posted a news item.
-*/
+/*! 322 News Posted */
 void QwcSocket::handleMessage322(const QwMessage &message)
 {
     QDateTime date = QDateTime::fromString(message.stringArg(1), Qt::ISODate);
@@ -368,9 +359,7 @@ void QwcSocket::handleMessage322(const QwMessage &message)
 }
 
 
-/*! 330 Private Chat Created
-    A new private chat was created on the server.
-*/
+/*! 330 Private Chat Created */
 void QwcSocket::handleMessage330(const QwMessage &message)
 {
     int roomId = message.stringArg(0).toInt();
@@ -439,29 +428,21 @@ void QwcSocket::handleMessage341(const QwMessage &message)
 */
 void QwcSocket::handleMessage400(const QwMessage &message)
 {
-    qDebug() << "MESSAGE 400 TRANSFER READY";
-    emit transferReady(message.stringArg(0),
-                       message.stringArg(1).toLongLong(),
+    emit transferReady(message.stringArg(0), message.stringArg(1).toLongLong(),
                        message.stringArg(2));
 }
 
 
 /*! 401 Transfer Queued
-    A transfer has changed position in the server queue.
-*/
+    A transfer has changed position in the server queue. */
 void QwcSocket::handleMessage401(const QwMessage &message)
-{
-    emit transferQueued(message.stringArg(0),
-                        message.stringArg(1).toInt());
-}
+{ emit transferQueued(message.stringArg(0), message.stringArg(1).toInt()); }
 
 
 /*! 402 File Information
-    The server returned information about a file.
-*/
+    The server returned information about a file. */
 void QwcSocket::handleMessage402(const QwMessage &message)
 {
-    qDebug() << "GOT FILE INFORMATION";
     QwFile fileInfo;
     fileInfo.setRemotePath(message.stringArg(0));
     fileInfo.setType((Qw::FileType)message.stringArg(1).toInt());
@@ -475,38 +456,22 @@ void QwcSocket::handleMessage402(const QwMessage &message)
 
 
 /*! 410 File Listing
-    Received a single entry of the requested list of files.
-*/
+    Received a single entry of the requested list of files. */
 void QwcSocket::handleMessage410(const QwMessage &message)
 {
     QwcFileInfo file;
     file.setFromMessage410(message);
-//    if (m_indexingFilesForTransfer) {
-//        // Otherwise we simply add the result to the transfer information.
-//        if (file.type == Qw::FileTypeRegular) {
-//            m_fileListingBuffer.append(file);
-//        }
-//    } else {
-        // If we are not indexing for a recursive folder transfer, we should hand off the new item
-        // using a signal to the rest of the application.
-        emit onFilesListItem(file);
-//    }
+    emit onFilesListItem(file);
 }
 
 
-/*! 411 File Listing Done
-*/
+/*! 411 File Listing Done */
 void QwcSocket::handleMessage411(const QwMessage &message)
-{
-    QString remotePath = message.stringArg(0);
-    qint64 freeSpace = message.stringArg(1).toLongLong();
-    emit onFilesListDone(remotePath, freeSpace);
-}
+{ emit onFilesListDone(message.stringArg(0), message.stringArg(1).toLongLong()); }
 
 
 /*! 420 Search Listing
-    Received a result from the current search.
-*/
+    Received a result from the current search. */
 void QwcSocket::handleMessage420(const QwMessage &message)
 {
     QwcFileInfo newInfo;
@@ -519,15 +484,9 @@ void QwcSocket::handleMessage420(const QwMessage &message)
 }
 
 
-/*! 421 Search Listing Done
-    Search result list complete.
-*/
-void QwcSocket::handleMessage421(const QwMessage &message)
-{
-    Q_UNUSED(message);
-    emit fileSearchResultListDone();
-//    fileSearchResults.clear();
-}
+/*! 421 Search Listing Done */
+void QwcSocket::handleMessage421(const QwMessage &)
+{ emit fileSearchResultListDone(); }
 
 
 /*! 5xx Error Message
@@ -588,34 +547,25 @@ void QwcSocket::handleMessage602(const QwMessage &message)
 }
 
 
-/*! 610 User Listing
-    List of user accounts.
-*/
+/*! 610 User Listing */
 void QwcSocket::handleMessage610(const QwMessage &message)
 { m_accountListingCache.append(message.stringArg(0)); }
 
 
-/*! 611 User Listing Done
-    End of user account listing.
-*/
-void QwcSocket::handleMessage611(const QwMessage &message)
+/*! 611 User Listing Done */
+void QwcSocket::handleMessage611(const QwMessage &)
 {
-    Q_UNUSED(message);
     emit receivedAccountList(m_accountListingCache);
     m_accountListingCache.clear();
 }
 
-/*! 620 Group Listing
-    List of user account groups. */
+/*! 620 Group Listing */
 void QwcSocket::handleMessage620(const QwMessage &message)
 { m_groupListingCache.append(message.stringArg(0)); }
 
-/*! 621 Group Listing Done
-    End of user account group listing.
-*/
-void QwcSocket::handleMessage621(const QwMessage &message)
+/*! 621 Group Listing Done */
+void QwcSocket::handleMessage621(const QwMessage &)
 {
-    Q_UNUSED(message);
     emit receivedAccountGroupList(m_groupListingCache);
     m_groupListingCache.clear();
 }
@@ -647,16 +597,14 @@ void QwcSocket::disconnectFromServer()
     m_invitedUserId = 0;
     m_users.clear();
     m_chatRooms.clear();
-
-//    QMutableListIterator<QwcTransferSocket*> i(m_transferSockets);
-//    while(i.hasNext()) {
-//        QwcTransferSocket *p = i.next();
-//        p->deleteLater();
-//        i.remove();
-//    }
-
 }
 
+
+void QwcSocket::setLocalTransferQueueEnabled(bool enabled)
+{ m_localTransferQueueEnabled = enabled; }
+
+bool QwcSocket::localTransferQueueEnabled() const
+{ return m_localTransferQueueEnabled; }
 
 // Set the username and password for the login sequence.
 void QwcSocket::setUserAccount(QString theAcct, QString thePass)
@@ -696,8 +644,7 @@ void QwcSocket::setCaturdayMode(bool b) {
 }
 
 
-/*! Send a PING command to the remote server.
-*/
+/*! Send a PING command to the remote server. */
 void QwcSocket::sendPing()
 {
     sendMessage(QwMessage("PING"));
@@ -719,9 +666,6 @@ void QwcSocket::handleSocketConnectionLost()
     disconnectFromServer();
     m_socket->disconnectFromHost();
 }
-
-
-
 
 /*! Send a private message to the user with the id \a userId. If \a userId is 0, the private is sent
     as a broadcast message to all connected users, provided that the broadcast privilege is set.
@@ -813,34 +757,22 @@ void QwcSocket::setUserStatus(QString theStatus)
 }
 
 
-/*! Decline an invitation to a private chat.
-*/
-void QwcSocket::rejectChat(int roomId)
-{
-    sendMessage(QwMessage("DECLINE").appendArg(QString::number(roomId)));
-}
+/*! Decline an invitation to a private chat. */
+void QwcSocket::declineChatInvitation(int roomId)
+{ sendMessage(QwMessage("DECLINE").appendArg(QString::number(roomId))); }
 
-
-/*! Join (accept invitation) to a private chat room.
-*/
+/*! Join (accept invitation) to a private chat room. */
 void QwcSocket::joinChat(int roomId)
-{
-    sendMessage(QwMessage("JOIN").appendArg(QString::number(roomId)));
-}
+{ sendMessage(QwMessage("JOIN").appendArg(QString::number(roomId))); }
 
-
-/*! Set the topic the specified chat room.
-*/
+/*! Set the topic of the specified chat room. */
 void QwcSocket::setChatTopic(int chatId, QString topic)
-{
-    sendMessage(QwMessage("TOPIC").appendArg(QString::number(chatId)).appendArg(topic));
-}
+{ sendMessage(QwMessage("TOPIC").appendArg(QString::number(chatId)).appendArg(topic)); }
 
-/*! Temporarily ban a user from the server. \a reason is a short text describing the reason for the ban.
-*/
+/*! Temporarily ban a user from the server. \a reason is a short text describing the reason
+   for the ban. */
 void QwcSocket::banClient(int userId, const QString &reason)
 { sendMessage(QwMessage("BAN").appendArg(QString::number(userId)).appendArg(reason)); }
-
 
 /*! Request the list of connected users of a specific room. */
 void QwcSocket::getUserlist(int roomId)
@@ -890,7 +822,6 @@ void QwcSocket::setFileComment(const QString &path, const QString &comment)
 */
 Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString &localPath)
 {
-    qDebug() << this << "downloadPath():" << remotePath << "=>" << localPath;
     Qwc::TransferType transferType;
     if (remotePath.endsWith("/")) {
         transferType = Qwc::TransferTypeFolderDownload;
@@ -902,7 +833,11 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
     newTransfer->setRemotePath(remotePath);
     newTransfer->setLocalPath(localPath);
 
-    qDebug() << "new download transfer with id" << newTransfer->id();
+    connect(newTransfer, SIGNAL(transferEnded()),
+            this, SLOT(handleTransferEnded()));
+    connect(newTransfer, SIGNAL(transferChanged()),
+            this, SLOT(handleTransferChanged()));
+
     m_transfers[newTransfer->id()] = newTransfer;
     emit transferCreated(newTransfer);
     checkTransferQueue();
@@ -915,7 +850,6 @@ Qwc::TransferId QwcSocket::downloadPath(const QString &remotePath, const QString
 */
 Qwc::TransferId QwcSocket::uploadPath(const QString &localPath, const QString &remotePath)
 {
-    qDebug() << this << "uploadPath():" << localPath << "=>" << remotePath;
     Qwc::TransferType transferType;
     if (remotePath.endsWith("/")) {
         transferType = Qwc::TransferTypeFolderUpload;
@@ -927,7 +861,11 @@ Qwc::TransferId QwcSocket::uploadPath(const QString &localPath, const QString &r
     newTransfer->setRemotePath(remotePath);
     newTransfer->setLocalPath(localPath);
 
-    qDebug() << "new upload transfer with id" << newTransfer->id();
+    connect(newTransfer, SIGNAL(transferEnded()),
+            this, SLOT(handleTransferEnded()));
+    connect(newTransfer, SIGNAL(transferChanged()),
+            this, SLOT(handleTransferChanged()));
+
     m_transfers[newTransfer->id()] = newTransfer;
     emit transferCreated(newTransfer);
     checkTransferQueue();
@@ -986,6 +924,11 @@ void QwcSocket::handleTransferChanged()
     if (!transfer) { return; }
     emit transferChanged(transfer);
 }
+
+/*! A transfer has ended. We have to check if there are other transfers in the queue.
+*/
+void QwcSocket::handleTransferEnded()
+{ checkTransferQueue(); }
 
 /*! Delete a file or directory from the server. */
 void QwcSocket::deleteFile(const QString &path)
@@ -1129,10 +1072,26 @@ void QwcSocket::sendMessageINFO()
 */
 void QwcSocket::checkTransferQueue()
 {
+    if (m_localTransferQueueEnabled) {
+        // Check if we have active transfers already
+        foreach (QwcTransfer *transfer, m_transfers) {
+            if (!transfer) { continue; }
+            if (transfer->state() == Qwc::TransferStateRunning
+                || transfer->state() == Qwc::TransferStateQueuedOnServer) {
+                return;
+            }
+        }
+    }
+
+    // If we can start a new transfer, do so.
     foreach (QwcTransfer *transfer, m_transfers) {
         if (!transfer) { continue; }
-        if (transfer->state() == Qwc::TransferStateInactive) {
+        if (transfer->state() == Qwc::TransferStateQueuedOnClient) {
             transfer->start();
+            if (m_localTransferQueueEnabled) {
+                // Start just *one* new transfer at a time.
+                return;
+            }
         }
     }
 }

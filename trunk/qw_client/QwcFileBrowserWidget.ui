@@ -163,35 +163,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="btnPreview">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Preview</string>
-            </property>
-            <property name="text">
-             <string>Preview</string>
-            </property>
-            <property name="icon">
-             <iconset resource="application.qrc">
-              <normaloff>:/icons/16x16/media-playback-start.png</normaloff>:/icons/16x16/media-playback-start.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonIconOnly</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="spacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>

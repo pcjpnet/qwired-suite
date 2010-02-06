@@ -7,8 +7,8 @@
 #include "QwcFileInfo.h"
 #include "QwcUserInfo.h"
 
-#include <QPointer>
-#include <QSortFilterProxyModel>
+#include <QtCore/QPointer>
+#include <QtGui/QSortFilterProxyModel>
 
 class QStandardItemModel;
 class QwcSocket;
@@ -30,15 +30,13 @@ public:
     void setRemotePath(const QString &path);
 
     /*! Information about the current directory/folder. */
-    QwcFileInfo currentFolderInfo;
+    QwcFileInfo m_currentFolderInfo;
     /*! Information about the currently selected file/folder in the list (for get info) */
-    QwcFileInfo currentFileInfo;
-    /*! A copy of the user info object for the current session. */
-    QwcUserInfo userInfo;
+    QwcFileInfo m_currentFileInfo;
 
     void resetForListing();
     void setFileInformation(const QwFile &file);
-    void setUserInformation(QwcUserInfo info);
+
 
 private slots:
     void on_btnBack_clicked();
@@ -47,7 +45,6 @@ private slots:
     void on_btnRefresh_clicked();
     void on_btnDelete_clicked();
     void on_btnDownload_clicked();
-    void on_btnPreview_clicked();
     void on_btnUpload_clicked();
     void on_findFilter_returnPressed();
     void on_fList_doubleClicked(const QModelIndex &index);
@@ -67,6 +64,8 @@ private slots:
     void on_btnInfoCancel_clicked();
     void on_btnInfoApply_clicked();
 
+    void handlePrivilegesChanged();
+
 
 protected:
     /*! The model for the file list view. */
@@ -81,7 +80,6 @@ protected:
     qlonglong m_totalUsedSpace;
     /*! The path to the current directory on the remote server. */
     QString m_remotePath;
-
     /*! The model for the file transfer view. */
     QStandardItemModel *m_fileTransferModel;
 

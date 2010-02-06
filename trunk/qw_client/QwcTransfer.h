@@ -3,6 +3,8 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QTimer>
+
 #include "QwFile.h"
 
 class QwcFileInfo;
@@ -17,14 +19,12 @@ namespace Qwc {
 
     /*! This is the state of a the transfer task visible to the outside of the transfer itself. */
     enum TransferState {
-        /*! The transfer is not configured completely yet. */
-        TransferStateInactive,
-        /*! The transfer is queued on the client. */
+        /*! The transfer is queued on the client (or not started yet) */
         TransferStateQueuedOnClient,
         /*! The transfer is queued on the remote server. */
         TransferStateQueuedOnServer,
         /*! The transfer is active, thus transferring data to or from the server. */
-        TransferStateActive,
+        TransferStateRunning,
         /*! The transfer is manually paused/stopped. */
         TransferStatePaused,
         /*! The transfer is complete. */
@@ -92,6 +92,7 @@ private slots:
 
     void handleFileTransferFinished();
     void handleFileTransferError();
+    void handleUpdateTimerFired();
 
 protected:
     /*! The type of the transfer. */
@@ -112,9 +113,6 @@ protected:
     /*! The server connection socket. */
     QwcSocket *m_socket;
 
-    /*! The ID of the timer, which regulary informs about the current progress for active transfers. */
-    int m_updateTimerId;
-
     /*! The internal state of the transfer task. We use this to ensure that we stay in-sync with
         the server. */
     Qwc::TransferInternalState m_internalState;
@@ -123,23 +121,22 @@ protected:
     qint64 m_totalTransferSize;
     /*! The amount of data transferred so far (for informational purposes!). */
     qint64 m_completedTransferSize;
+    /*! A cache which stores the amount of progress since the last status timer fired. */
+    qint64 m_lastProgress;
+    /*! A timer which allows us to emit regular signals about our progress. */
+    QTimer m_updateTimer;
     /*! The position for the transfer in the server's queue. */
     int m_serverQueuePosition;
 
-
-
     void changeState(Qwc::TransferState newState);
     bool prepareNextFile();
-    void timerEvent(QTimerEvent *event);
+
 
 signals:
-
     /*! The transfer has changed. */
     void transferChanged();
-
-    /*! The transfer has successfully completed. */
-    void finished();
-
+    /*! The transfer task has ended. This can be due to an error, too. Please check state(). */
+    void transferEnded();
 
 };
 
