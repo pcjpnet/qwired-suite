@@ -195,8 +195,6 @@ void QwcConnectionMainWindow::on_actionMessages_triggered()
 void QwcConnectionMainWindow::on_actionFiles_triggered()
 { emit actionTriggered(TriggeredActionFiles); }
 
-void QwcConnectionMainWindow::on_actionTransfers_triggered()
-{ emit actionTriggered(TriggeredActionTransfers); }
 
 void QwcConnectionMainWindow::on_actionAccounts_triggered()
 { emit actionTriggered(TriggeredActionAccounts); }

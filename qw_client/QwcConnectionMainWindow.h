@@ -28,7 +28,6 @@ public:
         TriggeredActionFiles,
         TriggeredActionPreferences,
         TriggeredActionReconnect,
-        TriggeredActionTransfers,
         TriggeredActionPostNews,
         TriggeredActionBroadcast
     };
@@ -67,7 +66,6 @@ private slots:
     void on_actionNews_triggered();
     void on_actionMessages_triggered();
     void on_actionFiles_triggered();
-    void on_actionTransfers_triggered();
     void on_actionAccounts_triggered();
     void on_actionBroadcast_triggered();
     void on_actionPreferences_triggered();

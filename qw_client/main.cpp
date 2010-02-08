@@ -1,5 +1,3 @@
-
-
 #include "QwcSession.h"
 #include "QwcGlobals.h"
 
@@ -8,17 +6,13 @@
 #include <QtNetwork/QNetworkProxy>
 #include <QtGui/QApplication>
 
-
 int main (int argc, char *argv[])
 {
-
     QApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName("NeoSoftware");
+    QCoreApplication::setOrganizationName("Neo Software");
     QCoreApplication::setOrganizationDomain("neo.de");
     QCoreApplication::setApplicationName("Qwired");
-
-
 
     QSettings settings;
 
@@ -82,7 +76,6 @@ int main (int argc, char *argv[])
 
     // Create the settings directory
     QDir settingDir(QwcSingleton::systemSettingsDirectory());
-    qDebug() << settingDir;
     if (!settingDir.exists()) { settingDir.mkpath("."); }
 
 
