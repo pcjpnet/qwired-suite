@@ -4,7 +4,7 @@
 #include <QtCore/QDir>
 
 const int transferTimerInterval = 50; // msecs
-const int transferSpeedTimerInterval = 2; // seconds
+const int transferSpeedTimerInterval = 1; // seconds
 
 QwcTransferSocket::QwcTransferSocket(QObject *parent) :
         QObject(parent)

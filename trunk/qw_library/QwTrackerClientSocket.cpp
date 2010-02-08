@@ -19,8 +19,8 @@ QwTrackerClientSocket::QwTrackerClientSocket(QObject *parent) : QwSocket(parent)
     connect(newSocket, SIGNAL(disconnected()),
             this, SIGNAL(disconnectedFromTracker()));
 
-    connect(this, SIGNAL(messageReceived(const QwMessage)),
-            this, SLOT(handleMessageReceived(const QwMessage)));
+//    connect(this, SIGNAL(messageReceived(const QwMessage)),
+//            this, SLOT(handleMessageReceived(const QwMessage)));
 
     setSslSocket(newSocket);
 }

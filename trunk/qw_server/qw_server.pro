@@ -6,6 +6,10 @@ TEMPLATE = app
 QT -= gui
 CONFIG += silent
 CONFIG -= app_bundle
+
+LIBS += /usr/local/lib/libyaml-cpp.a
+INCLUDEPATH += /usr/local/include/yaml-cpp
+
 win32:CONFIG += console
 QT += network \
     xml \
