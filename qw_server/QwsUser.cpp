@@ -40,10 +40,10 @@ void QwsUser::privilegesFlags(QwMessage &message) const
     message.appendArg(m_privileges & Qws::PrivilegeKickUsers ? 1 : 0);
     message.appendArg(m_privileges & Qws::PrivilegeBanUsers ? 1 : 0);
     message.appendArg(m_privileges & Qws::PrivilegeCanNotBeKicked ? 1 : 0);
-    message.appendArg(privDownloadSpeed);
-    message.appendArg(privUploadSpeed);
-    message.appendArg(privDownloadLimit);
-    message.appendArg(privUploadLimit);
+    message.appendArg(downloadSpeedLimit());
+    message.appendArg(uploadSpeedLimit());
+    message.appendArg(downloadLimit());
+    message.appendArg(uploadLimit());
     message.appendArg(m_privileges & Qws::PrivilegeChangeChatTopic ? 1 : 0);
 }
 
@@ -65,10 +65,10 @@ void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
     message.appendArg(0); // icon id
     message.appendArg(m_nickname);
     message.appendArg(m_login);
-    message.appendArg(userIpAddress);
-    message.appendArg(userHostName);
+    message.appendArg(m_clientIpAddress);
+    message.appendArg(m_clientHostName);
     message.appendArg(m_status);
-    message.appendArg(emptyUserImage ? QByteArray() : pImage);
+    message.appendArg(emptyUserImage ? QByteArray() : m_iconData);
 }
 
 
@@ -105,18 +105,18 @@ void QwsUser::userInfoEntry(QwMessage &message) const
     message.appendArg(0); // icon id
     message.appendArg(m_nickname);
     message.appendArg(m_login);
-    message.appendArg(userIpAddress);
-    message.appendArg(userHostName);
+    message.appendArg(m_clientIpAddress);
+    message.appendArg(m_clientHostName);
 
-    message.appendArg(pClientVersion);
-    message.appendArg(pCipherName);
-    message.appendArg(QString::number(pCipherBits));
-    message.appendArg(pLoginTime.toUTC().toString(Qt::ISODate)+"+00:00");
-    message.appendArg(pIdleTime.toUTC().toString(Qt::ISODate)+"+00:00");
+    message.appendArg(m_clientVersion);
+    message.appendArg(m_clientCipherName);
+    message.appendArg(QString::number(m_clientCipherBits));
+    message.appendArg(loginTime().toUTC().toString(Qt::ISODate)+"+00:00");
+    message.appendArg(lastActivity().toUTC().toString(Qt::ISODate)+"+00:00");
     message.appendArg(QString()); // downloads - filled in later
     message.appendArg(QString()); // uploads - filled in later
     message.appendArg(m_status);
-    message.appendArg(pImage);
+    message.appendArg(m_iconData);
 
 }
 
@@ -306,10 +306,10 @@ void QwsUser::appendPrivilegeFlagsForREADUSER(QwMessage &message)
     message.appendArg(m_privileges & Qws::PrivilegeKickUsers ? 1 : 0);
     message.appendArg(m_privileges & Qws::PrivilegeBanUsers ? 1 : 0);
     message.appendArg(m_privileges & Qws::PrivilegeCanNotBeKicked ? 1 : 0);
-    message.appendArg(privDownloadSpeed);
-    message.appendArg(privUploadSpeed);
-    message.appendArg(privDownloadLimit); // wired 1.1
-    message.appendArg(privUploadLimit); // wired 1.1
+    message.appendArg(downloadSpeedLimit());
+    message.appendArg(uploadSpeedLimit());
+    message.appendArg(downloadLimit()); // wired 1.1
+    message.appendArg(uploadLimit()); // wired 1.1
     message.appendArg(m_privileges & Qws::PrivilegeChangeChatTopic ? 1 : 0); // wired 1.1
 }
 
@@ -341,10 +341,10 @@ void QwsUser::setPrivilegesFromEDITUSER(const QwMessage &message, int fieldOffse
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeKickUsers; }
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeBanUsers; }
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeCanNotBeKicked; }
-    this->privDownloadSpeed = message.stringArg(fieldOffset++).toInt();
-    this->privUploadSpeed = message.stringArg(fieldOffset++).toInt();
-    this->privDownloadLimit = message.stringArg(fieldOffset++).toInt(); // wired 1.1
-    this->privUploadLimit = message.stringArg(fieldOffset++).toInt(); // wired 1.1
+    this->setDownloadSpeedLimit(message.stringArg(fieldOffset++).toInt());
+    this->setUploadSpeedLimit(message.stringArg(fieldOffset++).toInt());
+    this->setDownloadLimit(message.stringArg(fieldOffset++).toInt()); // wired 1.1
+    this->setUploadLimit(message.stringArg(fieldOffset++).toInt()); // wired 1.1
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeChangeChatTopic; }
     m_privileges = newPrivs;
 }

@@ -79,28 +79,41 @@ public:
     Qws::Privileges privileges() const;
     void setPrivileges(Qws::Privileges privs);
 
+    QDateTime lastActivity() const;
+    void setLastActivity(QDateTime when);
 
+    QDateTime loginTime() const;
+    void setLoginTime(QDateTime when);
 
-    QByteArray pImage;
-    QString userIpAddress;
-    QString userHostName;
+    QString cipherName() const;
+    void setClientCipherName(const QString &name);
 
-    // Extended user info (get info)
-    QString pClientVersion;
-    QString pCipherName;
-    int pCipherBits;
-    QDateTime pLoginTime;
-    QDateTime pIdleTime;
+    QString clientVersion() const;
+    void setClientVersion(const QString &name);
 
-    // Privilege flags
+    QString clientIpAddress() const;
+    void setClientIpAddress(const QString &ip);
 
-    int privDownloadSpeed;
-    int privUploadSpeed;
-    int privDownloadLimit;
-    int privUploadLimit;
+    QString clientHostName() const;
+    void setClientHostName(const QString &name);
 
+    int clientCipherBits() const;
+    void setClientCipherBits(int bits);
 
+    QByteArray iconData() const;
+    void setIconData(const QByteArray &data);
 
+    int downloadSpeedLimit() const;
+    void setDownloadSpeedLimit(int limit);
+
+    int uploadSpeedLimit() const;
+    void setUploadSpeedLimit(int limit);
+
+    int uploadLimit() const;
+    void setUploadLimit(int limit);
+
+    int downloadLimit() const;
+    void setDownloadLimit(int limit);
 
 protected:
     Qws::Privileges m_privileges;
@@ -112,6 +125,20 @@ protected:
     bool m_idleFlag;
     Qws::UserType m_type;
     int m_userId;
+    QDateTime m_lastActivity;
+    QDateTime m_loginTime;
+    QByteArray m_iconData;
+
+    int m_downloadSpeedLimit;
+    int m_uploadSpeedLimit;
+    int m_downloadLimit;
+    int m_uploadLimit;
+
+    QString m_clientIpAddress;
+    QString m_clientHostName;
+    int m_clientCipherBits;
+    QString m_clientCipherName;
+    QString m_clientVersion;
 };
 
 Q_DECLARE_METATYPE(QwUser);

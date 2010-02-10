@@ -169,8 +169,8 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
     if (fUsersBan->isChecked()) { newPrivs |= Qws::PrivilegeBanUsers; }
     if (fUsersNoKick->isChecked()) { newPrivs |= Qws::PrivilegeCanNotBeKicked; }
 
-    newAccount.privDownloadLimit = fLimitDown->text().toInt();
-    newAccount.privUploadLimit = fLimitUp->text().toInt();
+    newAccount.setDownloadLimit(fLimitDown->text().toInt());
+    newAccount.setUploadLimit(fLimitUp->text().toInt());
 
     if (newAccount.type() == Qws::UserTypeAccount) {
         newAccount.password() = fPassword->text();
@@ -392,8 +392,8 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     fUsersNoKick->setChecked(currentAccount.privileges() & Qws::PrivilegeCanNotBeKicked);
 
     // Transfer limits
-    fLimitDown->setText(QString::number(currentAccount.privDownloadLimit));
-    fLimitUp->setText(QString::number(currentAccount.privUploadLimit));
+    fLimitDown->setText(QString::number(currentAccount.downloadLimit()));
+    fLimitUp->setText(QString::number(currentAccount.uploadLimit()));
 
 }
 

@@ -79,7 +79,7 @@ void QwsClientSocket::idleTimerTriggered()
 void QwsClientSocket::resetIdleTimer()
 {
     pIdleTimer->start();
-    user.pIdleTime = QDateTime::currentDateTime();
+    user.setLastActivity(QDateTime::currentDateTime());
     if (!user.isIdle()) { return; }
     user.setIdle(false);
     emit userStatusChanged();
@@ -87,8 +87,8 @@ void QwsClientSocket::resetIdleTimer()
 
 void QwsClientSocket::resolveHostname()
 {
-    qDebug() << this << "Beginning host lookup for:" << user.userIpAddress;
-    QHostInfo::lookupHost(user.userIpAddress, this, SLOT(handleHostLookupResult(QHostInfo)));
+    qDebug() << this << "Beginning host lookup for:" << user.clientIpAddress();
+    QHostInfo::lookupHost(user.clientIpAddress(), this, SLOT(handleHostLookupResult(QHostInfo)));
 }
 
 
@@ -114,7 +114,7 @@ void QwsClientSocket::on_socket_error()
 void QwsClientSocket::handleHostLookupResult(QHostInfo hostInfo)
 {
     qDebug() << "Received host lookup response:" << hostInfo.hostName();
-    user.userHostName = hostInfo.hostName();
+    user.setClientHostName(hostInfo.hostName());
 }
 
 
@@ -204,8 +204,7 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
  */
  void QwsClientSocket::handleMessageCLIENT(const QwMessage &message)
  {
-     qDebug() << this << "Received client information.";
-     user.pClientVersion = message.stringArg(0);
+     user.setClientVersion(message.stringArg(0));
  }
 
 
@@ -232,8 +231,8 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
          // We need a handshake first and a nickname. Send the client the session id of its own
          // session and proceed.
          user.setCryptedPassword(message.stringArg(0));
-         user.pLoginTime = QDateTime::currentDateTime();
-         user.pIdleTime = QDateTime::currentDateTime();
+         user.setLoginTime(QDateTime::currentDateTime());
+         user.setLastActivity(QDateTime::currentDateTime());
 
 //         if (m_serverController->hook_readUser(user)) {
 //             // Login successful
@@ -301,8 +300,8 @@ void QwsClientSocket::handleMessageICON(const QwMessage &message)
     resetIdleTimer();
 
     // Check if the user image changed
-    if (message.arguments.value(1) != user.pImage) {
-        user.pImage = message.arguments.value(1).toAscii();
+    if (message.arguments.value(1) != user.iconData()) {
+        user.setIconData(message.arguments.value(1).toAscii());
         QwMessage reply("340");
         reply.appendArg(QString::number(user.userId()));
         reply.appendArg(message.arguments.value(1));

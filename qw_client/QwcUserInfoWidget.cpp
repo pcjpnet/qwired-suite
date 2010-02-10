@@ -21,12 +21,14 @@ void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
     fNick->setText( theUser.nickname() );
     fLogin->setText( theUser.loginName());
     fID->setText( QString::number(theUser.userId()) );
-    fAddress->setText( theUser.userIpAddress );
-    fHost->setText( theUser.userHostName );
-    fVersion->setText( theUser.pClientVersion );
-    fCipher->setText( theUser.pCipherName+QString(" (%1 bits)").arg(theUser.pCipherBits) );
-    fLoginTime->setText( theUser.pLoginTime.toString() );
-    fIdleTime->setText( theUser.pIdleTime.toString() );
+    fAddress->setText( theUser.clientIpAddress() );
+    fHost->setText( theUser.clientHostName() );
+    fVersion->setText( theUser.clientVersion() );
+    fCipher->setText(QString("%1 (%2 bits)")
+                     .arg(theUser.cipherName())
+                     .arg(theUser.clientCipherBits()) );
+    fLoginTime->setText( theUser.loginTime().toString() );
+    fIdleTime->setText( theUser.lastActivity().toString() );
 
     fIcon->setPixmap(QPixmap::fromImage(theUser.userImage()));
 
