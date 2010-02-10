@@ -129,7 +129,7 @@ void QwcUserInfo::setPrivilegesFromMessage602(const QwMessage *message)
 void QwcUserInfo::appendPrivilegesFlags(QwMessage *message) const
 {
     // Don't set any flags if the user is part of a group.
-    if (userType == Qws::UserTypeAccount && !pGroupName.isEmpty()) {
+    if (userType == Qws::UserTypeAccount && !group.isEmpty()) {
         for (int i = 0; i < 23; i++) {
             message->appendArg(0);
         }

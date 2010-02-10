@@ -42,7 +42,7 @@ public:
     qint64 statsTotalReceived;
 
 
-    bool hookCheckLogin(const QwsUser &user);
+    bool hook_readUser(QwsUser &user);
 
 
 public slots:
@@ -95,7 +95,7 @@ protected:
     void checkTransferQueue(int userId);
 
     /*! The Lua state responsible for our configuration file. */
-    lua_State *m_configLuaState;
+    lua_State *m_lua;
 
 
 signals:

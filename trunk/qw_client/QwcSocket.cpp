@@ -513,7 +513,7 @@ void QwcSocket::handleMessage600(const QwMessage &message)
     user.userType = Qws::UserTypeAccount;
     user.login = newMessage.stringArg(0);
     user.password = newMessage.stringArg(1);
-    user.pGroupName = newMessage.stringArg(2);
+    user.group = newMessage.stringArg(2);
     newMessage.arguments.removeFirst();
     newMessage.arguments.removeFirst();
     newMessage.arguments.removeFirst();
@@ -949,7 +949,7 @@ void QwcSocket::getUsers()
 void QwcSocket::createUser(QwcUserInfo user)
 {
     QwMessage message("CREATEUSER");
-    message.appendArg(user.login).appendArg(user.password).appendArg(user.pGroupName);
+    message.appendArg(user.login).appendArg(user.password).appendArg(user.group);
     user.appendPrivilegesFlags(&message);
     sendMessage(message);
 }
@@ -958,7 +958,7 @@ void QwcSocket::createUser(QwcUserInfo user)
 void QwcSocket::editUser(QwcUserInfo user)
 {
     QwMessage message("EDITUSER");
-    message.appendArg(user.login).appendArg(user.password).appendArg(user.pGroupName);
+    message.appendArg(user.login).appendArg(user.password).appendArg(user.group);
     user.appendPrivilegesFlags(&message);
     sendMessage(message);
 }

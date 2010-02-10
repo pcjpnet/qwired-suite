@@ -34,14 +34,18 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
     m_maxTransfersPerClient = 2;
     m_delayedUserImagesEnabled = true;
 
-    m_configLuaState = NULL;
+    m_lua = NULL;
 }
 
 
 QwsServerController::~QwsServerController()
 {
     delete transferPool;
-    lua_close(m_configLuaState);
+    if (m_lua) {
+        qDebug() << "Destroying";
+        lua_close(m_lua);
+        m_lua = NULL;
+    }
 }
 
 
@@ -50,18 +54,15 @@ QwsServerController::~QwsServerController()
  */
 bool QwsServerController::loadConfiguration()
 {
-    QString configurationFilePath = "./qwserver.lua";
-    qwLog(tr("Loading configuration file: %1").arg(configurationFilePath));
-
-    m_configLuaState = luaL_newstate();
-    int result = luaL_loadfile(m_configLuaState, configurationFilePath.toUtf8());
-
+    m_lua = luaL_newstate();
+    int result = luaL_loadfile(m_lua, "./qwserver.lua");
     if (result == 0) {
         // Load the default libraries
-        luaL_openlibs(m_configLuaState);
+        luaL_openlibs(m_lua);
 
         // Call the script
-        result = lua_pcall(m_configLuaState, 0, 0, 0);
+
+        result = lua_pcall(m_lua, 0, 0, 0);
         if (result == 0) {
 
             m_banDuration = getConfig("ban_duration", 60 * 30).toInt();
@@ -70,12 +71,10 @@ bool QwsServerController::loadConfiguration()
 
             reloadBanlistConfiguration();
             reloadTrackerConfiguration();
-
             return true;
-
         } else {
             // Error during lua_pcall()
-            qDebug() << "Fatal: Unable to execute configuration file:" << lua_tostring(m_configLuaState, -1);
+            qDebug() << "Fatal: Unable to execute configuration file:";// << lua_tostring(m_lua, -1);
             return false;
         }
 
@@ -86,37 +85,108 @@ bool QwsServerController::loadConfiguration()
         return false;
     }
 
-    return true;
+    return false;
 }
 
 
-/*! Call the script hook which checks the login.
+/*! Call the script hook which retrieves a user from.
 */
-bool QwsServerController::hookCheckLogin(const QwsUser &user)
+QwsUser QwsServerController::hook_readUser(const QString &login)
 {
-    if (!m_configLuaState) { return false; }
+    if (!m_lua) { return false; }
     bool loginResult = false;
 
-    lua_getglobal(m_configLuaState, "hook_check_login");
-    if (lua_isfunction(m_configLuaState, -1)) {
-        lua_pushstring(m_configLuaState, user.login.toUtf8());
-        lua_pushstring(m_configLuaState, user.password.toUtf8());
-        int result = lua_pcall(m_configLuaState, 2, 1, 0);
-        if (result == 0) {
-            if (lua_isboolean(m_configLuaState, -1)) {
-                loginResult = lua_toboolean(m_configLuaState, -1);
-            }
-        } else {
-            qwLog(tr("Unable to run hook_check_login: %1")
-                  .arg(lua_tostring(m_configLuaState, -1)));
-        }
-        lua_pop(m_configLuaState, 1);
-    } else {
+    QwsUser userInfo;
+
+    // get the hook function
+    lua_getglobal(m_lua, "hook_read_user");
+    if (!lua_isfunction(m_lua, -1)) {
         qwLog(tr("Unable to authenticate user - no authentication function found."));
-        lua_pop(m_configLuaState, 1); // hook_check_login
+        lua_pop(m_lua, 1); // hook_check_login
     }
 
-    return loginResult;
+    // push the arguments
+    lua_pushstring(m_lua, login.toUtf8());
+    int result = lua_pcall(m_lua, 1, 1, 0);
+    if (result != 0) {
+        // function failed
+        qwLog(tr("Unable to execute hook_read_user: %1").arg(lua_tostring(m_lua, -1)));
+        lua_pop(m_lua, 1); // error
+        return QwsUser();
+    }
+
+    // retrieve the options
+    if (!lua_istable(m_lua, -1)) {
+        qwLog(tr("Incorrect return value for hook_read_user."));
+        lua_pop(m_lua, 1); // return value
+        return QwsUser();
+    }
+
+    // iterate over info table
+    Qws::Privileges privs = 0;
+    lua_pushnil(m_lua); // first key
+    while (lua_next(m_lua, -2)) {
+        if (!lua_isstring(m_lua, -2)) {
+            lua_pop(m_lua, 1); // clear value for next iteration
+            continue;
+        }
+
+        const QString key = QString::fromUtf8(lua_tostring(m_lua, -2));
+        bool flag = lua_toboolean(m_lua, -1);
+        if (key == "user_group") {
+            userInfo.group = QString::fromUtf8(lua_tostring(m_lua, -1));
+        } else if (key == "download_speed_limit") {
+            userInfo.privDownloadSpeed = lua_tointeger(m_lua, -1);
+        } else if (key == "upload_speed_limit") {
+            userInfo.privUploadSpeed = lua_tointeger(m_lua, -1);
+        } else if (key == "user_password") {
+            userInfo.password = QString::fromUtf8(lua_tostring(m_lua, -1));
+        } else if (key == "p_get_user_info" && flag) {
+            privs |= Qws::PrivilegeGetUserInfo;
+        } else if (key == "p_send_broadcast" && flag) {
+            privs |= Qws::PrivilegeSendBroadcast;
+        } else if (key == "p_post_news" && flag) {
+            privs |= Qws::PrivilegePostNews;
+        } else if (key == "p_clear_news" && flag) {
+            privs |= Qws::PrivilegeClearNews;
+        } else if (key == "p_download_files" && flag) {
+            privs |= Qws::PrivilegeDownload;
+        } else if (key == "p_upload_files" && flag) {
+            privs |= Qws::PrivilegeUpload;
+        } else if (key == "p_upload_anywhere" && flag) {
+            privs |= Qws::PrivilegeUploadAnywhere;
+        } else if (key == "p_create_folders" && flag) {
+            privs |= Qws::PrivilegeCreateFolders;
+        } else if (key == "p_alter_files" && flag) {
+            privs |= Qws::PrivilegeAlterFiles;
+        } else if (key == "p_delete_files" && flag) {
+            privs |= Qws::PrivilegeDeleteFiles;
+        } else if (key == "p_view_drop_boxes" && flag) {
+            privs |= Qws::PrivilegeViewDropboxes;
+        } else if (key == "p_create_accounts" && flag) {
+            privs |= Qws::PrivilegeCreateAccounts;
+        } else if (key == "p_edit_accounts" && flag) {
+            privs |= Qws::PrivilegeEditAccounts;
+        } else if (key == "p_delete_accounts" && flag) {
+            privs |= Qws::PrivilegeDeleteAccounts;
+        } else if (key == "p_elevate_privileges" && flag) {
+            privs |= Qws::PrivilegeElevatePrivileges;
+        } else if (key == "p_kick_users" && flag) {
+            privs |= Qws::PrivilegeKickUsers;
+        } else if (key == "p_ban_users" && flag) {
+            privs |= Qws::PrivilegeBanUsers;
+        } else if (key == "p_can_not_be_disconnected" && flag) {
+            privs |= Qws::PrivilegeCanNotBeKicked;
+        } else if (key == "p_set_chat_topic" && flag) {
+            privs |= Qws::PrivilegeChangeChatTopic;
+        } else {
+            qwLog(tr("Warning: Unknown info key: %1").arg(key));
+        }
+        lua_pop(m_lua, 1); // value
+    }
+    user.setPrivileges(privs);
+
+    return userInfo;
 }
 
 
@@ -126,21 +196,21 @@ bool QwsServerController::hookCheckLogin(const QwsUser &user)
 */
 QVariant QwsServerController::getConfig(const QString key, const QVariant defaultValue)
 {
-    if (!m_configLuaState) { return QVariant(); }
-
+    if (!m_lua) { return QVariant(); }
     QVariant configValue;
-    lua_getglobal(m_configLuaState, key.toUtf8());
-    if (lua_isnil(m_configLuaState, -1)) {
+
+    lua_getglobal(m_lua, key.toUtf8());
+    if (lua_isnil(m_lua, -1)) {
         // Return default value
         configValue = defaultValue;
     } else if (defaultValue.type() == QVariant::Bool) {
         // Return bool
-        configValue = lua_toboolean(m_configLuaState, -1);
+        configValue = lua_toboolean(m_lua, -1);
     } else {
         // String
-        configValue = lua_tostring(m_configLuaState, -1);
+        configValue = QString::fromUtf8(lua_tostring(m_lua, -1));
     }
-    lua_pop(m_configLuaState, 1);
+    lua_pop(m_lua, 1);
     return configValue;
 }
 
@@ -150,8 +220,7 @@ QVariant QwsServerController::getConfig(const QString key, const QVariant defaul
 */
 void QwsServerController::reloadTrackerConfiguration()
 {
-    if (!m_configLuaState) { return; }
-
+    if (!m_lua) { return; }
     if (!trackerController) {
         trackerController = new QwsTrackerController(this);
         trackerController->setServerInformation(&m_serverInformation);
@@ -159,35 +228,33 @@ void QwsServerController::reloadTrackerConfiguration()
     trackerController->resetController();
 
     // Push the table on the stack
-    lua_getglobal(m_configLuaState, "register_trackers");
+    lua_getglobal(m_lua, "register_trackers");
 
-    if (!lua_istable(m_configLuaState, -1)) {
+    if (!lua_istable(m_lua, -1)) {
         qwLog(tr("Invalid value for register_trackers option - will not register with any trackers!"));
-        lua_pop(m_configLuaState, 1);
+        lua_pop(m_lua, 1);
         return;
     }
 
     // Push the key onto the stack
-    lua_pushnil(m_configLuaState); // first item
-    while (lua_next(m_configLuaState, -2)) {
-
-        if (lua_isstring(m_configLuaState, -1)) {
-            QUrl trackerUrl(lua_tostring(m_configLuaState, -1), QUrl::TolerantMode);
+    lua_pushnil(m_lua); // first item
+    while (lua_next(m_lua, -2)) {
+        if (lua_isstring(m_lua, -1)) {
+            QString urlString = QString::fromUtf8(lua_tostring(m_lua, -1));
+            QUrl trackerUrl(urlString, QUrl::TolerantMode);
             trackerController->addTrackerServer(trackerUrl.host(), trackerUrl.port(2002));
             qwLog(tr("Configured to register with tracker: %1").arg(trackerUrl.toString()));
         }
-        lua_pop(m_configLuaState, 1); // pop value, keep key
+        lua_pop(m_lua, 1); // pop value, keep key
     }
-
-    lua_pop(m_configLuaState, 2); // nil, register_trackers
+    lua_pop(m_lua, 1); // register_trackers
 }
 
 /*! Reload the permanent banlist configration from the database.
 */
 void QwsServerController::reloadBanlistConfiguration()
 {
-    if (!m_configLuaState) { return; }
-
+    if (!m_lua) { return; }
     // Delete all old permament bans from the banlist first
     QMutableListIterator<QPair<QString,QDateTime> > i(m_banList);
     while (i.hasNext()) {
@@ -197,26 +264,24 @@ void QwsServerController::reloadBanlistConfiguration()
     }
 
     // Push the table on the stack
-    lua_getglobal(m_configLuaState, "server_banlist");
-    if (!lua_istable(m_configLuaState, -1)) {
+    lua_getglobal(m_lua, "server_banlist");
+    if (!lua_istable(m_lua, -1)) {
         qwLog(tr("Invalid value for server_banlist option - will not ban any addresses!"));
-        lua_pop(m_configLuaState, 1);
+        lua_pop(m_lua, 1);
         return;
     }
 
     // Push the key onto the stack
-    lua_pushnil(m_configLuaState); // first item
-    while (lua_next(m_configLuaState, -2)) {
-
-        if (lua_isstring(m_configLuaState, -1)) {
-            QString banlistItem = lua_tostring(m_configLuaState, -1);
+    lua_pushnil(m_lua); // key
+    while (lua_next(m_lua, -2) != 0) {
+        if (lua_isstring(m_lua, -1)) {
+            QString banlistItem = QString::fromUtf8(lua_tostring(m_lua, -1));
             m_banList.append(qMakePair(banlistItem, QDateTime()));
             qwLog(tr("Added '%1' to permanent banlist.").arg(banlistItem));
         }
-        lua_pop(m_configLuaState, 1); // pop value, keep key
+        lua_pop(m_lua, 1); // pop value, keep key
     }
-
-    lua_pop(m_configLuaState, 2); // nil, register_trackers
+    lua_pop(m_lua, 1); // register_trackers
 }
 
 
@@ -1098,7 +1163,7 @@ void QwsServerController::handleModifiedUserGroup(const QString name)
         i.next();
         QwsClientSocket *item = i.value();
         if (!item) continue;
-        if (item->user.pGroupName == name) {
+        if (item->user.group == name) {
             // Reload the account
             item->user.loadFromDatabase();
 
