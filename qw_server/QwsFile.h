@@ -3,12 +3,8 @@
 
 #include "QwFile.h"
 
-#include <QMetaType>
-#include <QFileInfo>
-#include <QString>
-#include <QList>
-
-class QwsFile : public QwFile
+class QwsFile :
+        public QwFile
 {
 
 public:

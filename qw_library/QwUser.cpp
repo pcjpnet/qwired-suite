@@ -88,10 +88,10 @@ QString QwUser::privilegesFlagsAsQwiredSpec()
 */
 QString QwUser::cryptedPassword()
 {
-    if (pPassword.isEmpty()) {
+    if (password.isEmpty()) {
         return QString();
     }
-    QByteArray hashedBinaryData = QCryptographicHash::hash(pPassword.toUtf8(), QCryptographicHash::Sha1);
+    QByteArray hashedBinaryData = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1);
     return QString::fromUtf8(hashedBinaryData.toHex());
 }
 

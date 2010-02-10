@@ -16,6 +16,8 @@
 #include "QwsFileIndexerThread.h"
 #include "QwsTrackerController.h"
 
+#include <QtCore/QDir>
+
 typedef struct lua_State lua_State;
 
 namespace Qws {
@@ -32,14 +34,15 @@ public:
     ~QwsServerController();
 
     // Database access/configuration
-    QVariant getConfigString(const QString key, const QVariant defaultValue=QVariant());
+    QVariant getConfig(const QString key, const QVariant defaultValue=QVariant());
 
     /*! The total amount of bytes sent to clients in file transfers. */
     qint64 statsTotalSent;
     /*! The total amount of bytes received from clients in file transfers. */
     qint64 statsTotalReceived;
-    /*! If true, log messages will be sent to stdout. */
-    bool logToStdout;
+
+
+    bool hookCheckLogin(const QwsUser &user);
 
 
 public slots:
@@ -49,7 +52,11 @@ public slots:
 protected:
     int sessionIdCounter;
     int roomIdCounter;
-    int maxTransfersPerClient;
+
+    /*! The maximum number of tranfsfers per client. */
+    int m_maxTransfersPerClient;
+    /*! The time (in seconds) a temporary ban should last. */
+    int m_banDuration;
 
     /*! The object containing the general server information. */
     QwServerInfo m_serverInformation;

@@ -1,15 +1,15 @@
 #ifndef QWSCLIENTTRANSFERSOCKET_H
 #define QWSCLIENTTRANSFERSOCKET_H
 
-#include <QObject>
-#include <QSslSocket>
-#include <QFile>
-#include <QTimer>
-
 #include "QwsFile.h"
 #include "QwsTransferInfo.h"
 #include "QwsTransferPool.h"
 
+#include <QtCore/QTimer>
+#include <QtCore/QFile>
+#include <QtNetwork/QAbstractSocket>
+
+class QSslSocket;
 
 namespace Qws {
     enum TransferSocketState {

@@ -1,5 +1,7 @@
 #include "QwsClientTransferSocket.h"
 
+#include <QtNetwork/QSslSocket>
+
 /*! \class QwsClientTransferSocket
     \author Bastian Bense <bastibense@gmail.com>
     \date 2009-02-23

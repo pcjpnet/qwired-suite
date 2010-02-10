@@ -145,7 +145,7 @@ void QwcAccountsWidget::on_fList_currentItemChanged(QListWidgetItem *current, QL
 void QwcAccountsWidget::on_fBtnApply_clicked()
 {
     QwcUserInfo newAccount;
-    newAccount.name = fName->text();
+    newAccount.login = fName->text();
     newAccount.userType = (Qws::UserType)fAccountType->currentIndex(); // 0=user, 1=group
 
     Qws::Privileges newPrivs = newAccount.privileges();
@@ -173,11 +173,11 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
     newAccount.privUploadLimit = fLimitUp->text().toInt();
 
     if (newAccount.userType == Qws::UserTypeAccount) {
-        newAccount.pPassword = fPassword->text();
+        newAccount.password = fPassword->text();
 
         // Re-hash the password if it changed
-        if (currentAccount.pPassword != newAccount.pPassword) {// password, changed - reencode
-            newAccount.pPassword = newAccount.cryptedPassword();
+        if (currentAccount.password != newAccount.password) {// password, changed - reencode
+            newAccount.password = newAccount.cryptedPassword();
         }
 
         // Set the group name
@@ -189,10 +189,10 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
     if (newAccountMode) {
         // Create new account/group
         if (newAccount.userType == Qws::UserTypeAccount) {
-            appendUserNames(QStringList() << newAccount.name);
+            appendUserNames(QStringList() << newAccount.login);
             m_socket->createUser(newAccount);
         } else if (newAccount.userType == Qws::UserTypeGroup) {
-            appendGroupNames(QStringList() << newAccount.name);
+            appendGroupNames(QStringList() << newAccount.login);
             m_socket->createGroup(newAccount);
         }
         btnEditDelete->click();
@@ -295,7 +295,7 @@ void QwcAccountsWidget::on_btnDeleteAccount_clicked()
 
     currentAccount = QwcUserInfo();
     currentAccount.userType = (Qws::UserType)item->data(Qt::UserRole).toInt();
-    currentAccount.name = item->text();
+    currentAccount.login = item->text();
 
     // We use the existing delete mechanism to save some code
     on_btnEditDelete_clicked();
@@ -310,7 +310,7 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
     QMessageBox::StandardButton result = QMessageBox::question(this,
                  tr("Delete Account or Group"),
                  tr("Are you sure you want to delete the account/group \"%1\"?")
-                    .arg(currentAccount.name),
+                    .arg(currentAccount.login),
                  QMessageBox::Ok | QMessageBox::Cancel,
                  QMessageBox::Ok );
 
@@ -319,11 +319,11 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
         QListWidgetItem *listItem = fList->takeItem( fList->currentRow() );
         delete listItem;
         if (currentAccount.userType == Qws::UserTypeAccount) {
-            m_socket->deleteUser(currentAccount.name);
+            m_socket->deleteUser(currentAccount.login);
         } else if (currentAccount.userType == Qws::UserTypeGroup) {
-            m_socket->deleteGroup(currentAccount.name);
+            m_socket->deleteGroup(currentAccount.login);
             // Also delete from the popup-menu if this is a group
-            fGroup->removeItem(fGroup->findText(currentAccount.name));
+            fGroup->removeItem(fGroup->findText(currentAccount.login));
         }
 
         // Go back to the list
@@ -342,7 +342,7 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     // Disable the name/type fields when editing an existing group/account
     fAccountType->setEnabled(newAccountMode);
     fName->setEnabled(newAccountMode);
-    fName->setText(account.name);
+    fName->setText(account.login);
 
     fPassword->setEnabled(account.userType == Qws::UserTypeAccount);
     fGroup->setEnabled(currentAccount.userType == Qws::UserTypeAccount);
@@ -351,7 +351,7 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
         // Select the correct group for an account
         int groupIndex = fGroup->findData(currentAccount.pGroupName);
         fGroup->setCurrentIndex(groupIndex == -1 ? 0 : groupIndex);
-        fPassword->setText(account.pPassword);
+        fPassword->setText(account.password);
 
     } else if (account.userType == Qws::UserTypeGroup) {
         // Select no group when editing groups

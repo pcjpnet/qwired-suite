@@ -64,7 +64,7 @@ void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
     }
     message.appendArg(QString::number(pIcon));
     message.appendArg(userNickname);
-    message.appendArg(name);
+    message.appendArg(login);
     message.appendArg(userIpAddress);
     message.appendArg(userHostName);
     message.appendArg(userStatus);
@@ -104,7 +104,7 @@ void QwsUser::userInfoEntry(QwMessage &message) const
     }
     message.appendArg(QString::number(pIcon));
     message.appendArg(userNickname);
-    message.appendArg(name);
+    message.appendArg(login);
     message.appendArg(userIpAddress);
     message.appendArg(userHostName);
 
@@ -129,70 +129,70 @@ void QwsUser::userInfoEntry(QwMessage &message) const
 */
 bool QwsUser::loadFromDatabase()
 {
-    qDebug() << this << "Reading properties for account/group" << name;
+    qDebug() << this << "Reading properties for account/group" << login;
 
-    QSqlQuery query;
-    if (userType == Qws::UserTypeAccount) {
-        // Load Information about a User Account
-        query.prepare("SELECT id, acc_secret, acc_privileges, acc_group, acc_maxupload, acc_maxdownload, "
-                      "acc_speedupload, acc_speeddownload "
-                      "FROM qws_accounts WHERE acc_name=:_name LIMIT 1;");
-        query.bindValue(":_name", this->name);
-        if (!query.exec()) {
-            qDebug() << this << "Unable to find user account:" << query.lastError().text();
-            return false;
-        } else {
-            query.first();
-            if (!query.isValid()) {
-                return false;
-            }
-            this->pPassword = query.value(1).toString();
-            this->pGroupName = query.value(3).toString();
-
-            if (pGroupName.isEmpty()) {
-                // No group specified - load user privileges
-                this->privUploadLimit = query.value(4).toInt();
-                this->privDownloadLimit = query.value(5).toInt();
-                this->privUploadSpeed = query.value(6).toInt();
-                this->privDownloadSpeed = query.value(7).toInt();
-                this->setPrivilegesFromQwiredSpec(query.value(2).toString());
-            } else {
-                // Group specified - load group data
-                QwsUser targetGroup;
-                targetGroup.userType = Qws::UserTypeGroup;
-                targetGroup.name = pGroupName;
-                if (!targetGroup.loadFromDatabase()) {
-                    qDebug() << this << "Unable to load group for user.";
-                    return false;
-                } else {
-                    // Load privileges from group
-                    qDebug() << this << "Loading privileges and settings from group" << pGroupName;
-                    this->setPrivilegesFromQwiredSpec(targetGroup.privilegesFlagsAsQwiredSpec());
-                    this->privUploadLimit = targetGroup.privUploadLimit;
-                    this->privDownloadLimit = targetGroup.privDownloadLimit;
-                    this->privUploadSpeed = targetGroup.privUploadSpeed;
-                    this->privDownloadSpeed = targetGroup.privDownloadSpeed;
-                }
-
-            }
-
-        }
-
-    } else if (userType == Qws::UserTypeGroup) {
-        // Load information about a group
-        query.prepare("SELECT id, group_privs FROM qws_groups WHERE group_name=:_name LIMIT 1");
-        query.bindValue(":_name", this->name);
-        if (!query.exec()) {
-            qDebug() << this << "Unable to find user account:" << query.lastError().text();
-            return false;
-        } else {
-            query.first();
-            if (!query.isValid()) {
-                return false;
-            }
-            this->setPrivilegesFromQwiredSpec(query.value(1).toString());
-        }
-    }
+//    QSqlQuery query;
+//    if (userType == Qws::UserTypeAccount) {
+//        // Load Information about a User Account
+//        query.prepare("SELECT id, acc_secret, acc_privileges, acc_group, acc_maxupload, acc_maxdownload, "
+//                      "acc_speedupload, acc_speeddownload "
+//                      "FROM qws_accounts WHERE acc_name=:_name LIMIT 1;");
+//        query.bindValue(":_name", this->name);
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to find user account:" << query.lastError().text();
+//            return false;
+//        } else {
+//            query.first();
+//            if (!query.isValid()) {
+//                return false;
+//            }
+//            this->pPassword = query.value(1).toString();
+//            this->pGroupName = query.value(3).toString();
+//
+//            if (pGroupName.isEmpty()) {
+//                // No group specified - load user privileges
+//                this->privUploadLimit = query.value(4).toInt();
+//                this->privDownloadLimit = query.value(5).toInt();
+//                this->privUploadSpeed = query.value(6).toInt();
+//                this->privDownloadSpeed = query.value(7).toInt();
+//                this->setPrivilegesFromQwiredSpec(query.value(2).toString());
+//            } else {
+//                // Group specified - load group data
+//                QwsUser targetGroup;
+//                targetGroup.userType = Qws::UserTypeGroup;
+//                targetGroup.name = pGroupName;
+//                if (!targetGroup.loadFromDatabase()) {
+//                    qDebug() << this << "Unable to load group for user.";
+//                    return false;
+//                } else {
+//                    // Load privileges from group
+//                    qDebug() << this << "Loading privileges and settings from group" << pGroupName;
+//                    this->setPrivilegesFromQwiredSpec(targetGroup.privilegesFlagsAsQwiredSpec());
+//                    this->privUploadLimit = targetGroup.privUploadLimit;
+//                    this->privDownloadLimit = targetGroup.privDownloadLimit;
+//                    this->privUploadSpeed = targetGroup.privUploadSpeed;
+//                    this->privDownloadSpeed = targetGroup.privDownloadSpeed;
+//                }
+//
+//            }
+//
+//        }
+//
+//    } else if (userType == Qws::UserTypeGroup) {
+//        // Load information about a group
+//        query.prepare("SELECT id, group_privs FROM qws_groups WHERE group_name=:_name LIMIT 1");
+//        query.bindValue(":_name", this->name);
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to find user account:" << query.lastError().text();
+//            return false;
+//        } else {
+//            query.first();
+//            if (!query.isValid()) {
+//                return false;
+//            }
+//            this->setPrivilegesFromQwiredSpec(query.value(1).toString());
+//        }
+//    }
     return true;
 }
 
@@ -202,46 +202,46 @@ bool QwsUser::loadFromDatabase()
 */
 bool QwsUser::writeToDatabase()
 {
-    QSqlQuery query;
-    if (userType == Qws::UserTypeAccount) {
-        // Load Information about a User Account
-        query.prepare("UPDATE qws_accounts "
-                      "SET acc_secret=:_secret, acc_privileges=:_privileges, acc_group=:_group, "
-                      "acc_maxdownload=:_maxdown, acc_maxupload=:_maxup, "
-                      "acc_speeddownload=:_speeddownload, acc_speedupload=:_speedupload "
-                      "WHERE acc_name=:_name");
-        query.bindValue(":_name", this->name);
-        query.bindValue(":_secret", this->pPassword);
-        query.bindValue(":_group", this->pGroupName);
-        query.bindValue(":_maxdown", this->privDownloadLimit);
-        query.bindValue(":_maxup", this->privUploadLimit);
-        query.bindValue(":_speeddownload", this->privDownloadSpeed);
-        query.bindValue(":_speedupload", this->privUploadSpeed);
-        query.bindValue(":_privileges", this->privilegesFlagsAsQwiredSpec());
-        if (!query.exec()) {
-            qDebug() << this << "Unable to write user account:" << query.lastError().text();
-            return false;
-        } else {
-            if (!query.numRowsAffected()) {
-                // Account does not exist yet
-                return false;
-            }
-        }
-
-    } else if (userType == Qws::UserTypeGroup) {
-        // Write a group
-        query.prepare("UPDATE qws_groups SET group_privs=:_privs WHERE group_name=:_name");
-        query.bindValue(":_name", this->name);
-        query.bindValue(":_privs", this->privilegesFlagsAsQwiredSpec());
-        if (!query.exec()) {
-            qDebug() << this << "Unable to edit user group:" << query.lastError().text();
-            return false;
-        } else {
-            if (query.numRowsAffected() <= 0) {
-                return false;
-            }
-        }
-    }
+//    QSqlQuery query;
+//    if (userType == Qws::UserTypeAccount) {
+//        // Load Information about a User Account
+//        query.prepare("UPDATE qws_accounts "
+//                      "SET acc_secret=:_secret, acc_privileges=:_privileges, acc_group=:_group, "
+//                      "acc_maxdownload=:_maxdown, acc_maxupload=:_maxup, "
+//                      "acc_speeddownload=:_speeddownload, acc_speedupload=:_speedupload "
+//                      "WHERE acc_name=:_name");
+//        query.bindValue(":_name", this->name);
+//        query.bindValue(":_secret", this->pPassword);
+//        query.bindValue(":_group", this->pGroupName);
+//        query.bindValue(":_maxdown", this->privDownloadLimit);
+//        query.bindValue(":_maxup", this->privUploadLimit);
+//        query.bindValue(":_speeddownload", this->privDownloadSpeed);
+//        query.bindValue(":_speedupload", this->privUploadSpeed);
+//        query.bindValue(":_privileges", this->privilegesFlagsAsQwiredSpec());
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to write user account:" << query.lastError().text();
+//            return false;
+//        } else {
+//            if (!query.numRowsAffected()) {
+//                // Account does not exist yet
+//                return false;
+//            }
+//        }
+//
+//    } else if (userType == Qws::UserTypeGroup) {
+//        // Write a group
+//        query.prepare("UPDATE qws_groups SET group_privs=:_privs WHERE group_name=:_name");
+//        query.bindValue(":_name", this->name);
+//        query.bindValue(":_privs", this->privilegesFlagsAsQwiredSpec());
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to edit user group:" << query.lastError().text();
+//            return false;
+//        } else {
+//            if (query.numRowsAffected() <= 0) {
+//                return false;
+//            }
+//        }
+//    }
     return true;
 }
 
@@ -252,32 +252,32 @@ bool QwsUser::writeToDatabase()
 */
 bool QwsUser::deleteFromDatabase()
 {
-    QSqlQuery query;
-    if (userType == Qws::UserTypeAccount) {
-        query.prepare("DELETE FROM qws_accounts WHERE acc_name=:_name");
-        query.bindValue(":_name", this->name);
-        if (!query.exec()) {
-            qDebug() << this << "Unable to delete user account:" << query.lastError().text();
-            return false;
-        } else {
-            if (query.numRowsAffected() <= 0) {
-                return false;
-            }
-        }
-
-
-    } else if (userType == Qws::UserTypeGroup) {
-        query.prepare("DELETE FROM qws_groups WHERE group_name=:_name");
-        query.bindValue(":_name", this->name);
-        if (!query.exec()) {
-            qDebug() << this << "Unable to delete user group:" << query.lastError().text();
-            return false;
-        } else {
-            if (query.numRowsAffected() <= 0) {
-                return false;
-            }
-        }
-    }
+//    QSqlQuery query;
+//    if (userType == Qws::UserTypeAccount) {
+//        query.prepare("DELETE FROM qws_accounts WHERE acc_name=:_name");
+//        query.bindValue(":_name", this->name);
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to delete user account:" << query.lastError().text();
+//            return false;
+//        } else {
+//            if (query.numRowsAffected() <= 0) {
+//                return false;
+//            }
+//        }
+//
+//
+//    } else if (userType == Qws::UserTypeGroup) {
+//        query.prepare("DELETE FROM qws_groups WHERE group_name=:_name");
+//        query.bindValue(":_name", this->name);
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to delete user group:" << query.lastError().text();
+//            return false;
+//        } else {
+//            if (query.numRowsAffected() <= 0) {
+//                return false;
+//            }
+//        }
+//    }
     return true;
 }
 

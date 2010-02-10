@@ -8,8 +8,12 @@
 #include "QwRoom.h"
 #include "QwServerInfo.h"
 
-#include <QtCore>
-#include <QtNetwork>
+
+#include <QtNetwork/QHostInfo>
+#include <QtCore/QPointer>
+class QTimer;
+
+
 
 namespace Qws {
     enum SessionState{
@@ -32,20 +36,25 @@ namespace Qws {
 
 Q_DECLARE_METATYPE(Qws::SessionState);
 
+class QwsServerController;
 
 class QwsClientSocket
         : public QwSocket
 {
     Q_OBJECT
 
-    friend class QwsServerController;
-
 public:
     QwsClientSocket(QObject *parent=0);
     ~QwsClientSocket();
 
+    void setServerController(QwsServerController *controller);
+
+    QSslSocket *socket();
+    Qws::SessionState sessionState() const;
+
     /*! A pointer to the information about this server. */
     QwServerInfo *serverInfo;
+
 
     /*! This timer is responsible for automatically setting the user as "inactive" after a certain
         period of time. */
@@ -54,7 +63,10 @@ public:
     QwsUser user;
     /*! Defines the root path of the files directory for this connection. */
     QString filesRootPath;
-		
+
+protected:
+    /*! The server controller. */
+    QwsServerController *m_serverController;
 		
 signals:
     /*! This signal is emitted when a message must be sent to all users in a specific room, but

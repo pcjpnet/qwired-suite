@@ -1,12 +1,10 @@
 #include "QwsFile.h"
 
-#include <QtDebug>
-#include <QDir>
-#include <QCryptographicHash>
-#include <QtSql>
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
 
-
-QwsFile::QwsFile() : QwFile()
+QwsFile::QwsFile() :
+        QwFile()
 {
     offset = 0;
 }
@@ -92,29 +90,29 @@ bool QwsFile::loadFromLocalPath(bool quickCheck)
 */
 bool QwsFile::loadMetaInformation()
 {
-    qDebug() << this << "Loading file information from database.";
-    QSqlQuery query;
-    query.prepare("SELECT file_type, file_comment "
-                  "FROM qws_files "
-                  "WHERE file_path = :_path AND file_name = :_name");
-    query.bindValue(":_path", this->m_remotePath.section("/", 0, -2).prepend("/") );
-    query.bindValue(":_name", this->m_remotePath.section("/", -1, -1));
-
-    qDebug() << this->m_remotePath.section("/", 0, -2) << this->m_remotePath.section("/", 1, -1);
-
-    if (!query.exec()) {
-        qDebug() << this << "Unable to load file info from database:" << query.lastError().text();
-        return false;
-    }
-
-    query.first();
-    if (!query.isValid()) {
-        qDebug() << this << "Unable to load file info from database: Not found";
-        return false;
-    }
-
-    this->m_comment = query.value(1).toString();
-    this->m_type = (Qw::FileType)query.value(0).toInt();
+//    qDebug() << this << "Loading file information from database.";
+//    QSqlQuery query;
+//    query.prepare("SELECT file_type, file_comment "
+//                  "FROM qws_files "
+//                  "WHERE file_path = :_path AND file_name = :_name");
+//    query.bindValue(":_path", this->m_remotePath.section("/", 0, -2).prepend("/") );
+//    query.bindValue(":_name", this->m_remotePath.section("/", -1, -1));
+//
+//    qDebug() << this->m_remotePath.section("/", 0, -2) << this->m_remotePath.section("/", 1, -1);
+//
+//    if (!query.exec()) {
+//        qDebug() << this << "Unable to load file info from database:" << query.lastError().text();
+//        return false;
+//    }
+//
+//    query.first();
+//    if (!query.isValid()) {
+//        qDebug() << this << "Unable to load file info from database: Not found";
+//        return false;
+//    }
+//
+//    this->m_comment = query.value(1).toString();
+//    this->m_type = (Qw::FileType)query.value(0).toInt();
     return true;
 }
 
@@ -124,34 +122,34 @@ bool QwsFile::loadMetaInformation()
 */
 bool QwsFile::saveMetaInformation()
 {
-    qDebug() << this << "Write file information to database.";
-    QString fileDirPath = this->m_remotePath.section("/", 0, -2).prepend("/");
-    QString fileName = this->m_remotePath.section("/", -1, -1);
-
-    QSqlQuery query;
-
-    // Delete the old file data
-    query.prepare("DELETE FROM qws_files "
-                  "WHERE file_path = :_path AND file_name = :_name");
-    query.bindValue(":_path", fileDirPath);
-    query.bindValue(":_name", fileName);
-    if (!query.exec()) {
-        qDebug() << this << "Unable to delete old file data from database:" << query.lastError().text();
-        return false;
-    }
-
-    // Write the new one
-    query.clear();
-    query.prepare("INSERT INTO qws_files (file_path, file_name, file_type, file_comment) "
-                  "VALUES (:_path, :_name, :_type, :_comment)");
-    query.bindValue(":_path", fileDirPath);
-    query.bindValue(":_name", fileName);
-    query.bindValue(":_type", this->type());
-    query.bindValue(":_comment", this->comment());
-    if (!query.exec()) {
-        qDebug() << this << "Unable to write file info to database: " << query.lastError().text();
-        return false;
-    }
+//    qDebug() << this << "Write file information to database.";
+//    QString fileDirPath = this->m_remotePath.section("/", 0, -2).prepend("/");
+//    QString fileName = this->m_remotePath.section("/", -1, -1);
+//
+//    QSqlQuery query;
+//
+//    // Delete the old file data
+//    query.prepare("DELETE FROM qws_files "
+//                  "WHERE file_path = :_path AND file_name = :_name");
+//    query.bindValue(":_path", fileDirPath);
+//    query.bindValue(":_name", fileName);
+//    if (!query.exec()) {
+//        qDebug() << this << "Unable to delete old file data from database:" << query.lastError().text();
+//        return false;
+//    }
+//
+//    // Write the new one
+//    query.clear();
+//    query.prepare("INSERT INTO qws_files (file_path, file_name, file_type, file_comment) "
+//                  "VALUES (:_path, :_name, :_type, :_comment)");
+//    query.bindValue(":_path", fileDirPath);
+//    query.bindValue(":_name", fileName);
+//    query.bindValue(":_type", this->type());
+//    query.bindValue(":_comment", this->comment());
+//    if (!query.exec()) {
+//        qDebug() << this << "Unable to write file info to database: " << query.lastError().text();
+//        return false;
+//    }
 
     return true;
 }
@@ -161,22 +159,22 @@ bool QwsFile::saveMetaInformation()
 */
 bool QwsFile::clearMetaInformation()
 {
-    qDebug() << this << "Remove file information from database.";
-    QString fileDirPath = this->m_remotePath.section("/", 0, -2).prepend("/");
-    QString fileName = this->m_remotePath.section("/", -1, -1);
-
-    QSqlQuery query;
-
-    // Delete the old file data
-    query.prepare("DELETE FROM qws_files "
-                  "WHERE file_path = :_path AND file_name = :_name");
-    query.bindValue(":_path", fileDirPath);
-    query.bindValue(":_name", fileName);
-    if (!query.exec()) {
-        qDebug() << this << "Unable to delete old file data from database:" << query.lastError().text();
-        return false;
-    }
-
-    return query.numRowsAffected() > 0;
+//    qDebug() << this << "Remove file information from database.";
+//    QString fileDirPath = this->m_remotePath.section("/", 0, -2).prepend("/");
+//    QString fileName = this->m_remotePath.section("/", -1, -1);
+//
+//    QSqlQuery query;
+//
+//    // Delete the old file data
+//    query.prepare("DELETE FROM qws_files "
+//                  "WHERE file_path = :_path AND file_name = :_name");
+//    query.bindValue(":_path", fileDirPath);
+//    query.bindValue(":_name", fileName);
+//    if (!query.exec()) {
+//        qDebug() << this << "Unable to delete old file data from database:" << query.lastError().text();
+//        return false;
+//    }
+//
+//    return query.numRowsAffected() > 0;
 }
 

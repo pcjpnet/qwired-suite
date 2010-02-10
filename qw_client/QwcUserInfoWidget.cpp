@@ -19,7 +19,7 @@ void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
 {
     fStatus->setText( theUser.userStatus );
     fNick->setText( theUser.userNickname );
-    fLogin->setText( theUser.name );
+    fLogin->setText( theUser.login );
     fID->setText( QString::number(theUser.pUserID) );
     fAddress->setText( theUser.userIpAddress );
     fHost->setText( theUser.userHostName );
