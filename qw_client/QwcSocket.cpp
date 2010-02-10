@@ -125,11 +125,11 @@ void QwcSocket::handleMessage200(const QwMessage &message)
 
     // Send login sequence
     sendMessageINFO();
-    setNickname(m_sessionUser.userNickname);
+    setNickname(m_sessionUser.nickname());
     setUserIcon(m_sessionUser.userImage());
-    setUserStatus(m_sessionUser.userStatus);
-    sendMessage(QwMessage("USER").appendArg(m_sessionUser.login));
-    sendMessage(QwMessage("PASS").appendArg(m_sessionUser.cryptedPassword()));
+    setUserStatus(m_sessionUser.status());
+    sendMessage(QwMessage("USER").appendArg(m_sessionUser.loginName()));
+    sendMessage(QwMessage("PASS").appendArg(m_sessionUser.password()));
     emit onServerInformation();
 }
 
@@ -139,7 +139,7 @@ void QwcSocket::handleMessage200(const QwMessage &message)
 */
 void QwcSocket::handleMessage201(const QwMessage &message)
 {
-    m_sessionUser.pUserID = message.stringArg(0).toInt();
+    m_sessionUser.setUserId(message.stringArg(0).toInt());
     sendMessage(QwMessage("WHO").appendArg(1));
     sendMessage(QwMessage("BANNER"));
     sendMessage(QwMessage("PRIVILEGES"));
@@ -197,11 +197,11 @@ void QwcSocket::handleMessage302(const QwMessage &message)
     int roomId = message.stringArg(0).toInt();
     QwcUserInfo newUser = QwcUserInfo::fromMessage310(&message);
     if (roomId == 1) {
-        m_users[newUser.pUserID] = newUser;
-        m_chatRooms[1].pUsers.append(newUser.pUserID);
+        m_users[newUser.userId()] = newUser;
+        m_chatRooms[1].pUsers.append(newUser.userId());
     } else {
         if (!m_chatRooms.contains(roomId)) { return; }
-        m_chatRooms[roomId].pUsers.append(newUser.pUserID);
+        m_chatRooms[roomId].pUsers.append(newUser.userId());
     }
     emit userJoinedRoom(roomId, newUser);
 }
@@ -244,11 +244,13 @@ void QwcSocket::handleMessage304(const QwMessage &message)
     if (!m_users.contains(userId)) { return; }
     QwcUserInfo targetUserOld = m_users[userId];
     QwcUserInfo &targetUser = m_users[userId];
-    targetUser.pIdle = message.stringArg(1).toInt();
-    targetUser.pAdmin = message.stringArg(2).toInt();
+    targetUser.setIdle(message.stringArg(1).toInt());
+    if (message.stringArg(2).toInt()) {
+        targetUser.setPrivileges(Qws::PrivilegeKickUsers);
+    }
     targetUser.pIcon = message.stringArg(3).toInt();
-    targetUser.userNickname = message.stringArg(4);
-    targetUser.userStatus = message.stringArg(5);
+    targetUser.setNickname(message.stringArg(4));
+    targetUser.setStatus(message.stringArg(5));
     emit userChanged(targetUserOld, targetUser);
 }
 
@@ -276,7 +278,7 @@ void QwcSocket::handleMessage306(const QwMessage &message)
     // User message handler for 303 Client Left to remove the user
     emit userKicked(victim, killer, reason);
     handleMessage303(QwMessage().appendArg(1)
-                     .appendArg(QString::number(victim.pUserID)));
+                     .appendArg(QString::number(victim.userId())));
 }
 
 
@@ -291,7 +293,7 @@ void QwcSocket::handleMessage307(const QwMessage &message)
 
     // User message handler for 303 Client Left to remove the user
     handleMessage303(QwMessage().appendArg(1)
-                     .appendArg(QString::number(victim.pUserID)));
+                     .appendArg(QString::number(victim.userId())));
     emit userBanned(victim, killer, reason);
 }
 
@@ -318,9 +320,9 @@ void QwcSocket::handleMessage310(const QwMessage &message)
     int roomId = message.stringArg(0).toInt();
     QwcUserInfo targetUser = QwcUserInfo::fromMessage310(&message);
     if (roomId == 1) {
-        m_users[targetUser.pUserID] = targetUser;
+        m_users[targetUser.userId()] = targetUser;
     }
-    m_chatRooms[roomId].pUsers.append(targetUser.pUserID);
+    m_chatRooms[roomId].pUsers.append(targetUser.userId());
 }
 
 
@@ -510,10 +512,10 @@ void QwcSocket::handleMessage600(const QwMessage &message)
 {
     QwMessage newMessage = message;
     QwcUserInfo user;
-    user.userType = Qws::UserTypeAccount;
-    user.login = newMessage.stringArg(0);
-    user.password = newMessage.stringArg(1);
-    user.group = newMessage.stringArg(2);
+    user.setType(Qws::UserTypeAccount);
+    user.setLoginName(newMessage.stringArg(0));
+    user.setCryptedPassword(newMessage.stringArg(1));
+    user.setGroupName(newMessage.stringArg(2));
     newMessage.arguments.removeFirst();
     newMessage.arguments.removeFirst();
     newMessage.arguments.removeFirst();
@@ -529,8 +531,8 @@ void QwcSocket::handleMessage601(const QwMessage &message)
 {
     QwMessage newMessage = message;
     QwcUserInfo user;
-    user.userType = Qws::UserTypeGroup;
-    user.login = newMessage.stringArg(0);
+    user.setType(Qws::UserTypeGroup);
+    user.setLoginName(newMessage.stringArg(0));
     newMessage.arguments.removeFirst();
     user.setPrivilegesFromMessage602(&message);
     emit groupSpecReceived(user);
@@ -607,10 +609,10 @@ bool QwcSocket::localTransferQueueEnabled() const
 { return m_localTransferQueueEnabled; }
 
 // Set the username and password for the login sequence.
-void QwcSocket::setUserAccount(QString theAcct, QString thePass)
+void QwcSocket::setUserAccount(const QString &login, const QString &password)
 {
-    m_sessionUser.login = theAcct;
-    m_sessionUser.password = thePass;
+    m_sessionUser.setLoginName(login);
+    m_sessionUser.setCryptedPassword(password);
 }
 
 
@@ -621,7 +623,7 @@ void QwcSocket::setCaturdayMode(bool b) {
         m_tranzlator.clear();
         setUserIcon( QImage(":/icons/icon_happycat.png") );
         setUserStatus(tr("kittehday nait fevrar"));
-        QString tmpNick = m_sessionUser.userNickname;
+        QString tmpNick = m_sessionUser.nickname();
         tmpNick = tmpNick.replace("s","z");
         tmpNick = tmpNick.replace("e","3");
         tmpNick = tmpNick.replace("i","ie");
@@ -741,10 +743,10 @@ void QwcSocket::setUserIcon(QImage icon)
 
 /*! Set the current user nickname and send it to the server.
 */
-void QwcSocket::setNickname(QString theNick)
+void QwcSocket::setNickname(const QString &nickname)
 {
-    m_sessionUser.userNickname = theNick;
-    sendMessage(QwMessage("NICK").appendArg(theNick));
+    m_sessionUser.setNickname(nickname);
+    sendMessage(QwMessage("NICK").appendArg(nickname));
 }
 
 
@@ -752,8 +754,8 @@ void QwcSocket::setNickname(QString theNick)
 */
 void QwcSocket::setUserStatus(QString theStatus)
 {
-    m_sessionUser.userStatus = theStatus;
-    sendMessage(QwMessage("STATUS").appendArg(m_sessionUser.userStatus));
+    m_sessionUser.setStatus(theStatus);
+    sendMessage(QwMessage("STATUS").appendArg(m_sessionUser.status()));
 }
 
 
@@ -949,7 +951,7 @@ void QwcSocket::getUsers()
 void QwcSocket::createUser(QwcUserInfo user)
 {
     QwMessage message("CREATEUSER");
-    message.appendArg(user.login).appendArg(user.password).appendArg(user.group);
+    message.appendArg(user.loginName()).appendArg(user.password()).appendArg(user.groupName());
     user.appendPrivilegesFlags(&message);
     sendMessage(message);
 }
@@ -958,7 +960,7 @@ void QwcSocket::createUser(QwcUserInfo user)
 void QwcSocket::editUser(QwcUserInfo user)
 {
     QwMessage message("EDITUSER");
-    message.appendArg(user.login).appendArg(user.password).appendArg(user.group);
+    message.appendArg(user.loginName()).appendArg(user.password()).appendArg(user.groupName());
     user.appendPrivilegesFlags(&message);
     sendMessage(message);
 }
@@ -969,7 +971,7 @@ void QwcSocket::editUser(QwcUserInfo user)
 void QwcSocket::createGroup(QwcUserInfo user)
 {
     QwMessage reply("CREATEGROUP");
-    reply.appendArg(user.login);
+    reply.appendArg(user.loginName());
     user.appendPrivilegesFlags(&reply);
     sendMessage(reply);
 }
@@ -980,7 +982,7 @@ void QwcSocket::createGroup(QwcUserInfo user)
 void QwcSocket::editGroup(QwcUserInfo user)
 {
     QwMessage reply("EDITGROUP");
-    reply.appendArg(user.login);
+    reply.appendArg(user.loginName());
     user.appendPrivilegesFlags(&reply);
     sendMessage(reply);
 }

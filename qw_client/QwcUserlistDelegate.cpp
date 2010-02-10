@@ -111,12 +111,12 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
 
     // Status
-    bool statusTextAvailable = !session.userInfo.userStatus.isEmpty();
+    bool statusTextAvailable = !session.userInfo.status().isEmpty();
     if (!m_compactMode && statusTextAvailable) {
         font.setBold(false);
         font.setPixelSize(10);
         painter->setFont(font);
-        painter->drawText(0, painter->fontMetrics().ascent()+1, session.userInfo.userStatus);
+        painter->drawText(0, painter->fontMetrics().ascent()+1, session.userInfo.status());
 
     }
 
@@ -133,11 +133,11 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     // Paint the nickname
     painter->save();
     QColor statusColor(Qt::black);
-    if (session.userInfo.pAdmin) {
+    if (session.userInfo.isAdmin()) {
         statusColor = Qt::red;
     }
     painter->setPen(statusColor);
-    painter->drawText(0, -2, session.userInfo.userNickname);
+    painter->drawText(0, -2, session.userInfo.nickname());
     painter->restore();
 
     painter->restore();
@@ -170,7 +170,7 @@ void QwcUserlistDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         painter->restore();
     } else {
         // Idle dimming
-        if (session.userInfo.pIdle) {
+        if (session.userInfo.isIdle()) {
             painter->save();
             painter->setBrush(Qt::white);
             painter->setOpacity(0.5);

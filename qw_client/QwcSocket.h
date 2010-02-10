@@ -38,8 +38,8 @@ public:
     const QHash<int, QwcUserInfo> & users() const;
 
     // User Information
-    void setNickname(QString);
-    void setUserAccount(QString, QString);
+    void setNickname(const QString &nickname);
+    void setUserAccount(const QString &login, const QString &password);
 
     void setLocalTransferQueueEnabled(bool enabled);
     bool localTransferQueueEnabled() const;

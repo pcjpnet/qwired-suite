@@ -145,8 +145,8 @@ void QwcAccountsWidget::on_fList_currentItemChanged(QListWidgetItem *current, QL
 void QwcAccountsWidget::on_fBtnApply_clicked()
 {
     QwcUserInfo newAccount;
-    newAccount.login = fName->text();
-    newAccount.userType = (Qws::UserType)fAccountType->currentIndex(); // 0=user, 1=group
+    newAccount.setLoginName(fName->text());
+    newAccount.setType((Qws::UserType)fAccountType->currentIndex()); // 0=user, 1=group
 
     Qws::Privileges newPrivs = newAccount.privileges();
     if (fBasicGetUserInfo->isChecked()) { newPrivs |= Qws::PrivilegeGetUserInfo; }
@@ -172,27 +172,27 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
     newAccount.privDownloadLimit = fLimitDown->text().toInt();
     newAccount.privUploadLimit = fLimitUp->text().toInt();
 
-    if (newAccount.userType == Qws::UserTypeAccount) {
-        newAccount.password = fPassword->text();
+    if (newAccount.type() == Qws::UserTypeAccount) {
+        newAccount.password() = fPassword->text();
 
         // Re-hash the password if it changed
-        if (currentAccount.password != newAccount.password) {// password, changed - reencode
-            newAccount.password = newAccount.cryptedPassword();
+        if (currentAccount.password() != newAccount.password()) {// password, changed - reencode
+            newAccount.setCryptedPassword(newAccount.password());
         }
 
         // Set the group name
         if (fGroup->currentIndex() > 0) {
-            newAccount.group = fGroup->currentText();
+            newAccount.setGroupName(fGroup->currentText());
         }
     }
 
     if (newAccountMode) {
         // Create new account/group
-        if (newAccount.userType == Qws::UserTypeAccount) {
-            appendUserNames(QStringList() << newAccount.login);
+        if (newAccount.type() == Qws::UserTypeAccount) {
+            appendUserNames(QStringList() << newAccount.loginName());
             m_socket->createUser(newAccount);
-        } else if (newAccount.userType == Qws::UserTypeGroup) {
-            appendGroupNames(QStringList() << newAccount.login);
+        } else if (newAccount.type() == Qws::UserTypeGroup) {
+            appendGroupNames(QStringList() << newAccount.loginName());
             m_socket->createGroup(newAccount);
         }
         btnEditDelete->click();
@@ -294,8 +294,8 @@ void QwcAccountsWidget::on_btnDeleteAccount_clicked()
     if (!item) { return; }
 
     currentAccount = QwcUserInfo();
-    currentAccount.userType = (Qws::UserType)item->data(Qt::UserRole).toInt();
-    currentAccount.login = item->text();
+    currentAccount.setType((Qws::UserType)item->data(Qt::UserRole).toInt());
+    currentAccount.setLoginName(item->text());
 
     // We use the existing delete mechanism to save some code
     on_btnEditDelete_clicked();
@@ -310,7 +310,7 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
     QMessageBox::StandardButton result = QMessageBox::question(this,
                  tr("Delete Account or Group"),
                  tr("Are you sure you want to delete the account/group \"%1\"?")
-                    .arg(currentAccount.login),
+                    .arg(currentAccount.loginName()),
                  QMessageBox::Ok | QMessageBox::Cancel,
                  QMessageBox::Ok );
 
@@ -318,12 +318,12 @@ void QwcAccountsWidget::on_btnEditDelete_clicked()
         // Remove from the main list
         QListWidgetItem *listItem = fList->takeItem( fList->currentRow() );
         delete listItem;
-        if (currentAccount.userType == Qws::UserTypeAccount) {
-            m_socket->deleteUser(currentAccount.login);
-        } else if (currentAccount.userType == Qws::UserTypeGroup) {
-            m_socket->deleteGroup(currentAccount.login);
+        if (currentAccount.type() == Qws::UserTypeAccount) {
+            m_socket->deleteUser(currentAccount.loginName());
+        } else if (currentAccount.type() == Qws::UserTypeGroup) {
+            m_socket->deleteGroup(currentAccount.loginName());
             // Also delete from the popup-menu if this is a group
-            fGroup->removeItem(fGroup->findText(currentAccount.login));
+            fGroup->removeItem(fGroup->findText(currentAccount.loginName()));
         }
 
         // Go back to the list
@@ -342,29 +342,29 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     // Disable the name/type fields when editing an existing group/account
     fAccountType->setEnabled(newAccountMode);
     fName->setEnabled(newAccountMode);
-    fName->setText(account.login);
+    fName->setText(account.loginName());
 
-    fPassword->setEnabled(account.userType == Qws::UserTypeAccount);
-    fGroup->setEnabled(currentAccount.userType == Qws::UserTypeAccount);
+    fPassword->setEnabled(account.type() == Qws::UserTypeAccount);
+    fGroup->setEnabled(currentAccount.type() == Qws::UserTypeAccount);
 
-    if (account.userType == Qws::UserTypeAccount) {
+    if (account.type() == Qws::UserTypeAccount) {
         // Select the correct group for an account
-        int groupIndex = fGroup->findData(currentAccount.group);
+        int groupIndex = fGroup->findData(currentAccount.groupName());
         fGroup->setCurrentIndex(groupIndex == -1 ? 0 : groupIndex);
-        fPassword->setText(account.password);
+        fPassword->setText(account.password());
 
-    } else if (account.userType == Qws::UserTypeGroup) {
+    } else if (account.type() == Qws::UserTypeGroup) {
         // Select no group when editing groups
         fGroup->setCurrentIndex(0);
     }
 
-    fAccountType->setCurrentIndex(account.userType);
+    fAccountType->setCurrentIndex(account.type());
 
     // Privileges
-    fGroupBasic->setEnabled(currentAccount.group.isEmpty());
-    fGroupLimits->setEnabled(currentAccount.group.isEmpty());
-    fGroupFiles->setEnabled(currentAccount.group.isEmpty());
-    fGroupAdmin->setEnabled(currentAccount.group.isEmpty());
+    fGroupBasic->setEnabled(currentAccount.groupName().isEmpty());
+    fGroupLimits->setEnabled(currentAccount.groupName().isEmpty());
+    fGroupFiles->setEnabled(currentAccount.groupName().isEmpty());
+    fGroupAdmin->setEnabled(currentAccount.groupName().isEmpty());
 
     // Basic Privileges
     fBasicGetUserInfo->setChecked(currentAccount.privileges() & Qws::PrivilegeGetUserInfo);

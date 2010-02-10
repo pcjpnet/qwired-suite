@@ -102,7 +102,7 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
                     fMessageView->setTextCursor(fMessageView->document()->rootFrame()->lastCursorPosition());
                     fMessageView->ensureCursorVisible();
                     // Let other parts of the program know that the user entered a message
-                    m_socket->sendPrivateMessage(session.userInfo.pUserID, fMessageInput->toPlainText());
+                    m_socket->sendPrivateMessage(session.userInfo.userId(), fMessageInput->toPlainText());
                     fMessageInput->clear();
                     return true;
                 }
@@ -119,7 +119,7 @@ bool QwcPrivateMessager::eventFilter(QObject *watched, QEvent *event)
 */
 void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QString message)
 {
-    if (sender.pUserID == 0) { return; }
+    if (sender.userId() == 0) { return; }
 
     QListWidgetItem *targetListItem = NULL;
     QTextDocument *targetDocument = NULL;
@@ -130,7 +130,7 @@ void QwcPrivateMessager::handleNewMessage(const QwcUserInfo &sender, const QStri
         if (!item) { continue; }
 
         QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
-        if (itemSession.userInfo.pUserID != sender.pUserID) { continue; }
+        if (itemSession.userInfo.userId() != sender.userId()) { continue; }
 
         targetListItem = item;
         targetDocument = itemSession.document;
@@ -288,7 +288,7 @@ void QwcPrivateMessager::handleUserChanged(QwcUserInfo previous, QwcUserInfo cur
         if (!item) { continue; }
 
         QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
-        if (itemSession.userInfo.pUserID != current.pUserID) { continue; }
+        if (itemSession.userInfo.userId() != current.userId()) { continue; }
 
         itemSession.userInfo = current;
         item->setData(Qt::UserRole, QVariant::fromValue(itemSession));
@@ -309,9 +309,9 @@ void QwcPrivateMessager::handleUserLeft(int chatId, QwcUserInfo user)
         if (!item) { continue; }
 
         QwcPrivateMessagerSession itemSession = item->data(Qt::UserRole).value<QwcPrivateMessagerSession>();
-        if (itemSession.userInfo.pUserID != user.pUserID) { continue; }
+        if (itemSession.userInfo.userId() != user.userId()) { continue; }
         itemSession.inactive = true;
-        itemSession.userInfo.userNickname = tr("%1 [user left]").arg(itemSession.userInfo.userNickname);
+        itemSession.userInfo.setNickname(tr("%1 [user left]").arg(itemSession.userInfo.nickname()));
         item->setData(Qt::UserRole, QVariant::fromValue(itemSession));
         fMessageList->update();
 

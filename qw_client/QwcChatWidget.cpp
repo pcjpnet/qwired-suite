@@ -136,14 +136,14 @@ bool QwcChatWidget::eventFilter(QObject *watched, QEvent *event)
                     int itemUserId = i.next();
                     const QwcUserInfo &targetUser = m_socket->users()[itemUserId];
                     // Check if the nickname starts with the entered seach terms and auto-complete.
-                    if (targetUser.userNickname.startsWith(searchTerm, Qt::CaseInsensitive)) {
+                    if (targetUser.nickname().startsWith(searchTerm, Qt::CaseInsensitive)) {
                         if (textCursor.selectionStart() == 0) {
                             // If the target nickname is entered first, we should add a colon.
-                            textCursor.insertText(targetUser.userNickname + ": ");
+                            textCursor.insertText(targetUser.nickname() + ": ");
                         } else {
                             // Otherwise the user might be using the target nickname in a
                             // conversation.
-                            textCursor.insertText(targetUser.userNickname);
+                            textCursor.insertText(targetUser.nickname());
                         }
                         break;
                     }
@@ -209,7 +209,7 @@ void QwcChatWidget::handleSocketPrivateChatDeclined(int chatId, const QwcUserInf
 {
     if (chatId != m_chatId) { return; }
 
-    writeEventToChat(tr("%1 declined the invitation to a private chat").arg(user.userNickname));
+    writeEventToChat(tr("%1 declined the invitation to a private chat").arg(user.nickname()));
 }
 
 
@@ -340,7 +340,7 @@ void QwcChatWidget::on_btnInvite_clicked()
 
     const QwRoom &publicRoom = m_socket->chatRooms()[Qwc::PUBLIC_CHAT];
     foreach (int id, publicRoom.pUsers) {
-        QAction *action = menu.addAction(m_socket->users()[id].userNickname);
+        QAction *action = menu.addAction(m_socket->users()[id].nickname());
         action->setIcon(QPixmap::fromImage(m_socket->users()[id].userImage()));
         action->setData(id);
     }
@@ -368,9 +368,9 @@ void QwcChatWidget::on_btnKick_clicked()
     bool ok;
     QString reason = QInputDialog::getText(this, tr("Kick User"),
                         tr("You are about to disconnect '%1'.\nPlease enter a reason and press OK.")
-                        .arg(target.userNickname), QLineEdit::Normal, "", &ok);
+                        .arg(target.nickname()), QLineEdit::Normal, "", &ok);
     if (!ok) { return; }
-    m_socket->kickClient(target.pUserID, reason);
+    m_socket->kickClient(target.userId(), reason);
 }
 
 
@@ -382,9 +382,9 @@ void QwcChatWidget::on_btnBan_clicked()
     bool ok;
     QString reason = QInputDialog::getText(this, tr("Kick"),
                                            tr("You are about to ban '%1'.\nPlease enter a reason and press OK.")
-                                           .arg(target.userNickname), QLineEdit::Normal, "", &ok);
+                                           .arg(target.nickname()), QLineEdit::Normal, "", &ok);
     if (!ok) { return; }
-    m_socket->banClient(target.pUserID, reason);
+    m_socket->banClient(target.userId(), reason);
 }
 
 
@@ -392,7 +392,7 @@ void QwcChatWidget::on_btnInformation_clicked()
 {
     if (!userListWidget->selectedUsers().count()) { return; }
     QwcUserInfo target = userListWidget->selectedUsers().first();
-    m_socket->getClientInformation(target.pUserID);
+    m_socket->getClientInformation(target.userId());
 }
 
 
@@ -400,7 +400,7 @@ void QwcChatWidget::on_btnChat_clicked()
 {
     if (!userListWidget->selectedUsers().count()) { return; }
     QwcUserInfo target = userListWidget->selectedUsers().first();
-    m_socket->createChatWithClient(target.pUserID);
+    m_socket->createChatWithClient(target.userId());
 }
 
 
