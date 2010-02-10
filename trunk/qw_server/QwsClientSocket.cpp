@@ -46,7 +46,7 @@ QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
 
 QwsClientSocket::~QwsClientSocket()
 {
-    qDebug() << "[qws] Destroying"<<user.pUserID;
+    qDebug() << "[qws] Destroying"<<user.userId();
 }
 
 
@@ -67,8 +67,8 @@ Qws::SessionState QwsClientSocket::sessionState() const
  */
 void QwsClientSocket::idleTimerTriggered()
 {
-    if (user.pIdle) { return; }
-    user.pIdle = true;
+    if (user.isIdle()) { return; }
+    user.setIdle(true);
     emit userStatusChanged();
 }
 
@@ -80,8 +80,8 @@ void QwsClientSocket::resetIdleTimer()
 {
     pIdleTimer->start();
     user.pIdleTime = QDateTime::currentDateTime();
-    if (!user.pIdle) { return; }
-    user.pIdle = false;
+    if (!user.isIdle()) { return; }
+    user.setIdle(false);
     emit userStatusChanged();
 }
 
@@ -214,8 +214,7 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
  void QwsClientSocket::handleMessageNICK(const QwMessage &message)
  {
      resetIdleTimer();
-     qDebug() << this << "Received user nickname.";
-     user.userNickname = message.stringArg(0);
+     user.setNickname(message.stringArg(0));
      if (m_sessionState == Qws::StateActive) {
          emit userStatusChanged();
      }
@@ -229,24 +228,24 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
  */
  void QwsClientSocket::handleMessagePASS(const QwMessage &message)
  {
-     if (m_sessionState == Qws::StateConnected && !user.userNickname.isEmpty()) {
+     if (m_sessionState == Qws::StateConnected && !user.nickname().isEmpty()) {
          // We need a handshake first and a nickname. Send the client the session id of its own
          // session and proceed.
-         user.password = message.stringArg(0);
+         user.setCryptedPassword(message.stringArg(0));
          user.pLoginTime = QDateTime::currentDateTime();
          user.pIdleTime = QDateTime::currentDateTime();
 
-         if (m_serverController->hook_readUser(user)) {
-             // Login successful
-             QwMessage reply("201");
-             reply.appendArg(QString::number(user.pUserID));
-             sendMessage(reply);
-
-             m_sessionState = Qws::StateActive;
-             emit sessionStateChanged(m_sessionState);
-             emit requestedRoomTopic(1);
-             return;
-         }
+//         if (m_serverController->hook_readUser(user)) {
+//             // Login successful
+//             QwMessage reply("201");
+//             reply.appendArg(QString::number(user.pUserID));
+//             sendMessage(reply);
+//
+//             m_sessionState = Qws::StateActive;
+//             emit sessionStateChanged(m_sessionState);
+//             emit requestedRoomTopic(1);
+//             return;
+//         }
      }
 
      // If in doubt, fail
@@ -260,9 +259,9 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
  */
  void QwsClientSocket::handleMessageUSER(const QwMessage &message)
  {
-     user.login = message.stringArg(0);
-     if (user.login.isEmpty()) {
-         user.login = "guest";
+     user.setLoginName(message.stringArg(0));
+     if (user.loginName().isEmpty()) {
+         user.setLoginName("guest");
      }
  }
 
@@ -279,7 +278,7 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
  {
      resetIdleTimer();
      qDebug() << this << "Received user status:" << message.stringArg(0);
-     user.userStatus = message.stringArg(0);
+     user.setStatus(message.stringArg(0));
      if (m_sessionState == Qws::StateActive) {
          emit userStatusChanged();
      }
@@ -312,7 +311,7 @@ void QwsClientSocket::handleMessageICON(const QwMessage &message)
     if (message.arguments.value(1) != user.pImage) {
         user.pImage = message.arguments.value(1).toAscii();
         QwMessage reply("340");
-        reply.appendArg(QString::number(user.pUserID));
+        reply.appendArg(QString::number(user.userId()));
         reply.appendArg(message.arguments.value(1));
         if (m_sessionState == Qws::StateActive) {
             emit broadcastedMessage(reply, 1, true);
@@ -396,7 +395,7 @@ void QwsClientSocket::handleMessageBROADCAST(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeSendBroadcast)) {
         sendError(Qw::ErrorPermissionDenied); return; }
     QwMessage reply("309");
-    reply.appendArg(QString::number(user.pUserID));
+    reply.appendArg(QString::number(user.userId()));
     reply.appendArg(message.stringArg(0));
     emit broadcastedMessage(reply, 1, true);
 }
@@ -652,12 +651,12 @@ void QwsClientSocket::handleMessageREADUSER(const QwMessage &message)
 
     qDebug() << this << "Reading user" << message.stringArg(0);
     QwsUser targetAccount;
-    targetAccount.login = message.stringArg(0);
+    targetAccount.setLoginName(message.stringArg(0));
     if (targetAccount.loadFromDatabase()) {
         QwMessage reply("600");
-        reply.appendArg(targetAccount.login);
-        reply.appendArg(targetAccount.password);
-        reply.appendArg(targetAccount.group);
+        reply.appendArg(targetAccount.loginName());
+        reply.appendArg(targetAccount.password());
+        reply.appendArg(targetAccount.groupName());
         targetAccount.appendPrivilegeFlagsForREADUSER(reply);
         sendMessage(reply);
     } else {
@@ -676,18 +675,18 @@ void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
 
     qDebug() << this << "Editing user" << message.stringArg(0);
     QwsUser targetAccount;
-    targetAccount.login = message.stringArg(0);
+    targetAccount.setLoginName(message.stringArg(0));
     if (!targetAccount.loadFromDatabase()) {
         // User does not exist (or error)
         sendError(Qw::ErrorAccountNotFound);
     } else {
         targetAccount.setPrivilegesFromEDITUSER(message, 3);
-        targetAccount.password = message.stringArg(1);
-        targetAccount.group = message.stringArg(2);
+        targetAccount.setCryptedPassword(message.stringArg(1));
+        targetAccount.setGroupName(message.stringArg(2));
         if (!targetAccount.writeToDatabase()) {
             sendError(Qw::ErrorAccountNotFound);
         } else {
-            emit modifiedUserAccount(targetAccount.login);
+            emit modifiedUserAccount(targetAccount.loginName());
         }
 
     }
@@ -733,7 +732,7 @@ void QwsClientSocket::handleMessageDELETEUSER(const QwMessage &message)
 
     qDebug() << this << "Editing user" << message.stringArg(0);
     QwsUser targetAccount;
-    targetAccount.login = message.stringArg(0);
+    targetAccount.setLoginName(message.stringArg(0));
     if (!targetAccount.deleteFromDatabase()) {
         sendError(Qw::ErrorAccountNotFound);
     }
@@ -750,13 +749,13 @@ void QwsClientSocket::handleMessageREADGROUP(const QwMessage &message)
 
     qDebug() << this << "Reading group" << message.stringArg(0);
     QwsUser targetGroup;
-    targetGroup.login = message.stringArg(0);
-    targetGroup.userType = Qws::UserTypeGroup;
+    targetGroup.setLoginName(message.stringArg(0));
+    targetGroup.setType(Qws::UserTypeGroup);
     if (!targetGroup.loadFromDatabase()) {
         sendError(Qw::ErrorAccountNotFound);
     } else {
          QwMessage reply("601");
-         reply.appendArg(targetGroup.login);
+         reply.appendArg(targetGroup.loginName());
          targetGroup.appendPrivilegeFlagsForREADUSER(reply);
          sendMessage(reply);
     }

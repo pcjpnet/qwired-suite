@@ -1,23 +1,22 @@
 #include "QwUser.h"
 
-#include <QCryptographicHash>
+#include <QtCore/QCryptographicHash>
 
 QwUser::QwUser()
 {
-	pUserID = 0;
-	pIdle = false;
-	pAdmin = false;
-	pIcon = 0;
-        userType = Qws::UserTypeAccount;
+    m_userId = -1;
+    m_idleFlag = false;
+    pIcon = 0;
+    m_type = Qws::UserTypeAccount;
 
-	// Default privs
-        m_privileges = Qws::PrivilegeGetUserInfo | Qws::PrivilegePostNews
-                       | Qws::PrivilegeDownload | Qws::PrivilegeUpload;
+    // Default privs
+    m_privileges = Qws::PrivilegeGetUserInfo | Qws::PrivilegePostNews
+                   | Qws::PrivilegeDownload | Qws::PrivilegeUpload;
 
-	privDownloadSpeed = 0;
-	privUploadSpeed = 0;
-	privDownloadLimit = 0;
-	privUploadLimit = 0;
+    privDownloadSpeed = 0;
+    privUploadSpeed = 0;
+    privDownloadLimit = 0;
+    privUploadLimit = 0;
 }
 
 
@@ -84,18 +83,61 @@ QString QwUser::privilegesFlagsAsQwiredSpec()
 }
 
 
-/*! This method returns the user's cleartext password as a SHA-1 hash.
-*/
-QString QwUser::cryptedPassword()
+int QwUser::userId() const
+{ return m_userId; }
+
+void QwUser::setUserId(int id)
+{ m_userId = id; }
+
+QString QwUser::loginName() const
+{ return m_login; }
+
+void QwUser::setLoginName(const QString &login)
+{ m_login = login; }
+
+QString QwUser::groupName() const
+{ return m_group; }
+
+void QwUser::setGroupName(const QString &group)
+{ m_group = group; }
+
+QString QwUser::nickname() const
+{ return m_nickname; }
+
+void QwUser::setNickname(const QString &name)
+{ m_nickname = name; }
+
+QString QwUser::status() const
+{ return m_status; }
+
+void QwUser::setStatus(const QString &status)
+{ m_status = status; }
+
+Qws::UserType QwUser::type() const
+{ return m_type; }
+
+void QwUser::setType(Qws::UserType type)
+{ m_type = type; }
+
+bool QwUser::isIdle() const
+{ return m_idleFlag; }
+
+void QwUser::setIdle(bool flag)
+{ m_idleFlag = flag; }
+
+bool QwUser::isAdmin() const
+{ return m_privileges & Qws::PrivilegeKickUsers || m_privileges & Qws::PrivilegeBanUsers; }
+
+QString QwUser::password() const
+{ return m_password; }
+
+void QwUser::setCryptedPassword(const QString &password)
+{ m_password = password; }
+
+void QwUser::setCleartextPassword(const QString &password)
 {
-    if (password.isEmpty()) {
-        return QString();
-    }
-    QByteArray hashedBinaryData = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1);
-    return QString::fromUtf8(hashedBinaryData.toHex());
+    m_password = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
 }
-
-
 
 Qws::Privileges QwUser::privileges() const
 { return m_privileges; }

@@ -398,9 +398,9 @@ void QwcSession::handleSocketChatMessage(int chatId, int userId, const QString &
 
     // Trigger the event
     QStringList eventParams;
-    eventParams << sender.userNickname;
+    eventParams << sender.nickname();
     if (isEmote) {
-        eventParams << QString("*** %1 %2").arg(sender.userNickname).arg(text);
+        eventParams << QString("*** %1 %2").arg(sender.nickname()).arg(text);
     } else {
         eventParams << text;
     }
@@ -423,7 +423,7 @@ void QwcSession::handleSocketChatMessage(int chatId, int userId, const QString &
 */
 void QwcSession::handleUserInformation(QwcUserInfo user)
 {
-    QString widgetName = QString("UserInfo_%1").arg(user.pUserID);
+    QString widgetName = QString("UserInfo_%1").arg(user.userId());
     QwcUserInfoWidget *infoWidget = m_mainWindow->findChild<QwcUserInfoWidget*>(widgetName);
 
     if (!infoWidget) {
@@ -434,7 +434,7 @@ void QwcSession::handleUserInformation(QwcUserInfo user)
     if (!infoWidget) { return; }
 
     if (m_connectionTabWidget->indexOf(infoWidget) == -1) {
-        int index = m_connectionTabWidget->addTab(infoWidget, user.userNickname);
+        int index = m_connectionTabWidget->addTab(infoWidget, user.nickname());
         m_connectionTabWidget->setCurrentIndex(index);
     } else {
         m_connectionTabWidget->setCurrentWidget(infoWidget);
@@ -449,7 +449,7 @@ void QwcSession::handleSocketChatInvitation(int chatId, QwcUserInfo inviter)
     messageBox.setWindowTitle(tr("Private Chat Invitation"));
     messageBox.setText(tr("%1 has invited you to a private chat.\n"
                           "Join to open a separate private chat with %1.")
-                       .arg(inviter.userNickname) );
+                       .arg(inviter.nickname()) );
     messageBox.setIconPixmap(QPixmap(":/icons/btn_chat.png"));
     QAbstractButton *rejectButton = messageBox.addButton(tr("Reject"), QMessageBox::RejectRole);
     QAbstractButton *joinButton = messageBox.addButton(tr("Join"), QMessageBox::AcceptRole);
@@ -548,25 +548,25 @@ void QwcSession::triggerEvent(QString event, QStringList params)
 void QwcSession::userJoined(int theChat, QwcUserInfo theUser)
 {
     if (theChat != Qwc::PUBLIC_CHAT) { return; }
-    triggerEvent("UserJoined", QStringList() << theUser.userNickname);
+    triggerEvent("UserJoined", QStringList() << theUser.nickname());
 }
 
 
 void QwcSession::userLeft(int theChat, QwcUserInfo theUser)
 {
     if (theChat != Qwc::PUBLIC_CHAT) { return; }
-    triggerEvent("UserLeft", QStringList() << theUser.userNickname);
+    triggerEvent("UserLeft", QStringList() << theUser.nickname());
 }
 
 
 void QwcSession::userChanged(QwcUserInfo theOld, QwcUserInfo theNew)
 {
-    if (theOld.userNickname != theNew.userNickname) {
-        triggerEvent("UserChangedNick", QStringList() << theOld.userNickname << theNew.userNickname);
+    if (theOld.nickname() != theNew.nickname()) {
+        triggerEvent("UserChangedNick", QStringList() << theOld.nickname() << theNew.nickname());
     }
 
-    if (theOld.userStatus != theNew.userStatus) {
-        triggerEvent("UserChangedStatus", QStringList() << theNew.userNickname << theNew.userStatus);
+    if (theOld.status() != theNew.status()) {
+        triggerEvent("UserChangedStatus", QStringList() << theNew.nickname() << theNew.status());
     }
 }
 
@@ -581,7 +581,7 @@ void QwcSession::newsPosted(QString nickname, QDateTime time, QString post)
 void QwcSession::handleBroadcastMessage(QwcUserInfo theUser, QString theMessage)
 {
     Q_ASSERT(m_publicChat);
-    triggerEvent("BroadcastMessageReceived", QStringList() << theUser.userNickname << theMessage);
+    triggerEvent("BroadcastMessageReceived", QStringList() << theUser.nickname() << theMessage);
 }
 
 
@@ -591,10 +591,10 @@ void QwcSession::handleBroadcastMessage(QwcUserInfo theUser, QString theMessage)
 void QwcSession::reloadPreferences()
 {
     QSettings settings;
-    if (m_socket->sessionUser().userNickname != settings.value("general/nickname", tr("Unnamed")).toString()) {
+    if (m_socket->sessionUser().nickname() != settings.value("general/nickname", tr("Unnamed")).toString()) {
         m_socket->setNickname(settings.value("general/nickname").toString());
     }
-    if (m_socket->sessionUser().userStatus != settings.value("general/status", tr("Qwired Newbie")).toString()) {
+    if (m_socket->sessionUser().status() != settings.value("general/status", tr("Qwired Newbie")).toString()) {
         m_socket->setUserStatus(settings.value("general/status").toString());
     }
     QPixmap newIcon = settings.value("general/icon", QPixmap(":/icons/qwired_logo_32.png")).value<QPixmap>();

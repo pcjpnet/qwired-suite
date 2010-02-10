@@ -93,7 +93,7 @@ bool QwsServerController::loadConfiguration()
 */
 QwsUser QwsServerController::hook_readUser(const QString &login)
 {
-    if (!m_lua) { return false; }
+    if (!m_lua) { return QwsUser(); }
     bool loginResult = false;
 
     QwsUser userInfo;
@@ -134,13 +134,13 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
         const QString key = QString::fromUtf8(lua_tostring(m_lua, -2));
         bool flag = lua_toboolean(m_lua, -1);
         if (key == "user_group") {
-            userInfo.group = QString::fromUtf8(lua_tostring(m_lua, -1));
+            userInfo.setGroupName(QString::fromUtf8(lua_tostring(m_lua, -1)));
         } else if (key == "download_speed_limit") {
             userInfo.privDownloadSpeed = lua_tointeger(m_lua, -1);
         } else if (key == "upload_speed_limit") {
             userInfo.privUploadSpeed = lua_tointeger(m_lua, -1);
         } else if (key == "user_password") {
-            userInfo.password = QString::fromUtf8(lua_tostring(m_lua, -1));
+            userInfo.setCryptedPassword(QString::fromUtf8(lua_tostring(m_lua, -1)));
         } else if (key == "p_get_user_info" && flag) {
             privs |= Qws::PrivilegeGetUserInfo;
         } else if (key == "p_send_broadcast" && flag) {
@@ -184,7 +184,7 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
         }
         lua_pop(m_lua, 1); // value
     }
-    user.setPrivileges(privs);
+    userInfo.setPrivileges(privs);
 
     return userInfo;
 }
@@ -449,13 +449,13 @@ void QwsServerController::acceptSessionSslConnection()
     QwsClientSocket *clientSocket = new QwsClientSocket(this);
     clientSocket->setServerController(this);
     clientSocket->serverInfo = &m_serverInformation;
-    clientSocket->user.pUserID = ++sessionIdCounter;
+    clientSocket->user.setUserId(++sessionIdCounter);
     clientSocket->setSslSocket(newSocket);
     clientSocket->user.userIpAddress = clientSocket->socket()->peerAddress().toString();
     clientSocket->resolveHostname();
 
     qwLog(tr("[%1] Accepted new session connection from %2")
-          .arg(clientSocket->user.pUserID)
+          .arg(clientSocket->user.userId())
           .arg(newSocket->peerAddress().toString()));
 
     connect(clientSocket, SIGNAL(connectionLost()),
@@ -506,7 +506,7 @@ void QwsServerController::acceptSessionSslConnection()
 
     clientSocket->filesRootPath =  getConfig("files_root", "files").toString();
 
-    m_sockets[clientSocket->user.pUserID] = clientSocket;
+    m_sockets[clientSocket->user.userId()] = clientSocket;
 }
 
 
@@ -518,7 +518,7 @@ void QwsServerController::handleSocketDisconnected()
     QwsClientSocket *client = qobject_cast<QwsClientSocket*>(sender());
     if (!client) { return; }
 
-    qwLog(tr("%1 [%2] has disconnected.").arg(client->user.userNickname).arg(client->user.pUserID));
+    qwLog(tr("%1 [%2] has disconnected.").arg(client->user.nickname()).arg(client->user.userId()));
 
     // Remove the user from the chat rooms
     QHashIterator<int, QwRoom*> i(rooms);
@@ -526,26 +526,26 @@ void QwsServerController::handleSocketDisconnected()
     while (i.hasPrevious()) {
         i.previous();
         QwRoom *itemRoom = i.value();
-        if (itemRoom && itemRoom->pUsers.contains(client->user.pUserID)) {
-            removeUserFromRoom(i.key(), client->user.pUserID);
+        if (itemRoom && itemRoom->pUsers.contains(client->user.userId())) {
+            removeUserFromRoom(i.key(), client->user.userId());
         }
     }
 
     // Delete all transfers
-    int deletedTransfers = transferPool->deleteTransfersWithUserId(client->user.pUserID);
+    int deletedTransfers = transferPool->deleteTransfersWithUserId(client->user.userId());
     qDebug() << this << "Removed transfers from pool:" << deletedTransfers;
     QListIterator<QPointer<QwsClientTransferSocket> > j(transferSockets);
     while (j.hasNext()) {
         QPointer<QwsClientTransferSocket> socket = j.next();
         if (socket.isNull()) { continue; }
-        if (socket->info().targetUserId == client->user.pUserID) {
+        if (socket->info().targetUserId == client->user.userId()) {
             qDebug() << this << "Aborting transfer" << socket;
             socket->abortTransfer();
         }
     }
 
     // Remove the client from the list of clients
-    m_sockets.remove(client->user.pUserID);
+    m_sockets.remove(client->user.userId());
     sender()->deleteLater();
 }
 
@@ -558,11 +558,11 @@ void QwsServerController::handleSocketSessionStateChanged(const Qws::SessionStat
     if (!client) { return; }
     if (state == Qws::StateActive) {
         // Client became active (logged in)
-        addUserToRoom(1, client->user.pUserID);
+        addUserToRoom(1, client->user.userId());
         qwLog(tr("[%1] '%2' successfully logged in as [%3].")
-              .arg(client->user.pUserID)
-              .arg(client->user.userNickname)
-              .arg(client->user.login));
+              .arg(client->user.userId())
+              .arg(client->user.nickname())
+              .arg(client->user.loginName()));
     }
 }
 
@@ -596,7 +596,7 @@ void QwsServerController::handleMessageINFO(const int userId)
     QwMessage reply("308");
     target->user.userInfoEntry(reply);
 
-    QList<QwsClientTransferSocket*> transfers = this->transfersWithUserId(user->user.pUserID);
+    QList<QwsClientTransferSocket*> transfers = this->transfersWithUserId(user->user.userId());
     //QList<QwsTransferInfo> queuedTransfers = this->transferPool->findTransfersWithUserId(user->user.pUserID);
 
     // Transfers
@@ -772,7 +772,7 @@ void QwsServerController::relayChatToRoom(const int roomId, const QString text, 
     // Prepare the message
     QwMessage reply(isEmote ? "301 " : "300 ");
     reply.appendArg(QByteArray::number(roomId));
-    reply.appendArg(QByteArray::number(user->user.pUserID));
+    reply.appendArg(QByteArray::number(user->user.userId()));
     reply.appendArg(text);
 
     while (i.hasNext()) {
@@ -800,7 +800,7 @@ void QwsServerController::relayMessageToUser(const int userId, const QString tex
     if (m_sockets.contains(userId)) {
         QwsClientSocket *targetUser = m_sockets[userId];
         QwMessage reply("305");
-        reply.appendArg(QByteArray::number(user->user.pUserID));
+        reply.appendArg(QByteArray::number(user->user.userId()));
         reply.appendArg(text);
         targetUser->sendMessage(reply);
     } else {
@@ -854,7 +854,7 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
         return;
     }
     QwRoom *room = rooms[roomId];
-    if (!room->pUsers.contains(user->user.pUserID)) {
+    if (!room->pUsers.contains(user->user.userId())) {
         user->sendError(Qw::ErrorCommandFailed);
         return;
     }
@@ -865,8 +865,8 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
     // Notify everyone in the same room
     QwMessage reply("341");
     reply.appendArg(QString::number(roomId));
-    reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.login);
+    reply.appendArg(room->pTopicSetter.nickname());
+    reply.appendArg(room->pTopicSetter.loginName());
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -885,7 +885,7 @@ void QwsServerController::sendRoomTopic(const int roomId)
         return;
     }
     QwRoom *room = rooms[roomId];
-    if (!room->pUsers.contains(user->user.pUserID)) {
+    if (!room->pUsers.contains(user->user.userId())) {
         user->sendError(Qw::ErrorCommandFailed);
         return;
     }
@@ -893,8 +893,8 @@ void QwsServerController::sendRoomTopic(const int roomId)
     // Send the information
     QwMessage reply("341");
     reply.appendArg(QString::number(roomId));
-    reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.login);
+    reply.appendArg(room->pTopicSetter.nickname());
+    reply.appendArg(room->pTopicSetter.loginName());
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -912,10 +912,10 @@ void QwsServerController::createNewRoom()
 
     // Create a new room
     QwRoom *newRoom = new QwRoom;
-    newRoom->pTopic = tr("%1's Private Chat").arg(user->user.userNickname);
+    newRoom->pTopic = tr("%1's Private Chat").arg(user->user.nickname());
     newRoom->pTopicDate = QDateTime::currentDateTime();
     newRoom->pTopicSetter = user->user;
-    newRoom->pUsers.append(user->user.pUserID);
+    newRoom->pUsers.append(user->user.userId());
     newRoom->pChatId = ++roomIdCounter;
     rooms[newRoom->pChatId] = newRoom;
 
@@ -935,7 +935,7 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
     QwsClientSocket *user = qobject_cast<QwsClientSocket*>(sender());
     if (!user) { return; }
 
-    if (userId == user->user.pUserID) {
+    if (userId == user->user.userId()) {
         qDebug() << this << "User tried to invite himself to room" << roomId;
         user->sendError(Qw::ErrorCommandFailed);
         return;
@@ -953,9 +953,9 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
     }
     QwsClientSocket *targetUser = m_sockets[userId];
     QwRoom *room = rooms[roomId];
-    if (!room->pUsers.contains(user->user.pUserID)) {
+    if (!room->pUsers.contains(user->user.userId())) {
         user->sendError(Qw::ErrorPermissionDenied);
-        qDebug() << this << "User with id"<< user->user.pUserID<<"was not in room"<<roomId;
+        qDebug() << this << "User with id"<< user->user.userId()<<"was not in room"<<roomId;
         return;
     }
     if (room->pInvitedUsers.contains(userId)) {
@@ -969,15 +969,15 @@ void QwsServerController::inviteUserToRoom(const int userId, const int roomId)
     // Notify users in the same room about the invitation
     QwMessage reply2("301");
     reply2.appendArg(QString::number(roomId));
-    reply2.appendArg(QString::number(user->user.pUserID));
+    reply2.appendArg(QString::number(user->user.userId()));
     reply2.appendArg(QString("invited %1 to join this room... [server]")
-                     .arg(m_sockets[userId]->user.userNickname));
+                     .arg(m_sockets[userId]->user.nickname()));
     broadcastMessage(reply2, roomId, true);
 
     // Send the invitation to the other user.
     QwMessage reply("331"); // 331 Private Chat Invitiation
     reply.appendArg(QString::number(roomId));
-    reply.appendArg(QString::number(user->user.pUserID));
+    reply.appendArg(QString::number(user->user.userId()));
     targetUser->sendMessage(reply);
 }
 
@@ -995,13 +995,13 @@ void QwsServerController::handleMessageJOIN(const int roomId)
     }
 
     QwRoom *room = rooms[roomId];
-    if (!room->pInvitedUsers.contains(user->user.pUserID)) {
+    if (!room->pInvitedUsers.contains(user->user.userId())) {
         qDebug() << this << "Unable to join channel"<<roomId<<" (user was not invited)";
         user->sendError(Qw::ErrorCommandFailed);
         return;
     }
-    room->pInvitedUsers.removeAll(user->user.pUserID);
-    room->pUsers.append(user->user.pUserID);
+    room->pInvitedUsers.removeAll(user->user.userId());
+    room->pUsers.append(user->user.userId());
 
     // Send the information back to the client
     QwMessage reply("302"); // 302 Client Join
@@ -1012,8 +1012,8 @@ void QwsServerController::handleMessageJOIN(const int roomId)
     // Send the client the chat topic
     reply = QwMessage("341");
     reply.appendArg(QString::number(room->pChatId));
-    reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.login);
+    reply.appendArg(room->pTopicSetter.nickname());
+    reply.appendArg(room->pTopicSetter.loginName());
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -1035,17 +1035,17 @@ void QwsServerController::handleMessageDECLINE(const int roomId)
     }
 
     QwRoom *room = rooms[roomId];
-    if (!room->pInvitedUsers.contains(user->user.pUserID)) {
+    if (!room->pInvitedUsers.contains(user->user.userId())) {
         qDebug() << this << "Unable to room invitation"<<roomId<<" (user was never invited)";
         user->sendError(Qw::ErrorCommandFailed);
         return;
     }
-    room->pInvitedUsers.removeAll(user->user.pUserID);
+    room->pInvitedUsers.removeAll(user->user.userId());
 
     // Notify the other users that this user declined.
     QwMessage reply("332");
     reply.appendArg(QString::number(roomId));
-    reply.appendArg(QString::number(user->user.pUserID));
+    reply.appendArg(QString::number(user->user.userId()));
     broadcastMessage(reply, roomId, true);
 }
 
@@ -1062,12 +1062,12 @@ void QwsServerController::handleMessageLEAVE(const int roomId)
         return;
     }
     QwRoom *room = rooms[roomId];
-    if (!room->pUsers.contains(user->user.pUserID)) {
+    if (!room->pUsers.contains(user->user.userId())) {
         qDebug() << this << "Unable to part user from room"<<roomId<<" (user was not in room)";
         user->sendError(Qw::ErrorCommandFailed);
         return;
     }
-    removeUserFromRoom(roomId, user->user.pUserID);
+    removeUserFromRoom(roomId, user->user.userId());
 }
 
 
@@ -1093,7 +1093,7 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
     // Notify the other clients about this
     QwMessage reply(isBan ? "307" : "306");
     reply.appendArg(QString::number(userId));
-    reply.appendArg(QString::number(user->user.pUserID));
+    reply.appendArg(QString::number(user->user.userId()));
     reply.appendArg(reason);
     broadcastMessage(reply, 1, true);
 
@@ -1118,7 +1118,7 @@ void QwsServerController::handleModifiedUserAccount(const QString name)
         i.next();
         QwsClientSocket *item = i.value();
         if (!item) continue;
-        if (item->user.login == name) {
+        if (item->user.loginName() == name) {
             // Reload the account
             item->user.loadFromDatabase();
 
@@ -1133,7 +1133,7 @@ void QwsServerController::handleModifiedUserAccount(const QString name)
             broadcastMessage(reply, 1, true);
 
             // Update the transfer sockets, if any
-            QList<QwsClientTransferSocket*> transferSockets = this->transfersWithUserId(item->user.pUserID);
+            QList<QwsClientTransferSocket*> transferSockets = this->transfersWithUserId(item->user.userId());
             QListIterator<QwsClientTransferSocket*> it(transferSockets);
             while (it.hasNext()) {
                 QwsClientTransferSocket *transferSocket = it.next();
@@ -1163,7 +1163,7 @@ void QwsServerController::handleModifiedUserGroup(const QString name)
         i.next();
         QwsClientSocket *item = i.value();
         if (!item) continue;
-        if (item->user.group == name) {
+        if (item->user.groupName() == name) {
             // Reload the account
             item->user.loadFromDatabase();
 
@@ -1178,7 +1178,7 @@ void QwsServerController::handleModifiedUserGroup(const QString name)
             broadcastMessage(reply, 1, true);
 
             // Update the transfer sockets, if any
-            QList<QwsClientTransferSocket*> transferSockets = this->transfersWithUserId(item->user.pUserID);
+            QList<QwsClientTransferSocket*> transferSockets = this->transfersWithUserId(item->user.userId());
             QListIterator<QwsClientTransferSocket*> it(transferSockets);
             while (it.hasNext()) {
                 QwsClientTransferSocket *transferSocket = it.next();
@@ -1210,14 +1210,14 @@ void QwsServerController::handleMessageGET(const QwsFile file)
     transfer.type = Qw::TransferTypeDownload;
 //    transfer.offset = file.offset;
     transfer.transferSpeedLimit = user->user.privDownloadSpeed;
-    transfer.targetUserId = user->user.pUserID;
+    transfer.targetUserId = user->user.userId();
     transferPool->appendTransferToQueue(transfer);
 
     qwLog(tr("[%1] requested download of '%2' - assigned ID '%4'.")
-          .arg(user->user.pUserID)
+          .arg(user->user.userId())
           .arg(transfer.file.remotePath()).arg(transfer.hash));
 
-    checkTransferQueue(user->user.pUserID);
+    checkTransferQueue(user->user.userId());
 
 
 }
@@ -1237,15 +1237,15 @@ void QwsServerController::handleMessagePUT(const QwsFile file)
     transfer.type = Qw::TransferTypeUpload;
 //    transfer.offset = file.offset; // the size of the existing partial file
     transfer.transferSpeedLimit = user->user.privUploadSpeed;
-    transfer.targetUserId = user->user.pUserID;
+    transfer.targetUserId = user->user.userId();
     transferPool->appendTransferToQueue(transfer);
 
     qwLog(tr("[%1] requested upload of '%2' with ID '%3'.")
-          .arg(user->user.pUserID)
+          .arg(user->user.userId())
           .arg(transfer.file.remotePath())
           .arg(transfer.hash));
 
-    checkTransferQueue(user->user.pUserID);
+    checkTransferQueue(user->user.userId());
 }
 
 

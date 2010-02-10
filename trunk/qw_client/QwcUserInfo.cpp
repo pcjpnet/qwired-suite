@@ -17,14 +17,16 @@ QwcUserInfo QwcUserInfo::fromMessage308(const QwMessage *message)
 {
     int n = 0;
     QwcUserInfo user;
-    user.userType = Qws::UserTypeAccount;
+    user.setType(Qws::UserTypeAccount);
 
-    user.pUserID = message->stringArg(n++).toInt();
-    user.pIdle = message->stringArg(n++).toInt();
-    user.pAdmin = message->stringArg(n++).toInt();
+    user.setUserId(message->stringArg(n++).toInt());
+    user.setIdle(message->stringArg(n++).toInt());
+    if (message->stringArg(n++).toInt()) {
+        user.setPrivileges(Qws::PrivilegeKickUsers);
+    }
     user.pIcon = message->stringArg(n++).toInt();
-    user.userNickname = message->stringArg(n++);
-    user.login = message->stringArg(n++);
+    user.setNickname(message->stringArg(n++));
+    user.setLoginName(message->stringArg(n++));
     user.userIpAddress = message->stringArg(n++);
     user.userHostName = message->stringArg(n++);
     user.pClientVersion =message->stringArg(n++);
@@ -35,7 +37,7 @@ QwcUserInfo QwcUserInfo::fromMessage308(const QwMessage *message)
 
     user.parseTransfersFromData(message->stringArg(n++).toUtf8(), Qw::TransferTypeDownload);
     user.parseTransfersFromData(message->stringArg(n++).toUtf8(), Qw::TransferTypeUpload);
-    user.userStatus = message->stringArg(n++);
+    user.setStatus(message->stringArg(n++));
     user.setImageFromData(QByteArray::fromBase64(message->stringArg(10).toAscii()));
     return user;
 }
@@ -47,15 +49,17 @@ QwcUserInfo QwcUserInfo::fromMessage308(const QwMessage *message)
 QwcUserInfo QwcUserInfo::fromMessage310(const QwMessage *message)
 {
     QwcUserInfo user;
-    user.pUserID = message->stringArg(1).toInt();
-    user.pIdle = message->stringArg(2).toInt();
-    user.pAdmin = message->stringArg(3).toInt();
+    user.setUserId(message->stringArg(1).toInt());
+    user.setIdle(message->stringArg(2).toInt());
+    if (message->stringArg(3).toInt()) {
+        user.setPrivileges(Qws::PrivilegeKickUsers);
+    }
     user.pIcon = message->stringArg(4).toInt();
-    user.userNickname = message->stringArg(5);
-    user.login = message->stringArg(6);
+    user.setNickname(message->stringArg(5));
+    user.setLoginName(message->stringArg(6));
     user.userIpAddress = message->stringArg(7);
     user.userHostName = message->stringArg(8);
-    user.userStatus = message->stringArg(9);
+    user.setStatus(message->stringArg(9));
     user.setImageFromData(QByteArray::fromBase64(message->stringArg(10).toAscii()));
     return user;
 }
@@ -129,7 +133,7 @@ void QwcUserInfo::setPrivilegesFromMessage602(const QwMessage *message)
 void QwcUserInfo::appendPrivilegesFlags(QwMessage *message) const
 {
     // Don't set any flags if the user is part of a group.
-    if (userType == Qws::UserTypeAccount && !group.isEmpty()) {
+    if (type() == Qws::UserTypeAccount && !groupName().isEmpty()) {
         for (int i = 0; i < 23; i++) {
             message->appendArg(0);
         }
@@ -162,13 +166,6 @@ void QwcUserInfo::appendPrivilegesFlags(QwMessage *message) const
 }
 
 
-QString QwcUserInfo::cryptedPassword()
-{
-    if( password.isEmpty() )
-        return QString("");
-    QByteArray tmpDat = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1);
-    return QString::fromUtf8(tmpDat.toHex());
-}
 
 
 /*! Set the user image from PNG data and return true if the task was successful.

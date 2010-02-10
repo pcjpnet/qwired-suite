@@ -9,9 +9,10 @@
 
 
 namespace Qws {
-    enum UserType { UserTypeAccount,
-                    UserTypeGroup };
-
+    enum UserType {
+        UserTypeAccount,
+        UserTypeGroup
+    };
     enum Privilege {
         PrivilegeNoPrivileges = 0,
         PrivilegeGetUserInfo = 1,
@@ -36,7 +37,6 @@ namespace Qws {
     };
     Q_DECLARE_FLAGS(Privileges, Privilege);
 }
-
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qws::Privileges);
 
 
@@ -49,20 +49,39 @@ public:
     void setPrivilegesFromQwiredSpec(const QString privileges);
     QString privilegesFlagsAsQwiredSpec();
 
-    QString cryptedPassword();
+    int userId() const;
+    void setUserId(int id);
 
-    // Account parameters (mainly database)
-    QString login;
-    QString password;
-    QString group;
+    QString loginName() const;
+    void setLoginName(const QString &login);
+
+    QString groupName() const;
+    void setGroupName(const QString &group);
+
+    QString nickname() const;
+    void setNickname(const QString &name);
+
+    QString status() const;
+    void setStatus(const QString &status);
+
+    Qws::UserType type() const;
+    void setType(Qws::UserType type);
+
+    bool isIdle() const;
+    void setIdle(bool flag);
+
+    bool isAdmin() const;
+
+    QString password() const;
+    void setCryptedPassword(const QString &password);
+    void setCleartextPassword(const QString &password);
 
     // Runtime user information
-    bool pIdle;
-    bool pAdmin;
-    int pUserID;
+
+
     int pIcon; // warning: unused in 1.1
-    QString userNickname;
-    QString userStatus;
+
+
     QByteArray pImage;
     QString userIpAddress;
     QString userHostName;
@@ -75,7 +94,7 @@ public:
     QDateTime pIdleTime;
 
     // Privilege flags
-    Qws::UserType userType;
+
     int privDownloadSpeed;
     int privUploadSpeed;
     int privDownloadLimit;
@@ -87,7 +106,14 @@ public:
 
 protected:
     Qws::Privileges m_privileges;
-
+    QString m_login;
+    QString m_password;
+    QString m_group;
+    QString m_status;
+    QString m_nickname;
+    bool m_idleFlag;
+    Qws::UserType m_type;
+    int m_userId;
 };
 
 Q_DECLARE_METATYPE(QwUser);

@@ -79,7 +79,7 @@ void QwcUsersWidget::updateUsers()
     foreach (int userId, targetRoom.pUsers) {
         const QwcUserInfo &userInfo = m_socket->users()[userId];
         QListWidgetItem *item = new QListWidgetItem(this);
-        item->setData(Qt::UserRole, userInfo.pUserID);
+        item->setData(Qt::UserRole, userInfo.userId());
     }
 }
 
@@ -95,7 +95,7 @@ void QwcUsersWidget::handleUserJoined(int chatId, const QwcUserInfo &user)
 {
     if (chatId != m_chatId) { return; }
     QListWidgetItem *item = new QListWidgetItem(this);
-    item->setData(Qt::UserRole, user.pUserID);
+    item->setData(Qt::UserRole, user.userId());
 }
 
 
@@ -105,7 +105,7 @@ void QwcUsersWidget::handleUserLeft(int chatId, const QwcUserInfo &user)
     for (int i = 0; i < this->count(); i++) {
         QListWidgetItem *item = this->item(i);
         if (!item) { continue; }
-        if (item->data(Qt::UserRole).toInt() == user.pUserID) {
+        if (item->data(Qt::UserRole).toInt() == user.userId()) {
             this->takeItem(i);
             delete item;
             return;
@@ -120,7 +120,7 @@ void QwcUsersWidget::handleUserChanged(const QwcUserInfo &oldUser, const QwcUser
     for (int i = 0; i < this->count(); i++) {
         QListWidgetItem *item = this->item(i);
         if (!item) { continue; }
-        if (item->data(Qt::UserRole).toInt() == oldUser.pUserID) {
+        if (item->data(Qt::UserRole).toInt() == oldUser.userId()) {
             update(indexFromItem(item));
             return;
         }

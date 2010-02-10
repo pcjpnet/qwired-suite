@@ -17,10 +17,10 @@ QwcUserInfoWidget::~QwcUserInfoWidget()
 
 void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
 {
-    fStatus->setText( theUser.userStatus );
-    fNick->setText( theUser.userNickname );
-    fLogin->setText( theUser.login );
-    fID->setText( QString::number(theUser.pUserID) );
+    fStatus->setText( theUser.status() );
+    fNick->setText( theUser.nickname() );
+    fLogin->setText( theUser.loginName());
+    fID->setText( QString::number(theUser.userId()) );
     fAddress->setText( theUser.userIpAddress );
     fHost->setText( theUser.userHostName );
     fVersion->setText( theUser.pClientVersion );
@@ -30,8 +30,8 @@ void QwcUserInfoWidget::setUser(QwcUserInfo theUser)
 
     fIcon->setPixmap(QPixmap::fromImage(theUser.userImage()));
 
-    setWindowTitle(tr("User Information: %1").arg(theUser.userNickname));
-    pUserID = theUser.pUserID;
+    setWindowTitle(tr("User Information: %1").arg(theUser.nickname()));
+    pUserID = theUser.userId();
     loadTransfers(theUser);
 
 }

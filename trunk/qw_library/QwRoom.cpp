@@ -12,7 +12,7 @@ QwRoom::QwRoom()
     pChatId = 0;
     pTopic = "(no topic)";
     pTopicDate = QDateTime::currentDateTime().toTimeSpec(Qt::UTC);
-    pTopicSetter.userNickname = "Qwired";
+    pTopicSetter.setNickname("Qwired");
 }
 
 QwRoom::~QwRoom()

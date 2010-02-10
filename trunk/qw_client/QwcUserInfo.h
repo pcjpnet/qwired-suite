@@ -27,7 +27,6 @@ public:
 
     void setPrivilegesFromMessage602(const QwMessage *message);
     void appendPrivilegesFlags(QwMessage *message) const;
-    QString cryptedPassword();
 
     bool setImageFromData(const QByteArray data);
     const QImage & userImage() const;

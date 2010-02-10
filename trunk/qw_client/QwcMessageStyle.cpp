@@ -90,14 +90,14 @@ bool QwcMessageStyle::addChatMessage(QWebFrame *frame, const QwUser &user, const
                                                      .toString(Qt::SystemLocaleShortDate));
         chatItem.findFirst(".emote_date").setInnerXml(QDate::currentDate()
                                                      .toString(Qt::SystemLocaleShortDate));
-        chatItem.findFirst(".emote_sender").setInnerXml(Qt::escape(user.userNickname));
+        chatItem.findFirst(".emote_sender").setInnerXml(Qt::escape(user.nickname()));
         chatItem.findFirst(".emote_text").setInnerXml(text);
     } else {
         chatItem.findFirst(".chat_time").setInnerXml(QTime::currentTime()
                                                      .toString(Qt::SystemLocaleShortDate));
         chatItem.findFirst(".chat_date").setInnerXml(QDate::currentDate()
                                                      .toString(Qt::SystemLocaleShortDate));
-        chatItem.findFirst(".chat_sender").setInnerXml(Qt::escape(user.userNickname));
+        chatItem.findFirst(".chat_sender").setInnerXml(Qt::escape(user.nickname()));
         chatItem.findFirst(".chat_text").setInnerXml(text);
     }
 
@@ -136,7 +136,7 @@ bool QwcMessageStyle::addBroadcastMessage(QWebFrame *frame, const QwUser &user, 
     // Fill the new item with contents
     QWebElement chatItem = templateElement.clone();
     chatItem.removeAttribute("id");
-    chatItem.findFirst(".broadcast_sender").setInnerXml(Qt::escape(user.userNickname));
+    chatItem.findFirst(".broadcast_sender").setInnerXml(Qt::escape(user.nickname()));
     chatItem.findFirst(".broadcast_text").setInnerXml(Qt::escape(text));
     chatItem.findFirst(".broadcast_time").setInnerXml(QTime::currentTime()
                                                            .toString(Qt::SystemLocaleShortDate));

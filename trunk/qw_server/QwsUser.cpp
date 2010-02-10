@@ -54,8 +54,8 @@ void QwsUser::privilegesFlags(QwMessage &message) const
 */
 void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
 {
-    message.appendArg(QString::number(pUserID));
-    message.appendArg(QString::number(pIdle));
+    message.appendArg(QString::number(userId()));
+    message.appendArg(QString::number(isIdle()));
     if (m_privileges.testFlag(Qws::PrivilegeKickUsers)
         || m_privileges.testFlag(Qws::PrivilegeBanUsers)) {
         message.appendArg(1);
@@ -63,11 +63,11 @@ void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
         message.appendArg(0);
     }
     message.appendArg(QString::number(pIcon));
-    message.appendArg(userNickname);
-    message.appendArg(login);
+    message.appendArg(m_nickname);
+    message.appendArg(m_login);
     message.appendArg(userIpAddress);
     message.appendArg(userHostName);
-    message.appendArg(userStatus);
+    message.appendArg(m_status);
     message.appendArg(emptyUserImage ? QByteArray() : pImage);
 }
 
@@ -76,8 +76,8 @@ void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
 */
 void QwsUser::userStatusEntry(QwMessage &message) const
 {
-    message.appendArg(QString::number(pUserID));
-    message.appendArg(QString::number(pIdle));
+    message.appendArg(QString::number(userId()));
+    message.appendArg(QString::number(isIdle()));
     if (m_privileges.testFlag(Qws::PrivilegeKickUsers)
         || m_privileges.testFlag(Qws::PrivilegeBanUsers)) {
         message.appendArg(1);
@@ -85,8 +85,8 @@ void QwsUser::userStatusEntry(QwMessage &message) const
         message.appendArg(0);
     }
     message.appendArg(QString::number(pIcon)); // icon, unused since 1.1
-    message.appendArg(userNickname);
-    message.appendArg(userStatus);
+    message.appendArg(m_nickname);
+    message.appendArg(m_status);
 }
 
 
@@ -94,8 +94,8 @@ void QwsUser::userStatusEntry(QwMessage &message) const
 */
 void QwsUser::userInfoEntry(QwMessage &message) const
 {
-    message.appendArg(QString::number(pUserID));
-    message.appendArg(pIdle ? 1 : 0);
+    message.appendArg(QString::number(userId()));
+    message.appendArg(isIdle() ? 1 : 0);
     if (m_privileges.testFlag(Qws::PrivilegeBanUsers)
         || m_privileges.testFlag(Qws::PrivilegeBanUsers)) {
         message.appendArg(1);
@@ -103,8 +103,8 @@ void QwsUser::userInfoEntry(QwMessage &message) const
         message.appendArg(0);
     }
     message.appendArg(QString::number(pIcon));
-    message.appendArg(userNickname);
-    message.appendArg(login);
+    message.appendArg(m_nickname);
+    message.appendArg(m_login);
     message.appendArg(userIpAddress);
     message.appendArg(userHostName);
 
@@ -115,7 +115,7 @@ void QwsUser::userInfoEntry(QwMessage &message) const
     message.appendArg(pIdleTime.toUTC().toString(Qt::ISODate)+"+00:00");
     message.appendArg(QString()); // downloads - filled in later
     message.appendArg(QString()); // uploads - filled in later
-    message.appendArg(userStatus);
+    message.appendArg(m_status);
     message.appendArg(pImage);
 
 }
@@ -129,7 +129,7 @@ void QwsUser::userInfoEntry(QwMessage &message) const
 */
 bool QwsUser::loadFromDatabase()
 {
-    qDebug() << this << "Reading properties for account/group" << login;
+    qDebug() << this << "Reading properties for account/group" << m_login;
 
 //    QSqlQuery query;
 //    if (userType == Qws::UserTypeAccount) {
