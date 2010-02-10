@@ -24,7 +24,8 @@ QwcUserInfo QwcUserInfo::fromMessage308(const QwMessage *message)
     if (message->stringArg(n++).toInt()) {
         user.setPrivileges(Qws::PrivilegeKickUsers);
     }
-    user.pIcon = message->stringArg(n++).toInt();
+//    user.setI= message->stringArg(n++).toInt();
+    n++;
     user.setNickname(message->stringArg(n++));
     user.setLoginName(message->stringArg(n++));
     user.userIpAddress = message->stringArg(n++);
@@ -54,7 +55,7 @@ QwcUserInfo QwcUserInfo::fromMessage310(const QwMessage *message)
     if (message->stringArg(3).toInt()) {
         user.setPrivileges(Qws::PrivilegeKickUsers);
     }
-    user.pIcon = message->stringArg(4).toInt();
+//    user.pIcon = message->stringArg(4).toInt();
     user.setNickname(message->stringArg(5));
     user.setLoginName(message->stringArg(6));
     user.userIpAddress = message->stringArg(7);

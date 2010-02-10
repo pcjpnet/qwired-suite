@@ -62,7 +62,7 @@ void QwsUser::userListEntry(QwMessage &message, bool emptyUserImage) const
     } else {
         message.appendArg(0);
     }
-    message.appendArg(QString::number(pIcon));
+    message.appendArg(0); // icon id
     message.appendArg(m_nickname);
     message.appendArg(m_login);
     message.appendArg(userIpAddress);
@@ -84,7 +84,7 @@ void QwsUser::userStatusEntry(QwMessage &message) const
     } else {
         message.appendArg(0);
     }
-    message.appendArg(QString::number(pIcon)); // icon, unused since 1.1
+    message.appendArg(0); // icon, unused since 1.1
     message.appendArg(m_nickname);
     message.appendArg(m_status);
 }
@@ -102,7 +102,7 @@ void QwsUser::userInfoEntry(QwMessage &message) const
     } else {
         message.appendArg(0);
     }
-    message.appendArg(QString::number(pIcon));
+    message.appendArg(0); // icon id
     message.appendArg(m_nickname);
     message.appendArg(m_login);
     message.appendArg(userIpAddress);

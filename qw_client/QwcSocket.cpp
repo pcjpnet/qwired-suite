@@ -248,7 +248,7 @@ void QwcSocket::handleMessage304(const QwMessage &message)
     if (message.stringArg(2).toInt()) {
         targetUser.setPrivileges(Qws::PrivilegeKickUsers);
     }
-    targetUser.pIcon = message.stringArg(3).toInt();
+//    targetUser.pIcon = message.stringArg(3).toInt();
     targetUser.setNickname(message.stringArg(4));
     targetUser.setStatus(message.stringArg(5));
     emit userChanged(targetUserOld, targetUser);
