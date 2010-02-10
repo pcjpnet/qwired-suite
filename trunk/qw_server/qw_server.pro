@@ -13,9 +13,7 @@ INCLUDEPATH += "/usr/local/include"
 
 
 win32:CONFIG += console
-QT += network \
-    xml \
-    sql
+QT += network
 
 
 # macx {

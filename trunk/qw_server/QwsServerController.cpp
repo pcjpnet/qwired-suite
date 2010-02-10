@@ -1,6 +1,8 @@
 #include "QwsServerController.h"
 #include "QwsClientSocket.h"
 
+#include <QtCore/QUrl>
+#include <QtCore/QProcess>
 #include <QtCore/QUuid>
 
 extern "C" {
@@ -17,6 +19,7 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
     sessionIdCounter = 20;
     roomIdCounter = 10;
 
+
     // Initialize the transfer pool
     transferPool = new QwsTransferPool;
 
@@ -26,9 +29,9 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
     publicRoom->pTopic = tr("Welcome to Qwired Server!");
     rooms[1] = publicRoom;
 
-    maxTransfersPerClient = 2;
-
-    logToStdout = true;
+    // Configuration Defaults
+    m_banDuration = 30 * 60; // 30 minutes default (will be overwritten by config)
+    m_maxTransfersPerClient = 2;
     m_delayedUserImagesEnabled = true;
 
     m_configLuaState = NULL;
@@ -60,8 +63,15 @@ bool QwsServerController::loadConfiguration()
         // Call the script
         result = lua_pcall(m_configLuaState, 0, 0, 0);
         if (result == 0) {
-             return true;
 
+            m_banDuration = getConfig("ban_duration", 60 * 30).toInt();
+            m_maxTransfersPerClient = getConfig("max_transfers_client", 2).toInt();
+            m_delayedUserImagesEnabled = getConfig("enable_delayed_usericons", true).toBool();
+
+            reloadBanlistConfiguration();
+            reloadTrackerConfiguration();
+
+            return true;
 
         } else {
             // Error during lua_pcall()
@@ -75,8 +85,38 @@ bool QwsServerController::loadConfiguration()
         qDebug() << "Warning: Unable to load configuration file.";
         return false;
     }
-;
+
     return true;
+}
+
+
+/*! Call the script hook which checks the login.
+*/
+bool QwsServerController::hookCheckLogin(const QwsUser &user)
+{
+    if (!m_configLuaState) { return false; }
+    bool loginResult = false;
+
+    lua_getglobal(m_configLuaState, "hook_check_login");
+    if (lua_isfunction(m_configLuaState, -1)) {
+        lua_pushstring(m_configLuaState, user.login.toUtf8());
+        lua_pushstring(m_configLuaState, user.password.toUtf8());
+        int result = lua_pcall(m_configLuaState, 2, 1, 0);
+        if (result == 0) {
+            if (lua_isboolean(m_configLuaState, -1)) {
+                loginResult = lua_toboolean(m_configLuaState, -1);
+            }
+        } else {
+            qwLog(tr("Unable to run hook_check_login: %1")
+                  .arg(lua_tostring(m_configLuaState, -1)));
+        }
+        lua_pop(m_configLuaState, 1);
+    } else {
+        qwLog(tr("Unable to authenticate user - no authentication function found."));
+        lua_pop(m_configLuaState, 1); // hook_check_login
+    }
+
+    return loginResult;
 }
 
 
@@ -84,19 +124,23 @@ bool QwsServerController::loadConfiguration()
     exist in the database, \a defaultValue is return. If there is a database error, a Null-QVariant
     will be returned.
 */
-QVariant QwsServerController::getConfigString(const QString key, const QVariant defaultValue)
+QVariant QwsServerController::getConfig(const QString key, const QVariant defaultValue)
 {
     if (!m_configLuaState) { return QVariant(); }
 
-    QString configValue;
+    QVariant configValue;
     lua_getglobal(m_configLuaState, key.toUtf8());
-    configValue = lua_tostring(m_configLuaState, -1);
-    lua_pop(m_configLuaState, 1);
-
-    if (configValue.isEmpty()) {
-        return defaultValue;
+    if (lua_isnil(m_configLuaState, -1)) {
+        // Return default value
+        configValue = defaultValue;
+    } else if (defaultValue.type() == QVariant::Bool) {
+        // Return bool
+        configValue = lua_toboolean(m_configLuaState, -1);
+    } else {
+        // String
+        configValue = lua_tostring(m_configLuaState, -1);
     }
-
+    lua_pop(m_configLuaState, 1);
     return configValue;
 }
 
@@ -106,24 +150,44 @@ QVariant QwsServerController::getConfigString(const QString key, const QVariant 
 */
 void QwsServerController::reloadTrackerConfiguration()
 {
-//    // Add the trackers
-//    if (!trackerController) {
-//        trackerController = new QwsTrackerController(this);
-//        trackerController->setServerInformation(&serverInfo);
-//    }
-//    QStringList configTrackers = getConfigString("server/trackers", "").toString().split(";");
-//    trackerController->resetController();
-//    foreach (QString trackerLine, configTrackers) {
-//        QUrl trackerUrl(trackerLine, QUrl::TolerantMode);
-//        trackerController->addTrackerServer(trackerUrl.host(), trackerUrl.port(2002));
-//        qDebug() << this << "Adding tracker:" << trackerUrl.host() << trackerUrl.port(2002);
-//    }
+    if (!m_configLuaState) { return; }
+
+    if (!trackerController) {
+        trackerController = new QwsTrackerController(this);
+        trackerController->setServerInformation(&m_serverInformation);
+    }
+    trackerController->resetController();
+
+    // Push the table on the stack
+    lua_getglobal(m_configLuaState, "register_trackers");
+
+    if (!lua_istable(m_configLuaState, -1)) {
+        qwLog(tr("Invalid value for register_trackers option - will not register with any trackers!"));
+        lua_pop(m_configLuaState, 1);
+        return;
+    }
+
+    // Push the key onto the stack
+    lua_pushnil(m_configLuaState); // first item
+    while (lua_next(m_configLuaState, -2)) {
+
+        if (lua_isstring(m_configLuaState, -1)) {
+            QUrl trackerUrl(lua_tostring(m_configLuaState, -1), QUrl::TolerantMode);
+            trackerController->addTrackerServer(trackerUrl.host(), trackerUrl.port(2002));
+            qwLog(tr("Configured to register with tracker: %1").arg(trackerUrl.toString()));
+        }
+        lua_pop(m_configLuaState, 1); // pop value, keep key
+    }
+
+    lua_pop(m_configLuaState, 2); // nil, register_trackers
 }
 
 /*! Reload the permanent banlist configration from the database.
 */
 void QwsServerController::reloadBanlistConfiguration()
 {
+    if (!m_configLuaState) { return; }
+
     // Delete all old permament bans from the banlist first
     QMutableListIterator<QPair<QString,QDateTime> > i(m_banList);
     while (i.hasNext()) {
@@ -132,11 +196,27 @@ void QwsServerController::reloadBanlistConfiguration()
         i.remove();
     }
 
-//    // Add new items to the banlist
-//    QStringList configBanlist = getConfigString("server/banlist", "").toString().split(";");
-//    foreach (QString banlistItem, configBanlist) {
-//        banList.append(qMakePair(banlistItem, QDateTime()));
-//    }
+    // Push the table on the stack
+    lua_getglobal(m_configLuaState, "server_banlist");
+    if (!lua_istable(m_configLuaState, -1)) {
+        qwLog(tr("Invalid value for server_banlist option - will not ban any addresses!"));
+        lua_pop(m_configLuaState, 1);
+        return;
+    }
+
+    // Push the key onto the stack
+    lua_pushnil(m_configLuaState); // first item
+    while (lua_next(m_configLuaState, -2)) {
+
+        if (lua_isstring(m_configLuaState, -1)) {
+            QString banlistItem = lua_tostring(m_configLuaState, -1);
+            m_banList.append(qMakePair(banlistItem, QDateTime()));
+            qwLog(tr("Added '%1' to permanent banlist.").arg(banlistItem));
+        }
+        lua_pop(m_configLuaState, 1); // pop value, keep key
+    }
+
+    lua_pop(m_configLuaState, 2); // nil, register_trackers
 }
 
 
@@ -154,7 +234,6 @@ QList<QwsClientTransferSocket*> QwsServerController::transfersWithUserId(int use
             resultList.append(socket);
         }
     }
-
     return resultList;
 }
 
@@ -166,32 +245,31 @@ bool QwsServerController::startServer()
 
     // Load the server information
     m_serverInformation.serverVersion = "Qwired Server/1.0";
-    m_serverInformation.name = getConfigString("server_name", "Qwired Server").toString();
-    m_serverInformation.description = getConfigString("server_description", "A freshly installed Qwired server.").toString();
+    m_serverInformation.name = getConfig("server_name", "Qwired Server").toString();
+    m_serverInformation.description = getConfig("server_description", "A freshly installed Qwired server.").toString();
     m_serverInformation.protocolVersion = "3.0";
     m_serverInformation.startTime = QDateTime::currentDateTime();
     m_serverInformation.filesCount = 0;
     m_serverInformation.filesSize = 0;
 
     QString certificateData;
-    int tmpPort = getConfigString("server_port", 2000).toInt();
-    QString tmpAddress = getConfigString("server_address", "0.0.0.0").toString();
+    int tmpPort = getConfig("server_port", 2000).toInt();
+    QString tmpAddress = getConfig("server_address", "0.0.0.0").toString();
 
-    QString certificateFileName = getConfigString("certificate_file", "").toString();
+    QString certificateFileName = getConfig("certificate_file", "").toString();
     QFileInfo certificateFileInfo(certificateFileName);
 
 
     if (!certificateFileInfo.exists()) {
         qwLog(tr("Trying to generate new certificate..."));
-
         // Try to create a new one
         QProcess process;
-        process.start(getConfigString("certificate_generation_command", "").toString());
+        process.start(getConfig("certificate_generation_command", "").toString());
         process.waitForFinished();
         if (process.exitCode() != 0) {
             qwLog(tr("Unable to generate new certificate, please check the "
                      "certificate_generation_command:\n%1\n%2 (command returned %3)")
-                  .arg(getConfigString("certificate_generation_command", "").toString())
+                  .arg(getConfig("certificate_generation_command", "").toString())
                   .arg(QString::fromUtf8(process.readAll()))
                   .arg(process.exitCode()));
             return false;
@@ -210,7 +288,7 @@ bool QwsServerController::startServer()
 
 
     // Check if the files directory exists
-    QDir filesDirectory(getConfigString("files_root", "files").toString());
+    QDir filesDirectory(getConfig("files_root", "files").toString());
     if (!filesDirectory.exists()) {
         qwLog(tr("Files directory is missing. Creating a new one."));
         // We use "." to create the directory itself
@@ -243,9 +321,6 @@ bool QwsServerController::startServer()
         qwLog(tr("Started transfer socket listener on  %2:%1...").arg(tmpPort+1).arg(tmpAddress));
     }
 
-    reloadBanlistConfiguration();
-    reloadTrackerConfiguration();
-
 
     return true;
 }
@@ -262,7 +337,7 @@ void QwsServerController::reindexFiles()
     filesIndexerThread = new QwsFileIndexerThread(this);
     connect(filesIndexerThread, SIGNAL(logMessage(QString)),
             this, SLOT(qwLog(QString)));
-    filesIndexerThread->filesRootPath = getConfigString("files_root", "files").toString();
+    filesIndexerThread->filesRootPath = getConfig("files_root", "files").toString();
     filesIndexerThread->run();
 }
 
@@ -272,12 +347,8 @@ void QwsServerController::reindexFiles()
 */
 void QwsServerController::qwLog(QString message)
 {
-//    QString data = QString("[%1] %2").arg(QDateTime::currentDateTime().toString()).arg(message);
-    QString data = message;
-    if (logToStdout) {
-        QTextStream stream(stdout);
-        stream << data << endl;
-    }
+    QTextStream stream(stdout);
+    stream << message << endl;
     emit serverLogMessage(message);
 }
 
@@ -311,10 +382,11 @@ void QwsServerController::acceptSessionSslConnection()
     }
 
     QwsClientSocket *clientSocket = new QwsClientSocket(this);
+    clientSocket->setServerController(this);
     clientSocket->serverInfo = &m_serverInformation;
     clientSocket->user.pUserID = ++sessionIdCounter;
     clientSocket->setSslSocket(newSocket);
-    clientSocket->user.userIpAddress = clientSocket->m_socket->peerAddress().toString();
+    clientSocket->user.userIpAddress = clientSocket->socket()->peerAddress().toString();
     clientSocket->resolveHostname();
 
     qwLog(tr("[%1] Accepted new session connection from %2")
@@ -367,7 +439,7 @@ void QwsServerController::acceptSessionSslConnection()
     connect(clientSocket, SIGNAL(receivedMessagePUT(QwsFile)),
             this, SLOT(handleMessagePUT(QwsFile)));
 
-    clientSocket->filesRootPath =  getConfigString("files_root", "files").toString();
+    clientSocket->filesRootPath =  getConfig("files_root", "files").toString();
 
     m_sockets[clientSocket->user.pUserID] = clientSocket;
 }
@@ -425,7 +497,7 @@ void QwsServerController::handleSocketSessionStateChanged(const Qws::SessionStat
         qwLog(tr("[%1] '%2' successfully logged in as [%3].")
               .arg(client->user.pUserID)
               .arg(client->user.userNickname)
-              .arg(client->user.name));
+              .arg(client->user.login));
     }
 }
 
@@ -575,7 +647,7 @@ void QwsServerController::handleUserlistRequest(const int roomId)
         int itemId = i.next();
         if (m_sockets.contains(itemId)) {
             QwsClientSocket *itemSocket = m_sockets[itemId];
-            if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
+            if (itemSocket && itemSocket->sessionState() == Qws::StateActive) {
                 // Send a user list item
                 QwMessage reply("310");
                 reply.appendArg(QByteArray::number(roomId));
@@ -597,7 +669,7 @@ void QwsServerController::handleUserlistRequest(const int roomId)
             int itemId = i.next();
             if (m_sockets.contains(itemId)) {
                 QwsClientSocket *itemSocket = m_sockets[itemId];
-                if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
+                if (itemSocket && itemSocket->sessionState() == Qws::StateActive) {
                     // Send the delayed image data
                     QwMessage reply("340");
                     reply.appendArg(QByteArray::number(itemId));
@@ -642,7 +714,7 @@ void QwsServerController::relayChatToRoom(const int roomId, const QString text, 
         int itemId = i.next();
         if (m_sockets.contains(itemId)) {
             QwsClientSocket *itemSocket = m_sockets[itemId];
-            if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
+            if (itemSocket && itemSocket->sessionState() == Qws::StateActive) {
                 itemSocket->sendMessage(reply);
             }
         }
@@ -695,7 +767,7 @@ void QwsServerController::broadcastMessage(const QwMessage message, const int ro
         int itemId = i.next();
         if (!m_sockets.contains(itemId)) { continue; }
         QwsClientSocket *itemSocket = m_sockets[itemId];
-        if (itemSocket && itemSocket->m_sessionState == Qws::StateActive) {
+        if (itemSocket && itemSocket->sessionState() == Qws::StateActive) {
             if (sendToSelf || itemSocket != user) {
                 itemSocket->sendMessage(message);
             }
@@ -729,7 +801,7 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
     QwMessage reply("341");
     reply.appendArg(QString::number(roomId));
     reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.name);
+    reply.appendArg(room->pTopicSetter.login);
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -757,7 +829,7 @@ void QwsServerController::sendRoomTopic(const int roomId)
     QwMessage reply("341");
     reply.appendArg(QString::number(roomId));
     reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.name);
+    reply.appendArg(room->pTopicSetter.login);
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -876,7 +948,7 @@ void QwsServerController::handleMessageJOIN(const int roomId)
     reply = QwMessage("341");
     reply.appendArg(QString::number(room->pChatId));
     reply.appendArg(room->pTopicSetter.userNickname);
-    reply.appendArg(room->pTopicSetter.name);
+    reply.appendArg(room->pTopicSetter.login);
     reply.appendArg(room->pTopicSetter.userIpAddress);
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
@@ -962,9 +1034,9 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
 
     // Add it to the temporary banlist
     if (isBan) {
-        m_banList.append(qMakePair(user->m_socket->peerAddress().toString(),
-                                 QDateTime::currentDateTime().addSecs(60 * 30))); // 30 minutes
-        qDebug() << this << "Adding address to banlist:" << user->m_socket->peerAddress().toString() << "till" << QDateTime::currentDateTime().addSecs(60);
+        m_banList.append(qMakePair(user->socket()->peerAddress().toString(),
+                                 QDateTime::currentDateTime().addSecs(m_banDuration))); // 30 minutes
+        qDebug() << this << "Adding address to banlist:" << user->socket()->peerAddress().toString() << "till" << QDateTime::currentDateTime().addSecs(60);
     }
 
     // Now do the justice
@@ -981,7 +1053,7 @@ void QwsServerController::handleModifiedUserAccount(const QString name)
         i.next();
         QwsClientSocket *item = i.value();
         if (!item) continue;
-        if (item->user.name == name) {
+        if (item->user.login == name) {
             // Reload the account
             item->user.loadFromDatabase();
 
@@ -1135,7 +1207,7 @@ void QwsServerController::checkTransferQueue(int userId)
         return;
     };
 
-    if (activeTransfers.count()+waitingTransfers.count() < maxTransfersPerClient) {
+    if (activeTransfers.count()+waitingTransfers.count() < m_maxTransfersPerClient) {
         // There are less transfers active than allowed. We can start the next transfers.
         // Take the next transfer from the stack and notify the client.
         QwsTransferInfo nextTransfer = transferPool->firstTransferWithUserId(userId);

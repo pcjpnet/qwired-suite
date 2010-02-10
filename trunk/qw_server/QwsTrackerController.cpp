@@ -30,7 +30,6 @@ void QwsTrackerController::resetController()
 */
 void QwsTrackerController::addTrackerServer(QString address, int port)
 {
-    qDebug() << this << "Added tracker" << address;
     QwTrackerClientSocket *newSocket = new QwTrackerClientSocket(this);
     newSocket->autoCommand = Qw::TrackerClientAutoCommandREGISTER;
     newSocket->localServerInfo = serverInfo;

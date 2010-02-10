@@ -2,9 +2,6 @@
 
 #include <QCoreApplication>
 #include <QtDebug>
-#include <QSqlQuery>
-
-
 
 const QString QWSERVER_VERSION("0.1.5");
 
@@ -28,12 +25,8 @@ int main(int argc, char *argv[])
         so << a.tr("Usage: %1 [options]\n\n").arg(cliArgs.value(0));
         so << a.tr("Server-mode commands:\n"
                    "    -daemon       Run in daemon mode.\n"
-                   "    -remote       Enable console socket for GUI.\n"
                    "    -root <file>  Override default root path (current directory).\n"
                    "\nAdministration commands:\n"
-                   "    -sc <key>=<value>\n"
-                   "                  Set a configuration parameter. See documentation for\n"
-                   "                  more information about available configuration keys.\n"
                    "    -v\n"
                    "    -version      Print version and exit.\n"
                    "\n");
@@ -55,14 +48,10 @@ int main(int argc, char *argv[])
         QString newWorkingDir = QDir::current().absoluteFilePath(cliArgs.value(index+1));
         bool ok = QDir::setCurrent(newWorkingDir);
         qDebug() << "Setting current working directory to:" << newWorkingDir << "ok:" << ok;
-//        controller.serverRootDirectory = "";
     }
 
 
-    // Don't print to std when in remote mode!
-    controller.qwLog(a.tr("Switching to remote console mode..."));
-    controller.logToStdout = !cliArgs.contains("-remote");
-
+    // Try to run the configuration file
     if (!controller.loadConfiguration()) {
         return 1;
     }

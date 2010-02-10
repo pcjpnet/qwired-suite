@@ -24,7 +24,7 @@ QwcUserInfo QwcUserInfo::fromMessage308(const QwMessage *message)
     user.pAdmin = message->stringArg(n++).toInt();
     user.pIcon = message->stringArg(n++).toInt();
     user.userNickname = message->stringArg(n++);
-    user.name = message->stringArg(n++);
+    user.login = message->stringArg(n++);
     user.userIpAddress = message->stringArg(n++);
     user.userHostName = message->stringArg(n++);
     user.pClientVersion =message->stringArg(n++);
@@ -52,7 +52,7 @@ QwcUserInfo QwcUserInfo::fromMessage310(const QwMessage *message)
     user.pAdmin = message->stringArg(3).toInt();
     user.pIcon = message->stringArg(4).toInt();
     user.userNickname = message->stringArg(5);
-    user.name = message->stringArg(6);
+    user.login = message->stringArg(6);
     user.userIpAddress = message->stringArg(7);
     user.userHostName = message->stringArg(8);
     user.userStatus = message->stringArg(9);
@@ -164,9 +164,9 @@ void QwcUserInfo::appendPrivilegesFlags(QwMessage *message) const
 
 QString QwcUserInfo::cryptedPassword()
 {
-    if( pPassword.isEmpty() )
+    if( password.isEmpty() )
         return QString("");
-    QByteArray tmpDat = QCryptographicHash::hash(pPassword.toUtf8(), QCryptographicHash::Sha1);
+    QByteArray tmpDat = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1);
     return QString::fromUtf8(tmpDat.toHex());
 }
 

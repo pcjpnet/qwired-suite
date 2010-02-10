@@ -14,7 +14,6 @@
 
 #include <QDateTime>
 #include <QDirIterator>
-#include <QtSql>
 
 #ifdef Q_OS_UNIX
 #include <sys/statvfs.h>
@@ -50,6 +49,17 @@ QwsClientSocket::~QwsClientSocket()
     qDebug() << "[qws] Destroying"<<user.pUserID;
 }
 
+
+/*! Set the server controller. */
+void QwsClientSocket::setServerController(QwsServerController *controller)
+{ m_serverController = controller; }
+
+
+QSslSocket* QwsClientSocket::socket()
+{ return m_socket; }
+
+Qws::SessionState QwsClientSocket::sessionState() const
+{ return m_sessionState; }
 
 /**
  * The idle timer was triggered. Check if the user is not idle and mark him/her
@@ -222,35 +232,19 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
      if (m_sessionState == Qws::StateConnected && !user.userNickname.isEmpty()) {
          // We need a handshake first and a nickname. Send the client the session id of its own
          // session and proceed.
-         user.pPassword = message.stringArg(0);
+         user.password = message.stringArg(0);
+         user.pLoginTime = QDateTime::currentDateTime();
+         user.pIdleTime = QDateTime::currentDateTime();
 
-         // Check the login and password
-         QSqlQuery query;
-         query.prepare("SELECT id FROM qws_accounts WHERE acc_name=:_name AND acc_secret=:_secret");
-         query.bindValue(":_name", user.name);
-         query.bindValue(":_secret", user.pPassword);
-         if (query.exec()) {
-             // Query was OK. Check if there was a result.
-             query.first();
-             if (query.isValid() && user.loadFromDatabase()) {
-                 user.pLoginTime = QDateTime::currentDateTime();
-                 user.pIdleTime = QDateTime::currentDateTime();
-
-                 // Increment counter (we don't care so much if this fails)
-                 query.clear();
-                 query.prepare("UPDATE qws_accounts SET acc_logincount=acc_logincount+1 WHERE acc_name=:_name");
-                 query.bindValue(":_name", user.name);
-                 query.exec();
-
-                 // Login successful
-                 QwMessage reply("201");
-                 reply.appendArg(QString::number(user.pUserID));
-                 sendMessage(reply);
-                 m_sessionState = Qws::StateActive;
-                 emit sessionStateChanged(m_sessionState);
-                 emit requestedRoomTopic(1);
-                 return;
-             }
+         if (m_serverController->hookCheckLogin(user)) {
+             // Login successful
+             QwMessage reply("201");
+             reply.appendArg(QString::number(user.pUserID));
+             sendMessage(reply);
+             m_sessionState = Qws::StateActive;
+             emit sessionStateChanged(m_sessionState);
+             emit requestedRoomTopic(1);
+             return;
          }
      }
 
@@ -265,12 +259,10 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
  */
  void QwsClientSocket::handleMessageUSER(const QwMessage &message)
  {
-     user.name = message.stringArg(0);
-     if (user.name.isEmpty()) {
-         // Guest fallback
-         user.name = "guest";
+     user.login = message.stringArg(0);
+     if (user.login.isEmpty()) {
+         user.login = "guest";
      }
-     qDebug() << this << "Received user login name:" << user.name;
  }
 
 
@@ -335,17 +327,14 @@ void QwsClientSocket::handleMessageICON(const QwMessage &message)
 
 /*! BANNER command (banner data request)
 */
-void QwsClientSocket::handleMessageBANNER(const QwMessage &message)
+void QwsClientSocket::handleMessageBANNER(const QwMessage &)
 {
-    Q_UNUSED(message);
-    QSqlQuery query("SELECT conf_value FROM qws_config WHERE conf_key='server/banner'");
-    query.first();
     QwMessage reply("203");
-    if (query.isValid()) {
-        QByteArray bannerData = query.value(0).toByteArray();
+    QFile serverBannerFile(m_serverController->getConfig("server_banner", QString()).toString());
+    if (serverBannerFile.open(QIODevice::ReadOnly)) {
+        QByteArray bannerData = serverBannerFile.readAll();
         reply.appendArg(bannerData.toBase64());
     } else {
-        qDebug() << this << "Unable to load banner from database:" << query.lastError().text();
         reply.appendArg(QString());
     }
     sendMessage(reply);
@@ -486,25 +475,25 @@ void QwsClientSocket::handleMessageLEAVE(const QwMessage &message)
 
  /*! NEWS command (News list request)
  */
- void QwsClientSocket::handleMessageNEWS(const QwMessage &message)
+ void QwsClientSocket::handleMessageNEWS(const QwMessage &)
  {
-     Q_UNUSED(message);
-     qDebug() << this << "Requested news";
-     QSqlQuery query;
-     query.prepare("SELECT id, news_username, news_date, news_text FROM qws_news ORDER BY id DESC");
-     if (query.exec()) {
-         while (query.next()) {
-             QwMessage reply("320");
-             reply.appendArg(query.value(1).toString());
-             reply.appendArg(query.value(2).toString());
-             reply.appendArg(query.value(3).toString());
-             sendMessage(reply);
-         }
-     } else {
-         qDebug() << this << "Could not send news:" << query.lastError().text();
-         sendError(Qw::ErrorCommandFailed);
-         return;
-     }
+//     Q_UNUSED(message);
+//     qDebug() << this << "Requested news";
+//     QSqlQuery query;
+//     query.prepare("SELECT id, news_username, news_date, news_text FROM qws_news ORDER BY id DESC");
+//     if (query.exec()) {
+//         while (query.next()) {
+//             QwMessage reply("320");
+//             reply.appendArg(query.value(1).toString());
+//             reply.appendArg(query.value(2).toString());
+//             reply.appendArg(query.value(3).toString());
+//             sendMessage(reply);
+//         }
+//     } else {
+//         qDebug() << this << "Could not send news:" << query.lastError().text();
+//         sendError(Qw::ErrorCommandFailed);
+//         return;
+//     }
      sendMessage(QwMessage("321 News Done"));
  }
 
@@ -513,48 +502,52 @@ void QwsClientSocket::handleMessageLEAVE(const QwMessage &message)
  */
  void QwsClientSocket::handleMessagePOST(const QwMessage &message)
  {
-     resetIdleTimer();
-     if (!user.privileges().testFlag(Qws::PrivilegePostNews)) {
-         sendError(Qw::ErrorPermissionDenied); return; }
-     qDebug() << this << "Posted news";
-     QSqlQuery query;
-     query.prepare("INSERT INTO qws_news (news_username, news_date, news_text) "
-                   "VALUES (:_login, :_date, :_text)");
-     query.bindValue(":_login", QString("%1 [%2]").arg(user.userNickname).arg(user.name));
-     query.bindValue(":_date", QDateTime::currentDateTime().toUTC().toString(Qt::ISODate));
-     query.bindValue(":_text", message.stringArg(0));
+//     resetIdleTimer();
+//     if (!user.privileges().testFlag(Qws::PrivilegePostNews)) {
+//         sendError(Qw::ErrorPermissionDenied); return; }
+//     qDebug() << this << "Posted news";
+//     QSqlQuery query;
+//     query.prepare("INSERT INTO qws_news (news_username, news_date, news_text) "
+//                   "VALUES (:_login, :_date, :_text)");
+//     query.bindValue(":_login", QString("%1 [%2]").arg(user.userNickname).arg(user.name));
+//     query.bindValue(":_date", QDateTime::currentDateTime().toUTC().toString(Qt::ISODate));
+//     query.bindValue(":_text", message.stringArg(0));
+//
+//     if (query.exec()) {
+//         // Send all clients a notification.
+//         QwMessage reply("322");
+//         reply.appendArg(query.boundValue(":_login").toString());
+//         reply.appendArg(query.boundValue(":_date").toString()+"+00:00");
+//         reply.appendArg(query.boundValue(":_text").toString());
+//         emit broadcastedMessage(reply, 1, true);
+//     } else {
+//         qDebug() << this << "Could not post news:" << query.lastError().text();
+//         sendError(Qw::ErrorCommandFailed);
+//         return;
+//     }
 
-     if (query.exec()) {
-         // Send all clients a notification.
-         QwMessage reply("322");
-         reply.appendArg(query.boundValue(":_login").toString());
-         reply.appendArg(query.boundValue(":_date").toString()+"+00:00");
-         reply.appendArg(query.boundValue(":_text").toString());
-         emit broadcastedMessage(reply, 1, true);
-     } else {
-         qDebug() << this << "Could not post news:" << query.lastError().text();
-         sendError(Qw::ErrorCommandFailed);
-         return;
-     }
+     sendError(Qw::ErrorCommandFailed);
+
 
  }
 
 
  /*! CLEARNEWS command (clear news list request)
  */
- void QwsClientSocket::handleMessageCLEARNEWS(const QwMessage &message)
+ void QwsClientSocket::handleMessageCLEARNEWS(const QwMessage &)
  {
-     Q_UNUSED(message);
-     resetIdleTimer();
-     if (!user.privileges().testFlag(Qws::PrivilegeClearNews)) {
-         sendError(Qw::ErrorPermissionDenied); return; }
-
-     QSqlQuery query;
-     query.prepare("DELETE FROM qws_news");
-     if (!query.exec()) {
-         qDebug() << this << "Could not clear news:" << query.lastError().text();
-         sendError(Qw::ErrorCommandFailed);
-     }
+//     Q_UNUSED(message);
+//     resetIdleTimer();
+//     if (!user.privileges().testFlag(Qws::PrivilegeClearNews)) {
+//         sendError(Qw::ErrorPermissionDenied); return; }
+//
+//     QSqlQuery query;
+//     query.prepare("DELETE FROM qws_news");
+//     if (!query.exec()) {
+//         qDebug() << this << "Could not clear news:" << query.lastError().text();
+//         sendError(Qw::ErrorCommandFailed);
+//     }
+     sendError(Qw::ErrorCommandFailed);
 
  }
 
@@ -597,23 +590,24 @@ void QwsClientSocket::handleMessageUSERS(const QwMessage &message)
     Q_UNUSED(message);
     qDebug() << this << "Listing user accounts";
 
-    QSqlQuery query;
-    query.prepare("SELECT acc_name FROM qws_accounts ORDER BY acc_name");
-    if (!query.exec()) {
-        qDebug() << this << "Unable to list user accounts:" << query.lastError().text();
-        sendError(Qw::ErrorCommandFailed);
-        return;
-    } else {
-        query.first();
-        while (query.isValid()) {
-            QwMessage reply("610");
-            reply.appendArg(query.value(0).toString());
-            sendMessage(reply);
-            query.next();
-        }
-        // Send end of list
-        sendMessage(QwMessage("611"));
-    }
+//    QSqlQuery query;
+//    query.prepare("SELECT acc_name FROM qws_accounts ORDER BY acc_name");
+//    if (!query.exec()) {
+//        qDebug() << this << "Unable to list user accounts:" << query.lastError().text();
+//        sendError(Qw::ErrorCommandFailed);
+//        return;
+//    } else {
+//        query.first();
+//        while (query.isValid()) {
+//            QwMessage reply("610");
+//            reply.appendArg(query.value(0).toString());
+//            sendMessage(reply);
+//            query.next();
+//        }
+//        // Send end of list
+//        sendMessage(QwMessage("611"));
+//    }
+     sendMessage(QwMessage("611"));
 
 }
 
@@ -629,23 +623,26 @@ void QwsClientSocket::handleMessageGROUPS(const QwMessage &message)
     Q_UNUSED(message);
     qDebug() << this << "Listing groups";
 
-    QSqlQuery query;
-    query.prepare("SELECT group_name FROM qws_groups ORDER BY group_name");
-    if (!query.exec()) {
-        qDebug() << this << "Unable to list user groups:" << query.lastError().text();
-        sendError(Qw::ErrorCommandFailed);
-        return;
-    } else {
-        query.first();
-        while (query.isValid()) {
-            QwMessage reply("620");
-            reply.appendArg(query.value(0).toString());
-            sendMessage(reply);
-            query.next();
-        }
-        // Send end of list
-        sendMessage(QwMessage("621"));
-    }
+//    QSqlQuery query;
+//    query.prepare("SELECT group_name FROM qws_groups ORDER BY group_name");
+//    if (!query.exec()) {
+//        qDebug() << this << "Unable to list user groups:" << query.lastError().text();
+//        sendError(Qw::ErrorCommandFailed);
+//        return;
+//    } else {
+//        query.first();
+//        while (query.isValid()) {
+//            QwMessage reply("620");
+//            reply.appendArg(query.value(0).toString());
+//            sendMessage(reply);
+//            query.next();
+//        }
+//        // Send end of list
+//        sendMessage(QwMessage("621"));
+//    }
+
+    sendMessage(QwMessage("621"));
+
 
 }
 
@@ -660,11 +657,11 @@ void QwsClientSocket::handleMessageREADUSER(const QwMessage &message)
 
     qDebug() << this << "Reading user" << message.stringArg(0);
     QwsUser targetAccount;
-    targetAccount.name = message.stringArg(0);
+    targetAccount.login = message.stringArg(0);
     if (targetAccount.loadFromDatabase()) {
         QwMessage reply("600");
-        reply.appendArg(targetAccount.name);
-        reply.appendArg(targetAccount.pPassword);
+        reply.appendArg(targetAccount.login);
+        reply.appendArg(targetAccount.password);
         reply.appendArg(targetAccount.pGroupName);
         targetAccount.appendPrivilegeFlagsForREADUSER(reply);
         sendMessage(reply);
@@ -684,18 +681,18 @@ void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
 
     qDebug() << this << "Editing user" << message.stringArg(0);
     QwsUser targetAccount;
-    targetAccount.name = message.stringArg(0);
+    targetAccount.login = message.stringArg(0);
     if (!targetAccount.loadFromDatabase()) {
         // User does not exist (or error)
         sendError(Qw::ErrorAccountNotFound);
     } else {
         targetAccount.setPrivilegesFromEDITUSER(message, 3);
-        targetAccount.pPassword = message.stringArg(1);
+        targetAccount.password = message.stringArg(1);
         targetAccount.pGroupName = message.stringArg(2);
         if (!targetAccount.writeToDatabase()) {
             sendError(Qw::ErrorAccountNotFound);
         } else {
-            emit modifiedUserAccount(targetAccount.name);
+            emit modifiedUserAccount(targetAccount.login);
         }
 
     }
@@ -710,24 +707,24 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeCreateAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    qDebug() << this << "Creating user" << message.stringArg(0);
-    QwsUser targetUser;
-    targetUser.name = message.stringArg(0);
-    if (targetUser.loadFromDatabase()) {
-        // User exists already!
-        sendError(Qw::ErrorAccountExists);
-    } else {
-        // Create account and update it
-        QSqlQuery query;
-        query.prepare("INSERT INTO qws_accounts (acc_name) VALUES (:_name)");
-        query.bindValue(":_name", message.stringArg(0));
-        if (!query.exec()) {
-            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
-            sendError(Qw::ErrorCommandFailed);
-            return;
-        }
-        handleMessageEDITUSER(message);
-    }
+//    qDebug() << this << "Creating user" << message.stringArg(0);
+//    QwsUser targetUser;
+//    targetUser.name = message.stringArg(0);
+//    if (targetUser.loadFromDatabase()) {
+//        // User exists already!
+//        sendError(Qw::ErrorAccountExists);
+//    } else {
+//        // Create account and update it
+//        QSqlQuery query;
+//        query.prepare("INSERT INTO qws_accounts (acc_name) VALUES (:_name)");
+//        query.bindValue(":_name", message.stringArg(0));
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
+//            sendError(Qw::ErrorCommandFailed);
+//            return;
+//        }
+//        handleMessageEDITUSER(message);
+//    }
 }
 
 
@@ -741,7 +738,7 @@ void QwsClientSocket::handleMessageDELETEUSER(const QwMessage &message)
 
     qDebug() << this << "Editing user" << message.stringArg(0);
     QwsUser targetAccount;
-    targetAccount.name = message.stringArg(0);
+    targetAccount.login = message.stringArg(0);
     if (!targetAccount.deleteFromDatabase()) {
         sendError(Qw::ErrorAccountNotFound);
     }
@@ -758,13 +755,13 @@ void QwsClientSocket::handleMessageREADGROUP(const QwMessage &message)
 
     qDebug() << this << "Reading group" << message.stringArg(0);
     QwsUser targetGroup;
-    targetGroup.name = message.stringArg(0);
+    targetGroup.login = message.stringArg(0);
     targetGroup.userType = Qws::UserTypeGroup;
     if (!targetGroup.loadFromDatabase()) {
         sendError(Qw::ErrorAccountNotFound);
     } else {
          QwMessage reply("601");
-         reply.appendArg(targetGroup.name);
+         reply.appendArg(targetGroup.login);
          targetGroup.appendPrivilegeFlagsForREADUSER(reply);
          sendMessage(reply);
     }
@@ -779,25 +776,25 @@ void QwsClientSocket::handleMessageCREATEGROUP(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeCreateAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    qDebug() << this << "Creating group" << message.stringArg(0);
-    QwsUser targetGroup;
-    targetGroup.userType = Qws::UserTypeGroup;
-    targetGroup.name = message.stringArg(0);
-    if (targetGroup.loadFromDatabase()) {
-        // User exists already!
-        sendError(Qw::ErrorAccountExists);
-    } else {
-        // Create account and update it
-        QSqlQuery query;
-        query.prepare("INSERT INTO qws_groups (group_name) VALUES (:_name)");
-        query.bindValue(":_name", targetGroup.name);
-        if (!query.exec()) {
-            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
-            sendError(Qw::ErrorCommandFailed);
-            return;
-        }
-        handleMessageEDITGROUP(message);
-    }
+//    qDebug() << this << "Creating group" << message.stringArg(0);
+//    QwsUser targetGroup;
+//    targetGroup.userType = Qws::UserTypeGroup;
+//    targetGroup.name = message.stringArg(0);
+//    if (targetGroup.loadFromDatabase()) {
+//        // User exists already!
+//        sendError(Qw::ErrorAccountExists);
+//    } else {
+//        // Create account and update it
+//        QSqlQuery query;
+//        query.prepare("INSERT INTO qws_groups (group_name) VALUES (:_name)");
+//        query.bindValue(":_name", targetGroup.name);
+//        if (!query.exec()) {
+//            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
+//            sendError(Qw::ErrorCommandFailed);
+//            return;
+//        }
+//        handleMessageEDITGROUP(message);
+//    }
 }
 
 
@@ -805,23 +802,23 @@ void QwsClientSocket::handleMessageCREATEGROUP(const QwMessage &message)
 */
 void QwsClientSocket::handleMessageEDITGROUP(const QwMessage &message)
 {
-    resetIdleTimer();
-    if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
-        sendError(Qw::ErrorPermissionDenied); return; }
-    qDebug() << this << "Editing group" << message.stringArg(0);
-    QwsUser targetGroup;
-    targetGroup.name = message.stringArg(0);
-    targetGroup.userType = Qws::UserTypeGroup;
-    if (!targetGroup.loadFromDatabase()) {
-        sendError(Qw::ErrorAccountNotFound);
-    } else {
-        targetGroup.setPrivilegesFromEDITUSER(message, 1);
-        if (!targetGroup.writeToDatabase()) {
-            sendError(Qw::ErrorAccountNotFound);
-        } else {
-            emit modifiedUserGroup(targetGroup.name);
-        }
-    }
+//    resetIdleTimer();
+//    if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
+//        sendError(Qw::ErrorPermissionDenied); return; }
+//    qDebug() << this << "Editing group" << message.stringArg(0);
+//    QwsUser targetGroup;
+//    targetGroup.name = message.stringArg(0);
+//    targetGroup.userType = Qws::UserTypeGroup;
+//    if (!targetGroup.loadFromDatabase()) {
+//        sendError(Qw::ErrorAccountNotFound);
+//    } else {
+//        targetGroup.setPrivilegesFromEDITUSER(message, 1);
+//        if (!targetGroup.writeToDatabase()) {
+//            sendError(Qw::ErrorAccountNotFound);
+//        } else {
+//            emit modifiedUserGroup(targetGroup.name);
+//        }
+//    }
 }
 
 
@@ -829,16 +826,16 @@ void QwsClientSocket::handleMessageEDITGROUP(const QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEGROUP(const QwMessage &message)
 {
-    resetIdleTimer();
-    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
-        sendError(Qw::ErrorPermissionDenied); return; }
-    qDebug() << this << "Deleting group" << message.stringArg(0);
-    QwsUser targetGroup;
-    targetGroup.name = message.stringArg(0);
-    targetGroup.userType = Qws::UserTypeGroup;
-    if (!targetGroup.deleteFromDatabase()) {
-        sendError(Qw::ErrorAccountNotFound);
-    }
+//    resetIdleTimer();
+//    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
+//        sendError(Qw::ErrorPermissionDenied); return; }
+//    qDebug() << this << "Deleting group" << message.stringArg(0);
+//    QwsUser targetGroup;
+//    targetGroup.name = message.stringArg(0);
+//    targetGroup.userType = Qws::UserTypeGroup;
+//    if (!targetGroup.deleteFromDatabase()) {
+//        sendError(Qw::ErrorAccountNotFound);
+//    }
 }
 
 
@@ -1267,27 +1264,27 @@ void QwsClientSocket::handleMessageSEARCH(const QwMessage &message)
         sendMessage(QwMessage("421 Done"));
     }
 
-    QSqlQuery query("SELECT file_dir_path, file_name, file_size "
-                    "FROM qws_files_index "
-                    "WHERE file_name LIKE :_term LIMIT 250");
-    query.bindValue(":_term", QString("%%1%").arg(searchTerm));
-    if (!query.exec()) {
-        qDebug() << this << "Unable to query database:" << query.lastError().text();
-        sendMessage(QwMessage("421 Done"));
-        return;
-    }
-
-    while (query.next()) {
-        QwMessage response("420");
-        response.appendArg(QString("%1/%2")
-                           .arg(query.value(0).toString())
-                           .arg(query.value(1).toString()));
-        response.appendArg(QString::number(Qw::FileTypeRegular));
-        response.appendArg(query.value(2).toString());
-        response.appendArg(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)+"+00:00");
-        response.appendArg(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)+"+00:00");
-        sendMessage(response);
-    }
+//    QSqlQuery query("SELECT file_dir_path, file_name, file_size "
+//                    "FROM qws_files_index "
+//                    "WHERE file_name LIKE :_term LIMIT 250");
+//    query.bindValue(":_term", QString("%%1%").arg(searchTerm));
+//    if (!query.exec()) {
+//        qDebug() << this << "Unable to query database:" << query.lastError().text();
+//        sendMessage(QwMessage("421 Done"));
+//        return;
+//    }
+//
+//    while (query.next()) {
+//        QwMessage response("420");
+//        response.appendArg(QString("%1/%2")
+//                           .arg(query.value(0).toString())
+//                           .arg(query.value(1).toString()));
+//        response.appendArg(QString::number(Qw::FileTypeRegular));
+//        response.appendArg(query.value(2).toString());
+//        response.appendArg(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)+"+00:00");
+//        response.appendArg(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)+"+00:00");
+//        sendMessage(response);
+//    }
 
     // End of results
     sendMessage(QwMessage("421 Done"));

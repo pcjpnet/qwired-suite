@@ -128,7 +128,7 @@ void QwcSocket::handleMessage200(const QwMessage &message)
     setNickname(m_sessionUser.userNickname);
     setUserIcon(m_sessionUser.userImage());
     setUserStatus(m_sessionUser.userStatus);
-    sendMessage(QwMessage("USER").appendArg(m_sessionUser.name));
+    sendMessage(QwMessage("USER").appendArg(m_sessionUser.login));
     sendMessage(QwMessage("PASS").appendArg(m_sessionUser.cryptedPassword()));
     emit onServerInformation();
 }
@@ -511,8 +511,8 @@ void QwcSocket::handleMessage600(const QwMessage &message)
     QwMessage newMessage = message;
     QwcUserInfo user;
     user.userType = Qws::UserTypeAccount;
-    user.name = newMessage.stringArg(0);
-    user.pPassword = newMessage.stringArg(1);
+    user.login = newMessage.stringArg(0);
+    user.password = newMessage.stringArg(1);
     user.pGroupName = newMessage.stringArg(2);
     newMessage.arguments.removeFirst();
     newMessage.arguments.removeFirst();
@@ -530,7 +530,7 @@ void QwcSocket::handleMessage601(const QwMessage &message)
     QwMessage newMessage = message;
     QwcUserInfo user;
     user.userType = Qws::UserTypeGroup;
-    user.name = newMessage.stringArg(0);
+    user.login = newMessage.stringArg(0);
     newMessage.arguments.removeFirst();
     user.setPrivilegesFromMessage602(&message);
     emit groupSpecReceived(user);
@@ -609,8 +609,8 @@ bool QwcSocket::localTransferQueueEnabled() const
 // Set the username and password for the login sequence.
 void QwcSocket::setUserAccount(QString theAcct, QString thePass)
 {
-    m_sessionUser.name = theAcct;
-    m_sessionUser.pPassword = thePass;
+    m_sessionUser.login = theAcct;
+    m_sessionUser.password = thePass;
 }
 
 
@@ -949,7 +949,7 @@ void QwcSocket::getUsers()
 void QwcSocket::createUser(QwcUserInfo user)
 {
     QwMessage message("CREATEUSER");
-    message.appendArg(user.name).appendArg(user.pPassword).appendArg(user.pGroupName);
+    message.appendArg(user.login).appendArg(user.password).appendArg(user.pGroupName);
     user.appendPrivilegesFlags(&message);
     sendMessage(message);
 }
@@ -958,7 +958,7 @@ void QwcSocket::createUser(QwcUserInfo user)
 void QwcSocket::editUser(QwcUserInfo user)
 {
     QwMessage message("EDITUSER");
-    message.appendArg(user.name).appendArg(user.pPassword).appendArg(user.pGroupName);
+    message.appendArg(user.login).appendArg(user.password).appendArg(user.pGroupName);
     user.appendPrivilegesFlags(&message);
     sendMessage(message);
 }
@@ -969,7 +969,7 @@ void QwcSocket::editUser(QwcUserInfo user)
 void QwcSocket::createGroup(QwcUserInfo user)
 {
     QwMessage reply("CREATEGROUP");
-    reply.appendArg(user.name);
+    reply.appendArg(user.login);
     user.appendPrivilegesFlags(&reply);
     sendMessage(reply);
 }
@@ -980,7 +980,7 @@ void QwcSocket::createGroup(QwcUserInfo user)
 void QwcSocket::editGroup(QwcUserInfo user)
 {
     QwMessage reply("EDITGROUP");
-    reply.appendArg(user.name);
+    reply.appendArg(user.login);
     user.appendPrivilegesFlags(&reply);
     sendMessage(reply);
 }

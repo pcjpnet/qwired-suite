@@ -52,8 +52,8 @@ public:
     QString cryptedPassword();
 
     // Account parameters (mainly database)
-    QString name;
-    QString pPassword;
+    QString login;
+    QString password;
     QString pGroupName;
 
     // Runtime user information

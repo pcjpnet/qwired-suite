@@ -5,7 +5,8 @@
 
 class QwMessage;
 
-class QwsUser : public QwUser
+class QwsUser :
+        public QwUser
 {
 
 public:
