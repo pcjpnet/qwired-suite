@@ -42,14 +42,6 @@ public:
     bool logToStdout;
 
 
-
-    /*! This member contains all permanently and temporarily banned addresses. The \a QDateTime part
-        of the pair defines when the ban for the pattern in \a QString expires. Permanent bans have
-        a Null-QDateTime object. */
-    QList<QPair<QString,QDateTime> > banList;
-
-
-
 public slots:
     void reloadTrackerConfiguration();
     void reloadBanlistConfiguration();
@@ -67,6 +59,11 @@ protected:
     /*! If true, the user images will be sent after the login is complete to speed up the login
         sequence on slower machines. */
     bool m_delayedUserImagesEnabled;
+
+    /*! This member contains all permanently and temporarily banned addresses. The \a QDateTime part
+        of the pair defines when the ban for the pattern in \a QString expires. Permanent bans have
+        a Null-QDateTime object. */
+    QList<QPair<QString,QDateTime> > m_banList;
 
     QPointer<QwSslTcpServer> sessionTcpServer;
     QPointer<QwSslTcpServer> transferTcpServer;

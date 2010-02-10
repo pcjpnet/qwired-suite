@@ -125,7 +125,7 @@ void QwsServerController::reloadTrackerConfiguration()
 void QwsServerController::reloadBanlistConfiguration()
 {
     // Delete all old permament bans from the banlist first
-    QMutableListIterator<QPair<QString,QDateTime> > i(banList);
+    QMutableListIterator<QPair<QString,QDateTime> > i(m_banList);
     while (i.hasNext()) {
         QPair<QString, QDateTime> banlistItem = i.next();
         if (!banlistItem.second.isNull()) { continue; }
@@ -290,7 +290,7 @@ void QwsServerController::acceptSessionSslConnection()
     QSslSocket *newSocket = sessionTcpServer->nextPendingSslSocket();
 
     // Check if the client was banned
-    QMutableListIterator<QPair<QString,QDateTime> > i(banList);
+    QMutableListIterator<QPair<QString,QDateTime> > i(m_banList);
     while (i.hasNext()) {
         QPair<QString, QDateTime> banlistItem = i.next();
         if (banlistItem.second.isNull() // permanent ban
@@ -962,7 +962,7 @@ void QwsServerController::handleMessageBAN_KICK(const int userId, const QString 
 
     // Add it to the temporary banlist
     if (isBan) {
-        banList.append(qMakePair(user->m_socket->peerAddress().toString(),
+        m_banList.append(qMakePair(user->m_socket->peerAddress().toString(),
                                  QDateTime::currentDateTime().addSecs(60 * 30))); // 30 minutes
         qDebug() << this << "Adding address to banlist:" << user->m_socket->peerAddress().toString() << "till" << QDateTime::currentDateTime().addSecs(60);
     }
