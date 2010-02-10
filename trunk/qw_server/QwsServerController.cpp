@@ -136,9 +136,9 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
         if (key == "user_group") {
             userInfo.setGroupName(QString::fromUtf8(lua_tostring(m_lua, -1)));
         } else if (key == "download_speed_limit") {
-            userInfo.privDownloadSpeed = lua_tointeger(m_lua, -1);
+            userInfo.setDownloadSpeedLimit(lua_tointeger(m_lua, -1));
         } else if (key == "upload_speed_limit") {
-            userInfo.privUploadSpeed = lua_tointeger(m_lua, -1);
+            userInfo.setUploadSpeedLimit(lua_tointeger(m_lua, -1));
         } else if (key == "user_password") {
             userInfo.setCryptedPassword(QString::fromUtf8(lua_tostring(m_lua, -1)));
         } else if (key == "p_get_user_info" && flag) {
@@ -451,7 +451,7 @@ void QwsServerController::acceptSessionSslConnection()
     clientSocket->serverInfo = &m_serverInformation;
     clientSocket->user.setUserId(++sessionIdCounter);
     clientSocket->setSslSocket(newSocket);
-    clientSocket->user.userIpAddress = clientSocket->socket()->peerAddress().toString();
+    clientSocket->user.clientIpAddress() = clientSocket->socket()->peerAddress().toString();
     clientSocket->resolveHostname();
 
     qwLog(tr("[%1] Accepted new session connection from %2")
@@ -738,7 +738,7 @@ void QwsServerController::handleUserlistRequest(const int roomId)
                     // Send the delayed image data
                     QwMessage reply("340");
                     reply.appendArg(QByteArray::number(itemId));
-                    reply.appendArg(itemSocket->user.pImage);
+                    reply.appendArg(itemSocket->user.iconData());
                     user->sendMessage(reply);
                 }
             }
@@ -867,7 +867,7 @@ void QwsServerController::changeRoomTopic(const int roomId, const QString topic)
     reply.appendArg(QString::number(roomId));
     reply.appendArg(room->pTopicSetter.nickname());
     reply.appendArg(room->pTopicSetter.loginName());
-    reply.appendArg(room->pTopicSetter.userIpAddress);
+    reply.appendArg(room->pTopicSetter.clientIpAddress());
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
     broadcastMessage(reply, roomId, true);
@@ -895,7 +895,7 @@ void QwsServerController::sendRoomTopic(const int roomId)
     reply.appendArg(QString::number(roomId));
     reply.appendArg(room->pTopicSetter.nickname());
     reply.appendArg(room->pTopicSetter.loginName());
-    reply.appendArg(room->pTopicSetter.userIpAddress);
+    reply.appendArg(room->pTopicSetter.clientIpAddress());
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
     user->sendMessage(reply);
@@ -1014,7 +1014,7 @@ void QwsServerController::handleMessageJOIN(const int roomId)
     reply.appendArg(QString::number(room->pChatId));
     reply.appendArg(room->pTopicSetter.nickname());
     reply.appendArg(room->pTopicSetter.loginName());
-    reply.appendArg(room->pTopicSetter.userIpAddress);
+    reply.appendArg(room->pTopicSetter.clientIpAddress());
     reply.appendArg(room->pTopicDate.toUTC().toString(Qt::ISODate)+"+00:00");
     reply.appendArg(room->pTopic);
     user->sendMessage(reply);
@@ -1139,9 +1139,9 @@ void QwsServerController::handleModifiedUserAccount(const QString name)
                 QwsClientTransferSocket *transferSocket = it.next();
                 if (!transferSocket) { continue; }
                 if (transferSocket->info().type == Qw::TransferTypeDownload) {
-                    transferSocket->setMaximumTransferSpeed(item->user.privDownloadSpeed);
+                    transferSocket->setMaximumTransferSpeed(item->user.downloadSpeedLimit());
                 } else {
-                    transferSocket->setMaximumTransferSpeed(item->user.privUploadSpeed);
+                    transferSocket->setMaximumTransferSpeed(item->user.uploadSpeedLimit());
                 }
             }
 
@@ -1185,9 +1185,9 @@ void QwsServerController::handleModifiedUserGroup(const QString name)
                 if (!transferSocket) { continue; }
 
                 if (transferSocket->info().type == Qw::TransferTypeDownload) {
-                    transferSocket->setMaximumTransferSpeed(item->user.privDownloadSpeed);
+                    transferSocket->setMaximumTransferSpeed(item->user.downloadSpeedLimit());
                 } else {
-                    transferSocket->setMaximumTransferSpeed(item->user.privUploadSpeed);
+                    transferSocket->setMaximumTransferSpeed(item->user.uploadSpeedLimit());
                 }
             }
         }
@@ -1209,7 +1209,7 @@ void QwsServerController::handleMessageGET(const QwsFile file)
     transfer.hash = QUuid::createUuid().toString();
     transfer.type = Qw::TransferTypeDownload;
 //    transfer.offset = file.offset;
-    transfer.transferSpeedLimit = user->user.privDownloadSpeed;
+    transfer.transferSpeedLimit = user->user.downloadSpeedLimit();
     transfer.targetUserId = user->user.userId();
     transferPool->appendTransferToQueue(transfer);
 
@@ -1236,7 +1236,7 @@ void QwsServerController::handleMessagePUT(const QwsFile file)
     transfer.hash = QUuid::createUuid().toString();
     transfer.type = Qw::TransferTypeUpload;
 //    transfer.offset = file.offset; // the size of the existing partial file
-    transfer.transferSpeedLimit = user->user.privUploadSpeed;
+    transfer.transferSpeedLimit = user->user.uploadSpeedLimit();
     transfer.targetUserId = user->user.userId();
     transferPool->appendTransferToQueue(transfer);
 

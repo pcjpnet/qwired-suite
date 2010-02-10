@@ -28,13 +28,13 @@ QwcUserInfo QwcUserInfo::fromMessage308(const QwMessage *message)
     n++;
     user.setNickname(message->stringArg(n++));
     user.setLoginName(message->stringArg(n++));
-    user.userIpAddress = message->stringArg(n++);
-    user.userHostName = message->stringArg(n++);
-    user.pClientVersion =message->stringArg(n++);
-    user.pCipherName = message->stringArg(n++);
-    user.pCipherBits = message->stringArg(n++).toInt();
-    user.pLoginTime = QDateTime::fromString(message->stringArg(n++), Qt::ISODate);
-    user.pIdleTime = QDateTime::fromString(message->stringArg(n++), Qt::ISODate);
+    user.setClientIpAddress(message->stringArg(n++));
+    user.setClientHostName(message->stringArg(n++));
+    user.setClientVersion(message->stringArg(n++));
+    user.setClientCipherName(message->stringArg(n++));
+    user.setClientCipherBits(message->stringArg(n++).toInt());
+    user.setLoginTime(QDateTime::fromString(message->stringArg(n++), Qt::ISODate));
+    user.setLastActivity(QDateTime::fromString(message->stringArg(n++), Qt::ISODate));
 
     user.parseTransfersFromData(message->stringArg(n++).toUtf8(), Qw::TransferTypeDownload);
     user.parseTransfersFromData(message->stringArg(n++).toUtf8(), Qw::TransferTypeUpload);
@@ -58,8 +58,8 @@ QwcUserInfo QwcUserInfo::fromMessage310(const QwMessage *message)
 //    user.pIcon = message->stringArg(4).toInt();
     user.setNickname(message->stringArg(5));
     user.setLoginName(message->stringArg(6));
-    user.userIpAddress = message->stringArg(7);
-    user.userHostName = message->stringArg(8);
+    user.setClientIpAddress(message->stringArg(7));
+    user.setClientHostName(message->stringArg(8));
     user.setStatus(message->stringArg(9));
     user.setImageFromData(QByteArray::fromBase64(message->stringArg(10).toAscii()));
     return user;
@@ -118,10 +118,10 @@ void QwcUserInfo::setPrivilegesFromMessage602(const QwMessage *message)
     if (message->stringArg(offset++).toInt()) { privileges |= Qws::PrivilegeKickUsers; }
     if (message->stringArg(offset++).toInt()) { privileges |= Qws::PrivilegeBanUsers; }
     if (message->stringArg(offset++).toInt()) { privileges |= Qws::PrivilegeCanNotBeKicked; }
-    privDownloadSpeed = message->stringArg(offset++).toInt();
-    privUploadSpeed = message->stringArg(offset++).toInt();
-    privDownloadLimit = message->stringArg(offset++).toInt();
-    privUploadLimit = message->stringArg(offset++).toInt();
+    m_downloadSpeedLimit = message->stringArg(offset++).toInt();
+    m_uploadSpeedLimit = message->stringArg(offset++).toInt();
+    m_downloadLimit = message->stringArg(offset++).toInt();
+    m_uploadLimit = message->stringArg(offset++).toInt();
     if (message->stringArg(offset++).toInt()) { privileges |= Qws::PrivilegeChangeChatTopic; }
 
     m_privileges = privileges;
@@ -158,10 +158,10 @@ void QwcUserInfo::appendPrivilegesFlags(QwMessage *message) const
     message->appendArg(m_privileges & Qws::PrivilegeKickUsers ? 1 : 0);
     message->appendArg(m_privileges & Qws::PrivilegeBanUsers ? 1 : 0);
     message->appendArg(m_privileges & Qws::PrivilegeCanNotBeKicked ? 1 : 0);
-    message->appendArg(privDownloadSpeed);
-    message->appendArg(privUploadSpeed);
-    message->appendArg(privDownloadLimit); // wired 1.1
-    message->appendArg(privUploadLimit); // wired 1.1
+    message->appendArg(m_downloadSpeedLimit);
+    message->appendArg(m_uploadSpeedLimit);
+    message->appendArg(m_downloadLimit); // wired 1.1
+    message->appendArg(m_uploadLimit); // wired 1.1
     message->appendArg(m_privileges & Qws::PrivilegeChangeChatTopic ? 1 : 0); // wired 1.1
 
 }

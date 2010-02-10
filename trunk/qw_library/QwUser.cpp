@@ -12,10 +12,10 @@ QwUser::QwUser()
     m_privileges = Qws::PrivilegeGetUserInfo | Qws::PrivilegePostNews
                    | Qws::PrivilegeDownload | Qws::PrivilegeUpload;
 
-    privDownloadSpeed = 0;
-    privUploadSpeed = 0;
-    privDownloadLimit = 0;
-    privUploadLimit = 0;
+    m_downloadSpeedLimit = 0;
+    m_uploadSpeedLimit = 0;
+    m_downloadLimit = 0;
+    m_uploadLimit = 0;
 }
 
 
@@ -145,4 +145,74 @@ Qws::Privileges QwUser::privileges() const
 void QwUser::setPrivileges(Qws::Privileges privs)
 { m_privileges = privs; }
 
+QDateTime QwUser::lastActivity() const
+{ return m_lastActivity; }
 
+void QwUser::setLastActivity(QDateTime when)
+{ m_lastActivity = when; }
+
+QDateTime QwUser::loginTime() const
+{ return m_loginTime; }
+
+void QwUser::setLoginTime(QDateTime when)
+{ m_loginTime = when; }
+
+QString QwUser::cipherName() const
+{ return m_clientCipherName; }
+
+void QwUser::setClientCipherName(const QString &name)
+{ m_clientCipherName = name; }
+
+QString QwUser::clientVersion() const
+{ return m_clientVersion; }
+
+void QwUser::setClientVersion(const QString &name)
+{ m_clientVersion = name; }
+
+QString QwUser::clientIpAddress() const
+{ return m_clientIpAddress; }
+
+void QwUser::setClientIpAddress(const QString &ip)
+{ m_clientIpAddress = ip; }
+
+QString QwUser::clientHostName() const
+{ return m_clientHostName; }
+
+void QwUser::setClientHostName(const QString &name)
+{ m_clientHostName = name; }
+
+int QwUser::clientCipherBits() const
+{ return m_clientCipherBits; }
+
+void QwUser::setClientCipherBits(int bits)
+{ m_clientCipherBits = bits; }
+
+QByteArray QwUser::iconData() const
+{ return m_iconData; }
+
+void QwUser::setIconData(const QByteArray &data)
+{ m_iconData = data; }
+
+int QwUser::downloadSpeedLimit() const
+{ return m_downloadLimit; }
+
+void QwUser::setDownloadSpeedLimit(int limit)
+{ m_downloadSpeedLimit = limit; }
+
+int QwUser::uploadSpeedLimit() const
+{ return m_uploadSpeedLimit; }
+
+void QwUser::setUploadSpeedLimit(int limit)
+{ m_uploadSpeedLimit = limit; }
+
+int QwUser::uploadLimit() const
+{ return m_uploadLimit; }
+
+void QwUser::setUploadLimit(int limit)
+{ m_uploadLimit = limit; }
+
+int QwUser::downloadLimit() const
+{ return m_downloadLimit; }
+
+void QwUser::setDownloadLimit(int limit)
+{ m_downloadLimit = limit; }
