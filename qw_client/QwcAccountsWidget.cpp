@@ -182,7 +182,7 @@ void QwcAccountsWidget::on_fBtnApply_clicked()
 
         // Set the group name
         if (fGroup->currentIndex() > 0) {
-            newAccount.pGroupName = fGroup->currentText();
+            newAccount.group = fGroup->currentText();
         }
     }
 
@@ -349,7 +349,7 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
 
     if (account.userType == Qws::UserTypeAccount) {
         // Select the correct group for an account
-        int groupIndex = fGroup->findData(currentAccount.pGroupName);
+        int groupIndex = fGroup->findData(currentAccount.group);
         fGroup->setCurrentIndex(groupIndex == -1 ? 0 : groupIndex);
         fPassword->setText(account.password);
 
@@ -361,10 +361,10 @@ void QwcAccountsWidget::loadFromAccount(const QwcUserInfo account)
     fAccountType->setCurrentIndex(account.userType);
 
     // Privileges
-    fGroupBasic->setEnabled(currentAccount.pGroupName.isEmpty());
-    fGroupLimits->setEnabled(currentAccount.pGroupName.isEmpty());
-    fGroupFiles->setEnabled(currentAccount.pGroupName.isEmpty());
-    fGroupAdmin->setEnabled(currentAccount.pGroupName.isEmpty());
+    fGroupBasic->setEnabled(currentAccount.group.isEmpty());
+    fGroupLimits->setEnabled(currentAccount.group.isEmpty());
+    fGroupFiles->setEnabled(currentAccount.group.isEmpty());
+    fGroupAdmin->setEnabled(currentAccount.group.isEmpty());
 
     // Basic Privileges
     fBasicGetUserInfo->setChecked(currentAccount.privileges() & Qws::PrivilegeGetUserInfo);

@@ -54,7 +54,7 @@ public:
     // Account parameters (mainly database)
     QString login;
     QString password;
-    QString pGroupName;
+    QString group;
 
     // Runtime user information
     bool pIdle;

@@ -236,11 +236,12 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
          user.pLoginTime = QDateTime::currentDateTime();
          user.pIdleTime = QDateTime::currentDateTime();
 
-         if (m_serverController->hookCheckLogin(user)) {
+         if (m_serverController->hook_readUser(user)) {
              // Login successful
              QwMessage reply("201");
              reply.appendArg(QString::number(user.pUserID));
              sendMessage(reply);
+
              m_sessionState = Qws::StateActive;
              emit sessionStateChanged(m_sessionState);
              emit requestedRoomTopic(1);
@@ -268,11 +269,8 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
 
  /*! PING command (Keep-alive request)
  */
- void QwsClientSocket::handleMessagePING(const QwMessage &message)
- {
-     Q_UNUSED(message);
-     sendMessage(QwMessage("202 Pong"));
- }
+ void QwsClientSocket::handleMessagePING(const QwMessage &)
+ { sendMessage(QwMessage("202 Pong")); }
 
 
  /*! STATUS command (Keep-alive request)
@@ -293,7 +291,6 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
  void QwsClientSocket::handleMessageWHO(const QwMessage &message)
  {
      int roomId = message.stringArg(0).toInt();
-     qDebug() << this << "Requested user list for room #" << roomId;
      emit requestedUserlist(roomId);
  }
 
@@ -418,10 +415,8 @@ void QwsClientSocket::handleMessageTOPIC(const QwMessage &message)
 
 /*! PRIVCHAT command (Create a new chat room)
 */
-void QwsClientSocket::handleMessagePRIVCHAT(const QwMessage &message)
+void QwsClientSocket::handleMessagePRIVCHAT(const QwMessage &)
 {
-    Q_UNUSED(message);
-    qDebug() << this << "Requested new chat room";
     resetIdleTimer();
     emit requestedNewRoom();
 }
@@ -662,7 +657,7 @@ void QwsClientSocket::handleMessageREADUSER(const QwMessage &message)
         QwMessage reply("600");
         reply.appendArg(targetAccount.login);
         reply.appendArg(targetAccount.password);
-        reply.appendArg(targetAccount.pGroupName);
+        reply.appendArg(targetAccount.group);
         targetAccount.appendPrivilegeFlagsForREADUSER(reply);
         sendMessage(reply);
     } else {
@@ -688,7 +683,7 @@ void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
     } else {
         targetAccount.setPrivilegesFromEDITUSER(message, 3);
         targetAccount.password = message.stringArg(1);
-        targetAccount.pGroupName = message.stringArg(2);
+        targetAccount.group = message.stringArg(2);
         if (!targetAccount.writeToDatabase()) {
             sendError(Qw::ErrorAccountNotFound);
         } else {

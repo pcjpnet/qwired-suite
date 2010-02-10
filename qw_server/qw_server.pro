@@ -8,8 +8,8 @@ CONFIG += silent
 CONFIG -= app_bundle
 
 
-LIBS += -L/usr/lib/ -llua5.1
-INCLUDEPATH += "/usr/local/include"
+LIBS += -L/usr/lib/debug/usr/lib -llua5.1
+INCLUDEPATH += /usr/include/lua5.1
 
 
 win32:CONFIG += console
