@@ -1,15 +1,16 @@
 #include "QwSslTcpServer.h"
 #include "QwsServerController.h"
 
-QwSslTcpServer::QwSslTcpServer(QObject *parent) : QTcpServer(parent)
+QwSslTcpServer::QwSslTcpServer(QObject *parent) :
+        QTcpServer(parent)
 {
-    initReadBufferSize = 0;
+    m_readBufferSize = 0;
 }
 
 
 QwSslTcpServer::~QwSslTcpServer()
-{
-}
+{ }
+
 
 
 /**
@@ -61,11 +62,11 @@ bool QwSslTcpServer::setCertificateFromData(const QString data)
 
 void QwSslTcpServer::incomingConnection(int socketDescriptor)
 {
-    qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor << "withBufferSize:" << initReadBufferSize;
+    qDebug() << "[ssltcpserver] New connection:"<<socketDescriptor << "withBufferSize:" << m_readBufferSize;
     QSslSocket *conn = new QSslSocket(this);
     if(conn->setSocketDescriptor(socketDescriptor)) {
         qDebug() << "[ssltcpserver] Accepted connection, setting parameters and initing handshake.";
-        conn->setReadBufferSize(initReadBufferSize);
+        conn->setReadBufferSize(m_readBufferSize);
         conn->setProtocol(QSsl::TlsV1);
         conn->setPrivateKey(pPrivateKey);
         conn->setLocalCertificate(pLocalCert);
