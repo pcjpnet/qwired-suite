@@ -76,10 +76,9 @@ public:
     void setCryptedPassword(const QString &password);
     void setCleartextPassword(const QString &password);
 
-    // Runtime user information
+    Qws::Privileges privileges() const;
+    void setPrivileges(Qws::Privileges privs);
 
-
-    int pIcon; // warning: unused in 1.1
 
 
     QByteArray pImage;
@@ -101,8 +100,7 @@ public:
     int privUploadLimit;
 
 
-    Qws::Privileges privileges() const;
-    void setPrivileges(Qws::Privileges privs);
+
 
 protected:
     Qws::Privileges m_privileges;

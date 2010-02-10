@@ -6,7 +6,6 @@ QwUser::QwUser()
 {
     m_userId = -1;
     m_idleFlag = false;
-    pIcon = 0;
     m_type = Qws::UserTypeAccount;
 
     // Default privs

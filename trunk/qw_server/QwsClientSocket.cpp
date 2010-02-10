@@ -299,13 +299,6 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
 void QwsClientSocket::handleMessageICON(const QwMessage &message)
 {
     resetIdleTimer();
-    qDebug() << this << "Received icon and image";
-    if (user.pIcon != message.stringArg(0).toInt()) {
-        user.pIcon = message.stringArg(0).toInt();
-        if (m_sessionState == Qws::StateActive) {
-            emit userStatusChanged();
-        }
-    }
 
     // Check if the user image changed
     if (message.arguments.value(1) != user.pImage) {
