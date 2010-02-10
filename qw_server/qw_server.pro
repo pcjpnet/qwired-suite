@@ -7,10 +7,13 @@ QT -= gui
 CONFIG += silent
 CONFIG -= app_bundle
 
-
-LIBS += -L/usr/lib/debug/usr/lib -llua5.1
-INCLUDEPATH += /usr/include/lua5.1
-
+macx {
+  LIBS += /usr/local/lib/liblua5.1.a
+  INCLUDEPATH += /usr/local/include/lua
+} else {
+  LIBS += -L/usr/lib/debug/usr/lib -llua5.1
+  INCLUDEPATH += /usr/include/lua5.1
+}
 
 win32:CONFIG += console
 QT += network
