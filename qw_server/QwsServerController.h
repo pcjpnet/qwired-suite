@@ -7,10 +7,6 @@
 #ifndef QWSSERVERCONTROLLER_H
 #define QWSSERVERCONTROLLER_H
 
-#include <iostream>
-#include <QtCore>
-#include <QtNetwork>
-#include <QQueue>
 
 #include "QwsClientSocket.h"
 #include "QwSslTcpServer.h"
@@ -20,24 +16,23 @@
 #include "QwsFileIndexerThread.h"
 #include "QwsTrackerController.h"
 
+typedef struct lua_State lua_State;
+
 namespace Qws {
     enum LogType { LogTypeInfo, LogTypeWarning, LogTypeFatal, LogTypeDebug };
 }
 
-class QwsServerController : public QObject
+class QwsServerController :
+        public QObject
 {
     Q_OBJECT
-    friend class QwsConsoleSocket;
 
 public:
     QwsServerController(QObject *parent = 0);
     ~QwsServerController();
 
-    static bool generateNewCertificate(QString *data=0);
-
     // Database access/configuration
-    QVariant getConfigurationParam(const QString key, const QVariant defaultValue=QVariant());
-    bool setConfigurationParam(const QString key, const QVariant value);
+    QVariant getConfigString(const QString key, const QVariant defaultValue=QVariant());
 
     /*! The total amount of bytes sent to clients in file transfers. */
     qint64 statsTotalSent;
@@ -45,29 +40,33 @@ public:
     qint64 statsTotalReceived;
     /*! If true, log messages will be sent to stdout. */
     bool logToStdout;
-    /*! If true, the user images will be sent after the login is complete to speed up the login
-        sequence on slower machines. */
-    bool delayedUserImagesEnabled;
-    /*! The server root points to a directory where the database, files and other information
-        will be stored. By default this will be the current working directory. */
-    QDir serverRootDirectory;
+
+
 
     /*! This member contains all permanently and temporarily banned addresses. The \a QDateTime part
         of the pair defines when the ban for the pattern in \a QString expires. Permanent bans have
         a Null-QDateTime object. */
     QList<QPair<QString,QDateTime> > banList;
 
-    /*! The object containing the general server information. */
-    QwServerInfo serverInfo;
+
 
 public slots:
     void reloadTrackerConfiguration();
     void reloadBanlistConfiguration();
 
-private:
+protected:
     int sessionIdCounter;
     int roomIdCounter;
     int maxTransfersPerClient;
+
+    /*! The object containing the general server information. */
+    QwServerInfo m_serverInformation;
+    /*! The server root points to a directory where the database, files and other information
+        will be stored. By default this will be the current working directory. */
+    QDir m_serverRootDirectory;
+    /*! If true, the user images will be sent after the login is complete to speed up the login
+        sequence on slower machines. */
+    bool m_delayedUserImagesEnabled;
 
     QPointer<QwSslTcpServer> sessionTcpServer;
     QPointer<QwSslTcpServer> transferTcpServer;
@@ -83,11 +82,16 @@ private:
     /*! The list of active transfer sockets. Active transfers are not in the \a transfers list. */
     QList<QPointer<QwsClientTransferSocket> > transferSockets;
 
-    QHash<int, QwsClientSocket*> sockets;
+    /*! The list of client connection sockets. */
+    QHash<int, QwsClientSocket*> m_sockets;
+    /*! The list of chat rooms. */
     QHash<int, QwRoom*> rooms;
 
     QList<QwsClientTransferSocket*> transfersWithUserId(int userId);
     void checkTransferQueue(int userId);
+
+    /*! The Lua state responsible for our configuration file. */
+    lua_State *m_configLuaState;
 
 
 signals:

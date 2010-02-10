@@ -1,12 +1,17 @@
 #ifndef QWSSLTCPSERVER_H
 #define QWSSLTCPSERVER_H
 
-#include <QtCore>
-#include <QtNetwork>
+#include <QtNetwork/QTcpServer>
+#include <QtNetwork/QSslKey>
+#include <QtNetwork/QSslCertificate>
 
-class QwSslTcpServer : public QTcpServer
+class QSslSocket;
+
+class QwSslTcpServer :
+        public QTcpServer
 {
     Q_OBJECT
+
 
 public:
     QwSslTcpServer(QObject *parent=0);
@@ -20,7 +25,7 @@ public:
     QSslCertificate pLocalCert;
 
     /*! Initialize new sockets with the specified ReadBufferSize to prevent start-peaks. Default is 0. */
-    qint64 initReadBufferSize;
+    qint64 m_readBufferSize;
 
 signals:
     void newSslConnection();
