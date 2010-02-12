@@ -42,8 +42,9 @@ public:
     qint64 statsTotalReceived;
 
 
-    bool hook_writeUser(const QwsUser &user);
-    QwsUser hook_readUser(const QString &login);
+    bool hook_writeAccount(const QwsUser &user);
+    QwsUser hook_readAccount(const QString &login);
+    QStringList hook_readAccounts();
 
 
 public slots:
