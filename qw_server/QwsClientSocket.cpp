@@ -705,24 +705,23 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeCreateAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-//    qDebug() << this << "Creating user" << message.stringArg(0);
-//    QwsUser targetUser;
-//    targetUser.name = message.stringArg(0);
-//    if (targetUser.loadFromDatabase()) {
-//        // User exists already!
-//        sendError(Qw::ErrorAccountExists);
-//    } else {
-//        // Create account and update it
-//        QSqlQuery query;
-//        query.prepare("INSERT INTO qws_accounts (acc_name) VALUES (:_name)");
-//        query.bindValue(":_name", message.stringArg(0));
-//        if (!query.exec()) {
-//            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
-//            sendError(Qw::ErrorCommandFailed);
-//            return;
-//        }
-//        handleMessageEDITUSER(message);
-//    }
+    qDebug() << this << "Creating user" << message.stringArg(0);
+
+    QwsUser targetUser;
+    targetUser.setLoginName(message.stringArg(0));
+    if (!m_serverController->hook_readUser(targetUser.loginName()).isNull()) {
+        // User exists already!
+        sendError(Qw::ErrorAccountExists);
+    } else {
+        // Create account and update it
+        targetUser.setCryptedPassword(message.stringArg(1));
+        targetUser.setGroupName(message.stringArg(2));
+        targetUser.setPrivilegesFromEDITUSER(message, 3);
+
+        if (!m_serverController->hook_writeUser(targetUser)) {
+            sendError(Qw::ErrorCommandFailed);
+        }
+    }
 }
 
 
