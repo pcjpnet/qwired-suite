@@ -234,20 +234,32 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
          user.setLoginTime(QDateTime::currentDateTime());
          user.setLastActivity(QDateTime::currentDateTime());
 
-//         if (m_serverController->hook_readUser(user)) {
-//             // Login successful
-//             QwMessage reply("201");
-//             reply.appendArg(QString::number(user.pUserID));
-//             sendMessage(reply);
-//
-//             m_sessionState = Qws::StateActive;
-//             emit sessionStateChanged(m_sessionState);
-//             emit requestedRoomTopic(1);
-//             return;
-//         }
+         QwsUser loadedUser = m_serverController->hook_readUser(user.loginName());
+         if (!loadedUser.isNull() && loadedUser.password() == user.password()) {
+
+             // Copy some additional information
+             user.setGroupName(loadedUser.groupName());
+             user.setPrivileges(loadedUser.privileges());
+             user.setDownloadSpeedLimit(loadedUser.downloadSpeedLimit());
+             user.setUploadSpeedLimit(loadedUser.uploadSpeedLimit());
+             user.setDownloadLimit(loadedUser.downloadLimit());
+             user.setUploadLimit(loadedUser.uploadLimit());
+
+             // Login successful
+             QwMessage reply("201");
+             reply.appendArg(QString::number(user.userId()));
+             sendMessage(reply);
+
+             m_sessionState = Qws::StateActive;
+             emit sessionStateChanged(m_sessionState);
+             emit requestedRoomTopic(1);
+             return;
+
+         }
      }
 
      // If in doubt, fail
+     m_serverController->qwLog(tr("Login failed for '%1'.").arg(user.loginName()));
      sendError(Qw::ErrorLoginFailed);
      disconnectClient();
      return;
