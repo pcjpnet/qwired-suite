@@ -89,22 +89,22 @@ bool QwsServerController::loadConfiguration()
 }
 
 
-/*! Calls the hook_write_user(userLogin, options, action) hook in the Lua configuration which should
+/*! Calls the hook_write_account(userLogin, options, action) hook in the Lua configuration which should
     handle this event and return a boolean.
     \param[in] user The user/group to be updated. If this is a Null-Object, the target will be
                     deleted.
 */
-bool QwsServerController::hook_writeUser(const QwsUser &user)
+bool QwsServerController::hook_writeAccount(const QwsUser &user)
 {
     if (!m_lua) { return false; }
 
     QwsUser userInfo;
 
     // get the hook function
-    lua_getglobal(m_lua, "hook_write_user");
+    lua_getglobal(m_lua, "hook_write_account");
     if (!lua_isfunction(m_lua, -1)) {
-        qwLog(tr("Unable to store account - no hook_write_user() function found."));
-        lua_pop(m_lua, 1); // hook_write_user
+        qwLog(tr("Unable to store account - no hook_write_account() function found."));
+        lua_pop(m_lua, 1); // hook_write_account
         return false;
     }
 
@@ -141,8 +141,6 @@ bool QwsServerController::hook_writeUser(const QwsUser &user)
     optionItems["p_can_not_be_disconnected"] = bool(user.privileges() & Qws::PrivilegeCanNotBeKicked);
     optionItems["p_set_chat_topic"] = bool(user.privileges() & Qws::PrivilegeChangeChatTopic);
 
-    qDebug() << optionItems;
-
     lua_newtable(m_lua);
     QHashIterator<QString,QVariant> it(optionItems);
     while (it.hasNext()) {
@@ -159,7 +157,7 @@ bool QwsServerController::hook_writeUser(const QwsUser &user)
     int result = lua_pcall(m_lua, 2, 0, 0);
     if (result != 0) {
         // function failed
-        qwLog(tr("Unable to execute hook_write_user(): %1").arg(lua_tostring(m_lua, -1)));
+        qwLog(tr("Unable to execute hook_write_account(): %1").arg(lua_tostring(m_lua, -1)));
         lua_pop(m_lua, 1); // error
         return false;
     }
@@ -170,14 +168,14 @@ bool QwsServerController::hook_writeUser(const QwsUser &user)
 
 /*! Call the script hook which retrieves a user from.
 */
-QwsUser QwsServerController::hook_readUser(const QString &login)
+QwsUser QwsServerController::hook_readAccount(const QString &login)
 {
     if (!m_lua) { return QwsUser(); }
 
     QwsUser userInfo;
 
     // get the hook function
-    lua_getglobal(m_lua, "hook_read_user");
+    lua_getglobal(m_lua, "hook_read_account");
     if (!lua_isfunction(m_lua, -1)) {
         qwLog(tr("Unable to authenticate user - no authentication function found."));
         lua_pop(m_lua, 1); // hook_check_login
@@ -189,14 +187,14 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
     int result = lua_pcall(m_lua, 1, 1, 0);
     if (result != 0) {
         // function failed
-        qwLog(tr("Unable to execute hook_read_user: %1").arg(lua_tostring(m_lua, -1)));
+        qwLog(tr("Unable to execute hook_read_account: %1").arg(lua_tostring(m_lua, -1)));
         lua_pop(m_lua, 1); // error
         return QwsUser();
     }
 
     // retrieve the options
     if (!lua_istable(m_lua, -1)) {
-        qwLog(tr("Incorrect return value for hook_read_user."));
+        qwLog(tr("Incorrect return value for hook_read_account."));
         lua_pop(m_lua, 1); // return value
         return QwsUser();
     }
@@ -262,7 +260,7 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
             privs |= Qws::PrivilegeCanNotBeKicked;
         } else if (key == "p_set_chat_topic" && flag) {
             privs |= Qws::PrivilegeChangeChatTopic;
-        } else {
+        } else if (flag) {
             qwLog(tr("Warning: Unknown info key: %1").arg(key));
         }
         lua_pop(m_lua, 1); // value
@@ -271,6 +269,49 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
 
     return userInfo;
 }
+
+
+QStringList QwsServerController::hook_readAccounts()
+{
+    if (!m_lua) { return QStringList(); }
+    QStringList foundNames;
+
+    // get the hook function
+    lua_getglobal(m_lua, "hook_read_accounts");
+    if (!lua_isfunction(m_lua, -1)) {
+        qwLog(tr("Hook function hook_read_accounts() not found!"));
+        lua_pop(m_lua, 1); // hook_read_accounts
+        return QStringList();
+    }
+
+    // push the arguments
+    int result = lua_pcall(m_lua, 0, 1, 0);
+    if (result != 0) {
+        // function failed
+        qwLog(tr("Unable to execute hook_read_accounts: %1").arg(lua_tostring(m_lua, -1)));
+        lua_pop(m_lua, 1); // error
+        return QStringList();
+    }
+
+    // retrieve the options
+    if (!lua_istable(m_lua, -1)) {
+        qwLog(tr("Incorrect return value for hook_read_accounts."));
+        lua_pop(m_lua, 1); // return value
+        return QStringList();
+    }
+
+    // iterate over info table
+    lua_pushnil(m_lua); // first key
+    while (lua_next(m_lua, -2)) {
+        if (lua_isstring(m_lua, -1)) {
+            foundNames << QString::fromUtf8(lua_tostring(m_lua, -1));
+        }
+        lua_pop(m_lua, 1); // clear value for next iteration
+    }
+
+    return foundNames;
+}
+
 
 
 /*! Return a configuration pamater identified by \a key. If the configuration parameter does not

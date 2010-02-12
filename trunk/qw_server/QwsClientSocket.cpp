@@ -234,7 +234,7 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
          user.setLoginTime(QDateTime::currentDateTime());
          user.setLastActivity(QDateTime::currentDateTime());
 
-         QwsUser loadedUser = m_serverController->hook_readUser(user.loginName());
+         QwsUser loadedUser = m_serverController->hook_readAccount(user.loginName());
          if (!loadedUser.isNull() && loadedUser.password() == user.password()) {
 
              // Copy some additional information
@@ -579,34 +579,22 @@ void QwsClientSocket::handleMessageKICK(const QwMessage &message)
 
 /*! USERS (list user accounts)
 */
-void QwsClientSocket::handleMessageUSERS(const QwMessage &message)
+void QwsClientSocket::handleMessageUSERS(const QwMessage &)
 {
     resetIdleTimer();
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    Q_UNUSED(message);
-    qDebug() << this << "Listing user accounts";
+    QStringList foundAccounts = m_serverController->hook_readAccounts();
 
-//    QSqlQuery query;
-//    query.prepare("SELECT acc_name FROM qws_accounts ORDER BY acc_name");
-//    if (!query.exec()) {
-//        qDebug() << this << "Unable to list user accounts:" << query.lastError().text();
-//        sendError(Qw::ErrorCommandFailed);
-//        return;
-//    } else {
-//        query.first();
-//        while (query.isValid()) {
-//            QwMessage reply("610");
-//            reply.appendArg(query.value(0).toString());
-//            sendMessage(reply);
-//            query.next();
-//        }
-//        // Send end of list
-//        sendMessage(QwMessage("611"));
-//    }
-     sendMessage(QwMessage("611"));
+    foreach (const QString &name, foundAccounts) {
+        QwMessage reply("610");
+        reply.appendArg(name);
+        sendMessage(reply);
+    }
 
+    // Send end of list
+    sendMessage(QwMessage("611"));
 }
 
 
@@ -653,18 +641,17 @@ void QwsClientSocket::handleMessageREADUSER(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    qDebug() << this << "Reading user" << message.stringArg(0);
-    QwsUser targetAccount;
-    targetAccount.setLoginName(message.stringArg(0));
-    if (targetAccount.loadFromDatabase()) {
+    QwsUser targetAccount = m_serverController->hook_readAccount(message.stringArg(0));
+
+    if (targetAccount.isNull()) {
+        sendError(Qw::ErrorAccountNotFound);
+    } else {
         QwMessage reply("600");
         reply.appendArg(targetAccount.loginName());
         reply.appendArg(targetAccount.password());
         reply.appendArg(targetAccount.groupName());
         targetAccount.appendPrivilegeFlagsForREADUSER(reply);
         sendMessage(reply);
-    } else {
-        sendError(Qw::ErrorAccountNotFound);
     }
 }
 
@@ -677,23 +664,22 @@ void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    qDebug() << this << "Editing user" << message.stringArg(0);
-    QwsUser targetAccount;
-    targetAccount.setLoginName(message.stringArg(0));
-    if (!targetAccount.loadFromDatabase()) {
-        // User does not exist (or error)
+    QwsUser targetUser;
+    targetUser.setLoginName(message.stringArg(0));
+    if (m_serverController->hook_readAccount(targetUser.loginName()).isNull()) {
+        // User exists already!
         sendError(Qw::ErrorAccountNotFound);
     } else {
-        targetAccount.setPrivilegesFromEDITUSER(message, 3);
-        targetAccount.setCryptedPassword(message.stringArg(1));
-        targetAccount.setGroupName(message.stringArg(2));
-        if (!targetAccount.writeToDatabase()) {
-            sendError(Qw::ErrorAccountNotFound);
-        } else {
-            emit modifiedUserAccount(targetAccount.loginName());
-        }
+        // Create account and update it
+        targetUser.setCryptedPassword(message.stringArg(1));
+        targetUser.setGroupName(message.stringArg(2));
+        targetUser.setPrivilegesFromEDITUSER(message, 3);
 
+        if (!m_serverController->hook_writeAccount(targetUser)) {
+            sendError(Qw::ErrorCommandFailed);
+        }
     }
+
 }
 
 
@@ -707,7 +693,7 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
 
     QwsUser targetUser;
     targetUser.setLoginName(message.stringArg(0));
-    if (!m_serverController->hook_readUser(targetUser.loginName()).isNull()) {
+    if (!m_serverController->hook_readAccount(targetUser.loginName()).isNull()) {
         // User exists already!
         sendError(Qw::ErrorAccountExists);
     } else {
@@ -716,7 +702,7 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
         targetUser.setGroupName(message.stringArg(2));
         targetUser.setPrivilegesFromEDITUSER(message, 3);
 
-        if (!m_serverController->hook_writeUser(targetUser)) {
+        if (!m_serverController->hook_writeAccount(targetUser)) {
             sendError(Qw::ErrorCommandFailed);
         }
     }
