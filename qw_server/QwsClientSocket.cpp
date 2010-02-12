@@ -705,8 +705,6 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeCreateAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    qDebug() << this << "Creating user" << message.stringArg(0);
-
     QwsUser targetUser;
     targetUser.setLoginName(message.stringArg(0));
     if (!m_serverController->hook_readUser(targetUser.loginName()).isNull()) {

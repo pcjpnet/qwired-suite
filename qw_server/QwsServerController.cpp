@@ -74,7 +74,7 @@ bool QwsServerController::loadConfiguration()
             return true;
         } else {
             // Error during lua_pcall()
-            qDebug() << "Fatal: Unable to execute configuration file:";// << lua_tostring(m_lua, -1);
+            qDebug() << "Fatal: Unable to execute configuration file:" << lua_tostring(m_lua, -1);
             return false;
         }
 
@@ -121,25 +121,27 @@ bool QwsServerController::hook_writeUser(const QwsUser &user)
     optionItems["download_limit"] = user.downloadLimit();
     optionItems["upload_limit"] = user.uploadLimit();
 
-    optionItems["p_get_user_info"] = bool(user.privileges() % Qws::PrivilegeGetUserInfo);
-    optionItems["p_send_broadcast"] = bool(user.privileges() % Qws::PrivilegeSendBroadcast);
-    optionItems["p_post_news"] = bool(user.privileges() % Qws::PrivilegePostNews);
-    optionItems["p_clear_news"] = bool(user.privileges() % Qws::PrivilegeClearNews);
-    optionItems["p_download_files"] = bool(user.privileges() % Qws::PrivilegeDeleteFiles);
-    optionItems["p_upload_files"] = bool(user.privileges() % Qws::PrivilegeUpload);
-    optionItems["p_upload_anywhere"] = bool(user.privileges() % Qws::PrivilegeUploadAnywhere);
-    optionItems["p_create_folders"] = bool(user.privileges() % Qws::PrivilegeCreateFolders);
-    optionItems["p_alter_files"] = bool(user.privileges() % Qws::PrivilegeAlterFiles);
-    optionItems["p_delete_files"] = bool(user.privileges() % Qws::PrivilegeDeleteFiles);
-    optionItems["p_view_drop_boxes"] = bool(user.privileges() % Qws::PrivilegeViewDropboxes);
-    optionItems["p_create_accounts"] = bool(user.privileges() % Qws::PrivilegeCreateAccounts);
-    optionItems["p_edit_accounts"] = bool(user.privileges() % Qws::PrivilegeEditAccounts);
-    optionItems["p_delete_accounts"] = bool(user.privileges() % Qws::PrivilegeDeleteAccounts);
-    optionItems["p_elevate_privileges"] = bool(user.privileges() % Qws::PrivilegeElevatePrivileges);
-    optionItems["p_kick_users"] = bool(user.privileges() % Qws::PrivilegeKickUsers);
-    optionItems["p_ban_users"] = bool(user.privileges() % Qws::PrivilegeBanUsers);
-    optionItems["p_can_not_be_disconnected"] = bool(user.privileges() % Qws::PrivilegeCanNotBeKicked);
-    optionItems["p_set_chat_topic"] = bool(user.privileges() % Qws::PrivilegeChangeChatTopic);
+    optionItems["p_get_user_info"] = bool(user.privileges() & Qws::PrivilegeGetUserInfo);
+    optionItems["p_send_broadcast"] = bool(user.privileges() & Qws::PrivilegeSendBroadcast);
+    optionItems["p_post_news"] = bool(user.privileges() & Qws::PrivilegePostNews);
+    optionItems["p_clear_news"] = bool(user.privileges() & Qws::PrivilegeClearNews);
+    optionItems["p_download_files"] = bool(user.privileges() & Qws::PrivilegeDeleteFiles);
+    optionItems["p_upload_files"] = bool(user.privileges() & Qws::PrivilegeUpload);
+    optionItems["p_upload_anywhere"] = bool(user.privileges() & Qws::PrivilegeUploadAnywhere);
+    optionItems["p_create_folders"] = bool(user.privileges() & Qws::PrivilegeCreateFolders);
+    optionItems["p_alter_files"] = bool(user.privileges() & Qws::PrivilegeAlterFiles);
+    optionItems["p_delete_files"] = bool(user.privileges() & Qws::PrivilegeDeleteFiles);
+    optionItems["p_view_drop_boxes"] = bool(user.privileges() & Qws::PrivilegeViewDropboxes);
+    optionItems["p_create_accounts"] = bool(user.privileges() & Qws::PrivilegeCreateAccounts);
+    optionItems["p_edit_accounts"] = bool(user.privileges() & Qws::PrivilegeEditAccounts);
+    optionItems["p_delete_accounts"] = bool(user.privileges() & Qws::PrivilegeDeleteAccounts);
+    optionItems["p_elevate_privileges"] = bool(user.privileges() & Qws::PrivilegeElevatePrivileges);
+    optionItems["p_kick_users"] = bool(user.privileges() & Qws::PrivilegeKickUsers);
+    optionItems["p_ban_users"] = bool(user.privileges() & Qws::PrivilegeBanUsers);
+    optionItems["p_can_not_be_disconnected"] = bool(user.privileges() & Qws::PrivilegeCanNotBeKicked);
+    optionItems["p_set_chat_topic"] = bool(user.privileges() & Qws::PrivilegeChangeChatTopic);
+
+    qDebug() << optionItems;
 
     lua_newtable(m_lua);
     QHashIterator<QString,QVariant> it(optionItems);

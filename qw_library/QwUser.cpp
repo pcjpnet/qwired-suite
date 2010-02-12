@@ -188,7 +188,7 @@ void QwUser::setIconData(const QByteArray &data)
 }
 
 int QwUser::downloadSpeedLimit() const
-{ return m_downloadLimit; }
+{ return m_downloadSpeedLimit; }
 
 void QwUser::setDownloadSpeedLimit(int limit)
 {
