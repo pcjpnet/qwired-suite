@@ -94,7 +94,6 @@ bool QwsServerController::loadConfiguration()
 QwsUser QwsServerController::hook_readUser(const QString &login)
 {
     if (!m_lua) { return QwsUser(); }
-    bool loginResult = false;
 
     QwsUser userInfo;
 
@@ -103,6 +102,7 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
     if (!lua_isfunction(m_lua, -1)) {
         qwLog(tr("Unable to authenticate user - no authentication function found."));
         lua_pop(m_lua, 1); // hook_check_login
+        return QwsUser();
     }
 
     // push the arguments
@@ -139,6 +139,10 @@ QwsUser QwsServerController::hook_readUser(const QString &login)
             userInfo.setDownloadSpeedLimit(lua_tointeger(m_lua, -1));
         } else if (key == "upload_speed_limit") {
             userInfo.setUploadSpeedLimit(lua_tointeger(m_lua, -1));
+        } else if (key == "download_limit") {
+            userInfo.setDownloadLimit(lua_tointeger(m_lua, -1));
+        } else if (key == "upload_limit") {
+            userInfo.setUploadLimit(lua_tointeger(m_lua, -1));
         } else if (key == "user_password") {
             userInfo.setCryptedPassword(QString::fromUtf8(lua_tostring(m_lua, -1)));
         } else if (key == "p_get_user_info" && flag) {
@@ -367,7 +371,8 @@ bool QwsServerController::startServer()
 
     sessionTcpServer->setCertificateFromData(certificateData);
     if (!sessionTcpServer->listen(QHostAddress(tmpAddress), tmpPort)) {
-        qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. Terminating.").arg(tmpPort).arg(sessionTcpServer->errorString()));
+        qwLog(tr("Fatal: Unable to listen on TCP port %1. %2. Terminating.")
+              .arg(tmpPort).arg(sessionTcpServer->errorString()));
         return false;
     } else {
         qwLog(tr("Started control socket listener on  %2:%1...").arg(tmpPort).arg(tmpAddress));

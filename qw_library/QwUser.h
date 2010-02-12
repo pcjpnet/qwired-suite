@@ -40,14 +40,14 @@ namespace Qws {
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qws::Privileges);
 
 
+
 class QwUser
 {
 
 public:
     QwUser();
 
-    void setPrivilegesFromQwiredSpec(const QString privileges);
-    QString privilegesFlagsAsQwiredSpec();
+    bool isNull() const;
 
     int userId() const;
     void setUserId(int id);
@@ -116,6 +116,8 @@ public:
     void setDownloadLimit(int limit);
 
 protected:
+    bool m_isNull;
+
     Qws::Privileges m_privileges;
     QString m_login;
     QString m_password;
