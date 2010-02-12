@@ -341,10 +341,10 @@ void QwsUser::setPrivilegesFromEDITUSER(const QwMessage &message, int fieldOffse
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeKickUsers; }
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeBanUsers; }
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeCanNotBeKicked; }
-    this->setDownloadSpeedLimit(message.stringArg(fieldOffset++).toInt());
-    this->setUploadSpeedLimit(message.stringArg(fieldOffset++).toInt());
-    this->setDownloadLimit(message.stringArg(fieldOffset++).toInt()); // wired 1.1
-    this->setUploadLimit(message.stringArg(fieldOffset++).toInt()); // wired 1.1
+    m_downloadSpeedLimit = message.stringArg(fieldOffset++).toInt();
+    m_uploadSpeedLimit = message.stringArg(fieldOffset++).toInt();
+    m_downloadLimit = message.stringArg(fieldOffset++).toInt(); // wired 1.1
+    m_uploadLimit = message.stringArg(fieldOffset++).toInt(); // wired 1.1
     if (message.stringArg(fieldOffset++).toInt()) { newPrivs |= Qws::PrivilegeChangeChatTopic; }
     m_privileges = newPrivs;
 }
