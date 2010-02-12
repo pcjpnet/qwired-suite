@@ -42,7 +42,7 @@ QwsServerController::~QwsServerController()
 {
     delete transferPool;
     if (m_lua) {
-        qDebug() << "Destroying";
+        qDebug() << "Destroying Lua engine";
         lua_close(m_lua);
         m_lua = NULL;
     }
@@ -86,6 +86,83 @@ bool QwsServerController::loadConfiguration()
     }
 
     return false;
+}
+
+
+/*! Calls the hook_write_user(userLogin, options, action) hook in the Lua configuration which should
+    handle this event and return a boolean.
+    \param[in] user The user/group to be updated. If this is a Null-Object, the target will be
+                    deleted.
+*/
+bool QwsServerController::hook_writeUser(const QwsUser &user)
+{
+    if (!m_lua) { return false; }
+
+    QwsUser userInfo;
+
+    // get the hook function
+    lua_getglobal(m_lua, "hook_write_user");
+    if (!lua_isfunction(m_lua, -1)) {
+        qwLog(tr("Unable to store account - no hook_write_user() function found."));
+        lua_pop(m_lua, 1); // hook_write_user
+        return false;
+    }
+
+    // push the arguments
+    lua_pushstring(m_lua, user.loginName().toUtf8());
+
+    // create the options table
+    QHash<QString,QVariant> optionItems;
+    optionItems["user_group"] = user.groupName();
+    optionItems["user_password"] = user.password();
+
+    optionItems["download_speed_limit"] = user.downloadSpeedLimit();
+    optionItems["upload_speed_limit"] = user.uploadSpeedLimit();
+    optionItems["download_limit"] = user.downloadLimit();
+    optionItems["upload_limit"] = user.uploadLimit();
+
+    optionItems["p_get_user_info"] = bool(user.privileges() % Qws::PrivilegeGetUserInfo);
+    optionItems["p_send_broadcast"] = bool(user.privileges() % Qws::PrivilegeSendBroadcast);
+    optionItems["p_post_news"] = bool(user.privileges() % Qws::PrivilegePostNews);
+    optionItems["p_clear_news"] = bool(user.privileges() % Qws::PrivilegeClearNews);
+    optionItems["p_download_files"] = bool(user.privileges() % Qws::PrivilegeDeleteFiles);
+    optionItems["p_upload_files"] = bool(user.privileges() % Qws::PrivilegeUpload);
+    optionItems["p_upload_anywhere"] = bool(user.privileges() % Qws::PrivilegeUploadAnywhere);
+    optionItems["p_create_folders"] = bool(user.privileges() % Qws::PrivilegeCreateFolders);
+    optionItems["p_alter_files"] = bool(user.privileges() % Qws::PrivilegeAlterFiles);
+    optionItems["p_delete_files"] = bool(user.privileges() % Qws::PrivilegeDeleteFiles);
+    optionItems["p_view_drop_boxes"] = bool(user.privileges() % Qws::PrivilegeViewDropboxes);
+    optionItems["p_create_accounts"] = bool(user.privileges() % Qws::PrivilegeCreateAccounts);
+    optionItems["p_edit_accounts"] = bool(user.privileges() % Qws::PrivilegeEditAccounts);
+    optionItems["p_delete_accounts"] = bool(user.privileges() % Qws::PrivilegeDeleteAccounts);
+    optionItems["p_elevate_privileges"] = bool(user.privileges() % Qws::PrivilegeElevatePrivileges);
+    optionItems["p_kick_users"] = bool(user.privileges() % Qws::PrivilegeKickUsers);
+    optionItems["p_ban_users"] = bool(user.privileges() % Qws::PrivilegeBanUsers);
+    optionItems["p_can_not_be_disconnected"] = bool(user.privileges() % Qws::PrivilegeCanNotBeKicked);
+    optionItems["p_set_chat_topic"] = bool(user.privileges() % Qws::PrivilegeChangeChatTopic);
+
+    lua_newtable(m_lua);
+    QHashIterator<QString,QVariant> it(optionItems);
+    while (it.hasNext()) {
+        it.next();
+        lua_pushstring(m_lua, it.key().toUtf8());
+        if (it.value().type() == QVariant::Bool) {
+            lua_pushboolean(m_lua, it.value().toBool());
+        } else {
+            lua_pushstring(m_lua, it.value().toString().toUtf8());
+        }
+        lua_settable(m_lua, -3);
+    }
+
+    int result = lua_pcall(m_lua, 2, 0, 0);
+    if (result != 0) {
+        // function failed
+        qwLog(tr("Unable to execute hook_write_user(): %1").arg(lua_tostring(m_lua, -1)));
+        lua_pop(m_lua, 1); // error
+        return false;
+    }
+
+    return true;
 }
 
 
