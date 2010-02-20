@@ -291,45 +291,63 @@ QwsUser QwsServerController::hook_readAccount(const QString &login, Qws::UserTyp
 }
 
 
-QStringList QwsServerController::hook_readAccounts()
+QList<QwsUser> QwsServerController::hook_readAccountsAndGroups()
 {
-    if (!m_lua) { return QStringList(); }
-    QStringList foundNames;
+    if (!m_lua) { return QList<QwsUser>(); }
+    QList<QwsUser> foundAccountsAndGroups;
 
     // get the hook function
     lua_getglobal(m_lua, "hook_read_accounts");
     if (!lua_isfunction(m_lua, -1)) {
         qwLog(tr("Hook function hook_read_accounts() not found!"));
         lua_pop(m_lua, 1); // hook_read_accounts
-        return QStringList();
+        return QList<QwsUser>();
     }
 
     // push the arguments
-    int result = lua_pcall(m_lua, 0, 1, 0);
+    int result = lua_pcall(m_lua, 0, 2, 0);
     if (result != 0) {
         // function failed
         qwLog(tr("Unable to execute hook_read_accounts: %1").arg(lua_tostring(m_lua, -1)));
         lua_pop(m_lua, 1); // error
-        return QStringList();
+        return QList<QwsUser>();
     }
 
     // retrieve the options
     if (!lua_istable(m_lua, -1)) {
         qwLog(tr("Incorrect return value for hook_read_accounts."));
         lua_pop(m_lua, 1); // return value
-        return QStringList();
+        return QList<QwsUser>();
     }
 
-    // iterate over info table
+    // Read the groups (second result)
     lua_pushnil(m_lua); // first key
     while (lua_next(m_lua, -2)) {
         if (lua_isstring(m_lua, -1)) {
-            foundNames << QString::fromUtf8(lua_tostring(m_lua, -1));
+            QwsUser item;
+            item.setType(Qws::UserTypeGroup);
+            item.setLoginName(QString::fromUtf8(lua_tostring(m_lua, -1)));
+            foundAccountsAndGroups << item;
         }
         lua_pop(m_lua, 1); // clear value for next iteration
     }
+    lua_pop(m_lua, 1); // group result
 
-    return foundNames;
+
+    // Read the users (first result)
+    lua_pushnil(m_lua); // first key
+    while (lua_next(m_lua, -2)) {
+        if (lua_isstring(m_lua, -1)) {
+            QwsUser item;
+            item.setType(Qws::UserTypeAccount);
+            item.setLoginName(QString::fromUtf8(lua_tostring(m_lua, -1)));
+            foundAccountsAndGroups << item;
+        }
+        lua_pop(m_lua, 1); // clear value for next iteration
+    }
+    lua_pop(m_lua, 1); // users result
+
+    return foundAccountsAndGroups;
 }
 
 

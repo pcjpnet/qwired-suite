@@ -586,11 +586,11 @@ void QwsClientSocket::handleMessageUSERS(const QwMessage &)
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    QStringList foundAccounts = m_serverController->hook_readAccounts();
-
-    foreach (const QString &name, foundAccounts) {
+    QList<QwsUser> foundAccounts = m_serverController->hook_readAccountsAndGroups();
+    foreach (const QwsUser &item, foundAccounts) {
+        if (item.type() != Qws::UserTypeAccount) { continue; }
         QwMessage reply("610");
-        reply.appendArg(name);
+        reply.appendArg(item.loginName());
         sendMessage(reply);
     }
 
@@ -610,27 +610,21 @@ void QwsClientSocket::handleMessageGROUPS(const QwMessage &message)
     Q_UNUSED(message);
     qDebug() << this << "Listing groups";
 
-//    QSqlQuery query;
-//    query.prepare("SELECT group_name FROM qws_groups ORDER BY group_name");
-//    if (!query.exec()) {
-//        qDebug() << this << "Unable to list user groups:" << query.lastError().text();
-//        sendError(Qw::ErrorCommandFailed);
-//        return;
-//    } else {
-//        query.first();
-//        while (query.isValid()) {
-//            QwMessage reply("620");
-//            reply.appendArg(query.value(0).toString());
-//            sendMessage(reply);
-//            query.next();
-//        }
-//        // Send end of list
-//        sendMessage(QwMessage("621"));
-//    }
 
+    resetIdleTimer();
+    if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
+        sendError(Qw::ErrorPermissionDenied); return; }
+
+    QList<QwsUser> foundAccounts = m_serverController->hook_readAccountsAndGroups();
+    foreach (const QwsUser &item, foundAccounts) {
+        if (item.type() != Qws::UserTypeGroup) { continue; }
+        QwMessage reply("620");
+        reply.appendArg(item.loginName());
+        sendMessage(reply);
+    }
+
+    // Send end of list
     sendMessage(QwMessage("621"));
-
-
 }
 
 
