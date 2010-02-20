@@ -43,7 +43,7 @@ public:
 
 
     bool hook_writeAccount(const QwsUser &user);
-    QwsUser hook_readAccount(const QString &login);
+    QwsUser hook_readAccount(const QString &login, Qws::UserType type);
     QStringList hook_readAccounts();
 
 

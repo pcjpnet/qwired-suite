@@ -109,12 +109,24 @@ bool QwsServerController::hook_writeAccount(const QwsUser &user)
     }
 
     // push the arguments
+
+    // userLogin
     lua_pushstring(m_lua, user.loginName().toUtf8());
+
+    // userType
+    if (user.type() == Qws::UserTypeAccount) {
+        lua_pushstring(m_lua, "user");
+    } else {
+        lua_pushstring(m_lua, "group");
+    }
 
     // create the options table
     QHash<QString,QVariant> optionItems;
-    optionItems["user_group"] = user.groupName();
-    optionItems["user_password"] = user.password();
+
+    if (user.type() == Qws::UserTypeAccount) {
+        optionItems["user_group"] = user.groupName();
+        optionItems["user_password"] = user.password();
+    }
 
     optionItems["download_speed_limit"] = user.downloadSpeedLimit();
     optionItems["upload_speed_limit"] = user.uploadSpeedLimit();
@@ -154,7 +166,7 @@ bool QwsServerController::hook_writeAccount(const QwsUser &user)
         lua_settable(m_lua, -3);
     }
 
-    int result = lua_pcall(m_lua, 2, 0, 0);
+    int result = lua_pcall(m_lua, 3, 0, 0);
     if (result != 0) {
         // function failed
         qwLog(tr("Unable to execute hook_write_account(): %1").arg(lua_tostring(m_lua, -1)));
@@ -168,7 +180,7 @@ bool QwsServerController::hook_writeAccount(const QwsUser &user)
 
 /*! Call the script hook which retrieves a user from.
 */
-QwsUser QwsServerController::hook_readAccount(const QString &login)
+QwsUser QwsServerController::hook_readAccount(const QString &login, Qws::UserType type)
 {
     if (!m_lua) { return QwsUser(); }
 
@@ -184,7 +196,15 @@ QwsUser QwsServerController::hook_readAccount(const QString &login)
 
     // push the arguments
     lua_pushstring(m_lua, login.toUtf8());
-    int result = lua_pcall(m_lua, 1, 1, 0);
+
+    // type
+    if (type == Qws::UserTypeAccount) {
+        lua_pushstring(m_lua, "user");
+    } else {
+        lua_pushstring(m_lua, "group");
+    }
+
+    int result = lua_pcall(m_lua, 2, 1, 0);
     if (result != 0) {
         // function failed
         qwLog(tr("Unable to execute hook_read_account: %1").arg(lua_tostring(m_lua, -1)));

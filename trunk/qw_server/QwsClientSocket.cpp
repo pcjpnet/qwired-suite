@@ -234,7 +234,8 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
          user.setLoginTime(QDateTime::currentDateTime());
          user.setLastActivity(QDateTime::currentDateTime());
 
-         QwsUser loadedUser = m_serverController->hook_readAccount(user.loginName());
+         QwsUser loadedUser = m_serverController->hook_readAccount(user.loginName(),
+                                                                   Qws::UserTypeAccount);
          if (!loadedUser.isNull() && loadedUser.password() == user.password()) {
 
              // Copy some additional information
@@ -641,7 +642,8 @@ void QwsClientSocket::handleMessageREADUSER(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    QwsUser targetAccount = m_serverController->hook_readAccount(message.stringArg(0));
+    QwsUser targetAccount = m_serverController->hook_readAccount(message.stringArg(0),
+                                                                 Qws::UserTypeAccount);
 
     if (targetAccount.isNull()) {
         sendError(Qw::ErrorAccountNotFound);
@@ -666,7 +668,8 @@ void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
 
     QwsUser targetUser;
     targetUser.setLoginName(message.stringArg(0));
-    if (m_serverController->hook_readAccount(targetUser.loginName()).isNull()) {
+    if (m_serverController->hook_readAccount(targetUser.loginName(), Qws::UserTypeAccount).isNull(),
+        Qws::UserTypeAccount) {
         // User exists already!
         sendError(Qw::ErrorAccountNotFound);
     } else {
@@ -693,7 +696,7 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
 
     QwsUser targetUser;
     targetUser.setLoginName(message.stringArg(0));
-    if (!m_serverController->hook_readAccount(targetUser.loginName()).isNull()) {
+    if (!m_serverController->hook_readAccount(targetUser.loginName(), Qws::UserTypeAccount).isNull()) {
         // User exists already!
         sendError(Qw::ErrorAccountExists);
     } else {
