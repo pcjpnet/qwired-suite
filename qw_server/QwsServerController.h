@@ -42,7 +42,7 @@ public:
     qint64 statsTotalReceived;
 
 
-    bool hook_writeAccount(const QwsUser &user);
+    bool hook_writeAccount(const QwsUser &user, bool deleteAccount = false);
     QwsUser hook_readAccount(const QString &login, Qws::UserType type);
     QList<QwsUser> hook_readAccountsAndGroups();
 

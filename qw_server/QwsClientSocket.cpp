@@ -45,9 +45,7 @@ QwsClientSocket::QwsClientSocket(QObject *parent) : QwSocket(parent)
 
 
 QwsClientSocket::~QwsClientSocket()
-{
-    qDebug() << "[qws] Destroying"<<user.userId();
-}
+{ qDebug() << "[qws] Destroying"<<user.userId(); }
 
 
 /*! Set the server controller. */
@@ -665,8 +663,7 @@ void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
     QwsUser targetUser;
     targetUser.setType(Qws::UserTypeAccount);
     targetUser.setLoginName(message.stringArg(0));
-    if (m_serverController->hook_readAccount(targetUser.loginName(), Qws::UserTypeAccount).isNull(),
-        Qws::UserTypeAccount) {
+    if (m_serverController->hook_readAccount(targetUser.loginName(), Qws::UserTypeAccount).isNull()) {
         // User exists already!
         sendError(Qw::ErrorAccountNotFound);
     } else {
@@ -714,16 +711,20 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEUSER(const QwMessage &message)
 {
-//    resetIdleTimer();
-//    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
-//        sendError(Qw::ErrorPermissionDenied); return; }
-//
-//    qDebug() << this << "Editing user" << message.stringArg(0);
-//    QwsUser targetAccount;
-//    targetAccount.setLoginName(message.stringArg(0));
-//    if (!targetAccount.deleteFromDatabase()) {
-//        sendError(Qw::ErrorAccountNotFound);
-//    }
+    resetIdleTimer();
+    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
+        sendError(Qw::ErrorPermissionDenied); return; }
+
+    QwsUser targetUser;
+    targetUser.setType(Qws::UserTypeAccount);
+    targetUser.setLoginName(message.stringArg(0));
+    if (m_serverController->hook_readAccount(targetUser.loginName(), Qws::UserTypeAccount).isNull()) {
+        sendError(Qw::ErrorAccountNotFound);
+    } else {
+        if (!m_serverController->hook_writeAccount(targetUser, true)) {
+            sendError(Qw::ErrorCommandFailed);
+        }
+    }
 }
 
 
@@ -801,16 +802,21 @@ void QwsClientSocket::handleMessageEDITGROUP(const QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEGROUP(const QwMessage &message)
 {
-//    resetIdleTimer();
-//    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
-//        sendError(Qw::ErrorPermissionDenied); return; }
-//    qDebug() << this << "Deleting group" << message.stringArg(0);
-//    QwsUser targetGroup;
-//    targetGroup.name = message.stringArg(0);
-//    targetGroup.userType = Qws::UserTypeGroup;
-//    if (!targetGroup.deleteFromDatabase()) {
-//        sendError(Qw::ErrorAccountNotFound);
-//    }
+    resetIdleTimer();
+    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
+        sendError(Qw::ErrorPermissionDenied); return; }
+
+    QwsUser targetGroup;
+    targetGroup.setType(Qws::UserTypeAccount);
+    targetGroup.setLoginName(message.stringArg(0));
+    if (m_serverController->hook_readAccount(targetGroup.loginName(), Qws::UserTypeGroup).isNull()) {
+        sendError(Qw::ErrorAccountNotFound);
+    } else {
+        if (!m_serverController->hook_writeAccount(targetGroup, true)) {
+            sendError(Qw::ErrorCommandFailed);
+        }
+    }
+
 }
 
 
