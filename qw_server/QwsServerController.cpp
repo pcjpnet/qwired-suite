@@ -19,7 +19,6 @@ QwsServerController::QwsServerController(QObject *parent) : QObject(parent)
     sessionIdCounter = 20;
     roomIdCounter = 10;
 
-
     // Initialize the transfer pool
     transferPool = new QwsTransferPool;
 

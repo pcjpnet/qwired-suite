@@ -161,12 +161,15 @@ void QwsClientSocket::handleMessageReceived(const QwMessage &message)
      // Administration
      } else if (message.commandName == "KICK") {       handleMessageKICK(message);
      } else if (message.commandName == "BAN") {        handleMessageBAN(message);
+
      } else if (message.commandName == "USERS") {      handleMessageUSERS(message);
      } else if (message.commandName == "GROUPS") {     handleMessageGROUPS(message);
+
      } else if (message.commandName == "READUSER") {   handleMessageREADUSER(message);
      } else if (message.commandName == "EDITUSER") {   handleMessageEDITUSER(message);
      } else if (message.commandName == "CREATEUSER") { handleMessageCREATEUSER(message);
      } else if (message.commandName == "DELETEUSER") { handleMessageDELETEUSER(message);
+
      } else if (message.commandName == "READGROUP") {  handleMessageREADGROUP(message);
      } else if (message.commandName == "CREATEGROUP"){ handleMessageCREATEGROUP(message);
      } else if (message.commandName == "EDITGROUP") {  handleMessageEDITGROUP(message);
@@ -638,7 +641,6 @@ void QwsClientSocket::handleMessageREADUSER(const QwMessage &message)
 
     QwsUser targetAccount = m_serverController->hook_readAccount(message.stringArg(0),
                                                                  Qws::UserTypeAccount);
-
     if (targetAccount.isNull()) {
         sendError(Qw::ErrorAccountNotFound);
     } else {
@@ -661,6 +663,7 @@ void QwsClientSocket::handleMessageEDITUSER(const QwMessage &message)
         sendError(Qw::ErrorPermissionDenied); return; }
 
     QwsUser targetUser;
+    targetUser.setType(Qws::UserTypeAccount);
     targetUser.setLoginName(message.stringArg(0));
     if (m_serverController->hook_readAccount(targetUser.loginName(), Qws::UserTypeAccount).isNull(),
         Qws::UserTypeAccount) {
@@ -689,6 +692,7 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
         sendError(Qw::ErrorPermissionDenied); return; }
 
     QwsUser targetUser;
+    targetUser.setType(Qws::UserTypeAccount);
     targetUser.setLoginName(message.stringArg(0));
     if (!m_serverController->hook_readAccount(targetUser.loginName(), Qws::UserTypeAccount).isNull()) {
         // User exists already!
@@ -710,16 +714,16 @@ void QwsClientSocket::handleMessageCREATEUSER(const QwMessage &message)
 */
 void QwsClientSocket::handleMessageDELETEUSER(const QwMessage &message)
 {
-    resetIdleTimer();
-    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
-        sendError(Qw::ErrorPermissionDenied); return; }
-
-    qDebug() << this << "Editing user" << message.stringArg(0);
-    QwsUser targetAccount;
-    targetAccount.setLoginName(message.stringArg(0));
-    if (!targetAccount.deleteFromDatabase()) {
-        sendError(Qw::ErrorAccountNotFound);
-    }
+//    resetIdleTimer();
+//    if (!user.privileges().testFlag(Qws::PrivilegeDeleteAccounts)) {
+//        sendError(Qw::ErrorPermissionDenied); return; }
+//
+//    qDebug() << this << "Editing user" << message.stringArg(0);
+//    QwsUser targetAccount;
+//    targetAccount.setLoginName(message.stringArg(0));
+//    if (!targetAccount.deleteFromDatabase()) {
+//        sendError(Qw::ErrorAccountNotFound);
+//    }
 }
 
 
@@ -731,7 +735,6 @@ void QwsClientSocket::handleMessageREADGROUP(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-    qDebug() << this << "Reading group" << message.stringArg(0);
     QwsUser targetGroup;
     targetGroup.setLoginName(message.stringArg(0));
     targetGroup.setType(Qws::UserTypeGroup);
@@ -754,25 +757,18 @@ void QwsClientSocket::handleMessageCREATEGROUP(const QwMessage &message)
     if (!user.privileges().testFlag(Qws::PrivilegeCreateAccounts)) {
         sendError(Qw::ErrorPermissionDenied); return; }
 
-//    qDebug() << this << "Creating group" << message.stringArg(0);
-//    QwsUser targetGroup;
-//    targetGroup.userType = Qws::UserTypeGroup;
-//    targetGroup.name = message.stringArg(0);
-//    if (targetGroup.loadFromDatabase()) {
-//        // User exists already!
-//        sendError(Qw::ErrorAccountExists);
-//    } else {
-//        // Create account and update it
-//        QSqlQuery query;
-//        query.prepare("INSERT INTO qws_groups (group_name) VALUES (:_name)");
-//        query.bindValue(":_name", targetGroup.name);
-//        if (!query.exec()) {
-//            qDebug() << this << "Unable to create (insert) user account:" << query.lastError().text();
-//            sendError(Qw::ErrorCommandFailed);
-//            return;
-//        }
-//        handleMessageEDITGROUP(message);
-//    }
+
+    QwsUser targetGroup;
+    targetGroup.setType(Qws::UserTypeGroup);
+    targetGroup.setLoginName(message.stringArg(0));
+    if (!m_serverController->hook_readAccount(targetGroup.loginName(), Qws::UserTypeGroup).isNull()) {
+        // User exists already!
+        sendError(Qw::ErrorAccountExists);
+    } else {
+        if (!m_serverController->hook_writeAccount(targetGroup)) {
+            sendError(Qw::ErrorCommandFailed);
+        }
+    }
 }
 
 
@@ -780,23 +776,24 @@ void QwsClientSocket::handleMessageCREATEGROUP(const QwMessage &message)
 */
 void QwsClientSocket::handleMessageEDITGROUP(const QwMessage &message)
 {
-//    resetIdleTimer();
-//    if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
-//        sendError(Qw::ErrorPermissionDenied); return; }
-//    qDebug() << this << "Editing group" << message.stringArg(0);
-//    QwsUser targetGroup;
-//    targetGroup.name = message.stringArg(0);
-//    targetGroup.userType = Qws::UserTypeGroup;
-//    if (!targetGroup.loadFromDatabase()) {
-//        sendError(Qw::ErrorAccountNotFound);
-//    } else {
-//        targetGroup.setPrivilegesFromEDITUSER(message, 1);
-//        if (!targetGroup.writeToDatabase()) {
-//            sendError(Qw::ErrorAccountNotFound);
-//        } else {
-//            emit modifiedUserGroup(targetGroup.name);
-//        }
-//    }
+    resetIdleTimer();
+    if (!user.privileges().testFlag(Qws::PrivilegeEditAccounts)) {
+        sendError(Qw::ErrorPermissionDenied); return; }
+
+    QwsUser targetGroup;
+    targetGroup.setType(Qws::UserTypeGroup);
+    targetGroup.setLoginName(message.stringArg(0));
+    if (!m_serverController->hook_readAccount(targetGroup.loginName(), Qws::UserTypeGroup).isNull()) {
+        // User exists already!
+        sendError(Qw::ErrorAccountExists);
+    } else {
+        targetGroup.setPrivilegesFromEDITUSER(message, 1);
+        if (!m_serverController->hook_writeAccount(targetGroup)) {
+            sendError(Qw::ErrorCommandFailed);
+        } else {
+            emit modifiedUserGroup(targetGroup.loginName());
+        }
+    }
 }
 
 
