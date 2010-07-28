@@ -10,7 +10,14 @@ CONFIG -= app_bundle
 macx {
   LIBS += /usr/local/lib/liblua5.1.a
   INCLUDEPATH += /usr/local/include/lua
-} else {
+}
+
+win32 {
+  LIBS += "C:\Program Files\Lua\5.1\lib\lua5.1.dll"
+  INCLUDEPATH += "C:\Program Files\Lua\5.1\include"
+}
+
+x11 {
   LIBS += -L/usr/lib/debug/usr/lib -llua5.1
   INCLUDEPATH += /usr/include/lua5.1
 }
